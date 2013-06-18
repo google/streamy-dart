@@ -1,6 +1,6 @@
 import "dart:io" as io;
-import "package:third_party/dart/args/lib/args.dart";
-import "package:third_party/dart/streamy/lib/apigenlib.dart";
+import "package:args/args.dart";
+import "package:streamy/apigenlib.dart";
 
 /// Generates an API client from a Google API discovery file.
 main() {

@@ -1,5 +1,5 @@
 import "dart:io";
-import "package:third_party/dart/streamy/lib/apigenlib.dart";
+import "package:streamy/apigenlib.dart";
 
 /// Generates test clients defined by JSON in test/generated folder.
 main() {

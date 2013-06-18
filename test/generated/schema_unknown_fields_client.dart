@@ -5,8 +5,8 @@
 library schema_unknown_fields;
 import "dart:async";
 import "dart:json";
-import "package:third_party/dart/streamy/lib/base.dart" as base;
-import "package:third_party/dart/streamy/lib/comparable.dart";
+import "package:streamy/base.dart" as base;
+import "package:streamy/comparable.dart";
 Map<String, base.TypeInfo> TYPE_REGISTRY = {
   "type#foo": new base.TypeInfo((Map json) => new Foo.fromJson(json)),
   "type#bar": new base.TypeInfo((Map json) => new Bar.fromJson(json)),

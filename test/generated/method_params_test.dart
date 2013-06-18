@@ -1,6 +1,8 @@
+library method_params_test;
+
 import "dart:json";
-import "package:third_party/dart/unittest/lib/unittest.dart";
-import "package:third_party/dart/streamy/test/generated/method_params_client.dart";
+import "package:unittest/unittest.dart";
+import "method_params_client.dart";
 
 main() {
   group("MethodParamsTest", () {
