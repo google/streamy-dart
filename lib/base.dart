@@ -3,7 +3,7 @@ library streamy_base;
 
 import "dart:async";
 import "dart:json";
-import "package:third_party/dart/streamy/lib/comparable.dart";
+import "package:streamy/comparable.dart";
 
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;

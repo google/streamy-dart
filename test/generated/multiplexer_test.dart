@@ -1,10 +1,12 @@
+library multiplexer_test;
+
 import "dart:async";
 import "dart:json";
-import "package:third_party/dart/streamy/lib/base.dart";
-import "package:third_party/dart/streamy/lib/cache.dart";
-import "package:third_party/dart/streamy/lib/multiplexer.dart";
-import "package:third_party/dart/streamy/test/generated/multiplexer_client.dart";
-import "package:third_party/dart/unittest/lib/unittest.dart";
+import "package:streamy/base.dart";
+import "package:streamy/cache.dart";
+import "package:streamy/multiplexer.dart";
+import "package:unittest/unittest.dart";
+import "multiplexer_client.dart";
 
 main() {
   group("basic multiplexer tests", () {

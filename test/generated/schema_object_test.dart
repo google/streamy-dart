@@ -1,7 +1,9 @@
+library schema_object_test;
+
 import "dart:json";
-import "package:third_party/dart/unittest/lib/unittest.dart";
-import "package:third_party/dart/streamy/lib/comparable.dart";
-import "package:third_party/dart/streamy/test/generated/schema_object_client.dart";
+import "package:streamy/comparable.dart";
+import "package:unittest/unittest.dart";
+import "schema_object_client.dart";
 
 main() {
   group("SchemaObjectTest", () {
