@@ -1,0 +1,44 @@
+{
+  "name": "MethodPostTest",
+  "schemas": {
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        },
+        "bar": {
+          "type": "string",
+          "description": "Foo's favorite bar."
+        }
+      }
+    }
+  },
+  "resources": {
+    "foos": {
+      "methods": {
+        "update": {
+          "id": "service.foos.get",
+          "path": "foos/{fooId}",
+          "name": "",
+          "request": {
+            "$ref": "Foo"
+          },
+          "httpMethod": "POST",
+          "description": "Updates a foo",
+          "parameters": {
+            "fooId": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["fooId"]
+        }
+      }
+    }
+  }
+}

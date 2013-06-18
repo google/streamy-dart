@@ -1,0 +1,44 @@
+
+class {{name}} extends base.Request {
+  static final List<String> KNOWN_PARAMETERS = [
+{{#parameters}}    "{{name}}",
+{{/parameters}}  ];
+
+  {{#payload}}{{payloadType}} get payload => base.internalGetPayload(this);{{/payload}}
+
+  String get httpMethod => "{{httpMethod}}";
+
+  String get pathFormat => "{{path}}";
+
+  bool get hasPayload => {{#payload}}true{{/payload}}{{^payload}}false{{/payload}};
+
+  {{name}}({{topLevelClassName}} root{{#payload}}, {{payloadType}} payloadEntity{{/payload}}) : super(root{{#payload}}, payloadEntity{{/payload}}) {
+{{#parameters}}{{#repeated}}    {{varName}} = new {{type}}();
+{{/repeated}}{{/parameters}}
+  }
+
+  List<String> get pathParameters => const [{{#path_parameters}}"{{name}}",{{/path_parameters}}];
+  List<String> get queryParameters => const [{{#query_parameters}}"{{name}}",{{/query_parameters}}];
+
+{{#parameters}}
+  {{type}} get {{varName}} => parameters["{{name}}"];
+
+  set {{varName}}({{type}} value) {
+    parameters["{{name}}"] = value;
+  }
+  {{type}} remove{{capVarName}}() => parameters.remove("{{name}}");
+{{/parameters}}
+
+  Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() {
+    return this.root.send(this);
+  }
+
+  {{name}} clone() => base.internalCloneFrom(new {{name}}(root{{#payload}}, _payload.clone(){{/payload}}), this);
+
+{{#hasResponse}}
+  base.Deserializer get responseDeserializer => (String str) => new {{responseType}}.fromJsonString(str);
+{{/hasResponse}}
+{{^hasResponse}}
+  base.Deserializer get responseDeserializer => base.identityFn;
+{{/hasResponse}}
+}

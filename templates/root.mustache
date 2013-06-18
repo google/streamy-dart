@@ -1,0 +1,19 @@
+
+/// Entry point to all API services for the application.
+class {{topLevelClassName}} extends base.Root {
+{{#resources}}
+  {{type}} {{name}};
+{{/resources}}
+
+  base.RequestHandler requestHandler;
+
+  {{topLevelClassName}}(this.requestHandler) {
+{{#resources}}
+    this.{{name}} = new {{type}}(this);
+{{/resources}}
+  }
+
+  Stream send(base.Request request) {
+    return requestHandler.handle(request);
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "SchemaObjectTest",
+  "schemas": {
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        },
+        "bar": {
+          "type": "string",
+          "description": "Foo's favorite bar."
+        },
+        "baz": {
+          "type": "integer",
+          "description": "It's spelled buzz."
+        },
+        "qux": {
+          "type": "string",
+          "description": "Not what it seems.",
+          "format": "double"
+        },
+        "quux": {
+          "type": "array",
+          "description": "The plural of qux",
+          "items": {
+            "type": "string",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "Bar": {
+      "id": "Bar",
+      "type": "object",
+      "properties": {
+        "foos": {
+          "type": "array",
+          "description": "A bunch of foos.",
+          "items": {
+            "$ref": "Foo"
+          }
+        }
+      }
+    }
+  }
+}

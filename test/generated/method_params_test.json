@@ -1,0 +1,50 @@
+{
+  "name": "MethodParamsTest",
+  "resources": {
+    "foos": {
+      "methods": {
+        "get": {
+          "id": "service.foos.get",
+          "path": "foos/{barId}/{fooId}",
+          "name": "",
+          "httpMethod": "GET",
+          "description": "Gets a foo",
+          "parameters": {
+            "barId": {
+              "type": "string",
+              "description": "Primary key of bar",
+              "required": true,
+              "location": "path"
+            },
+            "fooId": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            },
+            "param1": {
+              "type": "boolean",
+              "description": "A parameter",
+              "required": false,
+              "location": "query"
+            },
+            "param2": {
+              "type": "boolean",
+              "description": "Another parameter",
+              "required": false,
+              "location": "query"
+            },
+            "param3": {
+              "type": "string",
+              "description": "A repeated parameter",
+              "required": false,
+              "repeated": true,
+              "location": "query"
+            }
+          },
+          "parameterOrder": ["barId", "fooId"]
+        }
+      }
+    }
+  }
+}

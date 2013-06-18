@@ -1,0 +1,16 @@
+/**
+ * WARNING: This code was generated from templates in
+ * {{source_of_templates}}. Do not edit by hand.
+ */
+library {{api_library}};
+
+import "dart:async";
+import "dart:json";
+import "package:third_party/dart/streamy/lib/base.dart" as base;
+import "package:third_party/dart/streamy/lib/comparable.dart";
+
+Map<String, base.TypeInfo> TYPE_REGISTRY = {
+{{#types}}
+  "{{kind}}": new base.TypeInfo((Map json) => new {{name}}.fromJson(json)),
+{{/types}}
+};

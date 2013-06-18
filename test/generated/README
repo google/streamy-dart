@@ -1,0 +1,17 @@
+TODO(yjbanov): Do not require checking in generated test clients when
+               https://code.google.com/p/dart/issues/detail?id=5187 is fixed.
+
+This package contains tests that test the correctness of the client API
+generator. Tests are organized into triplets of files like this:
+
+NAME_test.json
+  Contains a sample JSON Google API discovery document.
+NAME_client.dart
+  Generated API client from the corresponsing _test.json file.
+NAME_test.dart
+  A unittest that tests the generated API client.
+
+To generate _client.dart files after you added/edited a _test.json file, run
+bin/generate_test_clients.dart. Depending on your source version control system
+you may need to make the existing files editable prior to generating test
+clients.

@@ -1,0 +1,15 @@
+name: streamy
+version: 0.0.1
+description: >
+  An experimental client API generator for services described using Google's API
+  discovery format (https://developers.google.com/discovery/v1/using#discovery-doc).
+  The generator comes with templates that generate streaming API via dart:async's
+  Stream object.
+authors:
+- Alex Rickabaugh
+- Yegor Jbanov
+homepage: https://github.com/google/streamy
+dependencies:
+  mustache: ">=0.1.5"
+  args: any
+  unittest: any
