@@ -1,8 +1,10 @@
+library method_get_test;
+
 import "dart:async";
 import "dart:json";
-import "package:third_party/dart/streamy/lib/base.dart";
-import "package:third_party/dart/streamy/test/generated/method_get_client.dart";
-import "package:third_party/dart/unittest/lib/unittest.dart";
+import "package:unittest/unittest.dart";
+import "package:streamy/base.dart";
+import "method_get_client.dart";
 
 main() {
   group("MethodGetTest", () {

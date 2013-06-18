@@ -5,8 +5,8 @@
 library method_post;
 import "dart:async";
 import "dart:json";
-import "package:third_party/dart/streamy/lib/base.dart" as base;
-import "package:third_party/dart/streamy/lib/comparable.dart";
+import "package:streamy/base.dart" as base;
+import "package:streamy/comparable.dart";
 Map<String, base.TypeInfo> TYPE_REGISTRY = {
 };
 

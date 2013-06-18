@@ -2,7 +2,7 @@ library apigen;
 
 import "dart:json" as json;
 import "dart:io" as io;
-import "package:third_party/dart/mustache/lib/mustache.dart" as mus;
+import "package:mustache/mustache.dart" as mus;
 
 part "discovery.dart";
 part "generator.dart";

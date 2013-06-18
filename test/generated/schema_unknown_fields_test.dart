@@ -1,8 +1,10 @@
+library schema_unknown_fields_test;
+
 import "dart:json";
 import "dart:mirrors";
-import "package:third_party/dart/streamy/lib/base.dart";
-import "package:third_party/dart/streamy/test/generated/schema_unknown_fields_client.dart";
-import "package:third_party/dart/unittest/lib/unittest.dart";
+import "package:streamy/base.dart";
+import "package:unittest/unittest.dart";
+import "schema_unknown_fields_client.dart";
 
 main() {
   group("Entity", () {
