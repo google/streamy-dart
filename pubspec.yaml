@@ -6,9 +6,9 @@ description: >
   The generator comes with templates that generate streaming API via dart:async's
   Stream object.
 authors:
-- Alex Rickabaugh
-- Yegor Jbanov
-homepage: https://github.com/google/streamy
+- Alex Rickabaugh <arick@google.com>
+- Yegor Jbanov <yjbanov@google.com>
+homepage: https://github.com/google/streamy-dart
 dependencies:
   mustache: ">=0.1.5"
   args: any
