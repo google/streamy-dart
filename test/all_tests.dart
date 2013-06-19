@@ -1,7 +1,4 @@
-library streamy_tests;
-
-import "package:unittest/unittest.dart";
-
+import "local_data_test.dart" as local_data_test;
 import "generated/method_get_test.dart" as method_get_test;
 import "generated/method_post_test.dart" as method_post_test;
 import "generated/method_params_test.dart" as method_params_test;
@@ -16,4 +13,5 @@ main() {
   schema_object_test.main();
   schema_unknown_fields_test.main();
   multiplexer_test.main();
+  local_data_test.main();
 }

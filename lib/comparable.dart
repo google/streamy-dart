@@ -2,17 +2,11 @@ library comparable;
 
 import "dart:collection";
 
-/// A [HashMap] which supports being compared to another [Map].
-class ComparableMap<K, V> extends HashMap<K, V> {
-
-  ComparableMap() : super();
-  factory ComparableMap.from(Map<K,V> other) {
-    return new ComparableMap<K, V>()..addAll(other);
-  }
+abstract class MapComparability {
 
   /// Equality comparison with another [Map].
   operator==(other) {
-    if (!(other is ComparableMap)) {
+    if (!(other is MapComparability)) {
       return false;
     }
 
@@ -34,6 +28,15 @@ class ComparableMap<K, V> extends HashMap<K, V> {
   /// hashCode that treats the [Map] as a set of key-value pairs (no ordering).
   int get hashCode => keys.fold(0,
       (r, k) => r + 17 * k.hashCode + this[k].hashCode * (k.hashCode % 31));
+}
+
+/// A [HashMap] which supports being compared to another [Map].
+class ComparableMap<K, V> extends HashMap<K, V> with MapComparability {
+
+  ComparableMap() : super();
+  factory ComparableMap.from(Map<K,V> other) {
+    return new ComparableMap<K, V>()..addAll(other);
+  }
 }
 
 class ComparableList<V> extends ListBase<V> {
