@@ -2,7 +2,6 @@
 library streamy_base;
 
 import "dart:async";
-import "dart:collection";
 import "dart:json";
 import "dart:mirrors";
 import "package:streamy/comparable.dart";
