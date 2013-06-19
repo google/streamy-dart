@@ -31,13 +31,8 @@ _clone(v) {
 class LocalDataMap extends Object with MapComparability implements Map {
 
   final Map _delegate = {};
-  InstanceMirror _delegateMirror;
 
-  static final Set<Symbol> MAP_MEMBERS = reflectClass(Map).members.keys.toSet();
-
-  LocalDataMap() {
-    _delegateMirror = reflect(_delegate);
-  }
+  LocalDataMap();
 
   factory LocalDataMap.of(Map other) {
     var ldm = new LocalDataMap();
@@ -45,10 +40,25 @@ class LocalDataMap extends Object with MapComparability implements Map {
     return ldm;
   }
 
-  /// Part of the [Map] interface, but natively implemented for speed.
-  dynamic operator[](key) {
-    return _delegate[key];
+  // Straight delegations from [Map]:
+
+  bool get isEmpty => _delegate.isEmpty;
+  bool get isNotEmpty => _delegate.isNotEmpty;
+  Iterable get keys => _delegate.keys;
+  int get length => _delegate.length;
+  Iterable get values => _delegate.values;
+  void clear() {
+    _delegate.clear();
   }
+  bool containsKey(key) => _delegate.containsKey(key);
+  bool containsValue(value) => _delegate.containsValue(value);
+  void forEach(void fn(k, v)) {
+    _delegate.forEach(fn);
+  }
+  dynamic remove(key) => _delegate.remove(key);
+  dynamic operator[](key) => _delegate[key];
+
+  // Overrides of [Map] behavior:
 
   /// Override of the [Map] setter interface, which wraps [Map] values in
   /// [LocalDataMap]s.
@@ -57,6 +67,16 @@ class LocalDataMap extends Object with MapComparability implements Map {
       value = new LocalDataMap.of(value);
     }
     return (_delegate[key] = value);
+  }
+
+  /// Overrides the [Map] putIfAbsent interface, which wraps [Map] values in
+  /// [LocalDataMap]s.
+  dynamic putIfAbsent(key, dynamic isAbsent()) {
+    if (!containsKey(key)) {
+      // Use the setter interface to handle the [LocalDataMap] conversion.
+      this[key] = isAbsent();
+    }
+    return this[key];
   }
 
   // Override == from the mixin in order to only allow comparison to
@@ -68,16 +88,8 @@ class LocalDataMap extends Object with MapComparability implements Map {
     return super == other;
   }
 
-  /// [noSuchMethod] handles two use cases:
-  /// 1) Delegate method invocations to [Map].
-  /// 2) Provide dot-property access to local members.
+  /// [noSuchMethod] provides dot-property access to fields.
   noSuchMethod(Invocation invocation) {
-    // Handle invocation of any member in the Map interface.
-    if (MAP_MEMBERS.contains(invocation.memberName)) {
-      return _delegateMirror.delegate(invocation);
-    }
-
-    // Member was not in the [Map] interface and thus should be in the map.
     var memberName = MirrorSystem.getName(invocation.memberName);
     if (invocation.isGetter) {
       return this[memberName];
@@ -196,7 +208,7 @@ class RawEntity implements Entity {
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
   /// Local data.
-  LocalDataMap local = new LocalDataMap();
+  final LocalDataMap local = new LocalDataMap();
 
   /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);
@@ -283,20 +295,19 @@ abstract class EntityWrapper implements Entity {
   /// a subclass of [EntityWrapper] can result in broken behavior.
   Entity clone() => _clone(_delegate.clone());
 
-  dynamic operator[](String key) {
-    if (key.contains('.')) {
-      return key.split('.').fold(this,
+  /// Walk a map-like structure through a list of keys, beginning with [this].
+  _walk(pieces) => pieces.fold(this,
           (current, keyPiece) => current != null ? current[keyPiece] : null);
-    }
-    return _delegate[key];
-  }
+
+  dynamic operator[](String key) =>
+      key.contains('.') ? _walk(key.split('.')) : _delegate[key];
 
   void operator[]=(String key, dynamic value) {
     if (key.contains('.')) {
       var keyPieces = key.split('.').toList();
+      // The last key is the one we're assigning to, not reading, so remove it.
       var assignmentKey = keyPieces.removeLast();
-      var target = keyPieces.fold(this,
-          (current, keyPiece) => current != null ? current[keyPiece] : null);
+      var target = _walk(keyPieces);
       if (target == null) {
         // Retrace the path and build the partial path which evaluated to null.
         // This isn't done during the initial navigation as an optimization.
