@@ -2,7 +2,9 @@
 library streamy_base;
 
 import "dart:async";
+import "dart:collection";
 import "dart:json";
+import "dart:mirrors";
 import "package:streamy/comparable.dart";
 
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
@@ -21,6 +23,73 @@ _clone(v) {
     return new ComparableList.from(v.map((value) => _clone(value)));
   } else {
     return v;
+  }
+}
+
+/// A [Map] that has dot-property access and equality, which backs the .local
+/// property.
+class LocalDataMap extends Object with MapComparability implements Map {
+
+  final Map _delegate = {};
+  InstanceMirror _delegateMirror;
+
+  static final Set<Symbol> MAP_MEMBERS = reflectClass(Map).members.keys.toSet();
+
+  LocalDataMap() {
+    _delegateMirror = reflect(_delegate);
+  }
+
+  factory LocalDataMap.of(Map other) {
+    var ldm = new LocalDataMap();
+    other.forEach((k, v) => ldm[k] = v);
+    return ldm;
+  }
+
+  /// Part of the [Map] interface, but natively implemented for speed.
+  dynamic operator[](key) {
+    return _delegate[key];
+  }
+
+  /// Override of the [Map] setter interface, which wraps [Map] values in
+  /// [LocalDataMap]s.
+  operator[]=(key, value) {
+    if (value is Map) {
+      value = new LocalDataMap.of(value);
+    }
+    return (_delegate[key] = value);
+  }
+
+  // Override == from the mixin in order to only allow comparison to
+  // [LocalDataMap].
+  bool operator==(other) {
+    if (other is! LocalDataMap) {
+      return false;
+    }
+    return super == other;
+  }
+
+  /// [noSuchMethod] handles two use cases:
+  /// 1) Delegate method invocations to [Map].
+  /// 2) Provide dot-property access to local members.
+  noSuchMethod(Invocation invocation) {
+    // Handle invocation of any member in the Map interface.
+    if (MAP_MEMBERS.contains(invocation.memberName)) {
+      return _delegateMirror.delegate(invocation);
+    }
+
+    // Member was not in the [Map] interface and thus should be in the map.
+    var memberName = MirrorSystem.getName(invocation.memberName);
+    if (invocation.isGetter) {
+      return this[memberName];
+    } else if (invocation.isSetter) {
+      // Setter member names have a '=' at the end, strip it.
+      var key = memberName.substring(0, memberName.length - 1);
+      this[key] = invocation.positionalArguments[0];
+    } else {
+      // This is a closure invocation for a property.
+      return Function.apply(this[memberName], invocation.positionalArguments,
+          invocation.namedArguments);
+    }
   }
 }
 
@@ -103,6 +172,9 @@ abstract class Entity {
   /// Return a JSON representation of this entity.
   Map toJson();
 
+  /// Local data associated with this entity instance.
+  LocalDataMap get local;
+
   /// Return the Streamy implementation type of this entity.
   Type get streamyType;
 
@@ -123,7 +195,10 @@ class RawEntity implements Entity {
   /// Metadata about this entity.
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
-  /// Copy this entity.
+  /// Local data.
+  LocalDataMap local = new LocalDataMap();
+
+  /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);
 
   /// Merge fields from an input map.
@@ -132,23 +207,20 @@ class RawEntity implements Entity {
     streamy._mergeFrom(input.streamy);
   }
 
-  /// Data field getter that handles dot navigation access.
   operator[](String key) {
-    if (key.contains('.')) {
-      return key.split('.').fold(_data, (cur, keyPart) =>
-          (cur != null) ? cur[keyPart] : null);
+    if (key == 'local') {
+      return local;
     }
     return _data[key];
   }
 
   /// Data field setter.
   operator[]=(String key, dynamic value) {
+    if (key == 'local') {
+      throw new ArgumentError("Can't set the value of 'local'.");
+    }
     if (value is List && value is! ComparableList) {
       value = new ComparableList.from(value);
-    }
-    if (key.contains('.')) {
-      throw new ArgumentError(
-          "Dot-navigation is not allowed when setting values: $key");
     }
     _data[key] = value;
   }
@@ -211,10 +283,34 @@ abstract class EntityWrapper implements Entity {
   /// a subclass of [EntityWrapper] can result in broken behavior.
   Entity clone() => _clone(_delegate.clone());
 
-  dynamic operator[](String key) => _delegate[key];
+  dynamic operator[](String key) {
+    if (key.contains('.')) {
+      return key.split('.').fold(this,
+          (current, keyPiece) => current != null ? current[keyPiece] : null);
+    }
+    return _delegate[key];
+  }
 
   void operator[]=(String key, dynamic value) {
-    _delegate[key] = value;
+    if (key.contains('.')) {
+      var keyPieces = key.split('.').toList();
+      var assignmentKey = keyPieces.removeLast();
+      var target = keyPieces.fold(this,
+          (current, keyPiece) => current != null ? current[keyPiece] : null);
+      if (target == null) {
+        // Retrace the path and build the partial path which evaluated to null.
+        // This isn't done during the initial navigation as an optimization.
+        var current = this;
+        var nullPath = keyPieces
+            .takeWhile((keyPiece) => (current = this[keyPiece]) != null)
+            .join('.');
+        throw new ArgumentError("Setting '$key' but part of the path " +
+            "evaluated to null: '$nullPath'.");
+      }
+      target[assignmentKey] = value;
+    } else {
+      _delegate[key] = value;
+    }
   }
 
   bool contains(String key) => _delegate.contains(key);
@@ -232,6 +328,8 @@ abstract class EntityWrapper implements Entity {
   int get hashCode => _delegate.hashCode;
 
   Map toJson() => _delegate.toJson();
+
+  LocalDataMap get local => _delegate.local;
 
   Type get streamyType;
 }
