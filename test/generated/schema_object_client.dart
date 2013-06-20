@@ -114,8 +114,9 @@ class Bar extends base.EntityWrapper {
 
 /// Entry point to all API services for the application.
 class SchemaObjectTest extends base.Root {
-  base.RequestHandler requestHandler;
-  SchemaObjectTest(this.requestHandler) {
+  final base.RequestHandler requestHandler;
+  final String servicePath;
+  SchemaObjectTest(this.requestHandler, {this.servicePath: "schemaObjectTest/v1/"}) {
   }
   Stream send(base.Request request) {
     return requestHandler.handle(request);

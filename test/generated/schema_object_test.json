@@ -1,5 +1,6 @@
 {
   "name": "SchemaObjectTest",
+  "servicePath": "schemaObjectTest/v1/",
   "schemas": {
     "Foo": {
       "id": "Foo",

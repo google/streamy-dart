@@ -87,10 +87,12 @@ class FoosResource {
 
 /// Entry point to all API services for the application.
 class MethodGetTest extends base.Root {
-  FoosResource foos;
-  base.RequestHandler requestHandler;
-  MethodGetTest(this.requestHandler) {
-    this.foos = new FoosResource(this);
+  FoosResource _foos;
+  FoosResource get foos => _foos;
+  final base.RequestHandler requestHandler;
+  final String servicePath;
+  MethodGetTest(this.requestHandler, {this.servicePath: "getTest/v1/"}) {
+    this._foos = new FoosResource(this);
   }
   Stream send(base.Request request) {
     return requestHandler.handle(request);

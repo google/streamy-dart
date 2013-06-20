@@ -1,5 +1,6 @@
 {
   "name": "MethodParamsTest",
+  "servicePath": "paramsTest/v1/",
   "resources": {
     "foos": {
       "methods": {

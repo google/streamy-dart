@@ -443,6 +443,7 @@ abstract class Request {
   String get path {
     int pos = 0;
     StringBuffer buf = new StringBuffer();
+    buf.write(this.root.servicePath);
     for (Match m in pathRegex.allMatches(pathFormat)) {
       buf.write(pathFormat.substring(pos, m.start));
       buf.write(parameters[pathFormat.substring(m.start + 1, m.end - 1)]);

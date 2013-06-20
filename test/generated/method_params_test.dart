@@ -8,7 +8,8 @@ main() {
   group("MethodParamsTest", () {
     var req;
     setUp(() {
-      req = new FoosGetRequest(null)
+      var root = new MethodParamsTest(null);
+      req = root.foos.get()
       ..barId = "abc"
       ..fooId = 123;
     });
@@ -16,14 +17,15 @@ main() {
       req
         ..param1 = true
         ..param2 = false;
-      expect(req.path, equals("foos/abc/123?param1=true&param2=false"));
+      expect(req.path, equals(
+          "paramsTest/v1/foos/abc/123?param1=true&param2=false"));
     });
     test("Missing query parameter", () {
       req.param1 = true;
-      expect(req.path, equals("foos/abc/123?param1=true"));
+      expect(req.path, equals("paramsTest/v1/foos/abc/123?param1=true"));
     });
     test("No query parameter", () {
-      expect(req.path, equals("foos/abc/123"));
+      expect(req.path, equals("paramsTest/v1/foos/abc/123"));
     });
     test("Repeated parameter type is list", () {
       expect(req.param3, new isInstanceOf<List>());
@@ -32,7 +34,8 @@ main() {
       req
         ..param1 = true
         ..param3.addAll(["foo", "bar"]);
-      expect(req.path, equals("foos/abc/123?param1=true&param3=foo&param3=bar"));
+      expect(req.path, equals(
+          "paramsTest/v1/foos/abc/123?param1=true&param3=foo&param3=bar"));
     });
   });
   group("Request object tests", () {
