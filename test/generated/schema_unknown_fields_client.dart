@@ -75,8 +75,9 @@ class Bar extends base.EntityWrapper {
 
 /// Entry point to all API services for the application.
 class SchemaUnknownFieldsTest extends base.Root {
-  base.RequestHandler requestHandler;
-  SchemaUnknownFieldsTest(this.requestHandler) {
+  final base.RequestHandler requestHandler;
+  final String servicePath;
+  SchemaUnknownFieldsTest(this.requestHandler, {this.servicePath: "schemaUnknownFieldsTest/v1/"}) {
   }
   Stream send(base.Request request) {
     return requestHandler.handle(request);

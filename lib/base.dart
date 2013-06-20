@@ -107,6 +107,11 @@ class LocalDataMap extends Object with MapComparability implements Map {
 /// The root object representing an entire API, which makes its resources
 /// available.
 abstract class Root {
+
+  /// The API service path.
+  String get servicePath;
+
+  /// Execute a [Request] and return a [Stream] of the results.
   Stream send(Request req);
 }
 

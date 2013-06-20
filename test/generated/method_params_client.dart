@@ -71,10 +71,12 @@ class FoosResource {
 
 /// Entry point to all API services for the application.
 class MethodParamsTest extends base.Root {
-  FoosResource foos;
-  base.RequestHandler requestHandler;
-  MethodParamsTest(this.requestHandler) {
-    this.foos = new FoosResource(this);
+  FoosResource _foos;
+  FoosResource get foos => _foos;
+  final base.RequestHandler requestHandler;
+  final String servicePath;
+  MethodParamsTest(this.requestHandler, {this.servicePath: "paramsTest/v1/"}) {
+    this._foos = new FoosResource(this);
   }
   Stream send(base.Request request) {
     return requestHandler.handle(request);

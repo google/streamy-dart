@@ -76,6 +76,7 @@ class Generator {
     _render(_rootTmpl, {
       "topLevelClassName": _topLevelClassName,
       "resources": resourceFields,
+      "servicePath": discovery.servicePath
     });
     return _out.toString();
   }

@@ -1,5 +1,6 @@
 {
   "name": "MultiplexerTest",
+  "servicePath": "multiplexerTest/v1/",
   "schemas": {
     "Foo": {
       "id": "Foo",
