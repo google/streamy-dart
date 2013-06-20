@@ -9,17 +9,18 @@ import "base.dart";
 class ProxyClient implements RequestHandler {
 
   /// The base url of the proxy.
-  final String baseUrl;
+  final String proxyUrl;
 
-  ProxyClient(this.baseUrl);
+  ProxyClient(this.proxyUrl);
 
   Stream handle(Request req) {
+    var url = "$proxyUrl/${req.root.servicePath}${req.path}";
     var res;
     if (req.hasPayload) {
-      res = HttpRequest.request("$baseUrl/${req.path}",
+      res = HttpRequest.request(url,
           method: req.httpMethod, sendData: req.hasPayload ? json.stringify(req.payload) : null);
     } else {
-      res = HttpRequest.request("$baseUrl/${req.path}",
+      res = HttpRequest.request(url,
           method: req.httpMethod);
     }
     return res.then((httpReq) =>

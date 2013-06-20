@@ -1,5 +1,6 @@
 {
   "name": "MethodPostTest",
+  "servicePath": "postTest/v1/",
   "schemas": {
     "Foo": {
       "id": "Foo",

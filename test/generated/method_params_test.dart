@@ -9,8 +9,8 @@ main() {
     var req;
     setUp(() {
       req = new FoosGetRequest(null)
-      ..barId = "abc"
-      ..fooId = 123;
+        ..barId = "abc"
+        ..fooId = 123;
     });
     test("All non-repeated parameters populated", () {
       req
@@ -32,7 +32,8 @@ main() {
       req
         ..param1 = true
         ..param3.addAll(["foo", "bar"]);
-      expect(req.path, equals("foos/abc/123?param1=true&param3=foo&param3=bar"));
+      expect(req.path, equals(
+          "foos/abc/123?param1=true&param3=foo&param3=bar"));
     });
   });
   group("Request object tests", () {

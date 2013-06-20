@@ -1,5 +1,6 @@
 {
   "name": "MethodGetTest",
+  "servicePath": "getTest/v1/",
   "schemas": {
     "Foo": {
       "id": "Foo",

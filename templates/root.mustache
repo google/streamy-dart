@@ -2,14 +2,16 @@
 /// Entry point to all API services for the application.
 class {{topLevelClassName}} extends base.Root {
 {{#resources}}
-  {{type}} {{name}};
+  {{type}} _{{name}};
+  {{type}} get {{name}} => _{{name}};
 {{/resources}}
 
-  base.RequestHandler requestHandler;
+  final base.RequestHandler requestHandler;
+  final String servicePath;
 
-  {{topLevelClassName}}(this.requestHandler) {
+  {{topLevelClassName}}(this.requestHandler, {this.servicePath: "{{servicePath}}"}) {
 {{#resources}}
-    this.{{name}} = new {{type}}(this);
+    this._{{name}} = new {{type}}(this);
 {{/resources}}
   }
 
