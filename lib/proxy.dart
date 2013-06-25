@@ -23,7 +23,22 @@ class ProxyClient implements RequestHandler {
       res = HttpRequest.request(url,
           method: req.httpMethod);
     }
-    return res.then((httpReq) =>
-        req.responseDeserializer(httpReq.responseText)).asStream();
+    return res.then((httpReq) {
+      if (httpReq.status != 200) {
+        throw new ProxyException(httpReq.status,
+            "API call returned status: ${httpReq.statusText}");
+      }
+      return req.responseDeserializer(httpReq.responseText);
+    }).asStream();
   }
+}
+
+class ProxyException implements Exception {
+
+  final String message;
+  final int code;
+
+  ProxyException(this.message, this.code);
+
+  String toString() => "$code: $message";
 }
