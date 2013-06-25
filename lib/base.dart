@@ -218,22 +218,44 @@ class RawEntity implements Entity {
     streamy._mergeFrom(input.streamy);
   }
 
-  operator[](String key) {
-    if (key == 'local') {
+    /// Walk a map-like structure through a list of keys, beginning with [this].
+  _walk(pieces) => pieces.fold(this,
+          (current, keyPiece) => current != null ? current[keyPiece] : null);
+
+  /// Data field getter.
+  dynamic operator[](String key) {
+    if (key == "local") {
       return local;
     }
-    return _data[key];
+    return key.contains('.') ? _walk(key.split('.')) : _data[key];
   }
 
   /// Data field setter.
-  operator[]=(String key, dynamic value) {
-    if (key == 'local') {
-      throw new ArgumentError("Can't set the value of 'local'.");
-    }
+  void operator[]=(String key, dynamic value) {
     if (value is List && value is! ComparableList) {
       value = new ComparableList.from(value);
     }
-    _data[key] = value;
+    if (key.contains('.')) {
+      var keyPieces = key.split('.').toList();
+      // The last key is the one we're assigning to, not reading, so remove it.
+      var assignmentKey = keyPieces.removeLast();
+      var target = _walk(keyPieces);
+      if (target == null) {
+        // Retrace the path and build the partial path which evaluated to null.
+        // This isn't done during the initial navigation as an optimization.
+        var current = this;
+        var nullPath = keyPieces
+            .takeWhile((keyPiece) => (current = this[keyPiece]) != null)
+            .join('.');
+        throw new ArgumentError("Setting '$key' but part of the path " +
+            "evaluated to null: '$nullPath'.");
+      }
+      target[assignmentKey] = value;
+    } else  if (key == 'local') {
+      throw new ArgumentError("Can't set the value of 'local'.");
+    } else {
+      _data[key] = value;
+    }
   }
 
   /// Returns true if entity contains a field with a given [fieldName].
@@ -294,40 +316,17 @@ abstract class EntityWrapper implements Entity {
   /// a subclass of [EntityWrapper] can result in broken behavior.
   Entity clone() => _clone(_delegate.clone());
 
-  /// Walk a map-like structure through a list of keys, beginning with [this].
-  _walk(pieces) => pieces.fold(this,
-          (current, keyPiece) => current != null ? current[keyPiece] : null);
-
-  dynamic operator[](String key) =>
-      key.contains('.') ? _walk(key.split('.')) : _delegate[key];
-
-  void operator[]=(String key, dynamic value) {
-    if (key.contains('.')) {
-      var keyPieces = key.split('.').toList();
-      // The last key is the one we're assigning to, not reading, so remove it.
-      var assignmentKey = keyPieces.removeLast();
-      var target = _walk(keyPieces);
-      if (target == null) {
-        // Retrace the path and build the partial path which evaluated to null.
-        // This isn't done during the initial navigation as an optimization.
-        var current = this;
-        var nullPath = keyPieces
-            .takeWhile((keyPiece) => (current = this[keyPiece]) != null)
-            .join('.');
-        throw new ArgumentError("Setting '$key' but part of the path " +
-            "evaluated to null: '$nullPath'.");
-      }
-      target[assignmentKey] = value;
-    } else {
-      _delegate[key] = value;
-    }
-  }
-
   bool contains(String key) => _delegate.contains(key);
 
   List<String> get fieldNames => _delegate.fieldNames;
 
   dynamic remove(String key) => _delegate.remove(key);
+
+  dynamic operator[](String key) => _delegate[key];
+
+  void operator[]=(String key, value) {
+    _delegate[key] = value;
+  }
 
   // Equality is tricky - we could be comparing different levels of nested
   // wrapping. Thus, we need to unwrap until we get to non-wrappers.
