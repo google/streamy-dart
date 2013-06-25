@@ -27,7 +27,7 @@ _clone(v) {
 
 /// A [Map] that has dot-property access and equality, which backs the .local
 /// property.
-class LocalDataMap extends Object with MapComparability implements Map {
+class LocalDataMap implements Map {
 
   final Map _delegate = {};
 
@@ -78,14 +78,8 @@ class LocalDataMap extends Object with MapComparability implements Map {
     return this[key];
   }
 
-  // Override == from the mixin in order to only allow comparison to
-  // [LocalDataMap].
-  bool operator==(other) {
-    if (other is! LocalDataMap) {
-      return false;
-    }
-    return super == other;
-  }
+  bool operator==(other) => compareMapObjects(this, other);
+  int get hashCode => hashCodeForMap(this);
 
   /// [noSuchMethod] provides dot-property access to fields.
   noSuchMethod(Invocation invocation) {

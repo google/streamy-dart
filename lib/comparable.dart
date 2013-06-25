@@ -2,41 +2,42 @@ library comparable;
 
 import "dart:collection";
 
-abstract class MapComparability {
-
-  /// Equality comparison with another [Map].
-  operator==(other) {
-    if (!(other is MapComparability)) {
-      return false;
-    }
-
-    if (keys.length != other.keys.length) {
-      return false;
-    }
-
-    for (var key in keys) {
-      if (!other.containsKey(key)) {
-        return false;
-      }
-      if (other[key] != this[key]) {
-        return false;
-      }
-    }
-    return true;
+/// Helper method to compare two (ostensible) [Map]s
+bool compareMapObjects(first, second) {
+  if (first is! Map || second is! Map) {
+    return false;
   }
 
-  /// hashCode that treats the [Map] as a set of key-value pairs (no ordering).
-  int get hashCode => keys.fold(0,
-      (r, k) => r + 17 * k.hashCode + this[k].hashCode * (k.hashCode % 31));
+  if (first.keys.length != second.keys.length) {
+    return false;
+  }
+
+  for (var key in first.keys) {
+    if (!second.containsKey(key)) {
+      return false;
+    }
+    if (second[key] != first[key]) {
+      return false;
+    }
+  }
+  return true;
 }
 
+/// Helper method to compute the hash code for [Map]s.
+int hashCodeForMap(Map map) => map.keys.fold(0,
+      (r, k) => r + 17 * k.hashCode + map[k].hashCode * (k.hashCode % 31));
+
 /// A [HashMap] which supports being compared to another [Map].
-class ComparableMap<K, V> extends HashMap<K, V> with MapComparability {
+class ComparableMap<K, V> extends HashMap<K, V> {
 
   ComparableMap() : super();
   factory ComparableMap.from(Map<K,V> other) {
     return new ComparableMap<K, V>()..addAll(other);
   }
+
+  bool operator==(other) => compareMapObjects(this, other);
+
+  int get hashCode => hashCodeForMap(this);
 }
 
 class ComparableList<V> extends ListBase<V> {
