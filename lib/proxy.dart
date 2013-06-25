@@ -32,10 +32,12 @@ class ProxyClient implements RequestHandler {
   }
 }
 
-class ProxyException extends Exception {
+class ProxyException implements Exception {
 
   final String message;
   final int code;
 
   ProxyException(this.message, this.code);
+  
+  String toString() => "$code: $message";
 }
