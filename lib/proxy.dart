@@ -24,11 +24,11 @@ class ProxyClient implements RequestHandler {
     }
     return res.then((httpReq) {
       if (httpReq.status != 200) {
-        return new Future.error(new ProxyException(httpReq.status,
-            "API call returned status: ${httpReq.statusText}")).asStream();
+        throw new ProxyException(httpReq.status,
+            "API call returned status: ${httpReq.statusText}");
       }
-      return req.responseDeserializer(httpReq.responseText).asStream();
-    });
+      return req.responseDeserializer(httpReq.responseText);
+    }).asStream();
   }
 }
 
