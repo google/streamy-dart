@@ -27,7 +27,7 @@ class ProxyClient implements RequestHandler {
         throw new ProxyException(httpReq.status,
             "API call returned status: ${httpReq.statusText}");
       }
-      req.responseDeserializer(httpReq.responseText)).asStream();
+      req.responseDeserializer(httpReq.responseText).asStream();
     });
   }
 }
