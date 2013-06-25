@@ -32,7 +32,7 @@ class ProxyClient implements RequestHandler {
   }
 }
 
-class ProxyException extends IOException {
+class ProxyException extends Exception {
 
   final String message;
   final int code;
