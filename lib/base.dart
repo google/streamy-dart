@@ -9,6 +9,10 @@ import "package:streamy/comparable.dart";
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;
 
+/// A [StreamTransformer] that de-duplicates entities. This will cause
+/// metadata about the entity (Entity.streamy) to be inaccurate, but will
+/// prevent multiple values from being published on [Stream]s when core [Entity]
+/// data has not changed.
 class EntityDedupTransformer extends StreamEventTransformer<Entity, Entity> {
   var _last = null;
 
@@ -432,6 +436,10 @@ abstract class Request {
 
   /// Parameters that will be passed on the query string.
   List<String> get queryParameters;
+
+  /// Local [Request] data (useful for setting options on requests that are)
+  /// interpreted by custom RequestHandlers.
+  final LocalDataMap local = new LocalDataMap();
 
   /// Construct a new request.
   Request(this.root, [this._payload = null]) {

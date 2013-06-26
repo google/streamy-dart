@@ -15,11 +15,5 @@ class {{topLevelClassName}} extends base.Root {
 {{/resources}}
   }
 
-  Stream send(base.Request request, {bool dedup: true}) {
-    Stream res = requestHandler.handle(request);
-    if (dedup) {
-      res = res.transform(new base.EntityDedupTransformer());
-    }
-    return res;
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }
