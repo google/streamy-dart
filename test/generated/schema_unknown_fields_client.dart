@@ -79,7 +79,11 @@ class SchemaUnknownFieldsTest extends base.Root {
   final String servicePath;
   SchemaUnknownFieldsTest(this.requestHandler, {this.servicePath: "schemaUnknownFieldsTest/v1/"}) {
   }
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
+  Stream send(base.Request request, {bool dedup: true}) {
+    Stream res = requestHandler.handle(request);
+    if (dedup) {
+      res = res.transform(new base.EntityDedupTransformer());
+    }
+    return res;
   }
 }

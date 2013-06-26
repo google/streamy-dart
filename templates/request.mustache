@@ -29,9 +29,8 @@ class {{name}} extends base.Request {
   {{type}} remove{{capVarName}}() => parameters.remove("{{name}}");
 {{/parameters}}
 
-  Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() {
-    return this.root.send(this);
-  }
+  Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send({bool dedup: true}) =>
+      this.root.send(this, dedup: dedup);
 
   {{name}} clone() => base.internalCloneFrom(new {{name}}(root{{#payload}}, _payload.clone(){{/payload}}), this);
 

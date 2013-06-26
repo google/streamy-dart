@@ -9,6 +9,17 @@ import "package:streamy/comparable.dart";
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;
 
+class EntityDedupTransformer extends StreamEventTransformer<Entity, Entity> {
+  var _last = null;
+
+  handleData(Entity data, EventSink<Entity> sink) {
+    if (data != _last) {
+      sink.add(data);
+    }
+    _last = data;
+  }
+}
+
 _clone(v) {
   if (v is Entity) {
     return v.clone();
