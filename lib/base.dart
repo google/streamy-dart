@@ -514,6 +514,19 @@ abstract class Request {
 /// Defines interface for a request handler.
 abstract class RequestHandler {
   Stream handle(Request request);
+  RequestHandler transformStreams(StreamTransformer transformer) {
+
+  }
+}
+
+class TransformingRequestHandler extends RequestHandler {
+  final RequestHandler delegate;
+  final StreamTransformer transformer;
+
+  TransformingRequestHandler(this.delegate, this.transformer);
+
+  Stream handle(Request request) =>
+      delegate.handle(request).transform(transformer);
 }
 
 dynamic nullSafeOperation(x, f(elem)) => x != null ? f(x) : null;
