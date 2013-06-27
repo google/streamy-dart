@@ -29,24 +29,6 @@ main() {
       var subject = new MethodGetTest(null);
       expect(subject.servicePath, equals("getTest/v1/"));
     });
-    group("Deduping responses", () {
-      var subject;
-      setUp(() {
-        subject = new MethodGetTest(new DoubleRequestHandler(new Foo()..id = 1));
-      });
-      test("Multiple identical responses are deduped by default", () {
-        var calls = 0;
-        subject.foos.get().send().listen(expectAsync1((Foo v) {
-          expect(v.id, equals(1));
-        }, count: 1));
-      });
-      test("Multiple identical responses are duped if requested", () {
-        var calls = 0;
-        subject.foos.get().send(dedup: false).listen(expectAsync1((Foo v) {
-          expect(v.id, equals(1));
-        }, count: 2));
-      });
-    });
   });
 }
 

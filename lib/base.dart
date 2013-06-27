@@ -514,9 +514,8 @@ abstract class Request {
 /// Defines interface for a request handler.
 abstract class RequestHandler {
   Stream handle(Request request);
-  RequestHandler transformStreams(StreamTransformer transformer) {
-
-  }
+  RequestHandler transformResponses(StreamTransformer transformer)
+      => new TransformingRequestHandler(this, transformer);
 }
 
 class TransformingRequestHandler extends RequestHandler {

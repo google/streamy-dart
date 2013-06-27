@@ -118,11 +118,5 @@ class SchemaObjectTest extends base.Root {
   final String servicePath;
   SchemaObjectTest(this.requestHandler, {this.servicePath: "schemaObjectTest/v1/"}) {
   }
-  Stream send(base.Request request, {bool dedup: true}) {
-    Stream res = requestHandler.handle(request);
-    if (dedup) {
-      res = res.transform(new base.EntityDedupTransformer());
-    }
-    return res;
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }
