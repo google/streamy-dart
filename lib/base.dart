@@ -9,6 +9,21 @@ import "package:streamy/comparable.dart";
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;
 
+/// A [StreamTransformer] that de-duplicates entities. This will cause
+/// metadata about the entity (Entity.streamy) to be inaccurate, but will
+/// prevent multiple values from being published on [Stream]s when core [Entity]
+/// data has not changed.
+class EntityDedupTransformer extends StreamEventTransformer<Entity, Entity> {
+  var _last = null;
+
+  handleData(Entity data, EventSink<Entity> sink) {
+    if (data != _last) {
+      sink.add(data);
+    }
+    _last = data;
+  }
+}
+
 _clone(v) {
   if (v is Entity) {
     return v.clone();
@@ -422,6 +437,10 @@ abstract class Request {
   /// Parameters that will be passed on the query string.
   List<String> get queryParameters;
 
+  /// Local [Request] data (useful for setting options on requests that are)
+  /// interpreted by custom RequestHandlers.
+  final LocalDataMap local = new LocalDataMap();
+
   /// Construct a new request.
   Request(this.root, [this._payload = null]) {
     if (_payload == null && hasPayload) {
@@ -495,6 +514,22 @@ abstract class Request {
 /// Defines interface for a request handler.
 abstract class RequestHandler {
   Stream handle(Request request);
+  RequestHandler transformResponses(RequestStreamTransformer transformer)
+      => new TransformingRequestHandler(this, transformer);
+}
+
+abstract class RequestStreamTransformer {
+  Stream bind(Request request, Stream stream);
+}
+
+class TransformingRequestHandler extends RequestHandler {
+  final RequestHandler delegate;
+  final RequestStreamTransformer transformer;
+
+  TransformingRequestHandler(this.delegate, this.transformer);
+
+  Stream handle(Request request) =>
+      transformer.bind(request, delegate.handle(request));
 }
 
 dynamic nullSafeOperation(x, f(elem)) => x != null ? f(x) : null;

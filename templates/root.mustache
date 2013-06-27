@@ -15,7 +15,5 @@ class {{topLevelClassName}} extends base.Root {
 {{/resources}}
   }
 
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }

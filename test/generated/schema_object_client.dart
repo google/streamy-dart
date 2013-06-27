@@ -118,7 +118,5 @@ class SchemaObjectTest extends base.Root {
   final String servicePath;
   SchemaObjectTest(this.requestHandler, {this.servicePath: "schemaObjectTest/v1/"}) {
   }
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }
