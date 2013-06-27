@@ -51,9 +51,8 @@ class FoosGetRequest extends base.Request {
     parameters["param3"] = value;
   }
   ComparableList<String> removeParam3() => parameters.remove("param3");
-  Stream send() {
-    return this.root.send(this);
-  }
+  Stream send() =>
+      this.root.send(this);
   FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);
   base.Deserializer get responseDeserializer => base.identityFn;
 }
@@ -78,7 +77,5 @@ class MethodParamsTest extends base.Root {
   MethodParamsTest(this.requestHandler, {this.servicePath: "paramsTest/v1/"}) {
     this._foos = new FoosResource(this);
   }
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }

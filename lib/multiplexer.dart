@@ -51,7 +51,7 @@ class _ActiveStream {
 
 /// The multiplexer is an intermediary that handles the routing of requests
 /// between caches and the true Apiary interface.
-class Multiplexer implements RequestHandler {
+class Multiplexer extends RequestHandler {
 
   /** Cache instance (or null for no cache). */
   final Cache _cache;

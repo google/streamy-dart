@@ -67,9 +67,8 @@ class FoosGetRequest extends base.Request {
     parameters["fooId"] = value;
   }
   int removeFooId() => parameters.remove("fooId");
-  Stream<Foo> send() {
-    return this.root.send(this);
-  }
+  Stream<Foo> send() =>
+      this.root.send(this);
   FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);
   base.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
@@ -94,7 +93,5 @@ class MethodGetTest extends base.Root {
   MethodGetTest(this.requestHandler, {this.servicePath: "getTest/v1/"}) {
     this._foos = new FoosResource(this);
   }
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }
