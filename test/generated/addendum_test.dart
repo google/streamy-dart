@@ -8,7 +8,7 @@ import "addendum_client.dart";
 
 main() {
   group("Addendum", () {
-    solo_test("Can send requests", () {
+    test("Can send requests", () {
       var subject = new AddendumTest(new ImmediateRequestHandler(new Foo()..id = 1));
       subject.foos.get().send(foo: "baz").first.then((res) {
         expect(res.id, equals(1));
@@ -24,6 +24,8 @@ class ImmediateRequestHandler implements RequestHandler {
     this.stream = new Stream.fromIterable([stringify(value.toJson())]);
   }
   Stream<Foo> handle(Request request) {
+    expect(request.local.dedup, equals(true));
+    expect(request.local.ttl, equals(800));
     expect(request.local.foo, equals("baz"));
     Deserializer d = request.responseDeserializer;
     return new StreamTransformer(
