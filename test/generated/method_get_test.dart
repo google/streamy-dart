@@ -45,3 +45,17 @@ class ImmediateRequestHandler implements RequestHandler {
         }).bind(stream);
   }
 }
+
+class DoubleRequestHandler implements RequestHandler {
+  Stream<String> stream;
+  DoubleRequestHandler(Foo value) {
+    this.stream = new Stream.fromIterable([stringify(value), stringify(value)]);
+  }
+  Stream<Foo> handle(Request request) {
+    Deserializer d = request.responseDeserializer;
+    return new StreamTransformer(
+        handleData: (String data, EventSink<Foo> sink) {
+          sink.add(d(data));
+        }).bind(stream);
+  }
+}

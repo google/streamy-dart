@@ -6,7 +6,7 @@ import "dart:json" as json;
 import "base.dart";
 
 /// A [RequestHandler] that proxies through a frontend server.
-class ProxyClient implements RequestHandler {
+class ProxyClient extends RequestHandler {
 
   /// The base url of the proxy.
   final String proxyUrl;

@@ -95,7 +95,5 @@ class MethodGetTest extends base.Root {
   MethodGetTest(this.requestHandler, {this.servicePath: "getTest/v1/"}) {
     this._foos = new FoosResource(this);
   }
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }

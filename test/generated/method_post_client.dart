@@ -96,7 +96,5 @@ class MethodPostTest extends base.Root {
   MethodPostTest(this.requestHandler, {this.servicePath: "postTest/v1/"}) {
     this._foos = new FoosResource(this);
   }
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }
