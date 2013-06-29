@@ -1,0 +1,16 @@
+{
+  "sendParams": {
+    "dedup": {
+      "type": "bool",
+      "default": "true"
+    },
+    "ttl": {
+      "type": "int",
+      "default": 800
+    },
+    "foo": {
+      "type": "String",
+      "default": "Bar"
+    }
+  }
+}

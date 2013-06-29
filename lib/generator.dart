@@ -43,7 +43,7 @@ class Generator {
   }
 
   /// Generates API client code and returns it as a string.
-  String generate(String libName, Discovery discovery) {
+  String generate(String libName, Discovery discovery, {Map addendumData: const {}}) {
     this._out = new StringBuffer();
     this._topLevelClassName = capitalize(discovery.name);
 
@@ -68,9 +68,22 @@ class Generator {
       processType(name, type);
     });
 
+    var sendParams = [];
+    if (addendumData.containsKey("sendParams")) {
+      addendumData["sendParams"].forEach((key, value) {
+        value["name"] = key;
+        value["last"] = false;
+        if (value["type"] == "String") {
+          value["default"] = "\"${value["default"]}\"";
+        }
+        sendParams.add(value);
+      });
+      sendParams[sendParams.length - 1]["last"] = true;
+    }
+
     List<Map> resourceFields = new List.from(
         discovery.resources.map((Resource resource) {
-          return processResource(resource);
+          return processResource(resource, sendParams);
         }));
 
     _render(_rootTmpl, {
@@ -105,11 +118,11 @@ class Generator {
     _out.write(clean.toString());
   }
 
-  Map processResource(Resource resource) {
+  Map processResource(Resource resource, Map sendParams) {
     // TODO(yjbanov): support sub-resources
     List<Map> methods = [];
     resource.methods.forEach((Method method) {
-      MethodInfo methodInfo = processMethod(resource, method);
+      MethodInfo methodInfo = processMethod(resource, method, sendParams);
       var methodData = {
         "name": method.name,
         "reqType": methodInfo.requestTypeName,
@@ -128,7 +141,7 @@ class Generator {
     return resourceData;
   }
 
-  MethodInfo processMethod(Resource resource, Method method) {
+  MethodInfo processMethod(Resource resource, Method method, List sendParams) {
     MethodInfo methodInfo = new MethodInfo(this, resource, method);
     List<Map> parameters = [];
     List<Map> pathParameters = [];
@@ -165,6 +178,9 @@ class Generator {
       "path_parameters": pathParameters,
       "query_parameters": queryParameters,
       "hasResponse": [],
+      "sendOptionalParams": {},
+      "sendParams": sendParams,
+      "hasSendParams": sendParams.isNotEmpty
     };
 
     if (methodInfo.hasResponse) {

@@ -29,7 +29,17 @@ class {{name}} extends base.Request {
   {{type}} remove{{capVarName}}() => parameters.remove("{{name}}");
 {{/parameters}}
 
-  Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() {
+  Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send(
+  {{#hasSendParams}} { {{/hasSendParams}}
+    {{#sendParams}}
+      {{type}} {{name}}: {{default}}
+      {{^last}},{{/last}}
+    {{/sendParams}}
+  {{#hasSendParams}} } {{/hasSendParams}}
+  ) {
+    {{#sendParams}}
+      this.local["{{name}}"] = {{name}};
+    {{/sendParams}}
     return this.root.send(this);
   }
 

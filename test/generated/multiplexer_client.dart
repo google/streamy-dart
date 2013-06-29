@@ -67,7 +67,8 @@ class FoosGetRequest extends base.Request {
     parameters["fooId"] = value;
   }
   int removeFooId() => parameters.remove("fooId");
-  Stream<Foo> send() {
+  Stream<Foo> send(
+  ) {
     return this.root.send(this);
   }
   FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);

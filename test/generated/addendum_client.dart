@@ -2,7 +2,7 @@
  * WARNING: This code was generated from templates in
  * folder templates. Do not edit by hand.
  */
-library method_get;
+library addendum;
 import "dart:async";
 import "dart:json";
 import "package:streamy/base.dart" as base;
@@ -58,7 +58,7 @@ class FoosGetRequest extends base.Request {
   String get httpMethod => "GET";
   String get pathFormat => "foos/{fooId}";
   bool get hasPayload => false;
-  FoosGetRequest(MethodGetTest root) : super(root) {
+  FoosGetRequest(AddendumTest root) : super(root) {
   }
   List<String> get pathParameters => const ["fooId",];
   List<String> get queryParameters => const [];
@@ -68,7 +68,17 @@ class FoosGetRequest extends base.Request {
   }
   int removeFooId() => parameters.remove("fooId");
   Stream<Foo> send(
+   { 
+      bool dedup: true
+      ,
+      int ttl: 800
+      ,
+      String foo: "Bar"
+   } 
   ) {
+      this.local["dedup"] = dedup;
+      this.local["ttl"] = ttl;
+      this.local["foo"] = foo;
     return this.root.send(this);
   }
   FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);
@@ -76,7 +86,7 @@ class FoosGetRequest extends base.Request {
 }
 
 class FoosResource {
-  final MethodGetTest _root;
+  final AddendumTest _root;
   static final List<String> KNOWN_METHODS = [
     "get",
   ];
@@ -87,12 +97,12 @@ class FoosResource {
 }
 
 /// Entry point to all API services for the application.
-class MethodGetTest extends base.Root {
+class AddendumTest extends base.Root {
   FoosResource _foos;
   FoosResource get foos => _foos;
   final base.RequestHandler requestHandler;
   final String servicePath;
-  MethodGetTest(this.requestHandler, {this.servicePath: "getTest/v1/"}) {
+  AddendumTest(this.requestHandler, {this.servicePath: "addendum/v1/"}) {
     this._foos = new FoosResource(this);
   }
   Stream send(base.Request request) {
