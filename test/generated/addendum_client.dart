@@ -105,7 +105,5 @@ class AddendumApi extends base.Root {
   AddendumApi(this.requestHandler, {this.servicePath: "addendum/v1/"}) {
     this._foos = new FoosResource(this);
   }
-  Stream send(base.Request request) {
-    return requestHandler.handle(request);
-  }
+  Stream send(base.Request request) => requestHandler.handle(request);
 }
