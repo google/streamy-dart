@@ -28,12 +28,44 @@ int hashCodeForMap(Map map) => map.keys.fold(0,
       (r, k) => r + 17 * k.hashCode + map[k].hashCode * (k.hashCode % 31));
 
 /// A [HashMap] which supports being compared to another [Map].
-class ComparableMap<K, V> extends HashMap<K, V> {
+class ComparableMap<K, V> implements Map<K, V> {
 
-  ComparableMap() : super();
+  final Map<K, V> _delegate = new Map<K, V>();
+
+  ComparableMap();
   factory ComparableMap.from(Map<K,V> other) {
     return new ComparableMap<K, V>()..addAll(other);
   }
+
+  V operator[](K key) => _delegate[key];
+  void operator[]=(K key, V value) {
+    _delegate[key] = value;
+  }
+
+  bool get isEmpty => _delegate.isEmpty;
+  bool get isNotEmpty => _delegate.isNotEmpty;
+  Iterable<K> get keys => _delegate.keys;
+  int get length => _delegate.length;
+  Iterable<V> get values => _delegate.values;
+
+  void addAll(Map<K, V> other) {
+    _delegate.addAll(other);
+  }
+
+  void clear() {
+    _delegate.clear();
+  }
+
+
+  bool containsKey(K key) => _delegate.containsKey(key);
+  bool containsValue(V value) => _delegate.containsValue(value);
+  void forEach(void action(K key, V value)) {
+    _delegate.forEach(action);
+  }
+
+  V putIfAbsent(K key, V ifAbsent()) => _delegate.putIfAbsent(key, ifAbsent);
+  V remove(Key key) => _delegate.remove(key);
+  String toString() => _delegate.toString();
 
   bool operator==(other) => compareMapObjects(this, other);
 
@@ -42,7 +74,7 @@ class ComparableMap<K, V> extends HashMap<K, V> {
 
 class ComparableList<V> extends ListBase<V> {
 
-  List<V> _delegate = new List<V>();
+  final List<V> _delegate = new List<V>();
 
   ComparableList();
 
