@@ -27,7 +27,7 @@ bool compareMapObjects(first, second) {
 int hashCodeForMap(Map map) => map.keys.fold(0,
       (r, k) => r + 17 * k.hashCode + map[k].hashCode * (k.hashCode % 31));
 
-/// A [HashMap] which supports being compared to another [Map].
+/// A [Map] which supports being compared to another [Map].
 class ComparableMap<K, V> implements Map<K, V> {
 
   final Map<K, V> _delegate = new Map<K, V>();
