@@ -9,7 +9,7 @@ import "addendum_client.dart";
 main() {
   group("Addendum", () {
     test("Can send requests", () {
-      var subject = new AddendumTest(new ImmediateRequestHandler(new Foo()..id = 1));
+      var subject = new AddendumApi(new ImmediateRequestHandler(new Foo()..id = 1));
       subject.foos.get().send(foo: "baz").first.then((res) {
         expect(res.id, equals(1));
       });

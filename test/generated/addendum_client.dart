@@ -58,7 +58,7 @@ class FoosGetRequest extends base.Request {
   String get httpMethod => "GET";
   String get pathFormat => "foos/{fooId}";
   bool get hasPayload => false;
-  FoosGetRequest(AddendumTest root) : super(root) {
+  FoosGetRequest(AddendumApi root) : super(root) {
   }
   List<String> get pathParameters => const ["fooId",];
   List<String> get queryParameters => const [];
@@ -86,7 +86,7 @@ class FoosGetRequest extends base.Request {
 }
 
 class FoosResource {
-  final AddendumTest _root;
+  final AddendumApi _root;
   static final List<String> KNOWN_METHODS = [
     "get",
   ];
@@ -97,12 +97,12 @@ class FoosResource {
 }
 
 /// Entry point to all API services for the application.
-class AddendumTest extends base.Root {
+class AddendumApi extends base.Root {
   FoosResource _foos;
   FoosResource get foos => _foos;
   final base.RequestHandler requestHandler;
   final String servicePath;
-  AddendumTest(this.requestHandler, {this.servicePath: "addendum/v1/"}) {
+  AddendumApi(this.requestHandler, {this.servicePath: "addendum/v1/"}) {
     this._foos = new FoosResource(this);
   }
   Stream send(base.Request request) {

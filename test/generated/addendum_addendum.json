@@ -1,4 +1,5 @@
 {
+  "topLevelClassName": "AddendumApi",
   "sendParams": {
     "dedup": {
       "type": "bool",

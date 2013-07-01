@@ -46,6 +46,9 @@ class Generator {
   String generate(String libName, Discovery discovery, {Map addendumData: const {}}) {
     this._out = new StringBuffer();
     this._topLevelClassName = capitalize(discovery.name);
+    if (addendumData.containsKey("topLevelClassName")) {
+      this._topLevelClassName = addendumData["topLevelClassName"];
+    }
 
     var types = [];
     discovery.schemas.forEach((String name, TypeDescriptor schema) {
