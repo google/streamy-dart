@@ -52,6 +52,8 @@ abstract class StreamyHttpHandler {
 
 class DartHtmlHttpHandler implements StreamyHttpHandler {
 
+  const DartHtmlHttpHandler();
+
   Future<StreamyHttpResponse> request(String url, String method, [String payload = null]) {
     var res;
     if (payload != null) {
