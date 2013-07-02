@@ -170,6 +170,13 @@ class TypeInfo {
 
 /// Public interface of Streamy entities.
 abstract class Entity {
+
+  /// Create a new [DynamicEntity].
+  factory Entity() => new DynamicEntity();
+
+  /// Create a [DynamicEntity] from a [Map].
+  factory Entity.fromMap(Map data) => new DynamicEntity.fromMap(data);
+
   /// Access metadata exposed by Streamy about this entity.
   StreamyEntityMetadata get streamy;
 
@@ -291,6 +298,30 @@ class RawEntity implements Entity {
   int get hashCode => _data.hashCode;
 
   Type get streamyType => RawEntity;
+}
+
+class DynamicEntity extends RawEntity {
+
+  DynamicEntity() : super();
+
+  DynamicEntity.fromMap(Map data) {
+    data.forEach((key, value) {
+      this[key] = value;
+    });
+  }
+
+  noSuchMethod(Invocation invocation) {
+    var memberName = MirrorSystem.getName(invocation.memberName);
+    if (invocation.isGetter) {
+      return this[memberName];
+    } else if (invocation.isSetter) {
+      // Setter member names have a '=' at the end, strip it.
+      var key = memberName.substring(0, memberName.length - 1);
+      this[key] = invocation.positionalArguments[0];
+    }
+  }
+
+  Type get streamyType => DynamicEntity;
 }
 
 /// A function that clones an [EntityWrapper], given a clone of its wrapped
