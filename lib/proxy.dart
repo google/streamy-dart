@@ -10,25 +10,19 @@ class ProxyClient extends RequestHandler {
 
   /// The base url of the proxy.
   final String proxyUrl;
+  final StreamyHttpHandler httpHandler;
 
-  ProxyClient(this.proxyUrl);
+  ProxyClient(this.proxyUrl, {this.httpHandler: const DartHtmlHttpHandler()});
 
   Stream handle(Request req) {
     var url = "$proxyUrl/${req.root.servicePath}${req.path}";
-    var res;
-    if (req.hasPayload) {
-      res = HttpRequest.request(url,
-          method: req.httpMethod, sendData: req.hasPayload ? json.stringify(req.payload) : null);
-    } else {
-      res = HttpRequest.request(url,
-          method: req.httpMethod);
-    }
-    return res.then((httpReq) {
-      if (httpReq.status != 200) {
-        throw new ProxyException(httpReq.status,
-            "API call returned status: ${httpReq.statusText}");
+    var payload = req.hasPayload ? json.stringify(req.payload) : null;
+    httpHandler.request(url, req.httpMethod, payload).then((resp) {
+      if (resp.statusCode != 200) {
+        throw new ProxyException(httpReq.statusCode,
+            "API call returned status: ${resp.statusText}");
       }
-      return req.responseDeserializer(httpReq.responseText);
+      return req.responseDeserializer(resp.body);
     }).asStream();
   }
 }
@@ -42,3 +36,30 @@ class ProxyException implements Exception {
 
   String toString() => "$code: $message";
 }
+
+class StreamyHttpResponse {
+  final int statusCode;
+  final String statusText;
+  final String body;
+
+  StreamyHttpResponse(this.statusCode, this.statusText, this.body);
+}
+
+abstract class StreamyHttpHandler {
+
+  Future<StreamyHttpResponse> request(String url, String method, [String payload = null]);
+}
+
+class DartHtmlHttpHandler implements StreamyHttpHandler {
+
+  Future<StreamyHttpResponse> request(String url, String method, [String payload = null]) {
+    var res;
+    if (payload != null) {
+      res = HttpRequest.request(url, method: method, sendData: payload);
+    } else {
+      res = HttpRequest.request(url, method: method);
+    }
+    return res.then((resp) {
+      return new StreamyHttpResponse(resp.status, resp.statusText, resp.responseText);
+    });
+  }
