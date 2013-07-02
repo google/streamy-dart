@@ -63,3 +63,4 @@ class DartHtmlHttpHandler implements StreamyHttpHandler {
       return new StreamyHttpResponse(resp.status, resp.statusText, resp.responseText);
     });
   }
+}
