@@ -11,7 +11,7 @@ main() {
     var discovery = new Discovery.fromJsonString(json);
     var clientFile = new io.File(options.clientFile);
     var addendumData = {};
-    if (!options.addendumFile.isEmpty) {
+    if (options.addendumFile != null) {
       var addendumFile = new io.File(options.addendumFile);
       addendumData = parse(addendumFile.readAsStringSync());
     }
