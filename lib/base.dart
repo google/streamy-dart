@@ -282,7 +282,7 @@ class RawEntity extends Entity {
       value = new ComparableList.from(value);
     }
     if (value is Function && !key.startsWith("local.")) {
-      throw new ClosureInEntityException(key, value);
+      throw new ClosureInEntityException(key, value.toString());
     }
     if (key.contains('.')) {
       var keyPieces = key.split('.').toList();
