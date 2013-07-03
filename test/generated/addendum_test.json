@@ -1,0 +1,45 @@
+{
+  "name": "AddendumTest",
+  "servicePath": "addendum/v1/",
+  "schemas": {
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        },
+        "bar": {
+          "type": "string",
+          "description": "Foo's favorite bar."
+        }
+      }
+    }
+  },
+  "resources": {
+    "foos": {
+      "methods": {
+        "get": {
+          "id": "service.foos.get",
+          "path": "foos/{fooId}",
+          "name": "",
+          "response": {
+            "$ref": "Foo"
+          },
+          "httpMethod": "GET",
+          "description": "Gets a foo",
+          "parameters": {
+            "fooId": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["fooId"]
+        }
+      }
+    }
+  }
+}
