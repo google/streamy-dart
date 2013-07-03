@@ -29,8 +29,16 @@ class {{name}} extends base.Request {
   {{type}} remove{{capVarName}}() => parameters.remove("{{name}}");
 {{/parameters}}
 
-  Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() =>
-      this.root.send(this);
+  {{^hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() =>
+      this.root.send(this);{{/hasSendParams}}
+  {{#hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send({
+{{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
+{{/sendParams}}
+{{#sendParams}}
+    this.local["{{name}}"] = {{name}};
+{{/sendParams}}
+    return this.root.send(this);
+  }{{/hasSendParams}}
 
   {{name}} clone() => base.internalCloneFrom(new {{name}}(root{{#payload}}, _payload.clone(){{/payload}}), this);
 
