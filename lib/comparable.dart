@@ -64,7 +64,7 @@ class ComparableMap<K, V> implements Map<K, V> {
   }
 
   V putIfAbsent(K key, V ifAbsent()) => _delegate.putIfAbsent(key, ifAbsent);
-  V remove(Key key) => _delegate.remove(key);
+  V remove(K key) => _delegate.remove(key);
   String toString() => _delegate.toString();
 
   bool operator==(other) => compareMapObjects(this, other);
