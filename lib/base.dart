@@ -26,7 +26,7 @@ class EntityDedupTransformer extends StreamEventTransformer<Entity, Entity> {
 
 /// A [StreamTransformer] that closes the stream after the RPC reply is
 /// received.
-class SingleRequestTransformer implements StreamTransformer<Entity, Entity> {
+class OneShotRequestTransformer implements StreamTransformer<Entity, Entity> {
 
   Stream<Entity> bind(Stream<Entity> input) {
     var output = new StreamController<Entity>();

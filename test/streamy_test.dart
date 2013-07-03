@@ -95,7 +95,7 @@ main() {
         }));
     });
   });
-  group("SingleRequestTransformer", () {
+  group("OneShotRequestTransformer", () {
     var a = new RawEntity()
       ..['id'] = 'foo'
       ..['seq'] = 1
@@ -116,13 +116,13 @@ main() {
     });
     test("handles one RPC response correctly", () {
       var onlyResponse = rpcOnly
-        .transform(new SingleRequestTransformer())
+        .transform(new OneShotRequestTransformer())
         .single;
       asyncExpect(onlyResponse.then((e) => e.streamy.source), equals("RPC"));
     });
     test("handles multiple responses correctly", () {
       var stream = cacheAndRpc
-        .transform(new SingleRequestTransformer())
+        .transform(new OneShotRequestTransformer())
         .asBroadcastStream();
       asyncExpect(stream.first.then((e) => e.streamy.source), equals("CACHE"));
       asyncExpect(stream.last.then((e) => e.streamy.source), equals("RPC"));
