@@ -477,8 +477,8 @@ abstract class Request {
   /// Parameters that will be passed on the query string.
   List<String> get queryParameters;
 
-  /// Local [Request] data (useful for setting options on requests that are)
-  /// interpreted by custom RequestHandlers.
+  /// Local data map, used to pass arbitrary information about this request to
+  /// the [RequestHandler].
   final LocalDataMap local = new LocalDataMap();
 
   /// Construct a new request.
