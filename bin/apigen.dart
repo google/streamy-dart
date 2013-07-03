@@ -44,7 +44,7 @@ ApigenOptions parseArgs() {
       args["client_file"],
       args["library_name"],
       args["addendum_file"],
-      args["templates_dir"],
+      args["templates_dir"]
   );
   if (!validateOptions(options)) {
     print(argp.getUsage());
