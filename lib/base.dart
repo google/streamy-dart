@@ -171,6 +171,8 @@ class TypeInfo {
 /// Public interface of Streamy entities.
 abstract class Entity {
 
+  Entity._internal();
+
   /// Create a new [DynamicEntity].
   factory Entity() => new DynamicEntity();
 
@@ -215,11 +217,18 @@ abstract class Entity {
 
   /// Get the hashCode of this entity.
   int get hashCode;
+
+  noSuchMethod(Invocation invocation) {
+    String memberName = MirrorSystem.getName(invocation.memberName);
+    throw new NoSuchMethodError(this, memberName, invocation.positionalArguments, invocation.namedArguments);
+  }
 }
 
 /// Parent of all data transfer objects. Provides map-like methods for
 /// accessing field values.
-class RawEntity implements Entity {
+class RawEntity extends Entity {
+
+  RawEntity() : super._internal();
 
   /// Actual fields of the Apiary entity.
   var _data = new ComparableMap<String, dynamic>();
@@ -331,7 +340,7 @@ typedef EntityWrapper EntityWrapperCloneFn(Entity delegateClone);
 
 /// Wraps an [Entity] and delegates to it. This is the base class for all
 /// generated entities.
-abstract class EntityWrapper implements Entity {
+abstract class EntityWrapper extends Entity {
 
   final Entity _delegate;
 
@@ -341,7 +350,7 @@ abstract class EntityWrapper implements Entity {
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone);
+  EntityWrapper.wrap(this._delegate, this._clone) : super._internal();
 
   /// Get the root entity for this wrapper. Wrappers can compose other wrappers,
   /// so this will follow that chain until the root [Entity] is discovered.
