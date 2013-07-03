@@ -181,7 +181,6 @@ class Generator {
       "path_parameters": pathParameters,
       "query_parameters": queryParameters,
       "hasResponse": [],
-      "sendOptionalParams": {},
       "sendParams": sendParams,
       "hasSendParams": sendParams.isNotEmpty
     };

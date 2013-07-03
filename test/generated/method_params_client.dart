@@ -51,10 +51,8 @@ class FoosGetRequest extends base.Request {
     parameters["param3"] = value;
   }
   ComparableList<String> removeParam3() => parameters.remove("param3");
-  Stream send(
-  ) {
-    return this.root.send(this);
-  }
+  Stream send() =>
+      this.root.send(this);
   FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);
   base.Deserializer get responseDeserializer => base.identityFn;
 }

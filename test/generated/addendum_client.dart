@@ -67,18 +67,13 @@ class FoosGetRequest extends base.Request {
     parameters["fooId"] = value;
   }
   int removeFooId() => parameters.remove("fooId");
-  Stream<Foo> send(
-   { 
-      bool dedup: true
-      ,
-      int ttl: 800
-      ,
-      String foo: "Bar"
-   } 
-  ) {
-      this.local["dedup"] = dedup;
-      this.local["ttl"] = ttl;
-      this.local["foo"] = foo;
+  Stream<Foo> send({
+      bool dedup: true,
+      int ttl: 800,
+      String foo: "Bar" }) { 
+    this.local["dedup"] = dedup;
+    this.local["ttl"] = ttl;
+    this.local["foo"] = foo;
     return this.root.send(this);
   }
   FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);

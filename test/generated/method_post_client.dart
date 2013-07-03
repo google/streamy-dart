@@ -68,10 +68,8 @@ class FoosUpdateRequest extends base.Request {
     parameters["fooId"] = value;
   }
   int removeFooId() => parameters.remove("fooId");
-  Stream send(
-  ) {
-    return this.root.send(this);
-  }
+  Stream send() =>
+      this.root.send(this);
   FoosUpdateRequest clone() => base.internalCloneFrom(new FoosUpdateRequest(root, _payload.clone()), this);
   base.Deserializer get responseDeserializer => base.identityFn;
 }
