@@ -2,6 +2,33 @@ import "package:streamy/base.dart";
 import "package:unittest/unittest.dart";
 
 main() {
+  group("RawEntity", () {
+    test("does not allow setting closures on non-.local keys", () {
+      var e = new RawEntity();
+      expect(() => e['foo'] = () => false, throwsA(new isInstanceOf<ClosureInEntityException>()));
+    });
+    test("does allow setting closures on .local", () {
+      var e = new RawEntity();
+      e['local.foo'] = () => true;
+    });
+  });
+  group("DynamicEntity", () {
+    test("factory constructor returns a DynamicEntity", () {
+      expect(new Entity(), new isInstanceOf<DynamicEntity>());
+    });
+    test("factory constructor fromMap returns a DynamicEntity", () {
+      expect(new Entity.fromMap({"foo": "bar"}), new isInstanceOf<DynamicEntity>());
+    });
+    test("noSuchMethod getters/setters work", () {
+      var e = new Entity();
+      e.foo = 'bar';
+      expect(e.foo, equals('bar'));
+    });
+    test("Exception on non-accessor invocation.", () {
+      var e = new Entity();
+      expect(() => e.foo(), throwsA(new isInstanceOf<ClosureInvocationException>()));
+    });
+  });
   group(".local", () {
     var entity;
     setUp(() {
