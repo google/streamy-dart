@@ -260,6 +260,9 @@ class RawEntity extends Entity {
     if (value is List && value is! ComparableList) {
       value = new ComparableList.from(value);
     }
+    if (value is Function && !key.startsWith("local.")) {
+      throw new ClosureInEntityException(key, value);
+    }
     if (key.contains('.')) {
       var keyPieces = key.split('.').toList();
       // The last key is the one we're assigning to, not reading, so remove it.
@@ -323,7 +326,7 @@ class DynamicEntity extends RawEntity {
       var key = memberName.substring(0, memberName.length - 1);
       this[key] = invocation.positionalArguments[0];
     } else {
-      throw new NoSuchMethodError(memberName, invocation.positionalArguments, invocation.namedArguments);
+      throw new ClosureInvocationException(memberName);
     }
   }
 
@@ -567,6 +570,28 @@ class TransformingRequestHandler extends RequestHandler {
 
   Stream handle(Request request) =>
       transformer.bind(request, delegate.handle(request));
+}
+
+abstract class StreamyException implements Exception { }
+
+class ClosureInEntityException extends StreamyException {
+  final String key;
+  final String closureToString;
+
+  ClosureInEntityException(this.key, this.closureToString);
+
+  String toString() => "Attempted to set a closure as an entity property. " +
+      "Use .local for that instead. Key: $key, Closure: $closureToString";
+}
+
+class ClosureInvocationException extends StreamyException {
+
+  final String memberName;
+
+  ClosureInvocationException(this.memberName);
+
+  String toString() => "Fields of DynamicEntity objects can't be invoked, as " +
+      "they cannot contain closures. Field: $memberName";
 }
 
 dynamic nullSafeOperation(x, f(elem)) => x != null ? f(x) : null;
