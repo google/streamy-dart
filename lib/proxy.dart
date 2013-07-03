@@ -10,9 +10,9 @@ class ProxyClient extends RequestHandler {
 
   /// The base url of the proxy.
   final String proxyUrl;
-  final StreamyHttpHandler httpHandler;
+  final StreamyHttpService httpHandler;
 
-  ProxyClient(this.proxyUrl, {this.httpHandler: const DartHtmlHttpHandler()});
+  ProxyClient(this.proxyUrl, {this.httpHandler: const DartHtmlHttpService()});
 
   Stream handle(Request req) {
     var url = "$proxyUrl/${req.root.servicePath}${req.path}";
@@ -45,14 +45,14 @@ class StreamyHttpResponse {
   StreamyHttpResponse(this.statusCode, this.statusText, this.body);
 }
 
-abstract class StreamyHttpHandler {
+abstract class StreamyHttpService {
 
   Future<StreamyHttpResponse> request(String url, String method, [String payload = null]);
 }
 
-class DartHtmlHttpHandler implements StreamyHttpHandler {
+class DartHtmlHttpService implements StreamyHttpService {
 
-  const DartHtmlHttpHandler();
+  const DartHtmlHttpService();
 
   Future<StreamyHttpResponse> request(String url, String method, [String payload = null]) {
     var res;
