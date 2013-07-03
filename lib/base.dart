@@ -24,6 +24,27 @@ class EntityDedupTransformer extends StreamEventTransformer<Entity, Entity> {
   }
 }
 
+/// A [StreamTransformer] that closes the stream after the RPC reply is
+/// received.
+class OneShotRequestTransformer implements StreamTransformer<Entity, Entity> {
+
+  Stream<Entity> bind(Stream<Entity> input) {
+    var output = new StreamController<Entity>();
+    var sub;
+    sub = input.listen((e) {
+      output.add(e);
+      if (e.streamy.source == "RPC") {
+        sub.cancel();
+        output.close();
+      }
+    });
+    sub
+      ..onError(output.addError)
+      ..onDone(output.close);
+    return output.stream;
+  }
+}
+
 _clone(v) {
   if (v is Entity) {
     return v.clone();
@@ -170,6 +191,15 @@ class TypeInfo {
 
 /// Public interface of Streamy entities.
 abstract class Entity {
+
+  Entity.base();
+
+  /// Create a new [DynamicEntity].
+  factory Entity() => new DynamicEntity();
+
+  /// Create a [DynamicEntity] from a [Map].
+  factory Entity.fromMap(Map data) => new DynamicEntity.fromMap(data);
+
   /// Access metadata exposed by Streamy about this entity.
   StreamyEntityMetadata get streamy;
 
@@ -212,7 +242,9 @@ abstract class Entity {
 
 /// Parent of all data transfer objects. Provides map-like methods for
 /// accessing field values.
-class RawEntity implements Entity {
+class RawEntity extends Entity {
+
+  RawEntity() : super.base();
 
   /// Actual fields of the Apiary entity.
   var _data = new ComparableMap<String, dynamic>();
@@ -248,6 +280,9 @@ class RawEntity implements Entity {
   void operator[]=(String key, dynamic value) {
     if (value is List && value is! ComparableList) {
       value = new ComparableList.from(value);
+    }
+    if (value is Function && !key.startsWith("local.")) {
+      throw new ClosureInEntityException(key, value.toString());
     }
     if (key.contains('.')) {
       var keyPieces = key.split('.').toList();
@@ -293,6 +328,32 @@ class RawEntity implements Entity {
   Type get streamyType => RawEntity;
 }
 
+class DynamicEntity extends RawEntity {
+
+  DynamicEntity() : super();
+
+  DynamicEntity.fromMap(Map data) {
+    data.forEach((key, value) {
+      this[key] = value;
+    });
+  }
+
+  noSuchMethod(Invocation invocation) {
+    var memberName = MirrorSystem.getName(invocation.memberName);
+    if (invocation.isGetter) {
+      return this[memberName];
+    } else if (invocation.isSetter) {
+      // Setter member names have an '=' at the end, strip it.
+      var key = memberName.substring(0, memberName.length - 1);
+      this[key] = invocation.positionalArguments[0];
+    } else {
+      throw new ClosureInvocationException(memberName);
+    }
+  }
+
+  Type get streamyType => DynamicEntity;
+}
+
 /// A function that clones an [EntityWrapper], given a clone of its wrapped
 /// [Entity]. This is part of the private interface between [EntityWrapper]
 /// and its subclasses.
@@ -300,7 +361,7 @@ typedef EntityWrapper EntityWrapperCloneFn(Entity delegateClone);
 
 /// Wraps an [Entity] and delegates to it. This is the base class for all
 /// generated entities.
-abstract class EntityWrapper implements Entity {
+abstract class EntityWrapper extends Entity {
 
   final Entity _delegate;
 
@@ -310,7 +371,7 @@ abstract class EntityWrapper implements Entity {
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone);
+  EntityWrapper.wrap(this._delegate, this._clone) : super.base();
 
   /// Get the root entity for this wrapper. Wrappers can compose other wrappers,
   /// so this will follow that chain until the root [Entity] is discovered.
@@ -437,8 +498,8 @@ abstract class Request {
   /// Parameters that will be passed on the query string.
   List<String> get queryParameters;
 
-  /// Local [Request] data (useful for setting options on requests that are)
-  /// interpreted by custom RequestHandlers.
+  /// Local data map, used to pass arbitrary information about this request to
+  /// the [RequestHandler].
   final LocalDataMap local = new LocalDataMap();
 
   /// Construct a new request.
@@ -530,6 +591,28 @@ class TransformingRequestHandler extends RequestHandler {
 
   Stream handle(Request request) =>
       transformer.bind(request, delegate.handle(request));
+}
+
+abstract class StreamyException implements Exception { }
+
+class ClosureInEntityException extends StreamyException {
+  final String key;
+  final String closureToString;
+
+  ClosureInEntityException(this.key, this.closureToString);
+
+  String toString() => "Attempted to set a closure as an entity property. " +
+      "Use .local for that instead. Key: $key, Closure: $closureToString";
+}
+
+class ClosureInvocationException extends StreamyException {
+
+  final String memberName;
+
+  ClosureInvocationException(this.memberName);
+
+  String toString() => "Fields of DynamicEntity objects can't be invoked, as " +
+      "they cannot contain closures. Field: $memberName";
 }
 
 dynamic nullSafeOperation(x, f(elem)) => x != null ? f(x) : null;

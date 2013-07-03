@@ -1,4 +1,5 @@
 import "dart:io" as io;
+import "dart:json";
 import "package:args/args.dart";
 import "package:streamy/apigenlib.dart";
 
@@ -9,6 +10,11 @@ main() {
   discoveryFile.readAsString(encoding: io.Encoding.UTF_8).then((String json) {
     var discovery = new Discovery.fromJsonString(json);
     var clientFile = new io.File(options.clientFile);
+    var addendumData = {};
+    if (!options.addendumFile.isEmpty) {
+      var addendumFile = new io.File(options.addendumFile);
+      addendumData = parse(addendumFile.readAsStringSync());
+    }
     String code = new Generator(new DefaultTemplateProvider(options.templatesDir))
         .generate(options.libraryName, discovery);
     clientFile.writeAsString(code, encoding: io.Encoding.UTF_8);
@@ -27,6 +33,9 @@ ApigenOptions parseArgs() {
         'library_name',
         help: "The name of the library name for generated client API code.")
     ..addOption(
+        'addendum_file',
+        help:"The name, if any, of the Streamy addendum to the discovery file.")
+    ..addOption(
         'templates_dir',
         help: "Directory containing code templates.");
   var args = argp.parse(new io.Options().arguments);
@@ -34,7 +43,8 @@ ApigenOptions parseArgs() {
       args["discovery_file"],
       args["client_file"],
       args["library_name"],
-      args["templates_dir"]
+      args["addendum_file"],
+      args["templates_dir"],
   );
   if (!validateOptions(options)) {
     print(argp.getUsage());
@@ -73,11 +83,14 @@ class ApigenOptions {
   String clientFile;
   /// The name of the library name for generated client API code.
   String libraryName;
+  /// Optional path to the addendum file which contains extensions to the
+  /// discovery document.
+  String addendumFile;
   /// Directory containing code templates.
   String templatesDir;
 
   ApigenOptions(this.discoveryFile, this.clientFile, this.libraryName,
-      String templatesDir) {
+      this.addendumFile, String templatesDir) {
     this.templatesDir = (templatesDir != null) ? templatesDir : "templates";
   }
 }
