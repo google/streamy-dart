@@ -21,14 +21,14 @@
         "qux": {
           "type": "string",
           "description": "Not what it seems.",
-          "format": "double"
+          "format": "int64"
         },
         "quux": {
           "type": "array",
           "description": "The plural of qux",
           "items": {
             "type": "string",
-            "format": "int64"
+            "format": "double"
           }
         }
       }

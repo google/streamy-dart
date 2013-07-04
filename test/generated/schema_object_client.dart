@@ -37,16 +37,16 @@ class Foo extends base.EntityWrapper {
     this["baz"] = value;
   }
   int removeBaz() => this.remove("baz");
-  double get qux => this["qux"];
-  set qux(double value) {
+  String get qux => this["qux"];
+  set qux(String value) {
     this["qux"] = value;
   }
-  double removeQux() => this.remove("qux");
-  List<int> get quux => this["quux"];
-  set quux(List<int> value) {
+  String removeQux() => this.remove("qux");
+  List<double> get quux => this["quux"];
+  set quux(List<double> value) {
     this["quux"] = value;
   }
-  List<int> removeQuux() => this.remove("quux");
+  List<double> removeQuux() => this.remove("quux");
   factory Foo.fromJsonString(String strJson) => new Foo.fromJson(parse(strJson));
   factory Foo.fromJson(Map json) {
     if (json == null) {
@@ -57,17 +57,14 @@ class Foo extends base.EntityWrapper {
       ..id = json.remove("id")
       ..bar = json.remove("bar")
       ..baz = json.remove("baz")
-      ..qux = base.nullSafeOperation(json.remove("qux"), double.parse)
-      ..quux = base.nullSafeMapToList(json.remove("quux"), (val) => base.nullSafeOperation(val, int.parse))
+      ..qux = json.remove("qux")
+      ..quux = base.nullSafeMapToList(json.remove("quux"), (val) => base.nullSafeOperation(val, double.parse))
 ;
     base.addUnknownProperties(result, json, TYPE_REGISTRY);
     return result;
   }
   Map toJson() {
     Map map = super.toJson();
-    if (map.containsKey("qux")) {
-      map["qux"] = map["qux"].toString();
-    }
     if (map.containsKey("quux")) {
       map["quux"] = base.nullSafeMapToList(map["quux"], (o) => o.toString());
     }
