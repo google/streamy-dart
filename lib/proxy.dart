@@ -17,7 +17,7 @@ class ProxyClient extends RequestHandler {
   Stream handle(Request req) {
     var url = "$proxyUrl/${req.root.servicePath}${req.path}";
     var payload = req.hasPayload ? json.stringify(req.payload) : null;
-    return httpHandler.request(url, req.httpMethod, payload).then((resp) {
+    return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
       if (resp.statusCode != 200) {
         throw new ProxyException(httpReq.statusCode,
             "API call returned status: ${resp.statusText}");
@@ -47,17 +47,17 @@ class StreamyHttpResponse {
 
 abstract class StreamyHttpService {
 
-  Future<StreamyHttpResponse> request(String url, String method, [String payload = null]);
+  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: "application/json"});
 }
 
 class DartHtmlHttpService implements StreamyHttpService {
 
   const DartHtmlHttpService();
 
-  Future<StreamyHttpResponse> request(String url, String method, [String payload = null]) {
+  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: "application/json"}) {
     var res;
     if (payload != null) {
-      res = HttpRequest.request(url, method: method, sendData: payload);
+      res = HttpRequest.request(url, method: method, sendData: payload, requestHeaders: {"Content-Type": contentType});
     } else {
       res = HttpRequest.request(url, method: method);
     }
