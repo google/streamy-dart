@@ -40,7 +40,7 @@ class {{name}} extends base.Request {
     return this.root.send(this);
   }{{/hasSendParams}}
 
-  {{name}} clone() => base.internalCloneFrom(new {{name}}(root{{#payload}}, _payload.clone(){{/payload}}), this);
+  {{name}} clone() => base.internalCloneFrom(new {{name}}(root{{#payload}}, payload.clone(){{/payload}}), this);
 
 {{#hasResponse}}
   base.Deserializer get responseDeserializer => (String str) => new {{responseType}}.fromJsonString(str);

@@ -22,6 +22,14 @@ main() {
       var subject = new MethodPostTest(null);
       expect(subject.foos.update(foo).hasPayload, equals(true));
     });
+    test("Can clone request payload", () {
+      var subject = new MethodPostTest(null);
+      var update = subject.foos.update(foo);
+      var clone = update.clone();
+      expect(clone, equals(update));
+      expect(clone, isNot(same(update)));
+      expect(clone.payload, isNot(same(update.payload)));
+    });
     test("RequestResponseCycle", () {
       var subject = new MethodPostTest(new ImmediateRequestHander());
       var testReq = subject.foos.update(foo)
