@@ -1,4 +1,4 @@
-library apigen;
+library streamy.generator;
 
 import "dart:json" as json;
 import "dart:io" as io;
