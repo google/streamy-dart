@@ -47,17 +47,17 @@ class StreamyHttpResponse {
 
 abstract class StreamyHttpService {
 
-  Future<StreamyHttpResponse> request(String url, String method, [String payload = null]);
+  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: "application/json"});
 }
 
 class DartHtmlHttpService implements StreamyHttpService {
 
   const DartHtmlHttpService();
 
-  Future<StreamyHttpResponse> request(String url, String method, [String payload = null]) {
+  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: "application/json"}) {
     var res;
     if (payload != null) {
-      res = HttpRequest.request(url, method: method, sendData: payload);
+      res = HttpRequest.request(url, method: method, sendData: payload, requestHeaders: {"Content-Type": contentType});
     } else {
       res = HttpRequest.request(url, method: method);
     }
