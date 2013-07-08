@@ -12,27 +12,23 @@ main() {
       foo = new Foo()
       ..id = 1
       ..bar = "bar"
-      ..baz = 2
-      ..qux = 1.5;
+      ..baz = 2;
     });
     test("DataCorrectlyPopulated", () {
       expect(foo.id, equals(1));
       expect(foo.bar, equals("bar"));
       expect(foo.baz, equals(2));
-      expect(foo.qux, equals(1.5));
     });
     test("DataMapCorrectlyPopulated", () {
       expect(foo["id"], equals(1));
       expect(foo["bar"], equals("bar"));
       expect(foo["baz"], equals(2));
-      expect(foo["qux"], equals(1.5));
     });
     test("JsonCorrectlyPopulated", () {
       expect(foo.toJson(), equals({
         "id": 1,
         "bar": "bar",
         "baz": 2,
-        "qux": "1.5",
       }));
     });
     test("RemovedKeyNotPresentInJson", () {
@@ -40,7 +36,6 @@ main() {
       expect(foo.toJson(), equals({
         "id": 1,
         "bar": "bar",
-        "qux": "1.5",
       }));
     });
     test("RemovedKeyGetsNull", () {
@@ -57,19 +52,19 @@ main() {
       var bar = new Bar.fromJsonString("{}");
       expect(bar.foos, isNull);
     });
-    test("List of int64s works properly", () {
-      foo.quux = [1, 2, 3, 4];
-      expect(foo.quux, equals([1, 2, 3, 4]));
-      expect(foo["quux"], equals([1, 2, 3, 4]));
-      expect(foo.toJson()["quux"], equals(["1", "2", "3", "4"]));
+    test("List of doubles works properly", () {
+      foo.quux = [1.5, 2.5, 3.5, 4.5];
+      expect(foo.quux, equals([1.5, 2.5, 3.5, 4.5]));
+      expect(foo["quux"], equals([1.5, 2.5, 3.5, 4.5]));
+      expect(foo.toJson()["quux"], equals(["1.5", "2.5", "3.5", "4.5"]));
     });
     test("Deserialize formatted strings and lists", () {
       var foo2 = new Foo.fromJson({
-        "qux": "2.5",
-        "quux": ["2", "3", "4", "5"]
+        "qux": "123456789123456789123456789",
+        "quux": ["2.5", "3.5", "4.5", "5.5"]
       });
-      expect(foo2.qux, equals(2.5));
-      expect(foo2.quux, equals([2, 3, 4, 5]));
+      expect(foo2.qux, equals("123456789123456789123456789"));
+      expect(foo2.quux, equals([2.5, 3.5, 4.5, 5.5]));
     });
     test("Lists get turned into ComparableLists", () {
       var bar = new Bar()
