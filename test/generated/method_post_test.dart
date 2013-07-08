@@ -2,7 +2,7 @@ library method_post_test;
 
 import "dart:async";
 import "dart:json";
-import "package:streamy/base.dart";
+import "package:streamy/streamy.dart";
 import "package:unittest/unittest.dart";
 import "method_post_client.dart";
 

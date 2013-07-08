@@ -1,7 +1,4 @@
-library streamy_cache;
-
-import "dart:async";
-import "base.dart";
+part of streamy.runtime;
 
 /// Defines interface for an asynchronous cache.
 abstract class Cache {

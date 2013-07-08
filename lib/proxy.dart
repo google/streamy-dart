@@ -1,4 +1,4 @@
-library streamy_proxy;
+library streamy.proxy;
 
 import "dart:async";
 import "dart:html";
@@ -66,3 +66,4 @@ class DartHtmlHttpService implements StreamyHttpService {
     });
   }
 }
+

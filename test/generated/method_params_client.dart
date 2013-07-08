@@ -5,12 +5,12 @@
 library method_params;
 import "dart:async";
 import "dart:json";
-import "package:streamy/base.dart" as base;
-import "package:streamy/comparable.dart";
-Map<String, base.TypeInfo> TYPE_REGISTRY = {
+import "package:streamy/streamy.dart" as streamy;
+import "package:streamy/collections.dart";
+Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
 };
 
-class FoosGetRequest extends base.Request {
+class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     "barId",
     "fooId",
@@ -53,8 +53,8 @@ class FoosGetRequest extends base.Request {
   ComparableList<String> removeParam3() => parameters.remove("param3");
   Stream send() =>
       this.root.send(this);
-  FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);
-  base.Deserializer get responseDeserializer => base.identityFn;
+  FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
+  streamy.Deserializer get responseDeserializer => streamy.identityFn;
 }
 
 class FoosResource {
@@ -69,13 +69,13 @@ class FoosResource {
 }
 
 /// Entry point to all API services for the application.
-class MethodParamsTest extends base.Root {
+class MethodParamsTest extends streamy.Root {
   FoosResource _foos;
   FoosResource get foos => _foos;
-  final base.RequestHandler requestHandler;
+  final streamy.RequestHandler requestHandler;
   final String servicePath;
   MethodParamsTest(this.requestHandler, {this.servicePath: "paramsTest/v1/"}) {
     this._foos = new FoosResource(this);
   }
-  Stream send(base.Request request) => requestHandler.handle(request);
+  Stream send(streamy.Request request) => requestHandler.handle(request);
 }

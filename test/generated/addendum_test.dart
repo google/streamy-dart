@@ -3,7 +3,7 @@ library addendum_test;
 import "dart:async";
 import "dart:json";
 import "package:unittest/unittest.dart";
-import "package:streamy/base.dart";
+import "package:streamy/streamy.dart";
 import "addendum_client.dart";
 
 main() {
