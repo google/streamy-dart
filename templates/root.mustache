@@ -1,12 +1,12 @@
 
 /// Entry point to all API services for the application.
-class {{topLevelClassName}} extends base.Root {
+class {{topLevelClassName}} extends streamy.Root {
 {{#resources}}
   {{type}} _{{name}};
   {{type}} get {{name}} => _{{name}};
 {{/resources}}
 
-  final base.RequestHandler requestHandler;
+  final streamy.RequestHandler requestHandler;
   final String servicePath;
 
   {{topLevelClassName}}(this.requestHandler, {this.servicePath: "{{servicePath}}"}) {
@@ -15,5 +15,5 @@ class {{topLevelClassName}} extends base.Root {
 {{/resources}}
   }
 
-  Stream send(base.Request request) => requestHandler.handle(request);
+  Stream send(streamy.Request request) => requestHandler.handle(request);
 }

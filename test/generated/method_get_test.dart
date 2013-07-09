@@ -3,7 +3,7 @@ library method_get_test;
 import "dart:async";
 import "dart:json";
 import "package:unittest/unittest.dart";
-import "package:streamy/base.dart";
+import "package:streamy/streamy.dart";
 import "method_get_client.dart";
 
 main() {

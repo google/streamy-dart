@@ -2,9 +2,7 @@ library multiplexer_test;
 
 import "dart:async";
 import "dart:json";
-import "package:streamy/base.dart";
-import "package:streamy/cache.dart";
-import "package:streamy/multiplexer.dart";
+import "package:streamy/streamy.dart";
 import "package:unittest/unittest.dart";
 import "multiplexer_client.dart";
 

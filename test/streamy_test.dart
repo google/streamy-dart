@@ -1,5 +1,5 @@
 import "dart:async";
-import "package:streamy/base.dart";
+import "package:streamy/streamy.dart";
 import "package:unittest/unittest.dart";
 
 main() {
