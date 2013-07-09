@@ -24,7 +24,7 @@ class OneShotRequestTransformer implements StreamTransformer<Entity, Entity> {
     var sub;
     sub = input.listen((e) {
       output.add(e);
-      if (e.streamy.source == "RPC") {
+      if (e.streamy.source == 'RPC') {
         sub.cancel();
         output.close();
       }
