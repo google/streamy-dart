@@ -3,28 +3,28 @@
  * folder templates. Do not edit by hand.
  */
 library schema_unknown_fields;
-import "dart:async";
-import "dart:json";
-import "package:streamy/streamy.dart" as streamy;
-import "package:streamy/collections.dart";
+import 'dart:async';
+import 'dart:json';
+import 'package:streamy/streamy.dart' as streamy;
+import 'package:streamy/collections.dart';
 Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
-  "type#foo": new streamy.TypeInfo((Map json) => new Foo.fromJson(json)),
-  "type#bar": new streamy.TypeInfo((Map json) => new Bar.fromJson(json)),
+  'type#foo': new streamy.TypeInfo((Map json) => new Foo.fromJson(json)),
+  'type#bar': new streamy.TypeInfo((Map json) => new Bar.fromJson(json)),
 };
 
 class Foo extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
-    "baz",
+    'baz',
   ];
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
-  String get baz => this["baz"];
+  String get baz => this['baz'];
   set baz(String value) {
-    this["baz"] = value;
+    this['baz'] = value;
   }
-  String removeBaz() => this.remove("baz");
+  String removeBaz() => this.remove('baz');
   factory Foo.fromJsonString(String strJson) => new Foo.fromJson(parse(strJson));
   factory Foo.fromJson(Map json) {
     if (json == null) {
@@ -32,7 +32,7 @@ class Foo extends streamy.EntityWrapper {
     }
     json = new Map.from(json);
     var result = new Foo()
-      ..baz = json.remove("baz")
+      ..baz = json.remove('baz')
 ;
     streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
     return result;
@@ -77,7 +77,7 @@ class Bar extends streamy.EntityWrapper {
 class SchemaUnknownFieldsTest extends streamy.Root {
   final streamy.RequestHandler requestHandler;
   final String servicePath;
-  SchemaUnknownFieldsTest(this.requestHandler, {this.servicePath: "schemaUnknownFieldsTest/v1/"}) {
+  SchemaUnknownFieldsTest(this.requestHandler, {this.servicePath: 'schemaUnknownFieldsTest/v1/'}) {
   }
   Stream send(streamy.Request request) => requestHandler.handle(request);
 }

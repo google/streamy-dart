@@ -6,7 +6,7 @@ part of apigen;
 /// The location of templates bundled with Streamy. It assumes Streamy is run
 /// from the root of the project. This value is used by default if no specific
 /// value is provided.
-const String DEFAULT_TEMPLATE_DIR = "templates";
+const String DEFAULT_TEMPLATE_DIR = 'templates';
 
 /// Reads template source from files named {templateName}.mustache.
 class DefaultTemplateProvider implements TemplateProvider {
@@ -18,11 +18,11 @@ class DefaultTemplateProvider implements TemplateProvider {
     return new DefaultTemplateProvider(DEFAULT_TEMPLATE_DIR);
   }
 
-  String get sourceOfTemplates => "folder ${templateDir}";
+  String get sourceOfTemplates => 'folder ${templateDir}';
 
   String operator[](String templateName) {
     io.File templateFile =
-        new io.File("${templateDir}/${templateName}.mustache");
+        new io.File('${templateDir}/${templateName}.mustache');
     return templateFile.readAsStringSync();
   }
 }

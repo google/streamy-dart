@@ -16,10 +16,10 @@ class Discovery {
   factory Discovery.fromJsonString(String jsonString) {
     Map jsDiscovery = json.parse(jsonString);
     return new Discovery(
-      extractNameTypePairs(jsDiscovery["schemas"]),
-      extractResources(jsDiscovery["resources"]),
-      jsDiscovery["name"],
-      jsDiscovery["servicePath"]
+      extractNameTypePairs(jsDiscovery['schemas']),
+      extractResources(jsDiscovery['resources']),
+      jsDiscovery['name'],
+      jsDiscovery['servicePath']
     );
   }
 }
@@ -77,65 +77,65 @@ class TypeDescriptor {
       return null;
     }
     DescriptorType type;
-    if (jsDescriptor.containsKey("\$ref")) {
+    if (jsDescriptor.containsKey('\$ref')) {
       type = REF_TYPE;
     } else {
-      type = DESCRIPTOR_TYPES[jsDescriptor["type"]];
+      type = DESCRIPTOR_TYPES[jsDescriptor['type']];
     }
     return new TypeDescriptor._private(
-        jsDescriptor["id"],
+        jsDescriptor['id'],
         extractKind(jsDescriptor),
-        jsDescriptor["description"],
+        jsDescriptor['description'],
         type,
-        jsDescriptor["\$ref"],
-        jsDescriptor["format"],
-        extractNameTypePairs(jsDescriptor["properties"]),
-        new TypeDescriptor.fromJsonObject(jsDescriptor["items"]),
-        new TypeDescriptor.fromJsonObject(jsDescriptor["additionalProperties"])
+        jsDescriptor['\$ref'],
+        jsDescriptor['format'],
+        extractNameTypePairs(jsDescriptor['properties']),
+        new TypeDescriptor.fromJsonObject(jsDescriptor['items']),
+        new TypeDescriptor.fromJsonObject(jsDescriptor['additionalProperties'])
     );
   }
 }
 
 String extractKind(Map jsDescriptor) {
-  Map kindMap = jsDescriptor["kind"];
+  Map kindMap = jsDescriptor['kind'];
   if (kindMap != null) {
-    String type = kindMap["type"];
+    String type = kindMap['type'];
     if (type == STRING_TYPE.name) {
-      String dflt = kindMap["default"];
+      String dflt = kindMap['default'];
       if (dflt != null) {
         return dflt;
       } else {
-        print("WARNING: default value for \"kind\" is missing");
+        print('WARNING: default value for \'kind\' is missing');
       }
     } else {
-      print("WARNING: \"kind\" property expected to be of type " +
-          "\"${STRING_TYPE.name}\" but was \"${type}\"");
+      print('WARNING: \'kind\' property expected to be of type ' +
+          '\'${STRING_TYPE.name}\' but was \'${type}\'');
     }
   }
   return null;
 }
 
 /// Enumeration of all supported built-in types
-const ANY_TYPE = const DescriptorType("any", dartType: "dynamic");
-const ARRAY_TYPE = const DescriptorType("array");
-const BOOLEAN_TYPE = const DescriptorType("boolean", dartType: "bool");
-const INTEGER_TYPE = const DescriptorType("integer", dartType: "int");
-const NUMBER_TYPE = const DescriptorType("number", dartType: "num");
-const NULL_TYPE = const DescriptorType("null", dartType: "Object");
-const REF_TYPE = const DescriptorType("ref");
-const OBJECT_TYPE = const DescriptorType("object");
-const STRING_TYPE = const DescriptorType("string", dartType: "String");
+const ANY_TYPE = const DescriptorType('any', dartType: 'dynamic');
+const ARRAY_TYPE = const DescriptorType('array');
+const BOOLEAN_TYPE = const DescriptorType('boolean', dartType: 'bool');
+const INTEGER_TYPE = const DescriptorType('integer', dartType: 'int');
+const NUMBER_TYPE = const DescriptorType('number', dartType: 'num');
+const NULL_TYPE = const DescriptorType('null', dartType: 'Object');
+const REF_TYPE = const DescriptorType('ref');
+const OBJECT_TYPE = const DescriptorType('object');
+const STRING_TYPE = const DescriptorType('string', dartType: 'String');
 const Map<String, DescriptorType> DESCRIPTOR_TYPES =
     const <String, DescriptorType>{
-      "any": ANY_TYPE,
-      "array": ARRAY_TYPE,
-      "boolean": BOOLEAN_TYPE,
-      "integer": INTEGER_TYPE,
-      "number": NUMBER_TYPE,
-      "null": NULL_TYPE,
-      "object": OBJECT_TYPE,
-      "ref": REF_TYPE,
-      "string": STRING_TYPE,
+      'any': ANY_TYPE,
+      'array': ARRAY_TYPE,
+      'boolean': BOOLEAN_TYPE,
+      'integer': INTEGER_TYPE,
+      'number': NUMBER_TYPE,
+      'null': NULL_TYPE,
+      'object': OBJECT_TYPE,
+      'ref': REF_TYPE,
+      'string': STRING_TYPE,
     };
 
 /// One of built-in types
@@ -159,8 +159,8 @@ class Resource {
   factory Resource.fromJsonObject(String name, Map jsResource) {
     return new Resource._private(
         name,
-        extractMethods(jsResource["methods"]),
-        extractResources(jsResource["resources"]));
+        extractMethods(jsResource['methods']),
+        extractResources(jsResource['resources']));
   }
 }
 
@@ -177,18 +177,18 @@ class HttpMethod {
   const HttpMethod(this.name);
 }
 
-const HTTP_GET = const HttpMethod("GET");
-const HTTP_POST = const HttpMethod("POST");
-const HTTP_PUT = const HttpMethod("PUT");
-const HTTP_DELETE = const HttpMethod("DELETE");
-const HTTP_PATCH = const HttpMethod("PATCH");
+const HTTP_GET = const HttpMethod('GET');
+const HTTP_POST = const HttpMethod('POST');
+const HTTP_PUT = const HttpMethod('PUT');
+const HTTP_DELETE = const HttpMethod('DELETE');
+const HTTP_PATCH = const HttpMethod('PATCH');
 
 const Map<String, HttpMethod> HTTP_METHODS = const {
-  "GET": HTTP_GET,
-  "POST": HTTP_POST,
-  "PUT": HTTP_PUT,
-  "DELETE": HTTP_DELETE,
-  "PATCH": HTTP_PATCH,
+  'GET': HTTP_GET,
+  'POST': HTTP_POST,
+  'PUT': HTTP_PUT,
+  'DELETE': HTTP_DELETE,
+  'PATCH': HTTP_PATCH,
 };
 
 class Method {
@@ -215,23 +215,23 @@ class Method {
   );
 
   factory Method.fromJsonObject(String name, Map jsMethod) {
-    TypeDescriptor req = new TypeDescriptor.fromJsonObject(jsMethod["request"]);
-    TypeDescriptor resp = new TypeDescriptor.fromJsonObject(jsMethod["response"]);
-    var strHttpMethod = jsMethod["httpMethod"];
+    TypeDescriptor req = new TypeDescriptor.fromJsonObject(jsMethod['request']);
+    TypeDescriptor resp = new TypeDescriptor.fromJsonObject(jsMethod['response']);
+    var strHttpMethod = jsMethod['httpMethod'];
     var httpMethod = HTTP_METHODS[strHttpMethod];
     if (httpMethod == null) {
-      throw new ApigenException("Unsupported HTTP method ${strHttpMethod}");
+      throw new ApigenException('Unsupported HTTP method ${strHttpMethod}');
     }
     return new Method._private(
-        jsMethod["id"],
-        jsMethod["path"],
+        jsMethod['id'],
+        jsMethod['path'],
         name,
         req,
         resp,
         httpMethod,
-        jsMethod["description"],
-        extractParameters(jsMethod["parameters"]),
-        jsMethod["parameterOrder"]
+        jsMethod['description'],
+        extractParameters(jsMethod['parameters']),
+        jsMethod['parameterOrder']
     );
   }
 }
@@ -243,8 +243,8 @@ Map<String, Parameter> extractParameters(Map<String, Map> jsParams) {
   var result = <String, Parameter>{};
   jsParams.forEach((String name, Map jsParamDescriptor) {
     var type = new TypeDescriptor.fromJsonObject(jsParamDescriptor);
-    var location = LOCATIONS[jsParamDescriptor["location"]];
-    var repeated = jsParamDescriptor["repeated"] == true;
+    var location = LOCATIONS[jsParamDescriptor['location']];
+    var repeated = jsParamDescriptor['repeated'] == true;
     result[name] = new Parameter(name, type, location, repeated);
   });
   return result;
@@ -255,12 +255,12 @@ class ParameterLocation {
   const ParameterLocation(this.name);
 }
 
-const LOCATION_PATH = const ParameterLocation("path");
-const LOCATION_QUERY = const ParameterLocation("query");
+const LOCATION_PATH = const ParameterLocation('path');
+const LOCATION_QUERY = const ParameterLocation('query');
 
 const Map<String, ParameterLocation> LOCATIONS = const {
-  "path": LOCATION_PATH,
-  "query": LOCATION_QUERY,
+  'path': LOCATION_PATH,
+  'query': LOCATION_QUERY,
 };
 
 class Parameter {

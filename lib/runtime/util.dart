@@ -38,12 +38,12 @@ addUnknownProperties(Entity destination, Map remainderJson,
 /**
  *  Deserializes a JSON [value] into a proper Dart object, unless it is
  *  already deserialized. The [typeRegistry] is used to lookup known types by
- *  "kind" attribute specified in the discovery document.
+ *  'kind' attribute specified in the discovery document.
  */
 _deserialize(dynamic value, Map<String, TypeInfo> typeRegistry) {
   if (value is Map) {
     // Might be an object of a known kind
-    String kind = value["kind"];
+    String kind = value['kind'];
     if (kind == null || !typeRegistry.containsKey(kind)) {
       // Not an object of known kind. Deserialize recursively.
       var result = new RawEntity();
@@ -91,8 +91,8 @@ class ClosureInEntityException extends StreamyException {
 
   ClosureInEntityException(this.key, this.closureToString);
 
-  String toString() => "Attempted to set a closure as an entity property. " +
-      "Use .local for that instead. Key: $key, Closure: $closureToString";
+  String toString() => 'Attempted to set a closure as an entity property. ' +
+      'Use .local for that instead. Key: $key, Closure: $closureToString';
 }
 
 class ClosureInvocationException extends StreamyException {
@@ -102,5 +102,5 @@ class ClosureInvocationException extends StreamyException {
   ClosureInvocationException(this.memberName);
 
   String toString() => "Fields of DynamicEntity objects can't be invoked, as " +
-      "they cannot contain closures. Field: $memberName";
+      'they cannot contain closures. Field: $memberName';
 }

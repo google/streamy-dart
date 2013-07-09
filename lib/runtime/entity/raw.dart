@@ -30,7 +30,7 @@ class RawEntity extends Entity {
 
   /// Data field getter.
   dynamic operator[](String key) {
-    if (key == "local") {
+    if (key == 'local') {
       return local;
     }
     return key.contains('.') ? _walk(key.split('.')) : _data[key];
@@ -41,7 +41,7 @@ class RawEntity extends Entity {
     if (value is List && value is! ComparableList) {
       value = new ComparableList.from(value);
     }
-    if (value is Function && !key.startsWith("local.")) {
+    if (value is Function && !key.startsWith('local.')) {
       throw new ClosureInEntityException(key, value.toString());
     }
     if (key.contains('.')) {

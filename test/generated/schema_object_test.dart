@@ -1,77 +1,77 @@
 library schema_object_test;
 
-import "dart:json";
-import "package:streamy/collections.dart";
-import "package:unittest/unittest.dart";
-import "schema_object_client.dart";
+import 'dart:json';
+import 'package:streamy/collections.dart';
+import 'package:unittest/unittest.dart';
+import 'schema_object_client.dart';
 
 main() {
-  group("SchemaObjectTest", () {
+  group('SchemaObjectTest', () {
     Foo foo;
     setUp(() {
       foo = new Foo()
       ..id = 1
-      ..bar = "bar"
+      ..bar = 'bar'
       ..baz = 2;
     });
-    test("DataCorrectlyPopulated", () {
+    test('DataCorrectlyPopulated', () {
       expect(foo.id, equals(1));
-      expect(foo.bar, equals("bar"));
+      expect(foo.bar, equals('bar'));
       expect(foo.baz, equals(2));
     });
-    test("DataMapCorrectlyPopulated", () {
-      expect(foo["id"], equals(1));
-      expect(foo["bar"], equals("bar"));
-      expect(foo["baz"], equals(2));
+    test('DataMapCorrectlyPopulated', () {
+      expect(foo['id'], equals(1));
+      expect(foo['bar'], equals('bar'));
+      expect(foo['baz'], equals(2));
     });
-    test("JsonCorrectlyPopulated", () {
+    test('JsonCorrectlyPopulated', () {
       expect(foo.toJson(), equals({
-        "id": 1,
-        "bar": "bar",
-        "baz": 2,
+        'id': 1,
+        'bar': 'bar',
+        'baz': 2,
       }));
     });
-    test("RemovedKeyNotPresentInJson", () {
+    test('RemovedKeyNotPresentInJson', () {
       expect(foo.removeBaz(), equals(2));
       expect(foo.toJson(), equals({
-        "id": 1,
-        "bar": "bar",
+        'id': 1,
+        'bar': 'bar',
       }));
     });
-    test("RemovedKeyGetsNull", () {
+    test('RemovedKeyGetsNull', () {
       foo.removeBaz();
       expect(foo.baz, isNull);
     });
-    test("SerializeListToJson", () {
+    test('SerializeListToJson', () {
       var bar = new Bar()..foos = [new Foo()..id = 321];
       bar = new Bar.fromJsonString(stringify(bar.toJson()));
       expect(bar.foos.length, equals(1));
       expect(bar.foos[0].id, equals(321));
     });
-    test("DeserializeMissingListToNull", () {
-      var bar = new Bar.fromJsonString("{}");
+    test('DeserializeMissingListToNull', () {
+      var bar = new Bar.fromJsonString('{}');
       expect(bar.foos, isNull);
     });
-    test("List of doubles works properly", () {
+    test('List of doubles works properly', () {
       foo.quux = [1.5, 2.5, 3.5, 4.5];
       expect(foo.quux, equals([1.5, 2.5, 3.5, 4.5]));
-      expect(foo["quux"], equals([1.5, 2.5, 3.5, 4.5]));
-      expect(foo.toJson()["quux"], equals(["1.5", "2.5", "3.5", "4.5"]));
+      expect(foo['quux'], equals([1.5, 2.5, 3.5, 4.5]));
+      expect(foo.toJson()['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
     });
-    test("Deserialize formatted strings and lists", () {
+    test('Deserialize formatted strings and lists', () {
       var foo2 = new Foo.fromJson({
-        "qux": "123456789123456789123456789",
-        "quux": ["2.5", "3.5", "4.5", "5.5"]
+        'qux': '123456789123456789123456789',
+        'quux': ['2.5', '3.5', '4.5', '5.5']
       });
-      expect(foo2.qux, equals("123456789123456789123456789"));
+      expect(foo2.qux, equals('123456789123456789123456789'));
       expect(foo2.quux, equals([2.5, 3.5, 4.5, 5.5]));
     });
-    test("Lists get turned into ComparableLists", () {
+    test('Lists get turned into ComparableLists', () {
       var bar = new Bar()
         ..foos = [foo];
       expect(bar.foos, new isInstanceOf<ComparableList>());
-      bar["direct"] = [foo];
-      expect(bar["direct"], new isInstanceOf<ComparableList>());
+      bar['direct'] = [foo];
+      expect(bar['direct'], new isInstanceOf<ComparableList>());
     });
     test("clone()'d entities are equal", () {
       expect(foo.clone(), equals(foo));
@@ -79,7 +79,7 @@ main() {
         ..foos = [foo];
       expect(bar.clone(), equals(bar));
     });
-    test("clone() is deep", () {
+    test('clone() is deep', () {
       var bar = new Bar()
         ..foos = [foo];
       var bar2 = bar.clone();

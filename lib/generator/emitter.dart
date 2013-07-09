@@ -31,11 +31,11 @@ class Emitter {
   String _topLevelClassName;
 
   Emitter(this._templateProvider) {
-    this._clientHeaderTmpl = _loadTemplate("client_header");
-    this._rootTmpl = _loadTemplate("root");
-    this._objectTmpl = _loadTemplate("object");
-    this._resourceTmpl = _loadTemplate("resource");
-    this._requestTmpl = _loadTemplate("request");
+    this._clientHeaderTmpl = _loadTemplate('client_header');
+    this._rootTmpl = _loadTemplate('root');
+    this._objectTmpl = _loadTemplate('object');
+    this._resourceTmpl = _loadTemplate('resource');
+    this._requestTmpl = _loadTemplate('request');
   }
 
   mus.Template _loadTemplate(String templateName) {
@@ -46,25 +46,25 @@ class Emitter {
   String generate(String libName, Discovery discovery, {Map addendumData: const {}}) {
     this._out = new StringBuffer();
     this._topLevelClassName = capitalize(discovery.name);
-    if (addendumData.containsKey("topLevelClassName")) {
-      this._topLevelClassName = addendumData["topLevelClassName"];
+    if (addendumData.containsKey('topLevelClassName')) {
+      this._topLevelClassName = addendumData['topLevelClassName'];
     }
 
     var types = [];
     discovery.schemas.forEach((String name, TypeDescriptor schema) {
       if (schema.kind != null) {
         types.add({
-          "name": name,
-          "kind": schema.kind,
+          'name': name,
+          'kind': schema.kind,
         });
       }
     });
 
     _render(_clientHeaderTmpl, {
-      "types": types,
-      "topLevelClassName": _topLevelClassName,
-      "api_library": libName,
-      "source_of_templates": _templateProvider.sourceOfTemplates,
+      'types': types,
+      'topLevelClassName': _topLevelClassName,
+      'api_library': libName,
+      'source_of_templates': _templateProvider.sourceOfTemplates,
     });
 
     discovery.schemas.forEach((String name, TypeDescriptor type) {
@@ -72,16 +72,16 @@ class Emitter {
     });
 
     var sendParams = [];
-    if (addendumData.containsKey("sendParams")) {
-      addendumData["sendParams"].forEach((key, value) {
-        value["name"] = key;
-        value["last"] = false;
-        if (value["type"] == "String") {
-          value["default"] = "\"${value["default"]}\"";
+    if (addendumData.containsKey('sendParams')) {
+      addendumData['sendParams'].forEach((key, value) {
+        value['name'] = key;
+        value['last'] = false;
+        if (value['type'] == 'String') {
+          value['default'] = '\'${value['default']}\'';
         }
         sendParams.add(value);
       });
-      sendParams[sendParams.length - 1]["last"] = true;
+      sendParams[sendParams.length - 1]['last'] = true;
     }
 
     List<Map> resourceFields = new List.from(
@@ -90,25 +90,25 @@ class Emitter {
         }));
 
     _render(_rootTmpl, {
-      "topLevelClassName": _topLevelClassName,
-      "resources": resourceFields,
-      "servicePath": discovery.servicePath
+      'topLevelClassName': _topLevelClassName,
+      'resources': resourceFields,
+      'servicePath': discovery.servicePath
     });
     return _out.toString();
   }
 
   _render(mus.Template template, Map data) {
     String code = template.renderString(data, htmlEscapeValues: false);
-    List<String> lines = code.split("\n");
+    List<String> lines = code.split('\n');
     StringBuffer clean = new StringBuffer();
-    String previousLine = "";
+    String previousLine = '';
     for (String line in lines) {
       String trim = line.trim();
-      bool isClassDeclaration = trim.startsWith("class") ||
-          trim.startsWith("abstract class");
-      bool isComment = trim.startsWith("///");
+      bool isClassDeclaration = trim.startsWith('class') ||
+          trim.startsWith('abstract class');
+      bool isComment = trim.startsWith('///');
       if (trim.length > 0) {
-        bool previousLineIsComment = previousLine.trim().startsWith("///");
+        bool previousLineIsComment = previousLine.trim().startsWith('///');
         if (isClassDeclaration || isComment) {
           if (!previousLineIsComment) {
             clean.writeln();
@@ -127,18 +127,18 @@ class Emitter {
     resource.methods.forEach((Method method) {
       MethodInfo methodInfo = processMethod(resource, method, sendParams);
       var methodData = {
-        "name": method.name,
-        "reqType": methodInfo.requestTypeName,
-        "payload": methodInfo.payloadData,
+        'name': method.name,
+        'reqType': methodInfo.requestTypeName,
+        'payload': methodInfo.payloadData,
       };
       methods.add(methodData);
     });
     var resourceData = {
-      "topLevelClassName": _topLevelClassName,
-      "type": "${capitalize(resource.name)}Resource",
-      "name": resource.name,
-      "capName": capitalize(resource.name),
-      "methods": methods,
+      'topLevelClassName': _topLevelClassName,
+      'type': '${capitalize(resource.name)}Resource',
+      'name': resource.name,
+      'capName': capitalize(resource.name),
+      'methods': methods,
     };
     _render(_resourceTmpl, resourceData);
     return resourceData;
@@ -151,43 +151,43 @@ class Emitter {
     List<Map> queryParameters = [];
     method.parameters.forEach((String paramName, Parameter param) {
       TypeDescriptor paramType = param.type;
-      var paramVarName = paramName.replaceAll("\.", "_");
+      var paramVarName = paramName.replaceAll('\.', '_');
       String paramTypeName =
-          processType("${method.name}_${paramVarName}", paramType).typeName;
+          processType('${method.name}_${paramVarName}', paramType).typeName;
       if (param.repeated) {
-        paramTypeName = "ComparableList<$paramTypeName>";
+        paramTypeName = 'ComparableList<$paramTypeName>';
       }
       parameters.add({
-        "type": paramTypeName,
-        "name": paramName,
-        "varName": paramVarName,
-        "repeated": param.repeated,
-        "capVarName": capitalize(paramVarName),
+        'type': paramTypeName,
+        'name': paramName,
+        'varName': paramVarName,
+        'repeated': param.repeated,
+        'capVarName': capitalize(paramVarName),
       });
       switch(param.location) {
-        case LOCATION_PATH: pathParameters.add({"name": paramName}); break;
-        case LOCATION_QUERY: queryParameters.add({"name": paramName}); break;
-        default: throw new ApigenException("Unsupported parameter location");
+        case LOCATION_PATH: pathParameters.add({'name': paramName}); break;
+        case LOCATION_QUERY: queryParameters.add({'name': paramName}); break;
+        default: throw new ApigenException('Unsupported parameter location');
       }
     });
 
     var requestData = {
-      "name": methodInfo.requestTypeName,
-      "parameters": parameters,
-      "payload": methodInfo.payloadData,
-      "topLevelClassName": _topLevelClassName,
-      "httpMethod": method.httpMethod.name,
-      "path": method.path,
-      "path_parameters": pathParameters,
-      "query_parameters": queryParameters,
-      "hasResponse": [],
-      "sendParams": sendParams,
-      "hasSendParams": sendParams.isNotEmpty
+      'name': methodInfo.requestTypeName,
+      'parameters': parameters,
+      'payload': methodInfo.payloadData,
+      'topLevelClassName': _topLevelClassName,
+      'httpMethod': method.httpMethod.name,
+      'path': method.path,
+      'path_parameters': pathParameters,
+      'query_parameters': queryParameters,
+      'hasResponse': [],
+      'sendParams': sendParams,
+      'hasSendParams': sendParams.isNotEmpty
     };
 
     if (methodInfo.hasResponse) {
-      requestData["hasResponse"] = [{
-        "responseType":
+      requestData['hasResponse'] = [{
+        'responseType':
           processType(methodInfo.responseTypeName, method.response).typeName,
       }];
     }
@@ -217,7 +217,7 @@ class Emitter {
       case OBJECT_TYPE:
         return new ProcessTypeResult.object(processObjectType(name, type));
     }
-    throw new ApigenException("Unsupported type ${type.type}");
+    throw new ApigenException('Unsupported type ${type.type}');
   }
 
   String processObjectType(String name, TypeDescriptor type) {
@@ -225,25 +225,25 @@ class Emitter {
     type.properties.forEach((String propertyName, TypeDescriptor propertyType) {
       String capName = capitalize(propertyName);
       ProcessTypeResult proctr =
-          processType("${name}_${capName}", propertyType);
+          processType('${name}_${capName}', propertyType);
       var propertyData = {
-        "type": proctr.typeName,
-        "name": propertyName,
-        "capName": capName,
-        "mustSerialize": [],
-        "hasParseExpr": [],
-        "list": [],
+        'type': proctr.typeName,
+        'name': propertyName,
+        'capName': capName,
+        'mustSerialize': [],
+        'hasParseExpr': [],
+        'list': [],
       };
       if (proctr.parseExpr != null) {
-        propertyData["hasParseExpr"] = ["true"];
-        propertyData["parseExpr"] = proctr.parseExpr;
+        propertyData['hasParseExpr'] = ['true'];
+        propertyData['parseExpr'] = proctr.parseExpr;
       }
       if (!proctr.isBasic) {
-        propertyData["mustSerialize"] = ["true"];
+        propertyData['mustSerialize'] = ['true'];
       }
       if (proctr.isList) {
-        propertyData["list"] = ["true"];
-        propertyData["listType"] = proctr.elemTypeName;
+        propertyData['list'] = ['true'];
+        propertyData['listType'] = proctr.elemTypeName;
       }
       properties.add(propertyData);
     });
@@ -251,8 +251,8 @@ class Emitter {
     // TODO(yjbanov): support additionalProperties
 
     _render(_objectTmpl, {
-      "name": name,
-      "properties": properties,
+      'name': name,
+      'properties': properties,
     });
 
     return name;
@@ -276,16 +276,16 @@ class ProcessTypeResult {
   factory ProcessTypeResult.basic(String typeName, String format) {
     String parseExpr;
     switch (format) {
-      case "int64":
+      case 'int64':
         // int64 is explicitly not handled. These values are almost always IDs,
         // and not used for arithmetic. Thus it's much more convenient for
         // applications to treat them as Strings by default.
         // TODO(arick): Make this configurable on a per-schema object basis in
         // the addendum document.
         break;
-      case "double":
-        typeName = "double";
-        parseExpr = "double.parse";
+      case 'double':
+        typeName = 'double';
+        parseExpr = 'double.parse';
         break;
       default:
         // Do nothing.
@@ -301,7 +301,7 @@ class ProcessTypeResult {
   factory ProcessTypeResult.list(ProcessTypeResult elemTypeResult) {
     bool isBasic = elemTypeResult.isBasic;
     String elemTypeName = elemTypeResult.typeName;
-    String typeName = "List<${elemTypeName}>";
+    String typeName = 'List<${elemTypeName}>';
     return new ProcessTypeResult._private(
         typeName, isBasic, true, elemTypeName, elemTypeResult.parseExpr);
   }
@@ -316,26 +316,26 @@ class MethodInfo {
 
   MethodInfo(Generator gen, Resource resource, Method method) {
     var typeNamePrefix =
-        "${capitalize(resource.name)}${capitalize(method.name)}";
+        '${capitalize(resource.name)}${capitalize(method.name)}';
     this.hasPayload = method.request != null;
     if (hasPayload) {
       this.payloadTypeName = gen.processType(
-          "${typeNamePrefix}Payload",
+          '${typeNamePrefix}Payload',
           method.request).typeName;
     }
 
-    this.requestTypeName = "${typeNamePrefix}Request";
+    this.requestTypeName = '${typeNamePrefix}Request';
 
     this.hasResponse = method.response != null;
     if (hasResponse) {
-      this.responseTypeName = "${typeNamePrefix}Response";
+      this.responseTypeName = '${typeNamePrefix}Response';
     }
   }
 
   List<Map> get payloadData {
     if (hasPayload) {
       return [{
-        "payloadType": payloadTypeName,
+        'payloadType': payloadTypeName,
       }];
     }
     return [];

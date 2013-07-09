@@ -19,7 +19,7 @@ abstract class Root {
 }
 
 /// Method path regex, capturing parameter names enclosed in {}.
-RegExp pathRegex = new RegExp(r"(\{[^\}]+\})");
+RegExp pathRegex = new RegExp(r'(\{[^\}]+\})');
 
 /// An HTTP request described by the API.
 abstract class Request {
@@ -39,7 +39,7 @@ abstract class Request {
   String get httpMethod;
 
   /// Whether this is cachable.
-  bool get isCachable => httpMethod == "GET";
+  bool get isCachable => httpMethod == 'GET';
 
   /// Format of the request path.
   String get pathFormat;
@@ -60,8 +60,8 @@ abstract class Request {
   /// Construct a new request.
   Request(this.root, [this._payload = null]) {
     if (_payload == null && hasPayload) {
-      throw new StateError("Request of type $runtimeType expects a payload," +
-          " but none given");
+      throw new StateError('Request of type $runtimeType expects a payload,' +
+          ' but none given');
     }
   }
 
@@ -87,9 +87,9 @@ abstract class Request {
       if (parameters.containsKey(qp)) {
         write(v) {
           buf
-            ..write(firstQueryParam ? "?" : "&")
+            ..write(firstQueryParam ? '?' : '&')
             ..write(qp)
-            ..write("=")
+            ..write('=')
             ..write(v);
           firstQueryParam = false;
         }

@@ -9,7 +9,7 @@ class {{topLevelClassName}} extends streamy.Root {
   final streamy.RequestHandler requestHandler;
   final String servicePath;
 
-  {{topLevelClassName}}(this.requestHandler, {this.servicePath: "{{servicePath}}"}) {
+  {{topLevelClassName}}(this.requestHandler, {this.servicePath: '{{servicePath}}'}) {
 {{#resources}}
     this._{{name}} = new {{type}}(this);
 {{/resources}}
