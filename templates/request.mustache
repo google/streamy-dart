@@ -1,14 +1,14 @@
 
 class {{name}} extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-{{#parameters}}    "{{name}}",
+{{#parameters}}    '{{name}}',
 {{/parameters}}  ];
 
   {{#payload}}{{payloadType}} get payload => streamy.internalGetPayload(this);{{/payload}}
 
-  String get httpMethod => "{{httpMethod}}";
+  String get httpMethod => '{{httpMethod}}';
 
-  String get pathFormat => "{{path}}";
+  String get pathFormat => '{{path}}';
 
   bool get hasPayload => {{#payload}}true{{/payload}}{{^payload}}false{{/payload}};
 
@@ -17,16 +17,16 @@ class {{name}} extends streamy.Request {
 {{/repeated}}{{/parameters}}
   }
 
-  List<String> get pathParameters => const [{{#path_parameters}}"{{name}}",{{/path_parameters}}];
-  List<String> get queryParameters => const [{{#query_parameters}}"{{name}}",{{/query_parameters}}];
+  List<String> get pathParameters => const [{{#path_parameters}}'{{name}}',{{/path_parameters}}];
+  List<String> get queryParameters => const [{{#query_parameters}}'{{name}}',{{/query_parameters}}];
 
 {{#parameters}}
-  {{type}} get {{varName}} => parameters["{{name}}"];
+  {{type}} get {{varName}} => parameters['{{name}}'];
 
   set {{varName}}({{type}} value) {
-    parameters["{{name}}"] = value;
+    parameters['{{name}}'] = value;
   }
-  {{type}} remove{{capVarName}}() => parameters.remove("{{name}}");
+  {{type}} remove{{capVarName}}() => parameters.remove('{{name}}');
 {{/parameters}}
 
   {{^hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() =>
@@ -35,7 +35,7 @@ class {{name}} extends streamy.Request {
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}
-    this.local["{{name}}"] = {{name}};
+    this.local['{{name}}'] = {{name}};
 {{/sendParams}}
     return this.root.send(this);
   }{{/hasSendParams}}

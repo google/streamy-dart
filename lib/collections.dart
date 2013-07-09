@@ -1,6 +1,6 @@
 library streamy.collections;
 
-import "dart:collection";
+import 'dart:collection';
 
 /// Helper method to compare two (ostensible) [Map]s
 bool compareMapObjects(first, second) {
@@ -156,5 +156,5 @@ class SetMultimap<K, V> {
     return true;
   }
 
-  String toString() => "{SetMultimap ${_data.toString()}}";
+  String toString() => '{SetMultimap ${_data.toString()}}';
 }
