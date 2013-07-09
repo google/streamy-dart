@@ -5,12 +5,12 @@
 library schema_object;
 import "dart:async";
 import "dart:json";
-import "package:streamy/base.dart" as base;
-import "package:streamy/comparable.dart";
-Map<String, base.TypeInfo> TYPE_REGISTRY = {
+import "package:streamy/streamy.dart" as streamy;
+import "package:streamy/collections.dart";
+Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
 };
 
-class Foo extends base.EntityWrapper {
+class Foo extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
     "id",
     "bar",
@@ -18,9 +18,9 @@ class Foo extends base.EntityWrapper {
     "qux",
     "quux",
   ];
-  Foo() : super.wrap(new base.RawEntity(), (cloned) => new Foo._wrap(cloned));
-  Foo._wrap(base.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
-  Foo.wrap(base.Entity entity, base.EntityWrapperCloneFn cloneWrapper) :
+  Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
+  Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
+  Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
   int get id => this["id"];
   set id(int value) {
@@ -58,15 +58,15 @@ class Foo extends base.EntityWrapper {
       ..bar = json.remove("bar")
       ..baz = json.remove("baz")
       ..qux = json.remove("qux")
-      ..quux = base.nullSafeMapToList(json.remove("quux"), (val) => base.nullSafeOperation(val, double.parse))
+      ..quux = streamy.nullSafeMapToList(json.remove("quux"), (val) => streamy.nullSafeOperation(val, double.parse))
 ;
-    base.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
     return result;
   }
   Map toJson() {
     Map map = super.toJson();
     if (map.containsKey("quux")) {
-      map["quux"] = base.nullSafeMapToList(map["quux"], (o) => o.toString());
+      map["quux"] = streamy.nullSafeMapToList(map["quux"], (o) => o.toString());
     }
 ;
     return map;
@@ -75,13 +75,13 @@ class Foo extends base.EntityWrapper {
   Type get streamyType => Foo;
 }
 
-class Bar extends base.EntityWrapper {
+class Bar extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
     "foos",
   ];
-  Bar() : super.wrap(new base.RawEntity(), (cloned) => new Bar._wrap(cloned));
-  Bar._wrap(base.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
-  Bar.wrap(base.Entity entity, base.EntityWrapperCloneFn cloneWrapper) :
+  Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
+  Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
+  Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
   List<Foo> get foos => this["foos"];
   set foos(List<Foo> value) {
@@ -95,9 +95,9 @@ class Bar extends base.EntityWrapper {
     }
     json = new Map.from(json);
     var result = new Bar()
-      ..foos = base.nullSafeMapToList(json.remove("foos"), (val) => new Foo.fromJson(val))
+      ..foos = streamy.nullSafeMapToList(json.remove("foos"), (val) => new Foo.fromJson(val))
 ;
-    base.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
     return result;
   }
   Map toJson() {
@@ -110,10 +110,10 @@ class Bar extends base.EntityWrapper {
 }
 
 /// Entry point to all API services for the application.
-class SchemaObjectTest extends base.Root {
-  final base.RequestHandler requestHandler;
+class SchemaObjectTest extends streamy.Root {
+  final streamy.RequestHandler requestHandler;
   final String servicePath;
   SchemaObjectTest(this.requestHandler, {this.servicePath: "schemaObjectTest/v1/"}) {
   }
-  Stream send(base.Request request) => requestHandler.handle(request);
+  Stream send(streamy.Request request) => requestHandler.handle(request);
 }

@@ -1,9 +1,4 @@
-library streamy_multiplexer;
-
-import "dart:async";
-import "base.dart";
-import "cache.dart";
-import "set_multimap.dart";
+part of streamy.runtime;
 
 class _ActiveStream {
 

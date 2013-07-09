@@ -1,7 +1,7 @@
 import "dart:io" as io;
 import "dart:json";
 import "package:args/args.dart";
-import "package:streamy/apigenlib.dart";
+import "package:streamy/generator.dart";
 
 /// Generates an API client from a Google API discovery file.
 main() {
@@ -15,7 +15,7 @@ main() {
       var addendumFile = new io.File(options.addendumFile);
       addendumData = parse(addendumFile.readAsStringSync());
     }
-    String code = new Generator(new DefaultTemplateProvider(options.templatesDir))
+    String code = new Emitter(new DefaultTemplateProvider(options.templatesDir))
         .generate(options.libraryName, discovery);
     clientFile.writeAsString(code, encoding: io.Encoding.UTF_8);
   });

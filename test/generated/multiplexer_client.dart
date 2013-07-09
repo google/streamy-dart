@@ -5,19 +5,19 @@
 library multiplexer;
 import "dart:async";
 import "dart:json";
-import "package:streamy/base.dart" as base;
-import "package:streamy/comparable.dart";
-Map<String, base.TypeInfo> TYPE_REGISTRY = {
+import "package:streamy/streamy.dart" as streamy;
+import "package:streamy/collections.dart";
+Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
 };
 
-class Foo extends base.EntityWrapper {
+class Foo extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
     "id",
     "bar",
   ];
-  Foo() : super.wrap(new base.RawEntity(), (cloned) => new Foo._wrap(cloned));
-  Foo._wrap(base.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
-  Foo.wrap(base.Entity entity, base.EntityWrapperCloneFn cloneWrapper) :
+  Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
+  Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
+  Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
   int get id => this["id"];
   set id(int value) {
@@ -39,7 +39,7 @@ class Foo extends base.EntityWrapper {
       ..id = json.remove("id")
       ..bar = json.remove("bar")
 ;
-    base.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
     return result;
   }
   Map toJson() {
@@ -51,7 +51,7 @@ class Foo extends base.EntityWrapper {
   Type get streamyType => Foo;
 }
 
-class FoosGetRequest extends base.Request {
+class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     "fooId",
   ];
@@ -69,8 +69,8 @@ class FoosGetRequest extends base.Request {
   int removeFooId() => parameters.remove("fooId");
   Stream<Foo> send() =>
       this.root.send(this);
-  FoosGetRequest clone() => base.internalCloneFrom(new FoosGetRequest(root), this);
-  base.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
+  FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
+  streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
 
 class FoosResource {
@@ -85,13 +85,13 @@ class FoosResource {
 }
 
 /// Entry point to all API services for the application.
-class MultiplexerTest extends base.Root {
+class MultiplexerTest extends streamy.Root {
   FoosResource _foos;
   FoosResource get foos => _foos;
-  final base.RequestHandler requestHandler;
+  final streamy.RequestHandler requestHandler;
   final String servicePath;
   MultiplexerTest(this.requestHandler, {this.servicePath: "multiplexerTest/v1/"}) {
     this._foos = new FoosResource(this);
   }
-  Stream send(base.Request request) => requestHandler.handle(request);
+  Stream send(streamy.Request request) => requestHandler.handle(request);
 }

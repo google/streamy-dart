@@ -6,11 +6,11 @@ library {{api_library}};
 
 import "dart:async";
 import "dart:json";
-import "package:streamy/base.dart" as base;
-import "package:streamy/comparable.dart";
+import "package:streamy/streamy.dart" as streamy;
+import "package:streamy/collections.dart";
 
-Map<String, base.TypeInfo> TYPE_REGISTRY = {
+Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
 {{#types}}
-  "{{kind}}": new base.TypeInfo((Map json) => new {{name}}.fromJson(json)),
+  "{{kind}}": new streamy.TypeInfo((Map json) => new {{name}}.fromJson(json)),
 {{/types}}
 };

@@ -1,6 +1,6 @@
 import "dart:io";
 import "dart:json";
-import "package:streamy/apigenlib.dart";
+import "package:streamy/generator.dart";
 
 /// Generates test clients defined by JSON in test/generated folder.
 main() {
@@ -20,7 +20,7 @@ main() {
         testJsonFile.path.substring(0, testJsonFile.path.length - 10);
     String discoveryJson = testJsonFile.readAsStringSync();
     var d = new Discovery.fromJsonString(discoveryJson);
-    var g = new Generator(new DefaultTemplateProvider.defaultInstance());
+    var g = new Emitter(new DefaultTemplateProvider.defaultInstance());
     File testClientFile = new File("${basePath}_client.dart");
     File addendumFile = new File("${basePath}_addendum.json");
     Map addendumData = {};
