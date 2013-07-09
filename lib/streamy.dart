@@ -1,5 +1,5 @@
-/// Base library used by all generated APIs.
-library streamy;
+/// Runtime library used by all generated APIs.
+library streamy.runtime;
 
 import "dart:async";
 import "dart:json";
