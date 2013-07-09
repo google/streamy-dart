@@ -19,7 +19,7 @@ class ProxyClient extends RequestHandler {
     var payload = req.hasPayload ? json.stringify(req.payload) : null;
     return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
       if (resp.statusCode != 200) {
-        throw new ProxyException(httpReq.statusCode,
+        throw new ProxyException(resp.statusCode,
             "API call returned status: ${resp.statusText}");
       }
       return req.responseDeserializer(resp.body);
