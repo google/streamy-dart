@@ -1,9 +1,9 @@
-library streamy.proxy;
+Library streamy.proxy;
 
-import "dart:async";
-import "dart:html";
-import "dart:json" as json;
-import "base.dart";
+import 'dart:async';
+import 'dart:html';
+import 'dart:json' as json;
+import 'base.dart';
 
 /// A [RequestHandler] that proxies through a frontend server.
 class ProxyClient extends RequestHandler {
@@ -15,12 +15,12 @@ class ProxyClient extends RequestHandler {
   ProxyClient(this.proxyUrl, {this.httpHandler: const DartHtmlHttpService()});
 
   Stream handle(Request req) {
-    var url = "$proxyUrl/${req.root.servicePath}${req.path}";
+    var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? json.stringify(req.payload) : null;
     return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
       if (resp.statusCode != 200) {
         throw new ProxyException(resp.statusCode,
-            "API call returned status: ${resp.statusText}");
+            'API call returned status: ${resp.statusText}');
       }
       return req.responseDeserializer(resp.body);
     }).asStream();
@@ -34,7 +34,7 @@ class ProxyException implements Exception {
 
   ProxyException(this.message, this.code);
 
-  String toString() => "$code: $message";
+  String toString() => '$code: $message';
 }
 
 class StreamyHttpResponse {
@@ -47,17 +47,17 @@ class StreamyHttpResponse {
 
 abstract class StreamyHttpService {
 
-  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: "application/json"});
+  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: 'application/json'});
 }
 
 class DartHtmlHttpService implements StreamyHttpService {
 
   const DartHtmlHttpService();
 
-  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: "application/json"}) {
+  Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: 'application/json'}) {
     var res;
     if (payload != null) {
-      res = HttpRequest.request(url, method: method, sendData: payload, requestHeaders: {"Content-Type": contentType});
+      res = HttpRequest.request(url, method: method, sendData: payload, requestHeaders: {'Content-Type': contentType});
     } else {
       res = HttpRequest.request(url, method: method);
     }

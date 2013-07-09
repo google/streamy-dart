@@ -1,7 +1,7 @@
 
 class {{name}} extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
-{{#properties}}    "{{name}}",
+{{#properties}}    '{{name}}',
 {{/properties}}  ];
 
   {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
@@ -12,11 +12,11 @@ class {{name}} extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
 
 {{#properties}}
-  {{type}} get {{name}} => this["{{name}}"];
+  {{type}} get {{name}} => this['{{name}}'];
   set {{name}}({{type}} value) {
-    this["{{name}}"] = value;
+    this['{{name}}'] = value;
   }
-  {{type}} remove{{capName}}() => this.remove("{{name}}");
+  {{type}} remove{{capName}}() => this.remove('{{name}}');
 {{/properties}}
 
   factory {{name}}.fromJsonString(String strJson) => new {{name}}.fromJson(parse(strJson));
@@ -29,14 +29,14 @@ class {{name}} extends streamy.EntityWrapper {
     var result = new {{name}}()
 {{#properties}}
 {{#list}}
-      ..{{name}} = streamy.nullSafeMapToList(json.remove("{{name}}"), (val) => {{#mustSerialize}}new {{listType}}.fromJson(val){{/mustSerialize}}{{^mustSerialize}}{{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}val{{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}{{/mustSerialize}})
+      ..{{name}} = streamy.nullSafeMapToList(json.remove('{{name}}'), (val) => {{#mustSerialize}}new {{listType}}.fromJson(val){{/mustSerialize}}{{^mustSerialize}}{{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}val{{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}{{/mustSerialize}})
 {{/list}}
 {{^list}}
 {{#mustSerialize}}
-      ..{{name}} = new {{type}}.fromJson(json.remove("{{name}}"))
+      ..{{name}} = new {{type}}.fromJson(json.remove('{{name}}'))
 {{/mustSerialize}}
 {{^mustSerialize}}
-      ..{{name}} = {{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}json.remove("{{name}}"){{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}
+      ..{{name}} = {{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}json.remove('{{name}}'){{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}
 {{/mustSerialize}}
 {{/list}}
 {{/properties}};
@@ -48,8 +48,8 @@ class {{name}} extends streamy.EntityWrapper {
     Map map = super.toJson();
 {{#properties}}
 {{#hasParseExpr}}
-    if (map.containsKey("{{name}}")) {
-      map["{{name}}"] = {{#list}}streamy.nullSafeMapToList(map["{{name}}"], (o) => o.toString()){{/list}}{{^list}}map["{{name}}"].toString(){{/list}};
+    if (map.containsKey('{{name}}')) {
+      map['{{name}}'] = {{#list}}streamy.nullSafeMapToList(map['{{name}}'], (o) => o.toString()){{/list}}{{^list}}map['{{name}}'].toString(){{/list}};
     }
 {{/hasParseExpr}}
 {{/properties}};

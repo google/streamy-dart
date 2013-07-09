@@ -117,7 +117,7 @@ class Multiplexer extends RequestHandler {
 
     // Timestamp when we first saw this entity.
     entity.streamy.ts = new DateTime.now().millisecondsSinceEpoch;
-    entity.streamy.source = "RPC";
+    entity.streamy.source = 'RPC';
 
     // Publish this new entity on every channel.
     _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
@@ -131,7 +131,7 @@ class Multiplexer extends RequestHandler {
       _activeIndex.remove(request);
     } else {
       // Commit to cache with a modified source.
-      _cache.set(request, entity.clone()..streamy.source = "CACHE");
+      _cache.set(request, entity.clone()..streamy.source = 'CACHE');
     }
   }
 

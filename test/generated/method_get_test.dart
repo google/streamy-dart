@@ -1,33 +1,33 @@
 library method_get_test;
 
-import "dart:async";
-import "dart:json";
-import "package:unittest/unittest.dart";
-import "package:streamy/streamy.dart";
-import "method_get_client.dart";
+import 'dart:async';
+import 'dart:json';
+import 'package:unittest/unittest.dart';
+import 'package:streamy/streamy.dart';
+import 'method_get_client.dart';
 
 main() {
-  group("MethodGetTest", () {
-    test("RequestHttpMethod", () {
+  group('MethodGetTest', () {
+    test('RequestHttpMethod', () {
       var subject = new MethodGetTest(null);
-      expect(subject.foos.get().httpMethod, equals("GET"));
+      expect(subject.foos.get().httpMethod, equals('GET'));
     });
-    test("RequestPayload", () {
+    test('RequestPayload', () {
       var subject = new MethodGetTest(null);
       expect(subject.foos.get().hasPayload, equals(false));
     });
-    test("RequestResponseCycle", () {
+    test('RequestResponseCycle', () {
       Foo testResponse = new Foo()
         ..id = 1
-        ..bar = "bar";
+        ..bar = 'bar';
       var subject = new MethodGetTest(new ImmediateRequestHandler(testResponse));
       subject.foos.get().send().single.then(expectAsync1((Foo v) {
         expect(v.toJson(), equals(testResponse.toJson()));
       }, count: 1));
     });
-    test("API root has proper service path", () {
+    test('API root has proper service path', () {
       var subject = new MethodGetTest(null);
-      expect(subject.servicePath, equals("getTest/v1/"));
+      expect(subject.servicePath, equals('getTest/v1/'));
     });
   });
 }
