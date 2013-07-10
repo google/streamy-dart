@@ -63,6 +63,16 @@ abstract class Request {
       throw new StateError('Request of type $runtimeType expects a payload,' +
           ' but none given');
     }
+
+    // Prepopulate request path parameters from the payload Entity, if one is available.
+    // This is a convenience that isn't codified in the discovery document spec.
+    if (hasPayload) {
+      pathParameters.forEach((param) {
+        if (payload.contains(param) && (payload[param] is String || payload[param] is int)) {
+          parameters[param] = payload[param];
+        }
+      });
+    }
   }
 
   /// Returns a function that can deserialize a response JSON string to Dart
