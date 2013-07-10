@@ -55,15 +55,29 @@ class DartHtmlHttpService implements StreamyHttpService {
   const DartHtmlHttpService();
 
   Future<StreamyHttpResponse> request(String url, String method, {String payload: null, String contentType: 'application/json'}) {
-    var res;
+    var c = new Completer<StreamyHttpResponse>();
+
+    var req = new HttpRequest();
+    req.open(method, url, async: true);
+    if (payload != null) {
+      req.setRequestHeader('Content-Type': contentType);
+      req.send(payload);
+    } else {
+      req.send();
+    }
+
+    req.onLoad.first.then((_) {
+      c.complete(new StreamyHttpResponse(req.status, req.statusText, req.responseText));
+    };
+
+    req.onError.first.then(c.completeError);
+
     if (payload != null) {
       res = HttpRequest.request(url, method: method, sendData: payload, requestHeaders: {'Content-Type': contentType});
     } else {
       res = HttpRequest.request(url, method: method);
     }
-    return res.then((resp) {
-      return new StreamyHttpResponse(resp.status, resp.statusText, resp.responseText);
-    });
+    return c.future;
   }
 }
 
