@@ -1,4 +1,4 @@
-Library streamy.proxy;
+library streamy.proxy;
 
 import 'dart:async';
 import 'dart:html';
