@@ -19,8 +19,12 @@ class ProxyClient extends RequestHandler {
     var payload = req.hasPayload ? json.stringify(req.payload) : null;
     return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
       if (resp.statusCode != 200) {
+        Map jsonError = null;
+        if (resp.bodyType == 'application/json') {
+          jsonError = json.parse(resp.body);
+        }
         throw new ProxyException(resp.statusCode,
-            'API call returned status: ${resp.statusText}');
+            'API call returned status: ${resp.statusText}', jsonError);
       }
       return req.responseDeserializer(resp.body);
     }).asStream();
@@ -31,8 +35,9 @@ class ProxyException implements Exception {
 
   final String message;
   final int code;
+  final Map apiError;
 
-  ProxyException(this.message, this.code);
+  ProxyException(this.message, this.code, this.apiError);
 
   String toString() => '$code: $message';
 }
@@ -41,8 +46,9 @@ class StreamyHttpResponse {
   final int statusCode;
   final String statusText;
   final String body;
+  final String bodyType;
 
-  StreamyHttpResponse(this.statusCode, this.statusText, this.body);
+  StreamyHttpResponse(this.statusCode, this.statusText, this.body, this.bodyType);
 }
 
 abstract class StreamyHttpService {
@@ -67,7 +73,12 @@ class DartHtmlHttpService implements StreamyHttpService {
     }
 
     req.onLoad.first.then((_) {
-      c.complete(new StreamyHttpResponse(req.status, req.statusText, req.responseText));
+      var bodyType = null;
+      var responseType = req.getResponseHeader('Content-Type');
+      if (responseType != null) {
+        bodyType = responseType.split(';')[0];
+      }
+      c.complete(new StreamyHttpResponse(req.status, req.statusText, req.responseText, bodyType));
     });
     req.onError.first.then(c.completeError);
 
