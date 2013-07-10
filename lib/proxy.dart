@@ -68,7 +68,7 @@ class DartHtmlHttpService implements StreamyHttpService {
 
     req.onLoad.first.then((_) {
       c.complete(new StreamyHttpResponse(req.status, req.statusText, req.responseText));
-    };
+    });
     req.onError.first.then(c.completeError);
 
     return c.future;
