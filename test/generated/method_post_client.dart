@@ -53,21 +53,21 @@ class Foo extends streamy.EntityWrapper {
 
 class FoosUpdateRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'fooId',
+    'id',
   ];
   Foo get payload => streamy.internalGetPayload(this);
   String get httpMethod => 'POST';
-  String get pathFormat => 'foos/{fooId}';
+  String get pathFormat => 'foos/{id}';
   bool get hasPayload => true;
   FoosUpdateRequest(MethodPostTest root, Foo payloadEntity) : super(root, payloadEntity) {
   }
-  List<String> get pathParameters => const ['fooId',];
+  List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
-  int get fooId => parameters['fooId'];
-  set fooId(int value) {
-    parameters['fooId'] = value;
+  int get id => parameters['id'];
+  set id(int value) {
+    parameters['id'] = value;
   }
-  int removeFooId() => parameters.remove('fooId');
+  int removeId() => parameters.remove('id');
   Stream send() =>
       this.root.send(this);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
