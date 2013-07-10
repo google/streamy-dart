@@ -29,7 +29,7 @@ class DynamicEntity extends RawEntity {
         // about the type of the named arguments map.
         Map<String, dynamic> namedArgs = {};
         for (key in invocation.namedArguments.keys) {
-          namedArgs[key.toString()] = invocation.namedArguments[key];
+          namedArgs[MirrorSystem.getName(key)] = invocation.namedArguments[key];
         }
         throw new NoSuchMethodError(this, memberName,
             invocation.positionalArguments, namedArgs);
