@@ -60,7 +60,7 @@ class DartHtmlHttpService implements StreamyHttpService {
     var req = new HttpRequest();
     req.open(method, url, async: true);
     if (payload != null) {
-      req.setRequestHeader('Content-Type': contentType);
+      req.setRequestHeader('Content-Type', contentType);
       req.send(payload);
     } else {
       req.send();
