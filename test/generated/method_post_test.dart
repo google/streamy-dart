@@ -33,10 +33,14 @@ main() {
     test('RequestResponseCycle', () {
       var subject = new MethodPostTest(new ImmediateRequestHander());
       var testReq = subject.foos.update(foo)
-        ..fooId = 123;
+        ..id = 123;
       testReq.send().single.then(expectAsync1((Object v) {
         expect(v, equals('test'));
       }, count: 1));
+    });
+    test('Prepopulates id from payload', () {
+      var subject = new MethodPostTest(null);
+      expect(subject.foos.update(foo).path, equals('foos/1'));
     });
   });
 }
