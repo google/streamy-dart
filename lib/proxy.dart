@@ -15,7 +15,6 @@ class ProxyClient extends RequestHandler {
   ProxyClient(this.proxyUrl, {this.httpHandler: const DartHtmlHttpService()});
 
   Stream handle(Request req) {
-    var c = new StreamController();
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? json.stringify(req.payload) : null;
     return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
@@ -24,15 +23,11 @@ class ProxyClient extends RequestHandler {
         if (resp.bodyType == 'application/json') {
           jsonError = json.parse(resp.body);
         }
-        c.addError(new ProxyException(resp.statusCode,
-            'API call returned status: ${resp.statusText}', jsonError));
-        c.close();
-        return;
+        throw new ProxyException(resp.statusCode,
+            'API call returned status: ${resp.statusText}', jsonError);
       }
-      c.add(req.responseDeserializer(resp.body));
-      c.close();
-    });
-    return c;
+      return req.responseDeserializer(resp.body);
+    }).asStream();
   }
 }
 
