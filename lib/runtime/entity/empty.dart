@@ -4,54 +4,23 @@ part of streamy.runtime;
 class EmptyEntity extends Entity {
 
   EmptyEntity() : super.base();
-  
+
   /// Access metadata exposed by Streamy about this entity.
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
   /// Local data associated with this entity instance.
-  final LocalDataMap local = new LocalDataMap();
+  LocalDataMap get local => null;
 
   /// Create a deep copy of this entity.
   EmptyEntity clone() => new EmptyEntity()..streamy._mergeFrom(streamy);
 
 
   /// Data field getter.
-  dynamic operator[](String key) {
-    if (key == 'local') {
-      return local;
-    }
-    return key.contains('.') ? _walk(this, key.split('.')) : null;
-  }
+  dynamic operator[](String key) => null;
 
   /// Data field setter.
   void operator[]=(String key, dynamic value) {
-    if (value is List && value is! ComparableList) {
-      value = new ComparableList.from(value);
-    }
-    if (value is Function && !key.startsWith('local.')) {
-      throw new ClosureInEntityException(key, value.toString());
-    }
-    if (key.contains('.')) {
-      var keyPieces = key.split('.').toList();
-      // The last key is the one we're assigning to, not reading, so remove it.
-      var assignmentKey = keyPieces.removeLast();
-      var target = _walk(this, keyPieces);
-      if (target == null) {
-        // Retrace the path and build the partial path which evaluated to null.
-        // This isn't done during the initial navigation as an optimization.
-        var current = this;
-        var nullPath = keyPieces
-            .takeWhile((keyPiece) => (current = this[keyPiece]) != null)
-            .join('.');
-        throw new ArgumentError("Setting '$key' but part of the path " +
-            "evaluated to null: '$nullPath'.");
-      }
-      target[assignmentKey] = value;
-    } else  if (key == 'local') {
-      throw new ArgumentError("Can't set the value of 'local'.");
-    } else {
-      throw new ArgumentError("Can't set the value of '$key'");
-    }
+      throw new StateError("Can't set values on EmptyEntity");
   }
 
   /// Determine whether this entity has a given field.
@@ -73,7 +42,7 @@ class EmptyEntity extends Entity {
   Type get streamyType => EmptyEntity;
 
   /// Compare two Entities.
-  bool operator==(other) => other is EmptyEntity;
+  bool operator=(other) => other is EmptyEntity;
 
   /// Get the hashCode of this entity.
   int get hashCode => "empty".hashCode();
