@@ -46,6 +46,6 @@ class {{name}} extends streamy.Request {
   streamy.Deserializer get responseDeserializer => (String str) => new {{responseType}}.fromJsonString(str);
 {{/hasResponse}}
 {{^hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str) => new EmptyEntity();
+  streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
 {{/hasResponse}}
 }

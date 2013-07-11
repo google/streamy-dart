@@ -22,7 +22,7 @@
       "methods": {
         "get": {
           "id": "service.foos.get",
-          "path": "foos/{fooId}",
+          "path": "foos/{id}",
           "name": "",
           "response": {
             "$ref": "Foo"
@@ -30,14 +30,52 @@
           "httpMethod": "GET",
           "description": "Gets a foo",
           "parameters": {
-            "fooId": {
+            "id": {
               "type": "integer",
               "description": "Primary key of foo",
               "required": true,
               "location": "path"
             }
           },
-          "parameterOrder": ["fooId"]
+          "parameterOrder": ["id"]
+        },
+        "update": {
+          "id": "service.foos.update",
+          "path": "foos/{id}",
+          "name": "",
+          "request": {
+            "$ref": "Foo"
+          },
+          "response": {
+            "$ref": "Foo"
+          },
+          "httpMethod": "PUT",
+          "description": "Updates a foo",
+          "parameters": {
+            "id": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["id"]
+        },
+        "delete": {
+          "id": "service.foos.delete",
+          "path": "foos/{id}",
+          "name": "",
+          "httpMethod": "DELETE",
+          "description": "Deletes a foo",
+          "parameters": {
+            "id": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["id"]
         }
       }
     }

@@ -3,6 +3,8 @@ part of streamy.runtime;
 /// An [EmptyEntity] represents an [Entity] that has no return body.
 class EmptyEntity extends Entity {
 
+  EmptyEntity() : super.base();
+  
   /// Access metadata exposed by Streamy about this entity.
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
@@ -74,5 +76,5 @@ class EmptyEntity extends Entity {
   bool operator==(other) => other is EmptyEntity;
 
   /// Get the hashCode of this entity.
-  int get hashCode => "empty".hashCode()
+  int get hashCode => "empty".hashCode();
 }

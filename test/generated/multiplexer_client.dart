@@ -53,34 +53,87 @@ class Foo extends streamy.EntityWrapper {
 
 class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'fooId',
+    'id',
   ];
   String get httpMethod => 'GET';
-  String get pathFormat => 'foos/{fooId}';
+  String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
   FoosGetRequest(MultiplexerTest root) : super(root) {
   }
-  List<String> get pathParameters => const ['fooId',];
+  List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
-  int get fooId => parameters['fooId'];
-  set fooId(int value) {
-    parameters['fooId'] = value;
+  int get id => parameters['id'];
+  set id(int value) {
+    parameters['id'] = value;
   }
-  int removeFooId() => parameters.remove('fooId');
+  int removeId() => parameters.remove('id');
   Stream<Foo> send() =>
       this.root.send(this);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
 
+class FoosUpdateRequest extends streamy.Request {
+  static final List<String> KNOWN_PARAMETERS = [
+    'id',
+  ];
+  Foo get payload => streamy.internalGetPayload(this);
+  String get httpMethod => 'PUT';
+  String get pathFormat => 'foos/{id}';
+  bool get hasPayload => true;
+  FoosUpdateRequest(MultiplexerTest root, Foo payloadEntity) : super(root, payloadEntity) {
+  }
+  List<String> get pathParameters => const ['id',];
+  List<String> get queryParameters => const [];
+  int get id => parameters['id'];
+  set id(int value) {
+    parameters['id'] = value;
+  }
+  int removeId() => parameters.remove('id');
+  Stream<Foo> send() =>
+      this.root.send(this);
+  FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
+  streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
+}
+
+class FoosDeleteRequest extends streamy.Request {
+  static final List<String> KNOWN_PARAMETERS = [
+    'id',
+  ];
+  String get httpMethod => 'DELETE';
+  String get pathFormat => 'foos/{id}';
+  bool get hasPayload => false;
+  FoosDeleteRequest(MultiplexerTest root) : super(root) {
+  }
+  List<String> get pathParameters => const ['id',];
+  List<String> get queryParameters => const [];
+  int get id => parameters['id'];
+  set id(int value) {
+    parameters['id'] = value;
+  }
+  int removeId() => parameters.remove('id');
+  Stream send() =>
+      this.root.send(this);
+  FoosDeleteRequest clone() => streamy.internalCloneFrom(new FoosDeleteRequest(root), this);
+  streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
+}
+
 class FoosResource {
   final MultiplexerTest _root;
   static final List<String> KNOWN_METHODS = [
     'get',
+    'update',
+    'delete',
   ];
   FoosResource(this._root);
   FoosGetRequest get() {
     return new FoosGetRequest(_root);
+  }
+  FoosUpdateRequest update(Foo payload) {
+    return new FoosUpdateRequest(_root, payload);
+  }
+  FoosDeleteRequest delete() {
+    return new FoosDeleteRequest(_root);
   }
 }
 
