@@ -1,35 +1,24 @@
 part of streamy.runtime;
 
-/// Parent of all data transfer objects. Provides map-like methods for
-/// accessing field values.
-class RawEntity extends Entity {
+/// An [EmptyEntity] represents an [Entity] that has no return body.
+class EmptyEntity extends Entity {
 
-  RawEntity() : super.base();
-
-  /// Actual fields of the Apiary entity.
-  var _data = new ComparableMap<String, dynamic>();
-
-  /// Metadata about this entity.
+  /// Access metadata exposed by Streamy about this entity.
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
-  /// Local data.
+  /// Local data associated with this entity instance.
   final LocalDataMap local = new LocalDataMap();
 
-  /// Copy this entity (but not local data).
-  RawEntity clone() => new RawEntity().._cloneFrom(this);
+  /// Create a deep copy of this entity.
+  EmptyEntity clone() => new EmptyEntity()..streamy._mergeFrom(streamy);
 
-  /// Merge fields from an input map.
-  _cloneFrom(RawEntity input) {
-    _data = _clone(input._data);
-    streamy._mergeFrom(input.streamy);
-  }
 
   /// Data field getter.
   dynamic operator[](String key) {
     if (key == 'local') {
       return local;
     }
-    return key.contains('.') ? _walk(this, key.split('.')) : _data[key];
+    return key.contains('.') ? _walk(this, key.split('.')) : null;
   }
 
   /// Data field setter.
@@ -59,27 +48,31 @@ class RawEntity extends Entity {
     } else  if (key == 'local') {
       throw new ArgumentError("Can't set the value of 'local'.");
     } else {
-      _data[key] = value;
+      throw new ArgumentError("Can't set the value of '$key'");
     }
   }
 
-  /// Returns true if entity contains a field with a given [fieldName].
-  bool contains(String fieldName) {
-    return _data.containsKey(fieldName);
-  }
+  /// Determine whether this entity has a given field.
+  bool contains(String key) => false;
 
-  /// List of all field names in this Entity.
-  Iterable<String> get fieldNames => _data.keys;
+  /// List of all field names in this [Entity]. Note, that when fields are added
+  /// or removed from the [Entity] they are also added or removed from the
+  /// returned [Iterable]. If you need to preserve the list of fields, make
+  /// your own copy. This is consistent with [Map.keys].
+  List<String> get fieldNames => const [];
 
-  // Remove a field by name.
-  remove(String key) => _data.remove(key);
+  /// Remove and return the value of a given field in this entity.
+  dynamic remove(String key) => null;
 
-  /// Turn this entity into a Map for JSON serialization.
-  Map toJson() => removeNulls(new Map.from(_data));
+  /// Return a JSON representation of this entity.
+  Map toJson() => {};
 
-  bool operator ==(other) => other is RawEntity && other._data == _data;
+  /// Return the Streamy implementation type of this entity.
+  Type get streamyType => EmptyEntity;
 
-  int get hashCode => _data.hashCode;
+  /// Compare two Entities.
+  bool operator==(other) => other is EmptyEntity;
 
-  Type get streamyType => RawEntity;
+  /// Get the hashCode of this entity.
+  int get hashCode => "empty".hashCode()
 }

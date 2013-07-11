@@ -27,6 +27,7 @@ main() {
     });
     test('Exception on non-accessor invocation.', () {
       var e = new Entity();
+      e.foo = 'a';
       expect(() => e.foo(), throwsA(new isInstanceOf<ClosureInvocationException>()));
     });
   });

@@ -75,21 +75,22 @@ class Multiplexer extends RequestHandler {
     var active = new _ActiveStream(request);
     active.closed.whenComplete(() => _removeActive(active));
 
-    // Make an RPC if it's not already in flight.
-    Future pending;
-    if (!_inFlightRequests.containsKey(request)) {
-      pending = _delegate.handle(request).single;
-      pending
-        .catchError((_) {}) // Ignore errors here, they are caught separately below.
-        .then((entity) => _handleRpcReply(request, entity));
-      if (request.isCachable) {
-        _inFlightRequests[request] = pending;
-      }
-    } else {
-      pending = _inFlightRequests[request];
-    }
-
+    // Only cachable requests need to be handled by the multiplexer (right now).
     if (request.isCachable) {
+
+      // Make an RPC if it's not already in flight.
+      Future pending;
+      if (!_inFlightRequests.containsKey(request)) {
+        pending = _delegate.handle(request).single;
+        pending
+          .catchError((_) {}) // Ignore errors here, they are caught separately below.
+          .then((entity) => _handleRpcReply(request, entity));
+        _inFlightRequests[request] = pending;
+      } else {
+        pending = _inFlightRequests[request];
+      }
+
+      // Make cache request (always).
       _cache.get(request)
         .catchError(active.sendError)
         .then((cachedEntity) {
@@ -97,51 +98,61 @@ class Multiplexer extends RequestHandler {
             active.submit(cachedEntity);
           }
         });
+
+      // RPC replies are handled in one place, but errors for requests are
+      // subscribed to individually. This is because only in-flight requests
+      // should have error returns, whereas all streams for a request care when
+      // a new result is received.
+      pending.catchError((error) {
+        _inFlightRequests.remove(request);
+        active.sendError(error);
+      });
+
+      // Remember that this client is interested in this request.
+      _activeIndex[request].add(active);
+    } else {
+      // Non-cachable requests generate one reply only, ever.
+      _delegate.handle(request).single
+        .catchError((error) {
+          active.sendError(error);
+          return _INTERNAL_ERROR;
+        })
+        .then((entity) {
+          if (entity is! _INTENRAL_ERROR) {
+            _maybeRecordRpcData(entity);
+            active.send(entity);
+          }
+        })
+        .whenComplete(active.close);
     }
-
-    // RPC replies are handled in one place, but errors for requests are
-    // subscribed to individually. This is because only in-flight requests
-    // should have error returns, whereas all streams for a request care when
-    // a new result is received.
-    pending.catchError((error) {
-      _inFlightRequests.remove(request);
-      active.sendError(error);
-    });
-
-    // Remember that this client is interested in this request.
-    _activeIndex[request].add(active);
-
     return active.stream;
   }
 
   _handleRpcReply(Request request, Entity entity) {
     _inFlightRequests.remove(request);
 
-    if (entity == null) {
-      // An error occurred which resulted in [null] propagating through the future chain.
+    if (entity == _INTERNAL_ERROR) {
+      // An error occurred, no need to handle it here other than removing the in-flight request.
       return;
     }
 
-    // Timestamp when we first saw this entity.
-    entity.streamy.ts = new DateTime.now().millisecondsSinceEpoch;
-    entity.streamy.source = 'RPC';
+    _maybeRecordRpcData(entity);
 
     // Publish this new entity on every channel.
     _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
 
-    if (!request.isCachable) {
-      // Request isn't cachable, so close down any stream(s) waiting for it -
-      // there will be no future values. This is done asynchronously to avoid
-      // modifying the iterable from the forEach().
-      _activeIndex[request].forEach((act) =>
-          runAsync(() => _removeActive(act..close())));
-      _activeIndex.remove(request);
-    } else {
-      // Commit to cache with a modified source.
+    // Commit to cache with a modified source.
+    if (entity != null) {
       _cache.set(request, entity.clone()..streamy.source = 'CACHE');
     }
   }
 
   _removeActive(_ActiveStream stream) =>
       _activeIndex.removeValue(stream.request, stream);
+
+  _maybeRecordRpcData(entity) {
+    entity.streamy
+      ..ts = new DateTime.now().millisecondsSinceEpoch
+      ..source = 'RPC';
+  }
 }
