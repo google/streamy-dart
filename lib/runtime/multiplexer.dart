@@ -78,8 +78,10 @@ class Multiplexer extends RequestHandler {
     // Make an RPC if it's not already in flight.
     Future pending;
     if (!_inFlightRequests.containsKey(request)) {
-      pending = _delegate.handle(request).single
-        ..then((entity) => _handleRpcReply(request, entity));
+      pending = _delegate.handle(request).single;
+      pending
+        .catchError((_) {}) // Ignore errors here, they are caught separately below.
+        .then((entity) => _handleRpcReply(request, entity));
       if (request.isCachable) {
         _inFlightRequests[request] = pending;
       }
@@ -88,23 +90,23 @@ class Multiplexer extends RequestHandler {
     }
 
     if (request.isCachable) {
-      _cache.get(request).then((cachedEntity) {
-        if (cachedEntity != null) {
-          active.submit(cachedEntity);
-        }
-      }, onError: active.sendError);
+      _cache.get(request)
+        .catchError(active.sendError)
+        .then((cachedEntity) {
+          if (cachedEntity != null) {
+            active.submit(cachedEntity);
+          }
+        });
     }
 
     // RPC replies are handled in one place, but errors for requests are
     // subscribed to individually. This is because only in-flight requests
     // should have error returns, whereas all streams for a request care when
     // a new result is received.
-    pending.then((_) {},
-      onError: (error) {
-        _inFlightRequests.remove(request);
-        active.sendError(error);
-      }
-    );
+    pending.catchError((error) {
+      _inFlightRequests.remove(request);
+      active.sendError(error);
+    });
 
     // Remember that this client is interested in this request.
     _activeIndex[request].add(active);
@@ -114,6 +116,11 @@ class Multiplexer extends RequestHandler {
 
   _handleRpcReply(Request request, Entity entity) {
     _inFlightRequests.remove(request);
+
+    if (entity == null) {
+      // An error occurred which resulted in [null] propagating through the future chain.
+      return;
+    }
 
     // Timestamp when we first saw this entity.
     entity.streamy.ts = new DateTime.now().millisecondsSinceEpoch;
