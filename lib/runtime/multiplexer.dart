@@ -118,7 +118,7 @@ class Multiplexer extends RequestHandler {
           return _INTERNAL_ERROR;
         })
         .then((entity) {
-          if (entity is! _INTENRAL_ERROR) {
+          if (entity != _INTENRAL_ERROR) {
             _maybeRecordRpcData(entity);
             active.send(entity);
           }
