@@ -3,7 +3,7 @@ library streamy.proxy;
 import 'dart:async';
 import 'dart:html';
 import 'dart:json' as json;
-import 'base.dart';
+import 'streamy.dart';
 
 /// A [RequestHandler] that proxies through a frontend server.
 class ProxyClient extends RequestHandler {
@@ -15,6 +15,7 @@ class ProxyClient extends RequestHandler {
   ProxyClient(this.proxyUrl, {this.httpHandler: const DartHtmlHttpService()});
 
   Stream handle(Request req) {
+    var c = new StreamController();
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? json.stringify(req.payload) : null;
     return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
@@ -23,11 +24,15 @@ class ProxyClient extends RequestHandler {
         if (resp.bodyType == 'application/json') {
           jsonError = json.parse(resp.body);
         }
-        throw new ProxyException(resp.statusCode,
-            'API call returned status: ${resp.statusText}', jsonError);
+        c.addError(new ProxyException(resp.statusCode,
+            'API call returned status: ${resp.statusText}', jsonError));
+        c.close();
+        return;
       }
-      return req.responseDeserializer(resp.body);
-    }).asStream();
+      c.add(req.responseDeserializer(resp.body));
+      c.close();
+    });
+    return c;
   }
 }
 
