@@ -117,6 +117,11 @@ class Multiplexer extends RequestHandler {
   _handleRpcReply(Request request, Entity entity) {
     _inFlightRequests.remove(request);
 
+    if (entity == null) {
+      // An error occurred which resulted in [null] propagating through the future chain.
+      return;
+    }
+
     // Timestamp when we first saw this entity.
     entity.streamy.ts = new DateTime.now().millisecondsSinceEpoch;
     entity.streamy.source = 'RPC';
