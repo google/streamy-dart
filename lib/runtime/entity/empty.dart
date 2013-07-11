@@ -1,6 +1,6 @@
 part of streamy.runtime;
 
-/// An [EmptyEntity] represents an [Entity] that has no return body.
+/// Represents an [Entity] that has no return body.
 class EmptyEntity extends Entity {
 
   EmptyEntity() : super.base();
@@ -13,7 +13,6 @@ class EmptyEntity extends Entity {
 
   /// Create a deep copy of this entity.
   EmptyEntity clone() => new EmptyEntity()..streamy._mergeFrom(streamy);
-
 
   /// Data field getter.
   dynamic operator[](String key) => null;
