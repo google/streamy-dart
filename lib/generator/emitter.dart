@@ -284,8 +284,10 @@ class ProcessTypeResult {
         // the addendum document.
         break;
       case 'double':
+        if (typeName == 'String') {
+          parseExpr = 'double.parse';
+        }
         typeName = 'double';
-        parseExpr = 'double.parse';
         break;
       default:
         // Do nothing.

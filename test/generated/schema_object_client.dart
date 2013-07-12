@@ -17,6 +17,7 @@ class Foo extends streamy.EntityWrapper {
     'baz',
     'qux',
     'quux',
+    'corge',
   ];
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
@@ -47,6 +48,11 @@ class Foo extends streamy.EntityWrapper {
     this['quux'] = value;
   }
   List<double> removeQuux() => this.remove('quux');
+  double get corge => this['corge'];
+  set corge(double value) {
+    this['corge'] = value;
+  }
+  double removeCorge() => this.remove('corge');
   factory Foo.fromJsonString(String strJson) => new Foo.fromJson(parse(strJson));
   factory Foo.fromJson(Map json) {
     if (json == null) {
@@ -59,6 +65,7 @@ class Foo extends streamy.EntityWrapper {
       ..baz = json.remove('baz')
       ..qux = json.remove('qux')
       ..quux = streamy.nullSafeMapToList(json.remove('quux'), (val) => streamy.nullSafeOperation(val, double.parse))
+      ..corge = json.remove('corge')
 ;
     streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
     return result;
