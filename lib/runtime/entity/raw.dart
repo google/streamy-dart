@@ -24,16 +24,12 @@ class RawEntity extends Entity {
     streamy._mergeFrom(input.streamy);
   }
 
-    /// Walk a map-like structure through a list of keys, beginning with [this].
-  _walk(pieces) => pieces.fold(this,
-          (current, keyPiece) => current != null ? current[keyPiece] : null);
-
   /// Data field getter.
   dynamic operator[](String key) {
     if (key == 'local') {
       return local;
     }
-    return key.contains('.') ? _walk(key.split('.')) : _data[key];
+    return key.contains('.') ? _walk(this, key.split('.')) : _data[key];
   }
 
   /// Data field setter.
@@ -48,7 +44,7 @@ class RawEntity extends Entity {
       var keyPieces = key.split('.').toList();
       // The last key is the one we're assigning to, not reading, so remove it.
       var assignmentKey = keyPieces.removeLast();
-      var target = _walk(keyPieces);
+      var target = _walk(this, keyPieces);
       if (target == null) {
         // Retrace the path and build the partial path which evaluated to null.
         // This isn't done during the initial navigation as an optimization.
