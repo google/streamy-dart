@@ -54,7 +54,7 @@ class FoosGetRequest extends streamy.Request {
   Stream send() =>
       this.root.send(this);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => streamy.identityFn;
+  streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
 }
 
 class FoosResource {
