@@ -84,7 +84,10 @@ class Multiplexer extends RequestHandler {
         pending = _delegate.handle(request).single;
         pending
           .catchError((_) {}) // Ignore errors here, they are caught separately below.
-          .then((entity) => _handleRpcReply(request, entity));
+          .then((entity) => _handleRpcReply(request, entity))
+          .whenComplete(() {
+            _inFlightRequests.remove(request);
+          });
         _inFlightRequests[request] = pending;
       } else {
         pending = _inFlightRequests[request];
@@ -104,7 +107,6 @@ class Multiplexer extends RequestHandler {
       // should have error returns, whereas all streams for a request care when
       // a new result is received.
       pending.catchError((error) {
-        _inFlightRequests.remove(request);
         active.sendError(error);
       });
 
@@ -119,7 +121,7 @@ class Multiplexer extends RequestHandler {
         })
         .then((entity) {
           if (entity != _INTERNAL_ERROR) {
-            _maybeRecordRpcData(entity);
+            _recordRpcData(entity);
             active.submit(entity);
           }
         })
@@ -129,14 +131,12 @@ class Multiplexer extends RequestHandler {
   }
 
   _handleRpcReply(Request request, Entity entity) {
-    _inFlightRequests.remove(request);
-
     if (entity == _INTERNAL_ERROR) {
-      // An error occurred, no need to handle it here other than removing the in-flight request.
+      // An error occurred, no need to handle it here.
       return;
     }
 
-    _maybeRecordRpcData(entity);
+    _recordRpcData(entity);
 
     // Publish this new entity on every channel.
     _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
@@ -150,7 +150,7 @@ class Multiplexer extends RequestHandler {
   _removeActive(_ActiveStream stream) =>
       _activeIndex.removeValue(stream.request, stream);
 
-  _maybeRecordRpcData(entity) {
+  _recordRpcData(entity) {
     entity.streamy
       ..ts = new DateTime.now().millisecondsSinceEpoch
       ..source = 'RPC';
