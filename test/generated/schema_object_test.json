@@ -30,6 +30,11 @@
             "type": "string",
             "format": "double"
           }
+        },
+        "corge": {
+          "type": "number",
+          "description": "A double field that's serialized as a number.",
+          "format": "double"
         }
       }
     },

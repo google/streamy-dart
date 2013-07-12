@@ -58,6 +58,13 @@ main() {
       expect(foo['quux'], equals([1.5, 2.5, 3.5, 4.5]));
       expect(foo.toJson()['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
     });
+    test('type=number format=double works correctly', () {
+      var foo2 = new Foo.fromJson({
+        'corge': 1.2
+      });
+      expect(foo2.corge, equals(1.2));
+      expect(foo2.corge, new isInstanceOf<double>());
+    });
     test('Deserialize formatted strings and lists', () {
       var foo2 = new Foo.fromJson({
         'qux': '123456789123456789123456789',
