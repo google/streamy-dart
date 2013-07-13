@@ -10,6 +10,7 @@ import 'package:streamy/collections.dart';
 Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
 };
 
+/// Gets a foo
 class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'barId',
@@ -26,26 +27,36 @@ class FoosGetRequest extends streamy.Request {
   }
   List<String> get pathParameters => const ['barId','fooId',];
   List<String> get queryParameters => const ['param1','param2','param3',];
+
+  /// Primary key of bar
   String get barId => parameters['barId'];
   set barId(String value) {
     parameters['barId'] = value;
   }
   String removeBarId() => parameters.remove('barId');
+
+  /// Primary key of foo
   int get fooId => parameters['fooId'];
   set fooId(int value) {
     parameters['fooId'] = value;
   }
   int removeFooId() => parameters.remove('fooId');
+
+  /// A parameter
   bool get param1 => parameters['param1'];
   set param1(bool value) {
     parameters['param1'] = value;
   }
   bool removeParam1() => parameters.remove('param1');
+
+  /// Another parameter
   bool get param2 => parameters['param2'];
   set param2(bool value) {
     parameters['param2'] = value;
   }
   bool removeParam2() => parameters.remove('param2');
+
+  /// A repeated parameter
   ComparableList<String> get param3 => parameters['param3'];
   set param3(ComparableList<String> value) {
     parameters['param3'] = value;
@@ -63,12 +74,13 @@ class FoosResource {
     'get',
   ];
   FoosResource(this._root);
+
+  /// Gets a foo
   FoosGetRequest get() {
     return new FoosGetRequest(_root);
   }
 }
 
-/// Entry point to all API services for the application.
 class MethodParamsTest extends streamy.Root {
   FoosResource _foos;
   FoosResource get foos => _foos;

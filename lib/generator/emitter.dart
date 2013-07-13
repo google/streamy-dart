@@ -62,7 +62,6 @@ class Emitter {
 
     _render(_clientHeaderTmpl, {
       'types': types,
-      'topLevelClassName': _topLevelClassName,
       'api_library': libName,
       'source_of_templates': _templateProvider.sourceOfTemplates,
     });
@@ -92,7 +91,9 @@ class Emitter {
     _render(_rootTmpl, {
       'topLevelClassName': _topLevelClassName,
       'resources': resourceFields,
-      'servicePath': discovery.servicePath
+      'servicePath': discovery.servicePath,
+      'hasDocs': discovery.description != null,
+      'docs': discovery.description,
     });
     return _out.toString();
   }
@@ -130,6 +131,8 @@ class Emitter {
         'name': method.name,
         'reqType': methodInfo.requestTypeName,
         'payload': methodInfo.payloadData,
+        'hasDocs': method.description != null,
+        'docs': method.description,
       };
       methods.add(methodData);
     });
@@ -163,6 +166,8 @@ class Emitter {
         'varName': paramVarName,
         'repeated': param.repeated,
         'capVarName': capitalize(paramVarName),
+        'hasDocs': paramType.description != null,
+        'docs': paramType.description,
       });
       switch(param.location) {
         case LOCATION_PATH: pathParameters.add({'name': paramName}); break;
@@ -182,7 +187,9 @@ class Emitter {
       'query_parameters': queryParameters,
       'hasResponse': [],
       'sendParams': sendParams,
-      'hasSendParams': sendParams.isNotEmpty
+      'hasSendParams': sendParams.isNotEmpty,
+      'hasDocs': method.description != null,
+      'docs': method.description,
     };
 
     if (methodInfo.hasResponse) {
@@ -233,6 +240,8 @@ class Emitter {
         'mustSerialize': [],
         'hasParseExpr': [],
         'list': [],
+        'hasDocs': propertyType.description != null,
+        'docs': propertyType.description,
       };
       if (proctr.parseExpr != null) {
         propertyData['hasParseExpr'] = ['true'];
@@ -253,6 +262,8 @@ class Emitter {
     _render(_objectTmpl, {
       'name': name,
       'properties': properties,
+      'hasDocs': type.description != null,
+      'docs': type.description,
     });
 
     return name;

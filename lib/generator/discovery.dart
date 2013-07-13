@@ -8,10 +8,13 @@ class Discovery {
   final List<Resource> resources;
   /// API name
   final String name;
+  /// API description
+  final String description;
   /// Service path
   final String servicePath;
 
-  Discovery(this.schemas, this.resources, this.name, this.servicePath);
+  Discovery(this.schemas, this.resources, this.name, this.description,
+      this.servicePath);
 
   factory Discovery.fromJsonString(String jsonString) {
     Map jsDiscovery = json.parse(jsonString);
@@ -19,6 +22,7 @@ class Discovery {
       extractNameTypePairs(jsDiscovery['schemas']),
       extractResources(jsDiscovery['resources']),
       jsDiscovery['name'],
+      jsDiscovery['description'],
       jsDiscovery['servicePath']
     );
   }
