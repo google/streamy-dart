@@ -20,6 +20,8 @@ class Foo extends streamy.EntityWrapper {
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
+
+  /// Foo's favorite baz.
   String get baz => this['baz'];
   set baz(String value) {
     this['baz'] = value;
@@ -73,7 +75,6 @@ class Bar extends streamy.EntityWrapper {
   Type get streamyType => Bar;
 }
 
-/// Entry point to all API services for the application.
 class SchemaUnknownFieldsTest extends streamy.Root {
   final streamy.RequestHandler requestHandler;
   final String servicePath;

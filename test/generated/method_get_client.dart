@@ -19,11 +19,15 @@ class Foo extends streamy.EntityWrapper {
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
+
+  /// Primary key.
   int get id => this['id'];
   set id(int value) {
     this['id'] = value;
   }
   int removeId() => this.remove('id');
+
+  /// Foo's favorite bar.
   String get bar => this['bar'];
   set bar(String value) {
     this['bar'] = value;
@@ -51,6 +55,7 @@ class Foo extends streamy.EntityWrapper {
   Type get streamyType => Foo;
 }
 
+/// Gets a foo
 class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'fooId',
@@ -62,6 +67,8 @@ class FoosGetRequest extends streamy.Request {
   }
   List<String> get pathParameters => const ['fooId',];
   List<String> get queryParameters => const [];
+
+  /// Primary key of foo
   int get fooId => parameters['fooId'];
   set fooId(int value) {
     parameters['fooId'] = value;
@@ -79,12 +86,13 @@ class FoosResource {
     'get',
   ];
   FoosResource(this._root);
+
+  /// Gets a foo
   FoosGetRequest get() {
     return new FoosGetRequest(_root);
   }
 }
 
-/// Entry point to all API services for the application.
 class MethodGetTest extends streamy.Root {
   FoosResource _foos;
   FoosResource get foos => _foos;

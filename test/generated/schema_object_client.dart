@@ -23,31 +23,43 @@ class Foo extends streamy.EntityWrapper {
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
+
+  /// Primary key.
   int get id => this['id'];
   set id(int value) {
     this['id'] = value;
   }
   int removeId() => this.remove('id');
+
+  /// Foo's favorite bar.
   String get bar => this['bar'];
   set bar(String value) {
     this['bar'] = value;
   }
   String removeBar() => this.remove('bar');
+
+  /// It's spelled buzz.
   int get baz => this['baz'];
   set baz(int value) {
     this['baz'] = value;
   }
   int removeBaz() => this.remove('baz');
+
+  /// Not what it seems.
   String get qux => this['qux'];
   set qux(String value) {
     this['qux'] = value;
   }
   String removeQux() => this.remove('qux');
+
+  /// The plural of qux
   List<double> get quux => this['quux'];
   set quux(List<double> value) {
     this['quux'] = value;
   }
   List<double> removeQuux() => this.remove('quux');
+
+  /// A double field that's serialized as a number.
   double get corge => this['corge'];
   set corge(double value) {
     this['corge'] = value;
@@ -90,6 +102,8 @@ class Bar extends streamy.EntityWrapper {
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
+
+  /// A bunch of foos.
   List<Foo> get foos => this['foos'];
   set foos(List<Foo> value) {
     this['foos'] = value;
@@ -116,7 +130,6 @@ class Bar extends streamy.EntityWrapper {
   Type get streamyType => Bar;
 }
 
-/// Entry point to all API services for the application.
 class SchemaObjectTest extends streamy.Root {
   final streamy.RequestHandler requestHandler;
   final String servicePath;

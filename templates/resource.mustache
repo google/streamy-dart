@@ -10,6 +10,7 @@ class {{capName}}Resource {
   {{capName}}Resource(this._root);
 
 {{#methods}}
+{{#hasDocs}}  /// {{docs}}{{/hasDocs}}
   {{reqType}} {{name}}({{#payload}}{{payloadType}} payload{{/payload}}) {
     return new {{reqType}}(_root{{#payload}}, payload{{/payload}});
   }

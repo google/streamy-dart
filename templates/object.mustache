@@ -1,4 +1,5 @@
 
+{{#hasDocs}}/// {{docs}}{{/hasDocs}}
 class {{name}} extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
 {{#properties}}    '{{name}}',
@@ -12,6 +13,7 @@ class {{name}} extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
 
 {{#properties}}
+{{#hasDocs}}  /// {{docs}}{{/hasDocs}}
   {{type}} get {{name}} => this['{{name}}'];
   set {{name}}({{type}} value) {
     this['{{name}}'] = value;
