@@ -2,7 +2,7 @@
  * WARNING: This code was generated from templates in
  * folder templates. Do not edit by hand.
  */
-library addendum;
+library docs;
 import 'dart:async';
 import 'dart:json';
 import 'package:streamy/streamy.dart' as streamy;
@@ -10,10 +10,10 @@ import 'package:streamy/collections.dart';
 Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
 };
 
+/// This is a foo.
 class Foo extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
     'id',
-    'bar',
   ];
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
@@ -26,13 +26,6 @@ class Foo extends streamy.EntityWrapper {
     this['id'] = value;
   }
   int removeId() => this.remove('id');
-
-  /// Foo's favorite bar.
-  String get bar => this['bar'];
-  set bar(String value) {
-    this['bar'] = value;
-  }
-  String removeBar() => this.remove('bar');
   factory Foo.fromJsonString(String strJson) => new Foo.fromJson(parse(strJson));
   factory Foo.fromJson(Map json) {
     if (json == null) {
@@ -41,7 +34,6 @@ class Foo extends streamy.EntityWrapper {
     json = new Map.from(json);
     var result = new Foo()
       ..id = json.remove('id')
-      ..bar = json.remove('bar')
 ;
     streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
     return result;
@@ -63,7 +55,7 @@ class FoosGetRequest extends streamy.Request {
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{fooId}';
   bool get hasPayload => false;
-  FoosGetRequest(AddendumApi root) : super(root) {
+  FoosGetRequest(DocsTest root) : super(root) {
   }
   List<String> get pathParameters => const ['fooId',];
   List<String> get queryParameters => const [];
@@ -74,21 +66,14 @@ class FoosGetRequest extends streamy.Request {
     parameters['fooId'] = value;
   }
   int removeFooId() => parameters.remove('fooId');
-  Stream<Foo> send({
-      bool dedup: true,
-      int ttl: 800,
-      String foo: 'Bar' }) { 
-    this.local['dedup'] = dedup;
-    this.local['ttl'] = ttl;
-    this.local['foo'] = foo;
-    return this.root.send(this);
-  }
+  Stream<Foo> send() =>
+      this.root.send(this);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
 
 class FoosResource {
-  final AddendumApi _root;
+  final DocsTest _root;
   static final List<String> KNOWN_METHODS = [
     'get',
   ];
@@ -100,12 +85,13 @@ class FoosResource {
   }
 }
 
-class AddendumApi extends streamy.Root {
+/// API definitions with documentation
+class DocsTest extends streamy.Root {
   FoosResource _foos;
   FoosResource get foos => _foos;
   final streamy.RequestHandler requestHandler;
   final String servicePath;
-  AddendumApi(this.requestHandler, {this.servicePath: 'addendum/v1/'}) {
+  DocsTest(this.requestHandler, {this.servicePath: 'docsTest/v1/'}) {
     this._foos = new FoosResource(this);
   }
   Stream send(streamy.Request request) => requestHandler.handle(request);
