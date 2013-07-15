@@ -2,6 +2,7 @@ library schema_object_test;
 
 import 'dart:json';
 import 'package:streamy/collections.dart';
+import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
 import 'schema_object_client.dart';
 
@@ -70,7 +71,7 @@ main() {
         'qux': '123456789123456789123456789',
         'quux': ['2.5', '3.5', '4.5', '5.5']
       });
-      expect(foo2.qux, equals('123456789123456789123456789'));
+      expect(foo2.qux, equals(streamy.int64.parseInt('123456789123456789123456789')));
       expect(foo2.quux, equals([2.5, 3.5, 4.5, 5.5]));
     });
     test('Lists get turned into ComparableLists', () {
