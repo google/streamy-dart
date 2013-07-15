@@ -288,11 +288,12 @@ class ProcessTypeResult {
     String parseExpr;
     switch (format) {
       case 'int64':
-        // int64 is explicitly not handled. These values are almost always IDs,
-        // and not used for arithmetic. Thus it's much more convenient for
-        // applications to treat them as Strings by default.
-        // TODO(arick): Make this configurable on a per-schema object basis in
-        // the addendum document.
+        if (typeName == 'String') {
+          parseExpr = 'streamy.int64.parseInt';
+        } else if (typeName == 'num') {
+          parseExpr = '(v) => new streamy.int64.fromInt(v)';
+        }
+        typeName = 'int64';
         break;
       case 'double':
         if (typeName == 'String') {
