@@ -16,7 +16,7 @@ main() {
       addendumData = parse(addendumFile.readAsStringSync());
     }
     String code = new Emitter(new DefaultTemplateProvider(options.templatesDir))
-        .generate(options.libraryName, discovery);
+        .generate(options.libraryName, discovery, addendumData: addendumData);
     clientFile.writeAsString(code, encoding: io.Encoding.UTF_8);
   });
 }
