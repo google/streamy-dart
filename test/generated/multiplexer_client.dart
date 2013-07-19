@@ -141,18 +141,23 @@ class FoosResource {
   FoosResource(this._root);
 
   /// Gets a foo
-  FoosGetRequest get() {
-    return new FoosGetRequest(_root);
+  FoosGetRequest get(int id) {
+    var request = new FoosGetRequest(_root);
+    request.id = (id != null ? id : request.id);
+    return request;
   }
 
   /// Updates a foo
   FoosUpdateRequest update(Foo payload) {
-    return new FoosUpdateRequest(_root, payload);
+    var request = new FoosUpdateRequest(_root, payload);
+    return request;
   }
 
   /// Deletes a foo
-  FoosDeleteRequest delete() {
-    return new FoosDeleteRequest(_root);
+  FoosDeleteRequest delete(int id) {
+    var request = new FoosDeleteRequest(_root);
+    request.id = (id != null ? id : request.id);
+    return request;
   }
 }
 

@@ -90,7 +90,8 @@ class FoosResource {
 
   /// Updates a foo
   FoosUpdateRequest update(Foo payload) {
-    return new FoosUpdateRequest(_root, payload);
+    var request = new FoosUpdateRequest(_root, payload);
+    return request;
   }
 }
 

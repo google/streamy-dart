@@ -131,6 +131,12 @@ class Emitter {
         'name': method.name,
         'reqType': methodInfo.requestTypeName,
         'payload': methodInfo.payloadData,
+        'parameters': methodInfo.parameters,
+        'hasPathParameters': methodInfo.pathParameters.isNotEmpty,
+        'pathParameters': methodInfo.pathParameters,
+        'hasPathParametersOrPayload': methodInfo.pathParameters.isNotEmpty || methodInfo.payloadData.isNotEmpty,
+        'hasQueryParameters': methodInfo.queryParameters.isNotEmpty,
+        'queryParameters': methodInfo.queryParameters,
         'hasDocs': method.description != null,
         'docs': method.description,
       };
@@ -149,42 +155,16 @@ class Emitter {
 
   MethodInfo processMethod(Resource resource, Method method, List sendParams) {
     MethodInfo methodInfo = new MethodInfo(this, resource, method);
-    List<Map> parameters = [];
-    List<Map> pathParameters = [];
-    List<Map> queryParameters = [];
-    method.parameters.forEach((String paramName, Parameter param) {
-      TypeDescriptor paramType = param.type;
-      var paramVarName = paramName.replaceAll('\.', '_');
-      String paramTypeName =
-          processType('${method.name}_${paramVarName}', paramType).typeName;
-      if (param.repeated) {
-        paramTypeName = 'ComparableList<$paramTypeName>';
-      }
-      parameters.add({
-        'type': paramTypeName,
-        'name': paramName,
-        'varName': paramVarName,
-        'repeated': param.repeated,
-        'capVarName': capitalize(paramVarName),
-        'hasDocs': paramType.description != null,
-        'docs': paramType.description,
-      });
-      switch(param.location) {
-        case LOCATION_PATH: pathParameters.add({'name': paramName}); break;
-        case LOCATION_QUERY: queryParameters.add({'name': paramName}); break;
-        default: throw new ApigenException('Unsupported parameter location');
-      }
-    });
 
     var requestData = {
       'name': methodInfo.requestTypeName,
-      'parameters': parameters,
+      'parameters': methodInfo.parameters,
       'payload': methodInfo.payloadData,
       'topLevelClassName': _topLevelClassName,
       'httpMethod': method.httpMethod.name,
       'path': method.path,
-      'path_parameters': pathParameters,
-      'query_parameters': queryParameters,
+      'path_parameters': methodInfo.pathParameters,
+      'query_parameters': methodInfo.queryParameters,
       'hasResponse': [],
       'sendParams': sendParams,
       'hasSendParams': sendParams.isNotEmpty,
@@ -327,8 +307,12 @@ class MethodInfo {
   String responseTypeName;
   bool hasPayload;
   String payloadTypeName = null;
+    
+  List<Map> parameters = [];
+  List<Map> pathParameters = [];
+  List<Map> queryParameters = [];
 
-  MethodInfo(Generator gen, Resource resource, Method method) {
+  MethodInfo(Emitter gen, Resource resource, Method method) {
     var typeNamePrefix =
         '${capitalize(resource.name)}${capitalize(method.name)}';
     this.hasPayload = method.request != null;
@@ -343,6 +327,45 @@ class MethodInfo {
     this.hasResponse = method.response != null;
     if (hasResponse) {
       this.responseTypeName = '${typeNamePrefix}Response';
+    }
+    
+    method.parameters.forEach((String paramName, Parameter param) {
+      TypeDescriptor paramType = param.type;
+      var paramVarName = paramName.replaceAll('\.', '_');
+      String paramTypeName =
+          gen.processType('${method.name}_${paramVarName}', paramType).typeName;
+      var paramArgTypeName = paramTypeName;
+      if (param.repeated) {
+        paramArgTypeName = 'List<$paramTypeName>';
+        paramTypeName = 'ComparableList<$paramTypeName>';
+      }
+      var parameter = {
+        'type': paramTypeName,
+        'argType': paramArgTypeName,
+        'name': paramName,
+        'varName': paramVarName,
+        'repeated': param.repeated,
+        'capVarName': capitalize(paramVarName),
+        'hasDocs': paramType.description != null,
+        'docs': paramType.description,
+        'last': false,
+      };
+      parameters.add(parameter);
+      switch(param.location) {
+        case LOCATION_PATH: pathParameters.add(new Map.from(parameter)); break;
+        case LOCATION_QUERY: queryParameters.add(new Map.from(parameter)); break;
+        default: throw new ApigenException('Unsupported parameter location');
+      }
+    });
+    
+    if (parameters.isNotEmpty) {
+      parameters.last['last'] = true;
+    }
+    if (pathParameters.isNotEmpty) {
+      pathParameters.last['last'] = true;
+    }
+    if (queryParameters.isNotEmpty) {
+      queryParameters.last['last'] = true;
     }
   }
 

@@ -88,8 +88,10 @@ class FoosResource {
   FoosResource(this._root);
 
   /// Gets a foo
-  FoosGetRequest get() {
-    return new FoosGetRequest(_root);
+  FoosGetRequest get(int fooId) {
+    var request = new FoosGetRequest(_root);
+    request.fooId = (fooId != null ? fooId : request.fooId);
+    return request;
   }
 }
 

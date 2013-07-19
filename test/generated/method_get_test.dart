@@ -10,18 +10,18 @@ main() {
   group('MethodGetTest', () {
     test('RequestHttpMethod', () {
       var subject = new MethodGetTest(null);
-      expect(subject.foos.get().httpMethod, equals('GET'));
+      expect(subject.foos.get(1).httpMethod, equals('GET'));
     });
     test('RequestPayload', () {
       var subject = new MethodGetTest(null);
-      expect(subject.foos.get().hasPayload, equals(false));
+      expect(subject.foos.get(1).hasPayload, equals(false));
     });
     test('RequestResponseCycle', () {
       Foo testResponse = new Foo()
         ..id = 1
         ..bar = 'bar';
       var subject = new MethodGetTest(new ImmediateRequestHandler(testResponse));
-      subject.foos.get().send().single.then(expectAsync1((Foo v) {
+      subject.foos.get(1).send().single.then(expectAsync1((Foo v) {
         expect(v.toJson(), equals(testResponse.toJson()));
       }, count: 1));
     });

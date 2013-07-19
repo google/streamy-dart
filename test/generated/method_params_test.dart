@@ -54,5 +54,9 @@ main() {
     test('Cloned repeated parameters are not identical', () {
       expect(identical(r1.param3, r1.clone().param3), isFalse);
     });
+    test('Resource request parameters get copied to request objects', () {
+      var test = new MethodParamsTest(null);
+      test.foos.get("a", 1, param1: false, param2: true, param3: ["b", "c"]);
+    });
   });
 }
