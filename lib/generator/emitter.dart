@@ -122,7 +122,7 @@ class Emitter {
     _out.write(clean.toString());
   }
 
-  Map processResource(Resource resource, Map sendParams) {
+  Map processResource(Resource resource, List sendParams) {
     // TODO(yjbanov): support sub-resources
     List<Map> methods = [];
     resource.methods.forEach((Method method) {
@@ -327,7 +327,7 @@ class MethodInfo {
   bool hasPayload;
   String payloadTypeName = null;
 
-  MethodInfo(Generator gen, Resource resource, Method method) {
+  MethodInfo(Emitter gen, Resource resource, Method method) {
     var typeNamePrefix =
         '${capitalize(resource.name)}${capitalize(method.name)}';
     this.hasPayload = method.request != null;
