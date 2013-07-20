@@ -1,4 +1,4 @@
-part of apigen;
+part of streamy.generator;
 
 /// Turns the first letter in a string to a capital letter.
 String capitalize(String str) {
