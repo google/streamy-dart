@@ -41,8 +41,8 @@ class EmptyEntity extends Entity {
   Type get streamyType => EmptyEntity;
 
   /// Compare two Entities.
-  bool operator=(other) => other is EmptyEntity;
+  bool operator==(other) => other is EmptyEntity;
 
   /// Get the hashCode of this entity.
-  int get hashCode => "empty".hashCode();
+  int get hashCode => "empty".hashCode;
 }
