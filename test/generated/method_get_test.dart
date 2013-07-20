@@ -32,7 +32,7 @@ main() {
   });
 }
 
-class ImmediateRequestHandler implements RequestHandler {
+class ImmediateRequestHandler extends RequestHandler {
   Stream<String> stream;
   ImmediateRequestHandler(Foo value) {
     this.stream = new Stream.fromIterable([stringify(value.toJson())]);
@@ -46,7 +46,7 @@ class ImmediateRequestHandler implements RequestHandler {
   }
 }
 
-class DoubleRequestHandler implements RequestHandler {
+class DoubleRequestHandler extends RequestHandler {
   Stream<String> stream;
   DoubleRequestHandler(Foo value) {
     this.stream = new Stream.fromIterable([stringify(value), stringify(value)]);
