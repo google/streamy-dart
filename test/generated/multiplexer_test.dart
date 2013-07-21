@@ -92,7 +92,7 @@ main() {
   });
 }
 
-class ImmediateRequestHandler implements RequestHandler {
+class ImmediateRequestHandler extends RequestHandler {
   var _id = 1;
   Stream<Foo> handle(Request request) {
     if (request is FoosGetRequest) {

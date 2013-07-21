@@ -45,6 +45,6 @@ main() {
   });
 }
 
-class ImmediateRequestHander implements RequestHandler {
+class ImmediateRequestHander extends RequestHandler {
   Stream<Foo> handle(Request request) => new Stream.fromIterable(['test']);
 }
