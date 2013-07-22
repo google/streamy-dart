@@ -273,7 +273,7 @@ class ProcessTypeResult {
         } else if (typeName == 'num') {
           parseExpr = '(v) => new streamy.int64.fromInt(v)';
         }
-        typeName = 'int64';
+        typeName = 'streamy.int64';
         break;
       case 'double':
         if (typeName == 'String') {
