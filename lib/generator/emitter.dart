@@ -1,4 +1,4 @@
-part of apigen;
+part of streamy.generator;
 
 /// Turns the first letter in a string to a capital letter.
 String capitalize(String str) {
@@ -122,7 +122,7 @@ class Emitter {
     _out.write(clean.toString());
   }
 
-  Map processResource(Resource resource, Map sendParams) {
+  Map processResource(Resource resource, List sendParams) {
     // TODO(yjbanov): support sub-resources
     List<Map> methods = [];
     resource.methods.forEach((Method method) {

@@ -4,10 +4,11 @@ part of streamy.runtime;
 /// metadata about the entity (Entity.streamy) to be inaccurate, but will
 /// prevent multiple values from being published on [Stream]s when core [Entity]
 /// data has not changed.
-class EntityDedupTransformer extends StreamEventTransformer<Entity, Entity> {
+class EntityDedupTransformer<T extends Entity>
+    extends StreamEventTransformer<T, T> {
   var _last = null;
 
-  handleData(Entity data, EventSink<Entity> sink) {
+  handleData(T data, EventSink<T> sink) {
     if (data != _last) {
       sink.add(data);
     }
@@ -17,10 +18,11 @@ class EntityDedupTransformer extends StreamEventTransformer<Entity, Entity> {
 
 /// A [StreamTransformer] that closes the stream after the RPC reply is
 /// received.
-class OneShotRequestTransformer implements StreamTransformer<Entity, Entity> {
+class OneShotRequestTransformer<T extends Entity>
+    implements StreamTransformer<T, T> {
 
-  Stream<Entity> bind(Stream<Entity> input) {
-    var output = new StreamController<Entity>();
+  Stream<T> bind(Stream<T> input) {
+    var output = new StreamController<T>();
     var sub;
     sub = input.listen((e) {
       output.add(e);

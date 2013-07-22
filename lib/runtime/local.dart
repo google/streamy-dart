@@ -87,6 +87,14 @@ class LocalDataMap implements Map {
     return this[key];
   }
 
+  /// Implements the [Map] [addAll]] interface, which wraps [Map] values in
+  /// [LocalDataMap]s.
+  void addAll(Map other) {
+    other.forEach((key, value) {
+      this[key] = value;
+    });
+  }
+
   bool operator==(other) => compareMapObjects(this, other);
   int get hashCode => hashCodeForMap(this);
 

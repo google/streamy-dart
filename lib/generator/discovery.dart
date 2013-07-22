@@ -1,4 +1,4 @@
-part of apigen;
+part of streamy.generator;
 
 /// Google API discovery document in an object-oriented format.
 class Discovery {

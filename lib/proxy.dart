@@ -23,8 +23,9 @@ class ProxyClient extends RequestHandler {
         if (resp.bodyType == 'application/json') {
           jsonError = json.parse(resp.body);
         }
-        throw new ProxyException(resp.statusCode,
-            'API call returned status: ${resp.statusText}', jsonError);
+        throw new ProxyException(
+            'API call returned status: ${resp.statusText}', resp.statusCode,
+            jsonError);
       }
       return req.responseDeserializer(resp.body);
     }).asStream();

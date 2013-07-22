@@ -12,12 +12,24 @@ class TypeInfo {
 
 /// A sentinel value which indicates that an RPC returned an error.
 class _ErrorEntity implements Entity {
-  
+
   const _ErrorEntity();
+
+  operator[](key) => throw "Not implemented";
+  operator[]=(key, value) {
+    throw "Not implemented";
+  }
+  toJson() => throw "Not implemented";
+  clone() => throw "Not implemented";
+  contains(key) => throw "Not implemented";
+  remove(key) => throw "Not implemented";
+  get local => throw "Not implemented";
+  get fieldNames => throw "Not implemented";
+  get streamyType => throw "Not implemented";
+  get streamy => throw "Not implemented";
 
   bool equals(Object other) => other is _ErrorEntity;
   int get hashCode => "error".hashCode;
-
   toString() => "Internal Streamy sentinel value - should not be exposed.";
 }
 
