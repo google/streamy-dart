@@ -1,7 +1,7 @@
 /*
  * Provides default implementations and default values.
  */
-part of apigen;
+part of streamy.generator;
 
 /// The location of templates bundled with Streamy. It assumes Streamy is run
 /// from the root of the project. This value is used by default if no specific

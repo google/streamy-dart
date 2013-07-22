@@ -18,7 +18,7 @@ main() {
   });
 }
 
-class ImmediateRequestHandler implements RequestHandler {
+class ImmediateRequestHandler extends RequestHandler {
   Stream<String> stream;
   ImmediateRequestHandler(Foo value) {
     this.stream = new Stream.fromIterable([stringify(value.toJson())]);
