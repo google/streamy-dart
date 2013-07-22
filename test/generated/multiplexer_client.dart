@@ -76,6 +76,8 @@ class FoosGetRequest extends streamy.Request {
   int removeId() => parameters.remove('id');
   Stream<Foo> send() =>
       this.root.send(this);
+  StreamSubscription<Foo> listen(void onData(Foo event)) =>
+      this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
@@ -102,6 +104,8 @@ class FoosUpdateRequest extends streamy.Request {
   int removeId() => parameters.remove('id');
   Stream<Foo> send() =>
       this.root.send(this);
+  StreamSubscription<Foo> listen(void onData(Foo event)) =>
+      this.root.send(this).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
@@ -127,6 +131,8 @@ class FoosDeleteRequest extends streamy.Request {
   int removeId() => parameters.remove('id');
   Stream send() =>
       this.root.send(this);
+  StreamSubscription listen(void onData(event)) =>
+      this.root.send(this).listen(onData);
   FoosDeleteRequest clone() => streamy.internalCloneFrom(new FoosDeleteRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
 }

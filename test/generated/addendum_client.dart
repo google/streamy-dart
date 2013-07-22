@@ -83,6 +83,15 @@ class FoosGetRequest extends streamy.Request {
     this.local['foo'] = foo;
     return this.root.send(this);
   }
+  StreamSubscription<Foo> listen(void onData(Foo event), {
+      bool dedup: true,
+      int ttl: 800,
+      String foo: 'Bar' }) { 
+    this.local['dedup'] = dedup;
+    this.local['ttl'] = ttl;
+    this.local['foo'] = foo;
+    return this.root.send(this).listen(onData);
+  }
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }

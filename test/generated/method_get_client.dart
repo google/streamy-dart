@@ -76,6 +76,8 @@ class FoosGetRequest extends streamy.Request {
   int removeFooId() => parameters.remove('fooId');
   Stream<Foo> send() =>
       this.root.send(this);
+  StreamSubscription<Foo> listen(void onData(Foo event)) =>
+      this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }

@@ -77,6 +77,8 @@ class FoosUpdateRequest extends streamy.Request {
   int removeId() => parameters.remove('id');
   Stream send() =>
       this.root.send(this);
+  StreamSubscription listen(void onData(event)) =>
+      this.root.send(this).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
   streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
 }

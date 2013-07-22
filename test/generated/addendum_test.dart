@@ -15,6 +15,12 @@ main() {
       });
       expect(subject.servicePath, equals('addendum/v1/'));
     });
+    test('listen() shortcut', () {
+      var subject = new AddendumApi(new ImmediateRequestHandler(new Foo()..id = 1));
+      subject.foos.get(1).listen((res) {
+        expect(res.id, equals(1));
+      }, foo: 'baz');
+    });
   });
 }
 

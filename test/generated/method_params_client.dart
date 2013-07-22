@@ -64,6 +64,8 @@ class FoosGetRequest extends streamy.Request {
   ComparableList<String> removeParam3() => parameters.remove('param3');
   Stream send() =>
       this.root.send(this);
+  StreamSubscription listen(void onData(event)) =>
+      this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
 }
