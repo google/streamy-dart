@@ -80,11 +80,6 @@ class FoosResource {
   /// Gets a foo
   FoosGetRequest get(String barId, int fooId) {
     var request = new FoosGetRequest(_root);
-    request.param1 = (param1 != null ? param1 : request.param1);
-    request.param2 = (param2 != null ? param2 : request.param2);
-    if (param3 != null) {
-      request.param3.addAll(param3);
-    }
     request.barId = (barId != null ? barId : request.barId);
     request.fooId = (fooId != null ? fooId : request.fooId);
     return request;
