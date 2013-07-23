@@ -13,3 +13,4 @@ dependencies:
   mustache: ">=0.1.5"
   args: any
   unittest: any
+  meta: any

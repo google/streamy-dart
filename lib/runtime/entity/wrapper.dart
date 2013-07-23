@@ -32,7 +32,7 @@ abstract class EntityWrapper extends Entity {
   /// a subclass of [EntityWrapper] can result in broken behavior.
   Entity clone() => _clone(_delegate.clone());
 
-  bool contains(String key) => _delegate.contains(key);
+  bool containsKey(String key) => _delegate.containsKey(key);
 
   List<String> get fieldNames => _delegate.fieldNames;
 

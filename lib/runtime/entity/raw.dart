@@ -64,7 +64,7 @@ class RawEntity extends Entity {
   }
 
   /// Returns true if entity contains a field with a given [fieldName].
-  bool contains(String fieldName) {
+  bool containsKey(String fieldName) {
     return _data.containsKey(fieldName);
   }
 

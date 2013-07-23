@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:json';
 import 'dart:mirrors';
 
+import 'package:meta/meta.dart';
 import 'package:streamy/collections.dart';
 
 part 'runtime/entity/base.dart';
