@@ -46,11 +46,11 @@ class Foo extends streamy.EntityWrapper {
   int removeBaz() => this.remove('baz');
 
   /// Not what it seems.
-  int64 get qux => this['qux'];
-  set qux(int64 value) {
+  streamy.int64 get qux => this['qux'];
+  set qux(streamy.int64 value) {
     this['qux'] = value;
   }
-  int64 removeQux() => this.remove('qux');
+  streamy.int64 removeQux() => this.remove('qux');
 
   /// The plural of qux
   List<double> get quux => this['quux'];

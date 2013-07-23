@@ -76,6 +76,8 @@ class FoosGetRequest extends streamy.Request {
   int removeId() => parameters.remove('id');
   Stream<Foo> send() =>
       this.root.send(this);
+  StreamSubscription<Foo> listen(void onData(Foo event)) =>
+      this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
@@ -102,6 +104,8 @@ class FoosUpdateRequest extends streamy.Request {
   int removeId() => parameters.remove('id');
   Stream<Foo> send() =>
       this.root.send(this);
+  StreamSubscription<Foo> listen(void onData(Foo event)) =>
+      this.root.send(this).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
@@ -127,6 +131,8 @@ class FoosDeleteRequest extends streamy.Request {
   int removeId() => parameters.remove('id');
   Stream send() =>
       this.root.send(this);
+  StreamSubscription listen(void onData(event)) =>
+      this.root.send(this).listen(onData);
   FoosDeleteRequest clone() => streamy.internalCloneFrom(new FoosDeleteRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
 }
@@ -141,18 +147,23 @@ class FoosResource {
   FoosResource(this._root);
 
   /// Gets a foo
-  FoosGetRequest get() {
-    return new FoosGetRequest(_root);
+  FoosGetRequest get(int id) {
+    var request = new FoosGetRequest(_root);
+    request.id = (id != null ? id : request.id);
+    return request;
   }
 
   /// Updates a foo
   FoosUpdateRequest update(Foo payload) {
-    return new FoosUpdateRequest(_root, payload);
+    var request = new FoosUpdateRequest(_root, payload);
+    return request;
   }
 
   /// Deletes a foo
-  FoosDeleteRequest delete() {
-    return new FoosDeleteRequest(_root);
+  FoosDeleteRequest delete(int id) {
+    var request = new FoosDeleteRequest(_root);
+    request.id = (id != null ? id : request.id);
+    return request;
   }
 }
 
