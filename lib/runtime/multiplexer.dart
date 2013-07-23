@@ -48,10 +48,10 @@ class _ActiveStream {
 /// between caches and the true Apiary interface.
 class Multiplexer extends RequestHandler {
 
-  /** Cache instance (or null for no cache). */
+  /** Cache instance. */
   final Cache _cache;
 
-  /** Delegate handler (usually a real Apiary stack). */
+  /** Delegate handler (usually a real HTTP stack). */
   final RequestHandler _delegate;
 
   /**
@@ -64,7 +64,8 @@ class Multiplexer extends RequestHandler {
    */
   var _activeIndex = new SetMultimap<Request, _ActiveStream>();
 
-  Multiplexer(this._delegate, this._cache);
+  Multiplexer(this._delegate, {Cache cache: null})
+      : this._cache = cache == null ? new AsyncMapCache() : cache;
 
   Stream handle(Request request) {
     // Make a copy of the request for use in the multiplexer, since it's not
@@ -83,7 +84,9 @@ class Multiplexer extends RequestHandler {
       if (!_inFlightRequests.containsKey(request)) {
         pending = _delegate.handle(request).single;
         pending
-          .catchError((_) {}) // Ignore errors here, they are caught separately below.
+          // Report internal error but don't process it, processing is done in
+          // a separate catcher below.
+          .catchError((_) => _INTERNAL_ERROR)
           .then((entity) => _handleRpcReply(request, entity))
           .whenComplete(() {
             _inFlightRequests.remove(request);

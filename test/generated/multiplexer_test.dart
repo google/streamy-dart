@@ -12,7 +12,7 @@ main() {
     MultiplexerTest client;
     setUp(() {
       mplex = new Multiplexer(
-          new ImmediateRequestHandler(), new AsyncMapCache());
+          new ImmediateRequestHandler(), cache: new AsyncMapCache());
       client = new MultiplexerTest(mplex);
     });
 
