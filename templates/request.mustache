@@ -32,7 +32,9 @@ class {{name}} extends streamy.Request {
 {{/parameters}}
 
   {{^hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() =>
-      this.root.send(this);{{/hasSendParams}}
+      this.root.send(this);
+  StreamSubscription{{#hasResponse}}<{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}{{responseType}} {{/hasResponse}}event)) =>
+      this.root.send(this).listen(onData);{{/hasSendParams}}
   {{#hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send({
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
@@ -40,7 +42,17 @@ class {{name}} extends streamy.Request {
     this.local['{{name}}'] = {{name}};
 {{/sendParams}}
     return this.root.send(this);
+  }
+  StreamSubscription{{#hasResponse}}<{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}{{responseType}} {{/hasResponse}}event), {
+{{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
+{{/sendParams}}
+{{#sendParams}}
+    this.local['{{name}}'] = {{name}};
+{{/sendParams}}
+    return this.root.send(this).listen(onData);
   }{{/hasSendParams}}
+  
+  
 
   {{name}} clone() => streamy.internalCloneFrom(new {{name}}(root{{#payload}}, payload.clone(){{/payload}}), this);
 

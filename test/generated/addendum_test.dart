@@ -10,10 +10,16 @@ main() {
   group('Addendum', () {
     test('Can send requests', () {
       var subject = new AddendumApi(new ImmediateRequestHandler(new Foo()..id = 1));
-      subject.foos.get().send(foo: 'baz').first.then((res) {
+      subject.foos.get(1).send(foo: 'baz').first.then((res) {
         expect(res.id, equals(1));
       });
       expect(subject.servicePath, equals('addendum/v1/'));
+    });
+    test('listen() shortcut', () {
+      var subject = new AddendumApi(new ImmediateRequestHandler(new Foo()..id = 1));
+      subject.foos.get(1).listen((res) {
+        expect(res.id, equals(1));
+      }, foo: 'baz');
     });
   });
 }
