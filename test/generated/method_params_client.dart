@@ -78,8 +78,7 @@ class FoosResource {
   FoosResource(this._root);
 
   /// Gets a foo
-  FoosGetRequest get(String barId, int fooId,
-      { bool param1, bool param2, List<String> param3 } ) {
+  FoosGetRequest get(String barId, int fooId) {
     var request = new FoosGetRequest(_root);
     request.param1 = (param1 != null ? param1 : request.param1);
     request.param2 = (param2 != null ? param2 : request.param2);

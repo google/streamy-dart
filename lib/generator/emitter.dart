@@ -135,7 +135,7 @@ class Emitter {
         'hasPathParameters': methodInfo.pathParameters.isNotEmpty,
         'pathParameters': methodInfo.pathParameters,
         'hasPathParametersOrPayload': methodInfo.pathParameters.isNotEmpty || methodInfo.payloadData.isNotEmpty,
-        'hasQueryParameters': methodInfo.queryParameters.isNotEmpty,
+        'hasQueryParameters': methodInfo.queryParameters.isNotEmpty && false,
         'queryParameters': methodInfo.queryParameters,
         'hasDocs': method.description != null,
         'docs': method.description,
