@@ -27,6 +27,7 @@ abstract class Entity {
   bool containsKey(String key);
   
   /// Deprecated contains() method.
+  @deprecated
   bool contains(String key) => containsKey(key);
 
   /// List of all field names in this [Entity]. Note, that when fields are added
