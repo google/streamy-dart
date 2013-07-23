@@ -26,7 +26,7 @@ abstract class Entity {
   /// Determine whether this entity has a given field.
   bool containsKey(String key);
   
-  /// Deprecated contains() method.
+  /// Deprecated contains() method. Use [containsKey] instead.
   @deprecated
   bool contains(String key) => containsKey(key);
 
