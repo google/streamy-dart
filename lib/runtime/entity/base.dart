@@ -26,8 +26,6 @@ abstract class Entity {
   /// Determine whether this entity has a given field.
   bool contains(String key);
 
-  bool containsKey(String key) => contains(key);
-
   /// List of all field names in this [Entity]. Note, that when fields are added
   /// or removed from the [Entity] they are also added or removed from the
   /// returned [Iterable]. If you need to preserve the list of fields, make
