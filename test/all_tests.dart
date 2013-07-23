@@ -7,6 +7,7 @@ import 'generated/method_params_test.dart' as method_params_test;
 import 'generated/multiplexer_test.dart' as multiplexer_test;
 import 'generated/schema_object_test.dart' as schema_object_test;
 import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
+import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 
 main() {
   addendum_test.main();
@@ -18,4 +19,5 @@ main() {
   schema_unknown_fields_test.main();
   multiplexer_test.main();
   streamy_test.main();
+  runtime_multiplexer_test.main();
 }
