@@ -518,8 +518,13 @@ class int64 implements intx {
     if (other == null) {
       return false;
     }
-    int64 o = _promote(other);
-    return _l == o._l && _m == o._m && _h == o._h;
+    try {
+      int64 o = _promote(other);
+      return _l == o._l && _m == o._m && _h == o._h;
+    } catch (_) {
+      // Any conversion errors just produce a not-equals result.
+      return false;
+    }
   }
 
   int compareTo(Comparable other) {
