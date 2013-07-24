@@ -23,7 +23,7 @@ class EmptyEntity extends Entity {
   }
 
   /// Determine whether this entity has a given field.
-  bool contains(String key) => false;
+  bool containsKey(String key) => false;
 
   /// List of all field names in this [Entity]. Note, that when fields are added
   /// or removed from the [Entity] they are also added or removed from the

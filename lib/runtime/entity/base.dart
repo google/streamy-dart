@@ -24,7 +24,11 @@ abstract class Entity {
   void operator[]=(String key, dynamic value);
 
   /// Determine whether this entity has a given field.
-  bool contains(String key);
+  bool containsKey(String key);
+  
+  /// Deprecated contains() method. Use [containsKey] instead.
+  @deprecated
+  bool contains(String key) => containsKey(key);
 
   /// List of all field names in this [Entity]. Note, that when fields are added
   /// or removed from the [Entity] they are also added or removed from the

@@ -12,33 +12,29 @@ main() {
     MultiplexerTest client;
     setUp(() {
       mplex = new Multiplexer(
-          new ImmediateRequestHandler(), new AsyncMapCache());
+          new ImmediateRequestHandler(), cache: new AsyncMapCache());
       client = new MultiplexerTest(mplex);
     });
 
     test('handles a basic get', () {
-      (client.foos.get()
-        ..id = 1).send().listen(expectAsync1((v) {
-          expect(v.id, equals(1));
-          expect(v.streamy.source, equals('RPC'));
-        }, count: 1));
+      client.foos.get(1).send().listen(expectAsync1((v) {
+        expect(v.id, equals(1));
+        expect(v.streamy.source, equals('RPC'));
+      }, count: 1));
     });
     test('handles a cached get', () {
       // Issue the first RPC just to get stuff in cache.
-      (client.foos.get()
-        ..id = 2).send().first.then(expectAsync1((v) {
-          var expects = [(v1) {
-            expect(v1.id, equals(2));
-            expect(v1.streamy.source, equals('CACHE'));
-          }, (v2) {
-            expect(v2.id, equals(2));
-            expect(v2.streamy.source, equals('RPC'));
-          }].iterator;
-
-          (client.foos.get()
-            ..id = 2).send().listen(expectAsync1(
-                (v) => (expects..moveNext()).current(v), count: 2));
-        }, count: 1));
+      client.foos.get(2).send().first.then(expectAsync1((v) {
+        var expects = [(v1) {
+          expect(v1.id, equals(2));
+          expect(v1.streamy.source, equals('CACHE'));
+        }, (v2) {
+          expect(v2.id, equals(2));
+          expect(v2.streamy.source, equals('RPC'));
+        }].iterator;
+          client.foos.get(2).send().listen(expectAsync1(
+            (v) => (expects..moveNext()).current(v), count: 2));
+      }, count: 1));
     });
     test('handles dual streams', () {
       var v1ts = null;
@@ -48,8 +44,7 @@ main() {
         v1ts = v1.streamy.ts;
 
         // Issue a second RPC after the first one returns.
-        (client.foos.get()
-            ..id = 3).send();
+        client.foos.get(3).send();
         // Results of this second RPC are tested in 'cached get' above.
       }, (v2) {
         expect(v2.id, equals(3));
@@ -58,9 +53,8 @@ main() {
       }].iterator;
 
       // First RPC
-      (client.foos.get()
-          ..id = 3).send().listen(expectAsync1(
-              (v) => (expects..moveNext()).current(v), count: 2));
+      client.foos.get(3).send().listen(expectAsync1(
+        (v) => (expects..moveNext()).current(v), count: 2));
     });
     test('handles a basic non-cachable request', () {
       var foo = new Foo()
@@ -85,7 +79,7 @@ main() {
       }));
     });
     test('handles a no-response method', () {
-      (client.foos.delete()..id = 1).send().single.then(expectAsync1((response) {
+      client.foos.delete(1).send().single.then(expectAsync1((response) {
         expect(response, new isInstanceOf<EmptyEntity>());
       }));
     });

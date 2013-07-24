@@ -10,11 +10,11 @@ main() {
   group('MethodGetTest', () {
     test('RequestHttpMethod', () {
       var subject = new MethodGetTest(null);
-      expect(subject.foos.get().httpMethod, equals('GET'));
+      expect(subject.foos.get(1).httpMethod, equals('GET'));
     });
     test('RequestPayload', () {
       var subject = new MethodGetTest(null);
-      expect(subject.foos.get().hasPayload, equals(false));
+      expect(subject.foos.get(1).hasPayload, equals(false));
     });
     test('RequestResponseCycle', () {
       Foo testResponse = new Foo()
@@ -24,7 +24,7 @@ main() {
           (req) => new Stream.fromIterable(
               [req.responseDeserializer(stringify(testResponse.toJson()))]));
       var subject = new MethodGetTest(testRequestHandler);
-      subject.foos.get().send().listen(expectAsync1((Foo v) {
+      subject.foos.get(1).send().listen(expectAsync1((Foo v) {
         expect(v.toJson(), equals(testResponse.toJson()));
       }, count: 1));
     });

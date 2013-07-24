@@ -64,6 +64,8 @@ class FoosGetRequest extends streamy.Request {
   ComparableList<String> removeParam3() => parameters.remove('param3');
   Stream send() =>
       this.root.send(this);
+  StreamSubscription listen(void onData(event)) =>
+      this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
 }
@@ -76,8 +78,25 @@ class FoosResource {
   FoosResource(this._root);
 
   /// Gets a foo
-  FoosGetRequest get() {
-    return new FoosGetRequest(_root);
+  FoosGetRequest get(String barId, int fooId,
+      { bool param1, bool param2, List<String> param3 } ) {
+    var request = new FoosGetRequest(_root);
+    if (param1 != null) {
+      request.param1 = param1;
+    }
+    if (param2 != null) {
+      request.param2 = param2;
+    }
+    if (param3 != null) {
+      request.param3.addAll(param3);
+    }
+    if (barId != null) {
+      request.barId = barId;
+    }
+    if (fooId != null) {
+      request.fooId = fooId;
+    }
+    return request;
   }
 }
 
