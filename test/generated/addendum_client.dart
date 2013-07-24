@@ -83,6 +83,15 @@ class FoosGetRequest extends streamy.Request {
     this.local['foo'] = foo;
     return this.root.send(this);
   }
+  StreamSubscription<Foo> listen(void onData(Foo event), {
+      bool dedup: true,
+      int ttl: 800,
+      String foo: 'Bar' }) { 
+    this.local['dedup'] = dedup;
+    this.local['ttl'] = ttl;
+    this.local['foo'] = foo;
+    return this.root.send(this).listen(onData);
+  }
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
 }
@@ -95,8 +104,10 @@ class FoosResource {
   FoosResource(this._root);
 
   /// Gets a foo
-  FoosGetRequest get() {
-    return new FoosGetRequest(_root);
+  FoosGetRequest get(int fooId) {
+    var request = new FoosGetRequest(_root);
+    request.fooId = (fooId != null ? fooId : request.fooId);
+    return request;
   }
 }
 
