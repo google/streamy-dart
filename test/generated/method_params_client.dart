@@ -81,13 +81,21 @@ class FoosResource {
   FoosGetRequest get(String barId, int fooId,
       { bool param1, bool param2, List<String> param3 } ) {
     var request = new FoosGetRequest(_root);
-    request.param1 = (param1 != null ? param1 : request.param1);
-    request.param2 = (param2 != null ? param2 : request.param2);
+    if (param1 != null) {
+      request.param1 = param1;
+    }
+    if (param2 != null) {
+      request.param2 = param2;
+    }
     if (param3 != null) {
       request.param3.addAll(param3);
     }
-    request.barId = (barId != null ? barId : request.barId);
-    request.fooId = (fooId != null ? fooId : request.fooId);
+    if (barId != null) {
+      request.barId = barId;
+    }
+    if (fooId != null) {
+      request.fooId = fooId;
+    }
     return request;
   }
 }

@@ -14,15 +14,15 @@ class {{capName}}Resource {
   {{reqType}} {{name}}({{#payload}}{{payloadType}} payload{{/payload}}{{^payload}}{{#pathParameters}}{{argType}} {{name}}{{^last}}, {{/last}}{{/pathParameters}}{{/payload}}{{#hasQueryParameters}}{{#hasPathParametersOrPayload}},{{/hasPathParametersOrPayload}}
       { {{#queryParameters}}{{argType}} {{name}}{{^last}}, {{/last}}{{/queryParameters}} } {{/hasQueryParameters}}) {
     var request = new {{reqType}}(_root{{#payload}}, payload{{/payload}});{{#hasQueryParameters}}{{#queryParameters}}
-    {{^repeated}}request.{{name}} = ({{name}} != null ? {{name}} : request.{{name}});{{/repeated}}
-    {{#repeated}}if ({{name}} != null) {
-      request.{{name}}.addAll({{name}});
-    }{{/repeated}}
+    if ({{name}} != null) {
+      {{^repeated}}request.{{name}} = {{name}};{{/repeated}}
+      {{#repeated}}request.{{name}}.addAll({{name}});{{/repeated}}
+    }
 {{/queryParameters}}{{/hasQueryParameters}}{{^payload}}{{#pathParameters}}
-    {{^repeated}}request.{{name}} = ({{name}} != null ? {{name}} : request.{{name}});{{/repeated}}
-    {{#repeated}}if ({{name}} != null) {
-      request.{{name}}.addAll({{name}});
-    }{{/repeated}}
+    if ({{name}} != null) {
+      {{^repeated}}request.{{name}} = {{name}};{{/repeated}}
+      {{#repeated}}request.{{name}}.addAll({{name}});{{/repeated}}
+    }
 {{/pathParameters}}{{/payload}}
     return request;
   }
