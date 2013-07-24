@@ -149,7 +149,9 @@ class FoosResource {
   /// Gets a foo
   FoosGetRequest get(int id) {
     var request = new FoosGetRequest(_root);
-    request.id = (id != null ? id : request.id);
+    if (id != null) {
+      request.id = id;
+    }
     return request;
   }
 
@@ -162,7 +164,9 @@ class FoosResource {
   /// Deletes a foo
   FoosDeleteRequest delete(int id) {
     var request = new FoosDeleteRequest(_root);
-    request.id = (id != null ? id : request.id);
+    if (id != null) {
+      request.id = id;
+    }
     return request;
   }
 }
