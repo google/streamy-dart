@@ -25,10 +25,9 @@ main() {
 
 void ensureCheckedMode() {
   try {
-    var a = <Object>[1];
-    List b = a;
-    List<String> c = b;
-    print(c[0]);  // ensures that the code is not tree-shaken off
+    Object a = "abc";
+    int b = a;
+    print(b);  // ensures that the code is not tree-shaken off
     throw new StateError("Checked mode is disabled. Use option -c.");
   } on TypeError {
     // expected
