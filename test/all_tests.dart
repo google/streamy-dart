@@ -10,6 +10,7 @@ import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 
 main() {
+  ensureCheckedMode();
   addendum_test.main();
   docs_test.main();
   method_get_test.main();
@@ -20,4 +21,15 @@ main() {
   multiplexer_test.main();
   streamy_test.main();
   runtime_multiplexer_test.main();
+}
+
+void ensureCheckedMode() {
+  try {
+    Object a = "abc";
+    int b = a;
+    print(b);  // ensures that the code is not tree-shaken off
+    throw new StateError("Checked mode is disabled. Use option -c.");
+  } on TypeError {
+    // expected
+  }
 }
