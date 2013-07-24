@@ -54,5 +54,15 @@ main() {
     test('Cloned repeated parameters are not identical', () {
       expect(identical(r1.param3, r1.clone().param3), isFalse);
     });
+    test('Named parameters get copied into the request object', () {
+      var req = new MethodParamsTest(null)
+          .foos
+          .get("a", 2, param1: false, param2: true, param3: ["b", "c"]);
+      expect(req.barId, equals("a"));
+      expect(req.fooId, equals(2));
+      expect(req.param1, isFalse);
+      expect(req.param2, isTrue);
+      expect(req.param3, equals(["b", "c"]));
+    });
   });
 }
