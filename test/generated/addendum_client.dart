@@ -106,7 +106,9 @@ class FoosResource {
   /// Gets a foo
   FoosGetRequest get(int fooId) {
     var request = new FoosGetRequest(_root);
-    request.fooId = (fooId != null ? fooId : request.fooId);
+    if (fooId != null) {
+      request.fooId = fooId;
+    }
     return request;
   }
 }

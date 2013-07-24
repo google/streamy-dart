@@ -64,5 +64,12 @@ main() {
       expect(req.param2, isTrue);
       expect(req.param3, equals(["b", "c"]));
     });
+    test('Not specifying a named parameter does not add null to the request object.', () {
+      var req = new MethodParamsTest(null)
+          .foos
+          .get("a", 2, param1: false);
+      expect(req.parameters.containsKey('param2'), isFalse);
+      expect(req.parameters.containsKey('param3'), isTrue);
+    });
   });
 }
