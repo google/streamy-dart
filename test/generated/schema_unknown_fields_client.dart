@@ -26,6 +26,8 @@ class Foo extends streamy.EntityWrapper {
   factory Foo.fromJsonString(String strJson,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(parse(strJson), typeRegistry: typeRegistry);
+  static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
+      new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
     if (json == null) {
@@ -57,6 +59,8 @@ class Bar extends streamy.EntityWrapper {
   factory Bar.fromJsonString(String strJson,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(parse(strJson), typeRegistry: typeRegistry);
+  static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
+      new Bar.fromJson(json, typeRegistry: reg);
   factory Bar.fromJson(Map json,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
     if (json == null) {

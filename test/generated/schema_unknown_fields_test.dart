@@ -26,8 +26,7 @@ main() {
     });
     test('deserializes an unknown field of known type', () {
       var reg = new TypeRegistry({
-        "type#foo": (json, registry) =>
-            new Foo.fromJson(json, typeRegistry: registry),
+        "type#foo": Foo.entityFactory,
       });
       var bar = new Bar.fromJsonString(
           '''
@@ -44,8 +43,7 @@ main() {
     });
     test('deserializes an unknown list of elements of known type', () {
       var reg = new TypeRegistry({
-        "type#foo": (json, registry) =>
-            new Foo.fromJson(json, typeRegistry: registry),
+        "type#foo": Foo.entityFactory,
       });
       var bar = new Bar.fromJsonString(
           '''
@@ -71,8 +69,7 @@ main() {
     test('deserializes an unknown field of unknown type as Entity but '
         'serializes a nested object of known type', () {
       var reg = new TypeRegistry({
-        "type#foo": (json, registry) =>
-            new Foo.fromJson(json, typeRegistry: registry),
+        "type#foo": Foo.entityFactory,
       });
       var bar = new Bar.fromJsonString(
           '''
