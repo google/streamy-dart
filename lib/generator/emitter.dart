@@ -245,6 +245,8 @@ class Emitter {
       'properties': properties,
       'hasDocs': type.description != null,
       'docs': type.description,
+      'hasKind': type.kind != null,
+      'kind': type.kind,
     });
 
     return name;
@@ -308,7 +310,7 @@ class MethodInfo {
   String responseTypeName;
   bool hasPayload;
   String payloadTypeName = null;
-    
+
   List<Map> parameters = [];
   List<Map> pathParameters = [];
   List<Map> queryParameters = [];
@@ -329,7 +331,7 @@ class MethodInfo {
     if (hasResponse) {
       this.responseTypeName = '${typeNamePrefix}Response';
     }
-    
+
     method.parameters.forEach((String paramName, Parameter param) {
       TypeDescriptor paramType = param.type;
       var paramVarName = paramName.replaceAll('\.', '_');
@@ -358,7 +360,7 @@ class MethodInfo {
         default: throw new ApigenException('Unsupported parameter location');
       }
     });
-    
+
     if (parameters.isNotEmpty) {
       parameters.last['last'] = true;
     }

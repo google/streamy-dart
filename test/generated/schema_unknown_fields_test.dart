@@ -7,6 +7,11 @@ import 'package:unittest/unittest.dart';
 import 'schema_unknown_fields_client.dart';
 
 main() {
+  var reg = new TypeRegistry({
+    // TODO(yjbanov): Use Foo.KIND as key when Dart allows it
+    "type#foo": Foo.entityFactory,
+  });
+
   group('Entity', () {
     test('retains a basic unknown field', () {
       var foo = new Foo.fromJsonString(
@@ -25,9 +30,6 @@ main() {
       expect(foo['hello'], equals('world'));
     });
     test('deserializes an unknown field of known type', () {
-      var reg = new TypeRegistry({
-        "type#foo": Foo.entityFactory,
-      });
       var bar = new Bar.fromJsonString(
           '''
           {
@@ -42,9 +44,6 @@ main() {
       expect(foo.baz, equals('buzz'));
     });
     test('deserializes an unknown list of elements of known type', () {
-      var reg = new TypeRegistry({
-        "type#foo": Foo.entityFactory,
-      });
       var bar = new Bar.fromJsonString(
           '''
           {
@@ -68,9 +67,6 @@ main() {
     });
     test('deserializes an unknown field of unknown type as Entity but '
         'serializes a nested object of known type', () {
-      var reg = new TypeRegistry({
-        "type#foo": Foo.entityFactory,
-      });
       var bar = new Bar.fromJsonString(
           '''
           {
