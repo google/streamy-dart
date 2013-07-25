@@ -7,8 +7,6 @@ import 'dart:async';
 import 'dart:json';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
-Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
-};
 
 class Foo extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
@@ -65,8 +63,13 @@ class Foo extends streamy.EntityWrapper {
     this['corge'] = value;
   }
   double removeCorge() => this.remove('corge');
-  factory Foo.fromJsonString(String strJson) => new Foo.fromJson(parse(strJson));
-  factory Foo.fromJson(Map json) {
+  factory Foo.fromJsonString(String strJson,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
+          new Foo.fromJson(parse(strJson), typeRegistry: typeRegistry);
+  static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
+      new Foo.fromJson(json, typeRegistry: reg);
+  factory Foo.fromJson(Map json,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
     if (json == null) {
       return null;
     }
@@ -79,7 +82,7 @@ class Foo extends streamy.EntityWrapper {
       ..quux = streamy.nullSafeMapToList(json.remove('quux'), (val) => streamy.nullSafeOperation(val, double.parse))
       ..corge = json.remove('corge')
 ;
-    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, typeRegistry);
     return result;
   }
   Map toJson() {
@@ -112,8 +115,13 @@ class Bar extends streamy.EntityWrapper {
     this['foos'] = value;
   }
   List<Foo> removeFoos() => this.remove('foos');
-  factory Bar.fromJsonString(String strJson) => new Bar.fromJson(parse(strJson));
-  factory Bar.fromJson(Map json) {
+  factory Bar.fromJsonString(String strJson,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
+          new Bar.fromJson(parse(strJson), typeRegistry: typeRegistry);
+  static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
+      new Bar.fromJson(json, typeRegistry: reg);
+  factory Bar.fromJson(Map json,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
     if (json == null) {
       return null;
     }
@@ -121,7 +129,7 @@ class Bar extends streamy.EntityWrapper {
     var result = new Bar()
       ..foos = streamy.nullSafeMapToList(json.remove('foos'), (val) => new Foo.fromJson(val))
 ;
-    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, typeRegistry);
     return result;
   }
   Map toJson() {
@@ -136,7 +144,8 @@ class Bar extends streamy.EntityWrapper {
 class SchemaObjectTest extends streamy.Root {
   final streamy.RequestHandler requestHandler;
   final String servicePath;
-  SchemaObjectTest(this.requestHandler, {this.servicePath: 'schemaObjectTest/v1/'}) {
+  SchemaObjectTest(this.requestHandler, {this.servicePath: 'schemaObjectTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
   }
   Stream send(streamy.Request request) => requestHandler.handle(request);
 }
