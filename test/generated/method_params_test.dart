@@ -1,4 +1,4 @@
-library method_params_test;
+library streamy.generated.method_params.test;
 
 import 'dart:json';
 import 'package:unittest/unittest.dart';
