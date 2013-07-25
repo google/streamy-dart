@@ -21,7 +21,9 @@ class _ErrorEntity implements Entity {
   }
   toJson() => throw "Not implemented";
   clone() => throw "Not implemented";
+  @deprecated  // defined here solely to conform to the interface
   contains(key) => throw "Not implemented";
+  containsKey(key) => throw "Not implemented";
   remove(key) => throw "Not implemented";
   get local => throw "Not implemented";
   get fieldNames => throw "Not implemented";

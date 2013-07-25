@@ -1,4 +1,4 @@
-library method_post_test;
+library streamy.generated.method_post.test;
 
 import 'dart:async';
 import 'dart:json';

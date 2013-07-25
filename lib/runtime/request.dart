@@ -107,7 +107,8 @@ abstract class Request {
     StringBuffer buf = new StringBuffer();
     for (Match m in pathRegex.allMatches(pathFormat)) {
       buf.write(pathFormat.substring(pos, m.start));
-      buf.write(parameters[pathFormat.substring(m.start + 1, m.end - 1)]);
+      String pathParamName = pathFormat.substring(m.start + 1, m.end - 1);
+      buf.write(Uri.encodeComponent(parameters[pathParamName].toString()));
       pos = m.end;
     }
     buf.write(pathFormat.substring(pos));
@@ -119,7 +120,7 @@ abstract class Request {
             ..write(firstQueryParam ? '?' : '&')
             ..write(qp)
             ..write('=')
-            ..write(v);
+            ..write(Uri.encodeQueryComponent(v.toString()));
           firstQueryParam = false;
         }
         if (parameters[qp] is List) {

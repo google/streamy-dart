@@ -1,3 +1,5 @@
+library streamy.test;
+
 import 'streamy_test.dart' as streamy_test;
 import 'generated/addendum_test.dart' as addendum_test;
 import 'generated/docs_test.dart' as docs_test;

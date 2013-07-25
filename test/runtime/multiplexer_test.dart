@@ -1,4 +1,4 @@
-library runtime_multiplexer_test;
+library streamy.runtime.multiplexer.test;
 
 import 'dart:async';
 import 'package:streamy/streamy.dart';

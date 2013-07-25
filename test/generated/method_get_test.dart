@@ -1,4 +1,4 @@
-library method_get_test;
+library streamy.generated.method_get.test;
 
 import 'dart:async';
 import 'dart:json';
