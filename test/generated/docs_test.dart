@@ -1,4 +1,4 @@
-library docs_test;
+library streamy.generated.docs.test;
 
 import 'dart:async';
 import 'dart:collection';
@@ -13,32 +13,32 @@ main() {
   String clientCode = clientFile.readAsStringSync();
   group('DocsTest', () {
     test('should contain docs for root class', () {
-      expectContains(clientCode, 
+      expectContains(clientCode,
           '/// API definitions with documentation\n' +
           'class DocsTest ');
     });
     test('should contain docs for resource methods', () {
-      expectContains(clientCode, 
+      expectContains(clientCode,
           '  /// Gets a foo\n' +
           '  FoosGetRequest get(');
     });
     test('should contain docs for request class', () {
-      expectContains(clientCode, 
+      expectContains(clientCode,
           '/// Gets a foo\n' +
           'class FoosGetRequest ');
     });
     test('should contain docs for request parameter', () {
-      expectContains(clientCode, 
+      expectContains(clientCode,
           '  /// Primary key of foo\n' +
           '  int get fooId =>');
     });
     test('should contain docs for schema class', () {
-      expectContains(clientCode, 
+      expectContains(clientCode,
           '/// This is a foo.\n'
           'class Foo ');
     });
     test('should contain docs for schema property', () {
-      expectContains(clientCode, 
+      expectContains(clientCode,
           '  /// Primary key.\n'
           '  int get id => ');
     });

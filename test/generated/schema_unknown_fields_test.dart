@@ -1,4 +1,4 @@
-library schema_unknown_fields_test;
+library streamy.generated.schema_unknown_fields.test;
 
 import 'dart:json';
 import 'dart:mirrors';

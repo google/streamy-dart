@@ -1,4 +1,4 @@
-library multiplexer_test;
+library streamy.generated.multiplexer.test;
 
 import 'dart:async';
 import 'dart:json';

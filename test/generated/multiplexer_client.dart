@@ -2,7 +2,7 @@
  * WARNING: This code was generated from templates in
  * folder templates. Do not edit by hand.
  */
-library multiplexer;
+library streamy.generated.multiplexer;
 import 'dart:async';
 import 'dart:json';
 import 'package:streamy/streamy.dart' as streamy;
