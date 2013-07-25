@@ -12,6 +12,7 @@ class Foo extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
     'baz',
   ];
+  static final String KIND = """type#foo""";
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
@@ -52,6 +53,7 @@ class Foo extends streamy.EntityWrapper {
 class Bar extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
   ];
+  static final String KIND = """type#bar""";
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :

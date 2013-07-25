@@ -4,7 +4,7 @@ class {{name}} extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
 {{#properties}}    '{{name}}',
 {{/properties}}  ];
-
+{{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
   {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
 
   {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned));
