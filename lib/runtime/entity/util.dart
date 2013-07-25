@@ -1,13 +1,53 @@
 part of streamy.runtime;
 
 /// Produces an entity from a given JSON map
-typedef Entity EntityFactory(Map json);
+typedef Entity EntityFactory(Map json, TypeRegistry reg);
 
-/// Information about a type generated from a discovery document
-class TypeInfo {
-  final EntityFactory _ef;
-  TypeInfo(this._ef);
-  Entity fromJson(Map json) => this._ef(json);
+/// Doesn't contain any types.
+const TypeRegistry EMPTY_REGISTRY = const _EmptyTypeRegistry();
+
+/// Information about types generated from a discovery document.
+abstract class TypeRegistry {
+
+  /// Constructs a registry from a map that maps schema/entity kind to
+  /// factories that can deserialize the JSON representation to a concrete
+  /// entity object.
+  factory TypeRegistry(Map<String, EntityFactory> factoryMap) =>
+      new _TypeRegistryImpl(factoryMap);
+
+  /// Checks if a given kind is registered.
+  bool isRegistered(String kind);
+
+  /// Deserializes JSON into a concrete entity object. Throws if given [kind]
+  /// is not registered, so check with [isRegistered] method prior to calling
+  /// this method.
+  Entity deserialize(String kind, Map json);
+}
+
+/// A real type registry implementation.
+class _TypeRegistryImpl implements TypeRegistry {
+  final Map<String, EntityFactory> _factoryMap;
+
+  _TypeRegistryImpl(Map<String, EntityFactory> this._factoryMap);
+
+  bool isRegistered(String kind) => this._factoryMap.containsKey(kind);
+
+  Entity deserialize(String kind, Map json) {
+    if (!isRegistered(kind)) {
+      throw new StateError("'$kind' is not a registered type.");
+    }
+    return this._factoryMap[kind](json, this);
+  }
+}
+
+/// A dummy registry that doesn't have any types.
+class _EmptyTypeRegistry implements TypeRegistry {
+  const _EmptyTypeRegistry();
+
+  Entity deserialize(String kind, Map json) {
+    throw new StateError("Not supported by empty registry.");
+  }
+  bool isRegistered(String kind) => false;
 }
 
 _clone(v) {
@@ -35,10 +75,9 @@ _clone(v) {
  * WARNING: This function will overwrite any entries whose field names coincide
  * with keys in the [remainderJson].
  */
-addUnknownProperties(Entity destination, Map remainderJson,
-                     Map<String, TypeInfo> typeRegistry) {
+addUnknownProperties(Entity destination, Map remainderJson, TypeRegistry reg) {
   remainderJson.forEach((String key, dynamic value) {
-    destination[key] = _deserialize(value, typeRegistry);
+    destination[key] = _deserialize(value, reg);
   });
 }
 
@@ -47,24 +86,24 @@ addUnknownProperties(Entity destination, Map remainderJson,
  *  already deserialized. The [typeRegistry] is used to lookup known types by
  *  'kind' attribute specified in the discovery document.
  */
-_deserialize(dynamic value, Map<String, TypeInfo> typeRegistry) {
+_deserialize(dynamic value, TypeRegistry reg) {
   if (value is Map) {
     // Might be an object of a known kind
     String kind = value['kind'];
-    if (kind == null || !typeRegistry.containsKey(kind)) {
+    if (kind == null || !reg.isRegistered(kind)) {
       // Not an object of known kind. Deserialize recursively.
       var result = new RawEntity();
       value.forEach((String key, dynamic value) {
-        result[key] = _deserialize(value, typeRegistry);
+        result[key] = _deserialize(value, reg);
       });
       return result;
     } else {
       // Known kind is specified, deserialize using factory.
-      return typeRegistry[kind].fromJson(value);
+      return reg.deserialize(kind, value);
     }
   } if (value is List) {
     // Might contain elements of known kinds
-    return value.map((elem) => _deserialize(elem, typeRegistry)).toList();
+    return value.map((elem) => _deserialize(elem, reg)).toList();
   } else {
     // Already deserialized.
     return value;

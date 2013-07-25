@@ -7,8 +7,6 @@ import 'dart:async';
 import 'dart:json';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
-Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
-};
 
 /// Gets a foo
 class FoosGetRequest extends streamy.Request {
@@ -67,7 +65,8 @@ class FoosGetRequest extends streamy.Request {
   StreamSubscription listen(void onData(event)) =>
       this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
+  streamy.Deserializer get responseDeserializer => (String str) =>
+      new streamy.EmptyEntity();
 }
 
 class FoosResource {
@@ -105,7 +104,8 @@ class MethodParamsTest extends streamy.Root {
   FoosResource get foos => _foos;
   final streamy.RequestHandler requestHandler;
   final String servicePath;
-  MethodParamsTest(this.requestHandler, {this.servicePath: 'paramsTest/v1/'}) {
+  MethodParamsTest(this.requestHandler, {this.servicePath: 'paramsTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
     this._foos = new FoosResource(this);
   }
   Stream send(streamy.Request request) => requestHandler.handle(request);

@@ -8,9 +8,3 @@ import 'dart:async';
 import 'dart:json';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
-
-Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
-{{#types}}
-  '{{kind}}': new streamy.TypeInfo((Map json) => new {{name}}.fromJson(json)),
-{{/types}}
-};

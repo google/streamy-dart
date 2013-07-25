@@ -29,12 +29,15 @@ class _FunctionRequestHandler extends RequestHandler {
 /// The root object representing an entire API, which makes its resources
 /// available.
 abstract class Root {
+  final TypeRegistry typeRegistry;
 
   /// The API service path.
   String get servicePath;
 
   /// Execute a [Request] and return a [Stream] of the results.
   Stream send(Request req);
+
+  Root(this.typeRegistry);
 }
 
 /// Method path regex, capturing parameter names enclosed in {}.

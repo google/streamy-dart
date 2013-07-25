@@ -7,8 +7,6 @@ import 'dart:async';
 import 'dart:json';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
-Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
-};
 
 /// This is a foo.
 class Foo extends streamy.EntityWrapper {
@@ -26,8 +24,11 @@ class Foo extends streamy.EntityWrapper {
     this['id'] = value;
   }
   int removeId() => this.remove('id');
-  factory Foo.fromJsonString(String strJson) => new Foo.fromJson(parse(strJson));
-  factory Foo.fromJson(Map json) {
+  factory Foo.fromJsonString(String strJson,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
+          new Foo.fromJson(parse(strJson), typeRegistry: typeRegistry);
+  factory Foo.fromJson(Map json,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
     if (json == null) {
       return null;
     }
@@ -35,7 +36,7 @@ class Foo extends streamy.EntityWrapper {
     var result = new Foo()
       ..id = json.remove('id')
 ;
-    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, typeRegistry);
     return result;
   }
   Map toJson() {
@@ -71,7 +72,8 @@ class FoosGetRequest extends streamy.Request {
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
       this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
+  streamy.Deserializer get responseDeserializer => (String str) =>
+      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry);
 }
 
 class FoosResource {
@@ -97,7 +99,8 @@ class DocsTest extends streamy.Root {
   FoosResource get foos => _foos;
   final streamy.RequestHandler requestHandler;
   final String servicePath;
-  DocsTest(this.requestHandler, {this.servicePath: 'docsTest/v1/'}) {
+  DocsTest(this.requestHandler, {this.servicePath: 'docsTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
     this._foos = new FoosResource(this);
   }
   Stream send(streamy.Request request) => requestHandler.handle(request);
