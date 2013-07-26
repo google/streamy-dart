@@ -1,14 +1,15 @@
 library streamy.indexed_cache;
 
+import 'dart:async';
 import 'dart:html';
-import 'dart:indexed_db';
+import 'dart:indexed_db' as idb;
 import 'dart:json' as json;
 import 'package:streamy/streamy.dart';
 
 class IndexedDbCache extends Cache {
   
   final String name;
-  Future<Database> _database;
+  Future<idb.Database> _database;
   var _maxAgeInMillis;
   
   IndexedDbCache() : this.named("streamy");
@@ -18,7 +19,7 @@ class IndexedDbCache extends Cache {
   }
   
   void _initDb(VersionChangeEvent e) {
-    Database db = (e.target as Request).result;
+    idb.Database db = (e.target as Request).result;
     
     var store = db.createObjectStore("entityCache", keyPath: "request");
     store.createIndex("ts", "ts");
@@ -68,7 +69,7 @@ class IndexedDbCache extends Cache {
       var store = txn.objectStore("entityCache");
       var max = new DateTime.now().millisecondsSinceEpoch - _maxAgeInMillis;
       List<Future> futures = [];
-      store.index("ts").openCursor(keyRange: new KeyRange.upperBound_(max), autoAdvance: true).listen((cursor) {
+      store.index("ts").openCursor(keyRange: new idb.KeyRange.upperBound_(max), autoAdvance: true).listen((cursor) {
         futures.add(store.delete(cursor.key));
       });
       return Future.wait(futures);
