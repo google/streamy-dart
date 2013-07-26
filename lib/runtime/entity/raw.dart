@@ -75,11 +75,21 @@ class RawEntity extends Entity {
   remove(String key) => _data.remove(key);
 
   /// Turn this entity into a Map for JSON serialization.
-  Map toJson() => removeNulls(new Map.from(_data));
+  Map toJson() {
+    var jsonMap = new Map();
+    // Sort keys before adding to the output map, to ensure equivalent entities
+    // produce equivalent json.
+    (_data.keys.toList()..sort()).where((k) => _data[k] != null).forEach((k) {
+      jsonMap[k] = _data[v];
+    });
+    return jsonMap;
+  }
 
   bool operator ==(other) => other is RawEntity && other._data == _data;
 
   int get hashCode => _data.hashCode;
+  
+  String get signature => json.stringify(this);
 
   Type get streamyType => RawEntity;
 }

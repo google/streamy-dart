@@ -41,7 +41,7 @@ class IndexedDbCache extends Cache {
 
   /// Get an entity from the cache.
   Future<Entity> get(Request key) {
-    var jsonKey = json.stringify(key);
+    var jsonKey = key.signature;
     return _database.then((db) {
       var txn = db.transaction("entityCache", "readonly");
       var store = txn.objectStore("entityCache");
@@ -58,7 +58,7 @@ class IndexedDbCache extends Cache {
   /// Set an entity in the cache.
   Future set(Request key, Entity entity) {
     var cacheEntry = {
-      "request": json.stringify(key),
+      "request": key.signature,
       "ts": entity.streamy.ts,
       "entity": json.stringify(entity)
     };
@@ -74,7 +74,7 @@ class IndexedDbCache extends Cache {
     return _database.then((db) {
       var txn = db.transaction("entityCache");
       var store = txn.objectStore("entityCache");
-      return store.delete(key);
+      return store.delete(key.signature);
     });
   }
 

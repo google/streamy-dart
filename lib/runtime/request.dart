@@ -160,4 +160,15 @@ abstract class Request {
 
   int get hashCode => 17 * (17 * runtimeType.hashCode + parameters.hashCode)
       + _payload.hashCode;
+  
+  String get signature {
+    var parametersSig = (parameters
+      .keys
+      .toList()
+      ..sort())
+      .map((k) => "$k|${parameters[k].toString().replaceAll('|','||')}")
+      .join('|');
+    var payloadSig = _payload != null ? _payload.signature : "null";
+    return "$runtimeType|$parametersSig|$payloadSig";
+  }
 }
