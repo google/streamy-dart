@@ -110,7 +110,7 @@ abstract class Request {
       }
     });
     return new Map()
-      ..['parameters'] = pMap;
+      ..['parameters'] = pMap
       ..['payload'] = _payload;
   }
 
