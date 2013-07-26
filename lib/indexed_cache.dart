@@ -10,15 +10,23 @@ class IndexedDbCache extends Cache {
   
   final String name;
   Future<idb.Database> _database;
-  var _maxAgeInMillis = 5000;
+  Duration _maxAge;
   var _inGc = false;
   Timer _gcTimer;
   
-  IndexedDbCache() : this.named("streamy");
-  
-  IndexedDbCache.named(this.name) {
+  IndexedDbCache({
+    Duration gcCycle: const Duration(minutes: 5),
+    Duration maxAge: const Duration(days: 7)
+  }) : this.named("streamy", gcCycle: gcCycle, maxAge: maxAge);
+
+  IndexedDbCache.named(this.name, {
+    Duration gcCycle: const Duration(minutes: 5),
+    Duration this.maxAge: const Duration(days: 7)
+  }) {
     _database = window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb);
-    _gcTimer = new Timer.periodic(new Duration(seconds: 5), (_) => gc());
+    if (gcCycle != null) {
+      _gcTimer = new Timer.periodic(gcCycle, (_) => gc());
+    }
   }
   
   void _initDb(idb.VersionChangeEvent e) {
@@ -69,19 +77,16 @@ class IndexedDbCache extends Cache {
   
   Future gc() {
     if (_inGc) {
-      print("Already in gc.");
       return;
     }
-    print("gc start");
     _inGc = true;
     return _database.then((db) {
       var txn = db.transaction("entityCache", "readwrite");
       var store = txn.objectStore("entityCache");
-      var max = new DateTime.now().millisecondsSinceEpoch - _maxAgeInMillis;
+      var max = new DateTime.now().millisecondsSinceEpoch - _maxAge.inMilliseconds;
       List<Future> futures = [];
       store.index("ts").openCursor(range: idb.KeyRange.upperBound_(max), autoAdvance: true).listen((cursor) {
-        print("Invalidating: $key");
-        futures.add(store.delete(cursor.key));
+        futures.add(store.delete(cursor.value["request"]));
       });
       return Future.wait(futures);
     }).whenComplete(() {
