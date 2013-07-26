@@ -18,7 +18,7 @@ class IndexedDbCache extends Cache {
     _database = window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb);
   }
   
-  void _initDb(VersionChangeEvent e) {
+  void _initDb(idb.VersionChangeEvent e) {
     idb.Database db = (e.target as Request).result;
     
     var store = db.createObjectStore("entityCache", keyPath: "request");
@@ -51,7 +51,7 @@ class IndexedDbCache extends Cache {
       var txn = db.transaction("entityCache", "readwrite");
       var store = txn.objectStore("entityCache");
       return store.put(cacheEntry);
-    })
+    });
   }
 
   /// Invalidate an entity in the cache.
