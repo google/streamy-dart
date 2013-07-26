@@ -79,7 +79,7 @@ class IndexedDbCache extends Cache {
       var store = txn.objectStore("entityCache");
       var max = new DateTime.now().millisecondsSinceEpoch - _maxAgeInMillis;
       List<Future> futures = [];
-      store.index("ts").openCursor(keyRange: new idb.KeyRange.upperBound_(max), autoAdvance: true).listen((cursor) {
+      store.index("ts").openCursor(keyRange: idb.KeyRange.upperBound_(max), autoAdvance: true).listen((cursor) {
         print("Invalidating: $key");
         futures.add(store.delete(cursor.key));
       });
