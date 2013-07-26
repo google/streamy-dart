@@ -100,6 +100,12 @@ abstract class Request {
 
   /// Returns the payload, if any.
   Entity get payload => _payload;
+  
+  Map toJson() {
+    return new Map()
+      ..['parameters'] = new Map.from(parameters);
+      ..['payload'] = _payload;
+  }
 
   /// Constructs a URI path with path and query parameters
   String get path {
