@@ -19,7 +19,7 @@ class IndexedDbCache extends Cache {
   }
   
   void _initDb(idb.VersionChangeEvent e) {
-    idb.Database db = (e.target as Request).result;
+    idb.Database db = (e.target as idb.Request).result;
     
     var store = db.createObjectStore("entityCache", keyPath: "request");
     store.createIndex("ts", "ts");
