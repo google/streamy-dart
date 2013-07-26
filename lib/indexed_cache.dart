@@ -34,7 +34,8 @@ class IndexedDbCache extends Cache {
       return store.getObject(jsonKey);
     }).then((result) {
       if (result != null && result["entity"] != null) {
-        return key.responseDeserializer(result["entity"]);
+        return key.responseDeserializer(result["entity"])
+          ..streamy.ts = result["ts"];
       }
       return null;
     });
