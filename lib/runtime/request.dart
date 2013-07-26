@@ -102,15 +102,8 @@ abstract class Request {
   Entity get payload => _payload;
   
   Map toJson() {
-    var pMap = new Map();
-    parameters.forEach((k, v) {
-      pMap[k] = v;
-      if (v is int64) {
-        pMap[k] = v.toString();
-      }
-    });
     return new Map()
-      ..['parameters'] = pMap
+      ..['parameters'] = parameters
       ..['payload'] = _payload;
   }
 

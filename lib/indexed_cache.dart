@@ -27,18 +27,6 @@ class IndexedDbCache extends Cache {
 
   /// Get an entity from the cache.
   Future<Entity> get(Request key) {
-    print("Request $key: ${key.runtimeType}: ${key.toJson()}");
-    var l = key.toJson();
-    l.forEach((k, v) {
-      print("key = $k");
-      if (v is Map) {
-        v.forEach((k2, v2) {
-          print("  $k2 = $v2 (${v2.runtimeType})");
-        });
-      } else {
-        print("value = $v (${v.runtimeType})");
-      }
-    });
     var jsonKey = json.stringify(key);
     return _database.then((db) {
       var txn = db.transaction("entityCache", "readonly");
