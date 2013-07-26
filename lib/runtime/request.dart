@@ -103,7 +103,7 @@ abstract class Request {
   
   Map toJson() {
     return new Map()
-      ..['parameters'] = new Map.from(parameters)
+      ..['parameters'] = parameters
       ..['payload'] = _payload;
   }
 

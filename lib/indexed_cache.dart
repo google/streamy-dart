@@ -27,6 +27,7 @@ class IndexedDbCache extends Cache {
 
   /// Get an entity from the cache.
   Future<Entity> get(Request key) {
+    print("Request $key: ${key.runtimeType}: ${key.toJson()}");
     var jsonKey = json.stringify(key);
     return _database.then((db) {
       var txn = db.transaction("entityCache", "readonly");
