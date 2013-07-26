@@ -31,8 +31,8 @@ class IndexedDbCache extends Cache {
     var l = key.toJson();
     l.forEach((k, v) {
       print("key = $k");
-      if (l is Map) {
-        l.forEach((k2, v2) {
+      if (v is Map) {
+        v.forEach((k2, v2) {
           print("  $k2 = $v2 (${v2.runtimeType})");
         });
       } else {
