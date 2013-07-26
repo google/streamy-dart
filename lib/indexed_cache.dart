@@ -18,7 +18,7 @@ class IndexedDbCache extends Cache {
   
   IndexedDbCache.named(this.name) {
     _database = window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb);
-    _gcTimer = new Timer.periodic(new Duration(seconds: 30), gc);
+    _gcTimer = new Timer.periodic(new Duration(seconds: 5), (_) => gc());
   }
   
   void _initDb(idb.VersionChangeEvent e) {
