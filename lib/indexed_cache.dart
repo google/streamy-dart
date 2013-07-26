@@ -12,16 +12,19 @@ class IndexedDbCache extends Cache {
   Future<idb.Database> _database;
   Duration _maxAge;
   var _inGc = false;
+  var _gcPerCycleLimit;
   Timer _gcTimer;
   
   IndexedDbCache({
     Duration gcCycle: const Duration(minutes: 5),
     Duration maxAge: const Duration(days: 7)
+    int gcPerCycleLimit: 500,
   }) : this.named("streamy", gcCycle: gcCycle, maxAge: maxAge);
 
   IndexedDbCache.named(this.name, {
     Duration gcCycle: const Duration(minutes: 5),
-    Duration this.maxAge: const Duration(days: 7)
+    this.maxAge: const Duration(days: 7),
+    this.gcPercycleLimit: 500
   }) {
     _database = window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb);
     if (gcCycle != null) {
@@ -74,7 +77,8 @@ class IndexedDbCache extends Cache {
       return store.delete(key);
     });
   }
-  
+
+  /// Run garbage collection to remove all entries older than the stated date.
   Future gc() {
     if (_inGc) {
       return;
@@ -85,9 +89,11 @@ class IndexedDbCache extends Cache {
       var store = txn.objectStore("entityCache");
       var max = new DateTime.now().millisecondsSinceEpoch - _maxAge.inMilliseconds;
       List<Future> futures = [];
-      store.index("ts").openCursor(range: idb.KeyRange.upperBound_(max), autoAdvance: true).listen((cursor) {
-        futures.add(store.delete(cursor.value["request"]));
-      });
+      store.index("ts").openCursor(range: idb.KeyRange.upperBound_(max), autoAdvance: true)
+        .take(_gcPerCycleLimit)
+        .listen((cursor) {
+          futures.add(cursor.delete());
+        });
       return Future.wait(futures);
     }).whenComplete(() {
       _inGc = false;
