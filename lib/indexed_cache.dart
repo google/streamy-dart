@@ -14,7 +14,7 @@ class IndexedDbCache extends Cache {
   IndexedDbCache() : this.named("streamy");
   
   IndexedDbCache.named(this.name) {
-    _database = window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb)
+    _database = window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb);
   }
   
   void _initDb(VersionChangeEvent e) {
