@@ -90,7 +90,8 @@ abstract class Request {
     // This is a convenience that isn't codified in the discovery document spec.
     if (hasPayload) {
       pathParameters.forEach((param) {
-        if (payload.contains(param) && (payload[param] is String || payload[param] is int)) {
+        if (payload.contains(param) &&
+            (payload[param] is String || payload[param] is int || payload[param] is int64)) {
           parameters[param] = payload[param];
         }
       });
