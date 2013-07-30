@@ -136,7 +136,7 @@ class Emitter {
         'pathParameters': methodInfo.pathParameters,
         'hasPathParametersOrPayload': methodInfo.pathParameters.isNotEmpty || methodInfo.payloadData.isNotEmpty,
         // TODO(arick): Remove "&& false" once dart2js no longer crashes with lots of named parameters.
-        'hasQueryParameters': methodInfo.queryParameters.isNotEmpty,
+        'hasQueryParameters': methodInfo.queryParameters.isNotEmpty && false,
         'queryParameters': methodInfo.queryParameters,
         'hasDocs': method.description != null,
         'docs': method.description,
