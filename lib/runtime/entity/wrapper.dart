@@ -34,7 +34,7 @@ abstract class EntityWrapper extends Entity {
 
   bool containsKey(String key) => _delegate.containsKey(key);
 
-  List<String> get fieldNames => _delegate.fieldNames;
+  Iterable<String> get fieldNames => _delegate.fieldNames;
 
   dynamic remove(String key) => _delegate.remove(key);
 
