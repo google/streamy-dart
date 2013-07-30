@@ -79,8 +79,8 @@ class RawEntity extends Entity {
     var jsonMap = new Map();
     // Sort keys before adding to the output map, to ensure equivalent entities
     // produce equivalent json.
-    (_data.keys.toList()..sort()).where((k) => _data[k] != null).forEach((k) {
-      jsonMap[k] = _data[v];
+    var keys = (_data.keys.toList()..sort()).where((k) => _data[k] != null).forEach((k) {
+      jsonMap[k] = _data[k];
     });
     return jsonMap;
   }
