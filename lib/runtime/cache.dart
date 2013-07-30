@@ -35,3 +35,46 @@ class AsyncMapCache implements Cache {
     return new Future.value(true);
   }
 }
+
+class AsyncCacheWrapper implements Cache {
+  
+  final Future<Cache> delegateFuture;
+  Cache _delegate = null;
+ 
+  AsyncCacheWrapper(Future<Cache> this.delegateFuture) {
+    delegateFuture.then((delegate) {
+      _delegate = delegate;
+    });
+  }
+  
+  /// Get an entity from the cache.
+  Future<Entity> get(Request key) {
+    if (_degelate == null) {
+      return delegateFuture.then((delegate) {
+        return delegate.get(key);
+      });
+    }
+    return _delegate.get(key);
+  }
+
+  /// Set an entity in the cache.
+  Future set(Request key, Entity entity) {
+    if (_degelate == null) {
+      return delegateFuture.then((delegate) {
+        return delegate.set(key, entity);
+      });
+    }
+    return _delegate.set(key, entity);
+  }
+
+  /// Invalidate an entity in the cache.
+  Future invalidate(Request key) {
+    if (_degelate == null) {
+      return delegateFuture.then((delegate) {
+        return delegate.invalidate(key);
+      });
+    }
+    return _delegate.invalidate(key);
+  }
+  
+}

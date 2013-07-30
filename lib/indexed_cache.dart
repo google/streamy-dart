@@ -8,25 +8,29 @@ import 'package:streamy/streamy.dart';
 
 class IndexedDbCache extends Cache {
   
-  final String name;
-  Future<idb.Database> _database;
+  final idb.Database db;
   final Duration maxAge;
   var _inGc = false;
   final int gcPerCycleLimit;
   Timer _gcTimer;
   
-  IndexedDbCache({
+  static Future<IndexedDbCache> open({
     Duration gcCycle: const Duration(minutes: 5),
     Duration maxAge: const Duration(days: 7),
     int gcPerCycleLimit: 500
-  }) : this.named("streamy", gcCycle: gcCycle, maxAge: maxAge, gcPerCycleLimit: gcPerCycleLimit);
+  }) => openNamed("streamy", gcCycle: gcCycle, maxAge: maxAge, gcPerCycleLimit: gcPerCycleLimit);
 
-  IndexedDbCache.named(this.name, {
+  static Future<IndexedDbCache> openNamed(name, {
     Duration gcCycle: const Duration(minutes: 5),
-    this.maxAge: const Duration(days: 7),
-    this.gcPerCycleLimit: 500
+    Duration maxAge: const Duration(days: 7),
+    int gcPerCycleLimit: 500
   }) {
-    _database = window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb);
+    return window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb).then((database) {
+      return new IndexedDbCache._private(database, gcCycle, maxAge, gcPerCycleLimit);
+    })
+  }
+  
+  IndexedDbCache._private(this.db, gcCycle, this.maxAge, this.gcPerCycleLimit) {
     if (gcCycle != null) {
       _gcTimer = new Timer.periodic(gcCycle, (_) => gc());
     }
@@ -42,11 +46,9 @@ class IndexedDbCache extends Cache {
   /// Get an entity from the cache.
   Future<Entity> get(Request key) {
     var jsonKey = key.signature;
-    return _database.then((db) {
-      var txn = db.transaction("entityCache", "readonly");
-      var store = txn.objectStore("entityCache");
-      return store.getObject(jsonKey);
-    }).then((result) {
+    var txn = db.transaction("entityCache", "readonly");
+    var store = txn.objectStore("entityCache");
+    return store.getObject(jsonKey).then((result) {
       if (result != null && result["entity"] != null) {
         return key.responseDeserializer(result["entity"])
           ..streamy.ts = result["ts"];
@@ -62,20 +64,16 @@ class IndexedDbCache extends Cache {
       "ts": entity.streamy.ts,
       "entity": json.stringify(entity)
     };
-    return _database.then((db) {
-      var txn = db.transaction("entityCache", "readwrite");
-      var store = txn.objectStore("entityCache");
-      return store.put(cacheEntry);
-    });
+    var txn = db.transaction("entityCache", "readwrite");
+    var store = txn.objectStore("entityCache");
+    return store.put(cacheEntry);
   }
 
   /// Invalidate an entity in the cache.
   Future invalidate(Request key) {
-    return _database.then((db) {
-      var txn = db.transaction("entityCache");
-      var store = txn.objectStore("entityCache");
-      return store.delete(key.signature);
-    });
+    var txn = db.transaction("entityCache");
+    var store = txn.objectStore("entityCache");
+    return store.delete(key.signature);
   }
 
   /// Run garbage collection to remove all entries older than the stated date.
@@ -84,18 +82,16 @@ class IndexedDbCache extends Cache {
       return;
     }
     _inGc = true;
-    return _database.then((db) {
-      var txn = db.transaction("entityCache", "readwrite");
-      var store = txn.objectStore("entityCache");
-      var max = new DateTime.now().millisecondsSinceEpoch - maxAge.inMilliseconds;
-      List<Future> futures = [];
-      store.index("ts").openCursor(range: idb.KeyRange.upperBound_(max), autoAdvance: true)
-        .take(gcPerCycleLimit)
-        .listen((cursor) {
-          futures.add(cursor.delete());
-        });
-      return Future.wait(futures);
-    }).whenComplete(() {
+    var txn = db.transaction("entityCache", "readwrite");
+    var store = txn.objectStore("entityCache");
+    var max = new DateTime.now().millisecondsSinceEpoch - maxAge.inMilliseconds;
+    List<Future> futures = [];
+    store.index("ts").openCursor(range: idb.KeyRange.upperBound_(max), autoAdvance: true)
+      .take(gcPerCycleLimit)
+      .listen((cursor) {
+        futures.add(cursor.delete());
+      });
+    return Future.wait(futures).whenComplete(() {
       _inGc = false;
     });
   }

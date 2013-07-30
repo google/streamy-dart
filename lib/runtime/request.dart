@@ -118,6 +118,7 @@ abstract class Request {
     }
     buf.write(pathFormat.substring(pos));
     bool firstQueryParam = true;
+    // queryParameters is ordered.
     for (String qp in queryParameters) {
       if (parameters.containsKey(qp)) {
         write(v) {
@@ -129,7 +130,8 @@ abstract class Request {
           firstQueryParam = false;
         }
         if (parameters[qp] is List) {
-          parameters[qp].forEach(write);
+          // Sort the list of parameters to ensure a canonical path.
+          (parameters[qp].toList()..sort()).forEach(write);
         } else {
           write(parameters[qp]);
         }
@@ -160,15 +162,11 @@ abstract class Request {
 
   int get hashCode => 17 * (17 * runtimeType.hashCode + parameters.hashCode)
       + _payload.hashCode;
-  
+      
+  /// A serialized version of this request which is suitable for use as a cache key in a
+  /// system such as IndexedDB which requires String keys.
   String get signature {
-    var parametersSig = (parameters
-      .keys
-      .toList()
-      ..sort())
-      .map((k) => "$k|${parameters[k].toString().replaceAll('|','||')}")
-      .join('|');
     var payloadSig = _payload != null ? _payload.signature : "null";
-    return "$runtimeType|$parametersSig|$payloadSig";
+    return "$runtimeType|$path|$payloadSig";
   }
 }
