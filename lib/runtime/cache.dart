@@ -36,6 +36,8 @@ class AsyncMapCache implements Cache {
   }
 }
 
+/// Wraps a [Future]<[Cache]> and pretends to be synchronous, delaying cache calls
+/// until the delegate cache is asynchronously loaded.
 class AsyncCacheWrapper implements Cache {
   
   final Future<Cache> delegateFuture;

@@ -6,6 +6,7 @@ import 'dart:indexed_db' as idb;
 import 'dart:json' as json;
 import 'package:streamy/streamy.dart';
 
+/// A [Cache] that persists data in IndexedDB.
 class IndexedDbCache extends Cache {
   
   final idb.Database db;
