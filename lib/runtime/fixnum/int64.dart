@@ -1099,4 +1099,6 @@ class int64 implements intx {
     return _divModHelper(aIsCopy ? a : new int64._copy(a), b, negative,
         aIsNegative, aIsMinValue, computeRemainder);
   }
+  
+  toJson() => toString();
 }
