@@ -93,12 +93,14 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
       if (!first) {
         return;
       }
-      first = true;
+      first = false;
+      print("completing future");
       if (entity != null) {
         completer.complete(entity);
       } else {
         completer.completeError(error);
       }
+      print("done completing future");
     }
     
     // Subscribe to the stream. On a new value or error, publish it to the controller.

@@ -137,46 +137,6 @@ main() {
       expect(new int64.fromInt(3) == new Object(), equals(false));
     });
   });
-  group('RequestTrackingTransformer', () {
-    test('Properly tracks a request', () {
-      var bareHandler = (testRequestHandler()
-        ..value(new Entity()..['x'] = 'a')
-        ..value(new Entity()..['x'] = 'b'))
-        .build();
-      var tracker = new RequestTrackingTransformer();
-      var handler = bareHandler.transformResponses(tracker);
-      
-      var x = ' ';
-      tracker.trackingStream.listen(expectAsync1((event) {
-        expect(event.request, equals(TEST_GET_REQUEST));
-        expect(x, equals(' '));
-        event.whenComplete.then(expectAsync1((entity) {
-          expect(x, equals('a'));
-        }));
-      }));
-      handler.handle(TEST_GET_REQUEST).listen((entity) {
-        x = entity['x'];
-      });
-    });
-    test('Properly handles errors', () {
-      var bareHandler = (testRequestHandler()
-        ..error(new ArgumentError("test")))
-        .build();
-      var tracker = new RequestTrackingTransformer();
-      var handler = bareHandler.transformResponses(tracker);
-      
-      tracker.trackingStream.listen(expectAsync1((event) {
-        expect(event.request, equals(TEST_GET_REQUEST));
-        event.whenComplete.catchError(expectAsync1((error) {
-          expect(error, new isInstanceOf<ArgumentError>());
-        }));
-      }));
-      handler.handle(TEST_GET_REQUEST).listen((entity) {
-      }).onError(expectAsync1((error) {
-        expect(error, new isInstanceOf<ArgumentError>());
-      }));
-    });
-  });
 }
 
 asyncExpect(Future future, matcher) => future.then(expectAsync1((v) {

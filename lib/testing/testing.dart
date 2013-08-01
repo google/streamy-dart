@@ -34,8 +34,8 @@ class _TestRequestHandler extends RequestHandler {
     }
     var resp = _responses[_index];
     _index++;
-    if (resp is _TestValueResponse) {
-      return new Stream.fromIterable([resp.value]);
+    if (resp is _TestValuesResponse) {
+      return new Stream.fromIterable(resp.values);
     } else if (resp is _TestErrorResponse) {
       return new Stream.fromFuture(new Future.error(resp.error));
     } else {
@@ -47,9 +47,9 @@ class _TestRequestHandler extends RequestHandler {
 abstract class _TestResponse {
 }
 
-class _TestValueResponse extends _TestResponse {
-  final value;
-  _TestValueResponse(this.value);
+class _TestValuesResponse extends _TestResponse {
+  final values;
+  _TestValuesResponse(this.values);
 }
 
 class _TestErrorResponse extends _TestResponse {
@@ -64,8 +64,12 @@ class TestRequestHandlerBuilder {
 
   void value(value, {int times: 1}) {
     for (int i = 0; i < times; i++) {
-      _handler._responses.add(new _TestValueResponse(value));
+      _handler._responses.add(new _TestValuesResponse([value]));
     }
+  }
+
+  void values(values) {
+    _handler._responses.add(new _TestValuesResponse(values));
   }
 
   void error(error, {int times: 1}) {
