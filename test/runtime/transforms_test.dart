@@ -17,7 +17,7 @@ main() {
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
         expect(x, equals(' '));
-        event.whenComplete.then(expectAsync1((entity) {
+        event.onFirstResponse.then(expectAsync1((entity) {
           expect(x, equals('a'));
         }));
       }));
@@ -35,7 +35,7 @@ main() {
       
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
-        event.whenComplete.catchError(expectAsync1((error) {
+        event.onFirstResponse.catchError(expectAsync1((error) {
           expect(error, new isInstanceOf<ArgumentError>());
         }));
       }));

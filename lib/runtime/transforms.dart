@@ -60,9 +60,9 @@ class TrackedRequest {
   
   /// A future that completes when the first response for the request is returned
   /// (may be an error).
-  final Future<Entity> whenComplete;
+  final Future<Entity> onFirstResponse;
   
-  TrackedRequest._private(this.request, this.whenComplete);
+  TrackedRequest._private(this.request, this.onFirstResponse);
 }
 
 /// Provides a global notification of when requests are issued and when they receive
@@ -79,7 +79,7 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
     var sub;
     
     var c = new StreamController<Entity>(onCancel: () => sub.cancel());
-    var completer = new Completer<Entity>();
+    var completer = new Completer<Entity>.sync();
     
     // Publish a tracking record for this request (synchronously).
     _controller.add(new TrackedRequest._private(request, completer.future));
@@ -94,13 +94,11 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
         return;
       }
       first = false;
-      print("completing future");
       if (entity != null) {
         completer.complete(entity);
       } else {
         completer.completeError(error);
       }
-      print("done completing future");
     }
     
     // Subscribe to the stream. On a new value or error, publish it to the controller.
