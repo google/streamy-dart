@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:streamy/streamy.dart';
+import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
 
 main() {
@@ -130,8 +131,8 @@ main() {
       asyncExpect(stream.length, equals(2));
     });
   });
-  group("fixnum", () {
-    test("int64 operator==", () {
+  group('fixnum', () {
+    test('int64 operator==', () {
       expect(new int64.fromInt(123) == int64.parseInt("123"), equals(true));
       expect(new int64.fromInt(3) == new Object(), equals(false));
     });
