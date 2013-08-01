@@ -52,13 +52,21 @@ class TransformingRequestHandler extends RequestHandler {
       transformer.bind(request, delegate.handle(request));
 }
 
+/// Represents a request that was issued, and allows listening for its completion.
 class TrackedRequest {
+  
+  /// Request that was issued.
   final Request request;
+  
+  /// A future that completes when the first response for the request is returned
+  /// (may be an error).
   final Future<Entity> whenComplete;
   
   TrackedRequest._private(this.request, this.whenComplete);
 }
 
+/// Provides a global notification of when requests are issued and when they receive
+/// their first response.
 class RequestTrackingTransformer extends RequestStreamTransformer {
   
   final _controller = new StreamController<TrackedRequest>.broadcast(sync: true);

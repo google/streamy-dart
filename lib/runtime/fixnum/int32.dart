@@ -353,4 +353,6 @@ class int32 implements intx {
   String toString() => _i.toString();
   String toHexString() => _i.toRadixString(16);
   String toRadixString(int radix) => _i.toRadixString(radix);
+  
+  toJson() => toString();
 }
