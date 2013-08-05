@@ -92,12 +92,19 @@ class Multiplexer extends RequestHandler {
         // If we don't need to issue an rpc
         if (age < 0 || (cachedEntity != null && (ts - cachedEntity.streamy.ts) < age)) {
           if (age == AGE_CACHE_LOOKUP_ONCE) {
-            
+            // Not interested in future responses at all.
+            active.close();
+          } else {
+            // Don't want to send the RPC, but still interested in future responses.
+            _activeIndex[request].add(active);
           }
           return;
         }
         
         _sendRpc(request);
+        
+        // Interested in future responses.
+        _activeIndex[request].add(active);
       });
       
       return active.stream;
