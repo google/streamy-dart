@@ -89,14 +89,14 @@ class TestRequestHandlerBuilder {
 }
 
 /// Use these requests when request contents don't matter.
-final Request TEST_GET_REQUEST = new _TestRequest("GET");
-final Request TEST_DELETE_REQUEST = new _TestRequest("DELETE");
+final Request TEST_GET_REQUEST = new TestRequest("GET");
+final Request TEST_DELETE_REQUEST = new TestRequest("DELETE");
 // TODO(yjbanov): add POST and PUT test requests
 
-class _TestRequest extends Request {
+class TestRequest extends Request {
   final String _httpMethod;
 
-  _TestRequest(this._httpMethod) : super(null);
+  TestRequest(this._httpMethod) : super(null);
 
   Request clone() => this;  // it's a const, so there's nothing to clone
 

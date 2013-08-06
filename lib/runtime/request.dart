@@ -174,13 +174,13 @@ abstract class DelegatingRequestHandler extends RequestHandler {
 }
 
 class BranchingRequestHandlerBuilder {
-  final Map<Type, List<_Branch>> _typeMap = {};
+  final _typeMap = new Map<Type, List<_Branch>>();
   
   void addBranch(Type requestType, RequestHandler handler, {predicate: null}) {
     if (!_typeMap.containsKey(requestType)) {
-      _typeMap[type] = [];
+      _typeMap[requestType] = [];
     }
-    _typeMap[type].add(new _Branch(predicate, handler));
+    _typeMap[requestType].add(new _Branch(predicate, handler));
   }
   
   RequestHandler build(RequestHandler defaultHandler) =>
@@ -205,9 +205,9 @@ class _BranchingRequestHandler extends RequestHandler {
     if (!_typeMap.containsKey(request.runtimeType)) {
       return _delegate.handle(request);
     }
-    for (_Branch branch in _typeMap[request.runtimeType]) {
-      if (_branch.predicate == null || _branch.predicate(request)) {
-        return _branch.handler.handle(request);
+    for (var branch in _typeMap[request.runtimeType]) {
+      if (branch.predicate == null || branch.predicate(request)) {
+        return branch.handler.handle(request);
       }
     }
     return _delegate.handle(request);
