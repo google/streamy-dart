@@ -25,7 +25,7 @@ class _ActiveStream {
     _sink = new StreamController(onCancel: _closeCompleter.complete);
   }
 
-  /// Maybe send an [Entity] across t)his stream.
+  /// Maybe send an [Entity] across this stream.
   submit(Entity entity) {
     if (current != null && current.streamy.ts > entity.streamy.ts) {
       // Drop this entity, it has an older timestamp than the one we last sent.

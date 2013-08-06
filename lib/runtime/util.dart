@@ -43,3 +43,16 @@ class ClosureInvocationException extends StreamyException {
   String toString() => "Fields of DynamicEntity objects can't be invoked, as " +
       'they cannot contain closures. Field: $memberName';
 }
+
+class ZeroOrOneConsumer<Entity> extends StreamConsumer<Entity> {
+  
+  Future<Entity> addStream(Stream<Entity> stream) =>
+      stream.fold(null, (prev, elem) {
+        if (prev == null) {
+          return elem;
+        }
+        throw new StateError('More than one result on the stream');
+      });
+      
+  Future<Entity> close() => new Future.value(null);
+}

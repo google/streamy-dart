@@ -160,3 +160,15 @@ abstract class Request {
   int get hashCode => 17 * (17 * runtimeType.hashCode + parameters.hashCode)
       + _payload.hashCode;
 }
+
+abstract class DelegatingRequestHandler extends RequestHandler {
+  
+  final RequestHandler delegate;
+  
+  DelegatingRequestHandler(this.delegate);
+  
+  Future<Entity> getFromCache(Request request) {
+    request.local['noRpcAge'] = Multiplexer.AGE_CACHE_LOOKUP_ONCE;
+    return delegate.handle(request).pipe(new ZeroOrOneConsumer());
+  }
+}
