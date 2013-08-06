@@ -172,3 +172,44 @@ abstract class DelegatingRequestHandler extends RequestHandler {
     return delegate.handle(request).pipe(new ZeroOrOneConsumer());
   }
 }
+
+class BranchingRequestHandlerBuilder {
+  final Map<Type, List<_Branch>> _typeMap = {};
+  
+  void addBranch(Type requestType, RequestHandler handler, {predicate: null}) {
+    if (!_typeMap.containsKey(requestType)) {
+      _typeMap[type] = [];
+    }
+    _typeMap[type].add(new _Branch(predicate, handler));
+  }
+  
+  RequestHandler build(RequestHandler defaultHandler) =>
+      new _BranchingRequestHandler(defaultHandler, _typeMap);
+}
+
+class _Branch {
+  final predicate;
+  final RequestHandler handler;
+  
+  _Branch(this.predicate, this.handler);
+}
+
+class _BranchingRequestHandler extends RequestHandler {
+  
+  RequestHandler _delegate;
+  Map<Type, List<_Branch>> _typeMap;
+  
+  _BranchingRequestHandler(this._delegate, this._typeMap);
+  
+  Stream handle(Request request) {
+    if (!_typeMap.containsKey(request.runtimeType)) {
+      return _delegate.handle(request);
+    }
+    for (_Branch branch in _typeMap[request.runtimeType]) {
+      if (_branch.predicate == null || _branch.predicate(request)) {
+        return _branch.handler.handle(request);
+      }
+    }
+    return _delegate.handle(request);
+  }
+}
