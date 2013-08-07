@@ -15,8 +15,13 @@ class ProxyClient extends RequestHandler {
     return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
       if (resp.statusCode != 200) {
         Map jsonError = null;
-        if (resp.bodyType == 'application/json') {
+        // TODO(gadams): There isn't currently a way to get the reponse headers.
+        // When that facility becomes available, use it to check that the
+        // content type is actually "application/json" before trying to parse.
+        try {
           jsonError = parse(resp.body);
+        } catch(_) {
+          // Apparently, the body wan't JSON. The caller will have to make do.
         }
         throw new ProxyException(
             'API call returned status: ${resp.statusText}', resp.statusCode,
