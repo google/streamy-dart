@@ -1,6 +1,6 @@
 part of streamy.runtime;
 
-typedef Future RetryStrategy(Request request, int retryNum, e);
+typedef Future<bool> RetryStrategy(Request request, int retryNum, e);
 
 Future<bool> retryImmediately(Request request, int retryNum, e) => new Future.value(true);
 
