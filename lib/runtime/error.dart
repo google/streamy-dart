@@ -2,9 +2,7 @@ part of streamy.runtime;
 
 typedef Future RetryStrategy(Request request, int retryNum, e);
 
-Future<bool> retryImmediately(int retryCount) => new Future.value(true);
-
-typedef void StreamyRpcRetryFn();
+Future<bool> retryImmediately(Request request, int retryNum, e) => new Future.value(true);
 
 class StreamyRpcException implements Exception {
   final int httpStatus;
