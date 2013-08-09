@@ -22,7 +22,7 @@ class RetryingRequestHandler extends RequestHandler {
   final List errorCodesToRetry;
   final int maxRetries;
   
-  RetryingRequestHandler(this.delegate, {this.strategy: retryImmediately, this.maxRetries: 0, this.errorCodesToRetry: [500, 503]});
+  RetryingRequestHandler(this.delegate, {this.strategy: retryImmediately, this.maxRetries: 0, this.errorCodesToRetry: const [500, 503]});
   
   Stream handle(Request request) {
     var strategy = this.strategy;
@@ -42,11 +42,12 @@ class RetryingRequestHandler extends RequestHandler {
           }
           // We need to retry. retryFuture is a future that doesn't return a value, but indicates when
           // the call should be retried.
-          var retryFuture = retryStrategy(request, ++retry, e);
-          if (retry == maxRetries + 1) {
+          retry++;
+          if (maxRetries > 0 && retry > maxRetries) {
             // Time to give up.
             throw e;
           }
+          var retryFuture = strategy(request, retry, e);
           return retryFuture.then((shouldRetry) {
             if (!shouldRetry) {
               throw e;
@@ -63,6 +64,6 @@ class RetryingRequestHandler extends RequestHandler {
     if (e is! StreamyRpcException) {
       return false;
     }
-    return (e.httpStatus in errorCodesToRetry);
+    return errorCodesToRetry.contains(e.httpStatus);
   }
 }
