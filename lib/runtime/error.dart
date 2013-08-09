@@ -7,10 +7,12 @@ Future<bool> retryImmediately(Request request, int retryNum, e) => new Future.va
 class StreamyRpcException implements Exception {
   final int httpStatus;
   final Request request;
-  final List<Map> errors;
-  Map get error => errors[0];
+  final Map response;
+  List<Map> get errors => response != null ? response['error']['errors'];
+  Map get error => errors != null && errors.length > 0 ? errors[0] : null;
+  String get message => error != null && error.containsKey['message'] ? error['message'] 
   
-  StreamyRpcException._private(this.httpStatus, this.request, this.errors);
+  StreamyRpcException._private(this.httpStatus, this.request, this.response);
 }
 
 class RetryingRequestHandler extends RequestHandler {
