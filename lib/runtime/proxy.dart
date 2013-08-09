@@ -34,17 +34,6 @@ class ProxyClient extends RequestHandler {
   }
 }
 
-class ProxyException implements Exception {
-
-  final String message;
-  final int code;
-  final Map apiError;
-
-  ProxyException(this.message, this.code, this.apiError);
-
-  String toString() => '$code: $message';
-}
-
 class StreamyHttpResponse {
   final int statusCode;
   final String statusText;
