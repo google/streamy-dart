@@ -27,7 +27,7 @@ class ProxyClient extends RequestHandler {
             // Apparently, the body wan't JSON. The caller will have to make do.
           }
         }
-        throw new StreamyRpcException._private(resp.statusCode, req, jsonError);
+        throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
       return req.responseDeserializer(resp.body);
     }).asStream();

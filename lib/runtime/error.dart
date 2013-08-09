@@ -8,11 +8,11 @@ class StreamyRpcException implements Exception {
   final int httpStatus;
   final Request request;
   final Map response;
-  List<Map> get errors => response != null ? response['error']['errors'];
+  List<Map> get errors => response != null ? response['error']['errors'] : null;
   Map get error => errors != null && errors.length > 0 ? errors[0] : null;
-  String get message => error != null && error.containsKey['message'] ? error['message'] 
+  String get message => error != null && error.containsKey('message') ? error['message'] : null;
   
-  StreamyRpcException._private(this.httpStatus, this.request, this.response);
+  StreamyRpcException(this.httpStatus, this.request, this.response);
 }
 
 class RetryingRequestHandler extends RequestHandler {
@@ -22,7 +22,7 @@ class RetryingRequestHandler extends RequestHandler {
   final List errorCodesToRetry;
   final int maxRetries;
   
-  RetryingRequestHandler(this.delegate, {this.strategy: retryImmediately, this.maxRetries: 3, this.errorCodesToRetry: [500, 503]});
+  RetryingRequestHandler(this.delegate, {this.strategy: retryImmediately, this.maxRetries: 0, this.errorCodesToRetry: [500, 503]});
   
   Stream handle(Request request) {
     var strategy = this.strategy;
@@ -59,3 +59,10 @@ class RetryingRequestHandler extends RequestHandler {
     return doRpc().asStream();
   }
   
+  bool _isRetryable(e) {
+    if (e is! StreamyRpcException) {
+      return false;
+    }
+    return (e.httpStatus in errorCodesToRetry);
+  }
+}
