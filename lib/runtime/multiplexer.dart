@@ -149,7 +149,7 @@ class Multiplexer extends RequestHandler {
           return _INTERNAL_ERROR;
         })
         .then((entity) {
-          if (entity != _INTERNAL_ERROR) {  
+          if (entity != _INTERNAL_ERROR) {
             _recordRpcData(entity);
             active.submit(entity);
           }
@@ -165,7 +165,7 @@ class Multiplexer extends RequestHandler {
     
     if (originalRequest.local.containsKey('noRpcAge')) {
       if (!request.isCachable) {
-        throw new Exception("Cannot specify noRpcAge parameter on a non-cachable request.");
+        throw new ArgumentError("Cannot specify noRpcAge parameter on a non-cachable request.");
       }
       return _handleAgeQuery(request, originalRequest.local['noRpcAge']);
     }
