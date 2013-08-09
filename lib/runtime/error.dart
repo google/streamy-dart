@@ -1,6 +1,6 @@
 part of streamy.runtime;
 
-typedef Future RetryStrategy(int retryCount);
+typedef Future RetryStrategy(Request request, int retryNum, e);
 
 Future<bool> retryImmediately(int retryCount) => new Future.value(true);
 
@@ -47,7 +47,12 @@ class RetryingRequestHandler extends RequestHandler {
             // Time to give up.
             throw e;
           }
-          return retryFuture.then((_) => doRpc());
+          return retryFuture.then((shouldRetry) {
+            if (!shouldRetry) {
+              throw e;
+            }
+            return doRpc();
+          });
         });
     }
     
