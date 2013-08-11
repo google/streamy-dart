@@ -1,5 +1,6 @@
 
-{{#hasDocs}}/// {{docs}}{{/hasDocs}}
+{{#docs}}/// {{.}}
+{{/docs}}
 class {{name}} extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
 {{#parameters}}    '{{name}}',
@@ -22,7 +23,8 @@ class {{name}} extends streamy.Request {
   List<String> get queryParameters => const [{{#query_parameters}}'{{name}}',{{/query_parameters}}];
 
 {{#parameters}}
-{{#hasDocs}}  /// {{docs}}{{/hasDocs}}
+{{#docs}}  /// {{.}}
+{{/docs}}
   {{type}} get {{varName}} => parameters['{{name}}'];
 
   set {{varName}}({{type}} value) {
