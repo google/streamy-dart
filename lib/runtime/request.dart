@@ -187,9 +187,9 @@ class BranchingRequestHandlerBuilder {
   }
 
   void addBranchForAll(List<Type> requestTypes, RequestHandler handler, {predicate: null}) {
-    for (Type requestType in requestTypes) {
+    requestTypes.forEach((requestType) {
       addBranch(requestType, handler, predicate: predicate);
-    }
+    });
   }
   
   RequestHandler build(RequestHandler defaultHandler) =>
