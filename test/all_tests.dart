@@ -11,6 +11,7 @@ import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test
 import 'generator/emitter_test.dart' as generator_emitter_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
+import 'runtime/error_test.dart' as runtime_error_test;
 import 'runtime/transforms_test.dart' as runtime_transforms_test;
 import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 
@@ -27,6 +28,7 @@ main() {
   generator_emitter_test.main();
   runtime_multiplexer_test.main();
   runtime_branching_test.main();
+  runtime_error_test.main();
   runtime_transforms_test.main();
   runtime_entity_wrapper_test.main();
 }

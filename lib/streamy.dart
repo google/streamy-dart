@@ -15,6 +15,7 @@ part 'runtime/entity/raw.dart';
 part 'runtime/entity/util.dart';
 part 'runtime/entity/wrapper.dart';
 part 'runtime/cache.dart';
+part 'runtime/error.dart';
 part 'runtime/local.dart';
 part 'runtime/multiplexer.dart';
 part 'runtime/proxy.dart';
