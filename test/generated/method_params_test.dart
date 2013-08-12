@@ -32,7 +32,7 @@ main() {
         ..param1 = true
         ..param3.addAll(['foo', 'bar']);
       expect(req.path, equals(
-          'foos/abc/123?param1=true&param3=foo&param3=bar'));
+          'foos/abc/123?param1=true&param3=bar&param3=foo'));
     });
   });
   group('Request object tests', () {
