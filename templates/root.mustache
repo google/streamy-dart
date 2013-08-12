@@ -1,5 +1,6 @@
 
-{{#hasDocs}}/// {{docs}}{{/hasDocs}}
+{{#docs}}/// {{.}}
+{{/docs}}
 class {{topLevelClassName}} extends streamy.Root {
 {{#resources}}
   {{type}} _{{name}};

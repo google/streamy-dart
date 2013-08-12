@@ -12,7 +12,7 @@ main() {
         .build();
       var tracker = new RequestTrackingTransformer();
       var handler = bareHandler.transformResponses(tracker);
-      
+
       var x = ' ';
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
@@ -22,7 +22,6 @@ main() {
         }));
       }));
       handler.handle(TEST_GET_REQUEST).listen(expectAsync1((entity) {
-        print("Inside callback: $entity");
         x = entity['x'];
       }, count: 2));
     });
@@ -32,7 +31,7 @@ main() {
         .build();
       var tracker = new RequestTrackingTransformer();
       var handler = bareHandler.transformResponses(tracker);
-      
+
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
         event.onFirstResponse.catchError(expectAsync1((error) {
