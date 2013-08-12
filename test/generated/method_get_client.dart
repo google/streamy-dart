@@ -7,8 +7,6 @@ import 'dart:async';
 import 'dart:json';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
-Map<String, streamy.TypeInfo> TYPE_REGISTRY = {
-};
 
 class Foo extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
@@ -33,8 +31,13 @@ class Foo extends streamy.EntityWrapper {
     this['bar'] = value;
   }
   String removeBar() => this.remove('bar');
-  factory Foo.fromJsonString(String strJson) => new Foo.fromJson(parse(strJson));
-  factory Foo.fromJson(Map json) {
+  factory Foo.fromJsonString(String strJson,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
+          new Foo.fromJson(parse(strJson), typeRegistry: typeRegistry);
+  static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
+      new Foo.fromJson(json, typeRegistry: reg);
+  factory Foo.fromJson(Map json,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
     if (json == null) {
       return null;
     }
@@ -43,7 +46,7 @@ class Foo extends streamy.EntityWrapper {
       ..id = json.remove('id')
       ..bar = json.remove('bar')
 ;
-    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, typeRegistry);
     return result;
   }
   Map toJson() {
@@ -79,7 +82,8 @@ class FoosGetRequest extends streamy.Request {
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
       this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) => new Foo.fromJsonString(str);
+  streamy.Deserializer get responseDeserializer => (String str) =>
+      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry);
 }
 
 class FoosResource {
@@ -104,7 +108,8 @@ class MethodGetTest extends streamy.Root {
   FoosResource get foos => _foos;
   final streamy.RequestHandler requestHandler;
   final String servicePath;
-  MethodGetTest(this.requestHandler, {this.servicePath: 'getTest/v1/'}) {
+  MethodGetTest(this.requestHandler, {this.servicePath: 'getTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
     this._foos = new FoosResource(this);
   }
   Stream send(streamy.Request request) => requestHandler.handle(request);

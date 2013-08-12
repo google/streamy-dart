@@ -1,10 +1,11 @@
 
-{{#hasDocs}}/// {{docs}}{{/hasDocs}}
+{{#docs}}/// {{.}}
+{{/docs}}
 class {{name}} extends streamy.EntityWrapper {
   static final List<String> KNOWN_PROPERTIES = [
 {{#properties}}    '{{name}}',
 {{/properties}}  ];
-
+{{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
   {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
 
   {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned));
@@ -13,7 +14,8 @@ class {{name}} extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
 
 {{#properties}}
-{{#hasDocs}}  /// {{docs}}{{/hasDocs}}
+{{#docs}}  /// {{.}}
+{{/docs}}
   {{type}} get {{name}} => this['{{name}}'];
   set {{name}}({{type}} value) {
     this['{{name}}'] = value;
@@ -21,9 +23,15 @@ class {{name}} extends streamy.EntityWrapper {
   {{type}} remove{{capName}}() => this.remove('{{name}}');
 {{/properties}}
 
-  factory {{name}}.fromJsonString(String strJson) => new {{name}}.fromJson(parse(strJson));
+  factory {{name}}.fromJsonString(String strJson,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
+          new {{name}}.fromJson(parse(strJson), typeRegistry: typeRegistry);
 
-  factory {{name}}.fromJson(Map json) {
+  static {{name}} entityFactory(Map json, streamy.TypeRegistry reg) =>
+      new {{name}}.fromJson(json, typeRegistry: reg);
+
+  factory {{name}}.fromJson(Map json,
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
     if (json == null) {
       return null;
     }
@@ -42,7 +50,7 @@ class {{name}} extends streamy.EntityWrapper {
 {{/mustSerialize}}
 {{/list}}
 {{/properties}};
-    streamy.addUnknownProperties(result, json, TYPE_REGISTRY);
+    streamy.addUnknownProperties(result, json, typeRegistry);
     return result;
   }
 

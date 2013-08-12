@@ -1,4 +1,4 @@
-library schema_object_test;
+library streamy.generated.schema_object.test;
 
 import 'dart:json';
 import 'package:streamy/collections.dart';

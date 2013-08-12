@@ -34,10 +34,12 @@ class _TestRequestHandler extends RequestHandler {
     }
     var resp = _responses[_index];
     _index++;
-    if (resp is _TestValueResponse) {
-      return new Stream.fromIterable([resp.value]);
+    if (resp is _TestValuesResponse) {
+      return new Stream.fromIterable(resp.values);
     } else if (resp is _TestErrorResponse) {
       return new Stream.fromFuture(new Future.error(resp.error));
+    } else if (resp is _TestRpcErrorResponse) {
+      return new Stream.fromFuture(new Future.error(new StreamyRpcException(resp.statusCode, request, resp.jsonError)));
     } else {
       throw new StateError("Unexpected type: ${resp.runtimeType}");
     }
@@ -47,14 +49,21 @@ class _TestRequestHandler extends RequestHandler {
 abstract class _TestResponse {
 }
 
-class _TestValueResponse extends _TestResponse {
-  final value;
-  _TestValueResponse(this.value);
+class _TestValuesResponse extends _TestResponse {
+  final values;
+  _TestValuesResponse(this.values);
 }
 
 class _TestErrorResponse extends _TestResponse {
   final error;
   _TestErrorResponse(this.error);
+}
+
+class _TestRpcErrorResponse extends _TestResponse {
+  final statusCode;
+  final jsonError;
+  
+  _TestRpcErrorResponse(this.statusCode, this.jsonError);
 }
 
 class TestRequestHandlerBuilder {
@@ -64,8 +73,12 @@ class TestRequestHandlerBuilder {
 
   void value(value, {int times: 1}) {
     for (int i = 0; i < times; i++) {
-      _handler._responses.add(new _TestValueResponse(value));
+      _handler._responses.add(new _TestValuesResponse([value]));
     }
+  }
+
+  void values(values) {
+    _handler._responses.add(new _TestValuesResponse(values));
   }
 
   void error(error, {int times: 1}) {
@@ -74,10 +87,9 @@ class TestRequestHandlerBuilder {
     }
   }
 
-  void proxyError(String statusMessage, int statusCode,
-                                       {Map jsonError, int times: 1}) {
+  void rpcError(int statusCode, {Map jsonError, int times: 1}) {
     for (int i = 0; i < times; i++) {
-      error(new ProxyException(statusMessage, statusCode, jsonError));
+      _handler._responses.add(new _TestRpcErrorResponse(statusCode, jsonError));
     }
   }
 

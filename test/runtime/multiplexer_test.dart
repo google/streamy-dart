@@ -1,4 +1,4 @@
-library runtime_multiplexer_test;
+library streamy.runtime.multiplexer.test;
 
 import 'dart:async';
 import 'package:streamy/streamy.dart';
@@ -10,11 +10,12 @@ main() {
     test('does not throw on error but forward to error catchers', () {
       var testHandler = (
           testRequestHandler()
-            ..proxyError("Not found", 404)
+            ..rpcError(404)
         ).build();
       var subject = new Multiplexer(testHandler);
       subject.handle(TEST_GET_REQUEST).first.catchError(expectAsync1((err) {
-        expect(err, new isInstanceOf<ProxyException>());
+        expect(err, new isInstanceOf<StreamyRpcException>());
+        expect(err.httpStatus, equals(404));
       }));
     });
   });

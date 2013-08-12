@@ -1,5 +1,6 @@
 
-{{#hasDocs}}/// {{docs}}{{/hasDocs}}
+{{#docs}}/// {{.}}
+{{/docs}}
 class {{topLevelClassName}} extends streamy.Root {
 {{#resources}}
   {{type}} _{{name}};
@@ -9,7 +10,8 @@ class {{topLevelClassName}} extends streamy.Root {
   final streamy.RequestHandler requestHandler;
   final String servicePath;
 
-  {{topLevelClassName}}(this.requestHandler, {this.servicePath: '{{servicePath}}'}) {
+  {{topLevelClassName}}(this.requestHandler, {this.servicePath: '{{servicePath}}',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
 {{#resources}}
     this._{{name}} = new {{type}}(this);
 {{/resources}}

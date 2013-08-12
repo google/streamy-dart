@@ -15,27 +15,23 @@ class ProxyClient extends RequestHandler {
     return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
       if (resp.statusCode != 200) {
         Map jsonError = null;
-        if (resp.bodyType == 'application/json') {
-          jsonError = parse(resp.body);
+        List errors = null;
+        // If the bodyType is not available, optimistically try parsing it as JSON.
+        if (resp.bodyType == null || resp.bodyType.startsWith('application/json')) {
+          try {
+            jsonError = parse(resp.body);
+            if (jsonError.containsKey('error') && jsonError['error'].containsKey('errors')) {
+              errors = jsonError['error']['errors'];
+            }
+          } catch(_) {
+            // Apparently, the body wan't JSON. The caller will have to make do.
+          }
         }
-        throw new ProxyException(
-            'API call returned status: ${resp.statusText}', resp.statusCode,
-            jsonError);
+        throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
       return req.responseDeserializer(resp.body);
     }).asStream();
   }
-}
-
-class ProxyException implements Exception {
-
-  final String message;
-  final int code;
-  final Map apiError;
-
-  ProxyException(this.message, this.code, this.apiError);
-
-  String toString() => '$code: $message';
 }
 
 class StreamyHttpResponse {

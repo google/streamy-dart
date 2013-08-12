@@ -29,12 +29,15 @@ class _FunctionRequestHandler extends RequestHandler {
 /// The root object representing an entire API, which makes its resources
 /// available.
 abstract class Root {
+  final TypeRegistry typeRegistry;
 
   /// The API service path.
   String get servicePath;
 
   /// Execute a [Request] and return a [Stream] of the results.
   Stream send(Request req);
+
+  Root(this.typeRegistry);
 }
 
 /// Method path regex, capturing parameter names enclosed in {}.
@@ -87,7 +90,8 @@ abstract class Request {
     // This is a convenience that isn't codified in the discovery document spec.
     if (hasPayload) {
       pathParameters.forEach((param) {
-        if (payload.contains(param) && (payload[param] is String || payload[param] is int)) {
+        if (payload.contains(param) &&
+            (payload[param] is String || payload[param] is int || payload[param] is int64)) {
           parameters[param] = payload[param];
         }
       });
@@ -113,7 +117,8 @@ abstract class Request {
     StringBuffer buf = new StringBuffer();
     for (Match m in pathRegex.allMatches(pathFormat)) {
       buf.write(pathFormat.substring(pos, m.start));
-      buf.write(parameters[pathFormat.substring(m.start + 1, m.end - 1)]);
+      String pathParamName = pathFormat.substring(m.start + 1, m.end - 1);
+      buf.write(Uri.encodeComponent(parameters[pathParamName].toString()));
       pos = m.end;
     }
     buf.write(pathFormat.substring(pos));
@@ -126,7 +131,7 @@ abstract class Request {
             ..write(firstQueryParam ? '?' : '&')
             ..write(qp)
             ..write('=')
-            ..write(v);
+            ..write(Uri.encodeQueryComponent(v.toString()));
           firstQueryParam = false;
         }
         if (parameters[qp] is List) {

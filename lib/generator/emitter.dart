@@ -8,6 +8,10 @@ String capitalize(String str) {
   return str[0].toUpperCase() + str.substring(1);
 }
 
+/// Breaks up a [String] into list of lines.
+List<String> docLines(String s) =>
+    s != null ? s.split('\n') : <String>[];
+
 /// Provides templates for the generator.
 abstract class TemplateProvider {
   /// A string embedded in the generated client code to tell people what
@@ -92,8 +96,7 @@ class Emitter {
       'topLevelClassName': _topLevelClassName,
       'resources': resourceFields,
       'servicePath': discovery.servicePath,
-      'hasDocs': discovery.description != null,
-      'docs': discovery.description,
+      'docs': docLines(discovery.description),
     });
     return _out.toString();
   }
@@ -136,10 +139,9 @@ class Emitter {
         'pathParameters': methodInfo.pathParameters,
         'hasPathParametersOrPayload': methodInfo.pathParameters.isNotEmpty || methodInfo.payloadData.isNotEmpty,
         // TODO(arick): Remove "&& false" once dart2js no longer crashes with lots of named parameters.
-        'hasQueryParameters': methodInfo.queryParameters.isNotEmpty,
+        'hasQueryParameters': methodInfo.queryParameters.isNotEmpty && false,
         'queryParameters': methodInfo.queryParameters,
-        'hasDocs': method.description != null,
-        'docs': method.description,
+        'docs': docLines(method.description),
       };
       methods.add(methodData);
     });
@@ -169,8 +171,7 @@ class Emitter {
       'hasResponse': [],
       'sendParams': sendParams,
       'hasSendParams': sendParams.isNotEmpty,
-      'hasDocs': method.description != null,
-      'docs': method.description,
+      'docs': docLines(method.description),
     };
 
     if (methodInfo.hasResponse) {
@@ -221,8 +222,7 @@ class Emitter {
         'mustSerialize': [],
         'hasParseExpr': [],
         'list': [],
-        'hasDocs': propertyType.description != null,
-        'docs': propertyType.description,
+        'docs': docLines(propertyType.description),
       };
       if (proctr.parseExpr != null) {
         propertyData['hasParseExpr'] = ['true'];
@@ -243,8 +243,9 @@ class Emitter {
     _render(_objectTmpl, {
       'name': name,
       'properties': properties,
-      'hasDocs': type.description != null,
-      'docs': type.description,
+      'docs': docLines(type.description),
+      'hasKind': type.kind != null,
+      'kind': type.kind,
     });
 
     return name;
@@ -308,7 +309,7 @@ class MethodInfo {
   String responseTypeName;
   bool hasPayload;
   String payloadTypeName = null;
-    
+
   List<Map> parameters = [];
   List<Map> pathParameters = [];
   List<Map> queryParameters = [];
@@ -329,7 +330,7 @@ class MethodInfo {
     if (hasResponse) {
       this.responseTypeName = '${typeNamePrefix}Response';
     }
-    
+
     method.parameters.forEach((String paramName, Parameter param) {
       TypeDescriptor paramType = param.type;
       var paramVarName = paramName.replaceAll('\.', '_');
@@ -347,8 +348,7 @@ class MethodInfo {
         'varName': paramVarName,
         'repeated': param.repeated,
         'capVarName': capitalize(paramVarName),
-        'hasDocs': paramType.description != null,
-        'docs': paramType.description,
+        'docs': docLines(paramType.description),
         'last': false,
       };
       parameters.add(parameter);
@@ -358,7 +358,7 @@ class MethodInfo {
         default: throw new ApigenException('Unsupported parameter location');
       }
     });
-    
+
     if (parameters.isNotEmpty) {
       parameters.last['last'] = true;
     }

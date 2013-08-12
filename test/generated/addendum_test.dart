@@ -1,4 +1,4 @@
-library addendum_test;
+library streamy.generated.addendum.test;
 
 import 'dart:async';
 import 'dart:json';

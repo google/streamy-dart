@@ -1,4 +1,4 @@
-library schema_unknown_fields_test;
+library streamy.generated.schema_unknown_fields.test;
 
 import 'dart:json';
 import 'dart:mirrors';
@@ -7,6 +7,11 @@ import 'package:unittest/unittest.dart';
 import 'schema_unknown_fields_client.dart';
 
 main() {
+  var reg = new TypeRegistry({
+    // TODO(yjbanov): Use Foo.KIND as key when Dart allows it
+    "type#foo": Foo.entityFactory,
+  });
+
   group('Entity', () {
     test('retains a basic unknown field', () {
       var foo = new Foo.fromJsonString(
@@ -33,7 +38,7 @@ main() {
               "baz": "buzz"
             }
           }
-          ''');
+          ''', typeRegistry: reg);
       var foo = bar['foo'];
       expect(foo, new isInstanceOf<Foo>());
       expect(foo.baz, equals('buzz'));
@@ -53,7 +58,7 @@ main() {
               }
             ]
           }
-          ''');
+          ''', typeRegistry: reg);
       var foos = bar['foos'];
       expect(foos, new isInstanceOf<List>());
       expect(foos.length, equals(2));
@@ -74,7 +79,7 @@ main() {
               }
             }
           }
-          ''');
+          ''', typeRegistry: reg);
       var unknown = bar['unknown'];
       expect(unknown, new isInstanceOf<Entity>());
       expect(unknown['car'], equals('tesla'));

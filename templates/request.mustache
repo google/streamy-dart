@@ -1,5 +1,6 @@
 
-{{#hasDocs}}/// {{docs}}{{/hasDocs}}
+{{#docs}}/// {{.}}
+{{/docs}}
 class {{name}} extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
 {{#parameters}}    '{{name}}',
@@ -22,7 +23,8 @@ class {{name}} extends streamy.Request {
   List<String> get queryParameters => const [{{#query_parameters}}'{{name}}',{{/query_parameters}}];
 
 {{#parameters}}
-{{#hasDocs}}  /// {{docs}}{{/hasDocs}}
+{{#docs}}  /// {{.}}
+{{/docs}}
   {{type}} get {{varName}} => parameters['{{name}}'];
 
   set {{varName}}({{type}} value) {
@@ -57,9 +59,11 @@ class {{name}} extends streamy.Request {
   {{name}} clone() => streamy.internalCloneFrom(new {{name}}(root{{#payload}}, payload.clone(){{/payload}}), this);
 
 {{#hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str) => new {{responseType}}.fromJsonString(str);
+  streamy.Deserializer get responseDeserializer => (String str) =>
+      new {{responseType}}.fromJsonString(str, typeRegistry: root.typeRegistry);
 {{/hasResponse}}
 {{^hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str) => new streamy.EmptyEntity();
+  streamy.Deserializer get responseDeserializer => (String str) =>
+      new streamy.EmptyEntity();
 {{/hasResponse}}
 }
