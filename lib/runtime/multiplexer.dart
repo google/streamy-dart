@@ -25,7 +25,7 @@ class _ActiveStream {
     _sink = new StreamController(onCancel: _closeCompleter.complete);
   }
 
-  /// Maybe send an [Entity] across t)his stream.
+  /// Maybe send an [Entity] across this stream.
   submit(Entity entity) {
     if (current != null && current.streamy.ts > entity.streamy.ts) {
       // Drop this entity, it has an older timestamp than the one we last sent.
@@ -47,6 +47,9 @@ class _ActiveStream {
 /// The multiplexer is an intermediary that handles the routing of requests
 /// between caches and the true Apiary interface.
 class Multiplexer extends RequestHandler {
+  
+  static const AGE_NO_RPC = -1;
+  static const AGE_CACHE_LOOKUP_ONCE = -2;
 
   /** Cache instance. */
   final Cache _cache;
@@ -66,16 +69,48 @@ class Multiplexer extends RequestHandler {
 
   Multiplexer(this._delegate, {Cache cache: null})
       : this._cache = cache == null ? new AsyncMapCache() : cache;
-
-  Stream handle(Request request) {
-    // Make a copy of the request for use in the multiplexer, since it's not
-    // immutable.
-    request = request.clone();
-
+  
+  _newActiveStream(request) {
     // Create a new stream for this request.
     var active = new _ActiveStream(request);
     active.closed.whenComplete(() => _removeActive(active));
 
+    return active;
+  }
+  
+  _handleAgeQuery(request, age) {
+    var active = _newActiveStream(request);
+    
+    _cache.get(request)
+      .catchError(active.sendError)
+      .then((cachedEntity) {
+        // If there actually was an entity response, send it to the client.
+        if (cachedEntity != null) {
+          active.submit(cachedEntity);
+        }
+        var ts = new DateTime.now().millisecondsSinceEpoch;
+        // If we don't need to issue an rpc
+        if (age < 0 || (cachedEntity != null && (ts - cachedEntity.streamy.ts) < age)) {
+          if (age == AGE_CACHE_LOOKUP_ONCE) {
+            // Not interested in future responses at all.
+            active.close();
+          } else {
+            // Don't want to send the RPC, but still interested in future responses.
+            _activeIndex[request].add(active);
+          }
+          return;
+        }
+        
+        _sendRpc(request);
+        
+        // Interested in future responses.
+        _activeIndex[request].add(active);
+      });
+      
+      return active.stream;
+  }
+  
+  _sendRpc(request, active) {
     // Only cachable requests need to be handled by the multiplexer (right now).
     if (request.isCachable) {
 
@@ -95,15 +130,6 @@ class Multiplexer extends RequestHandler {
       } else {
         pending = _inFlightRequests[request];
       }
-
-      // Make cache request (always).
-      _cache.get(request)
-        .catchError(active.sendError)
-        .then((cachedEntity) {
-          if (cachedEntity != null) {
-            active.submit(cachedEntity);
-          }
-        });
 
       // RPC replies are handled in one place, but errors for requests are
       // subscribed to individually. This is because only in-flight requests
@@ -130,6 +156,37 @@ class Multiplexer extends RequestHandler {
         })
         .whenComplete(active.close);
     }
+  }
+
+  Stream handle(Request originalRequest) {
+    // Make a copy of the request for use in the multiplexer, since it's not
+    // immutable.
+    var request = originalRequest.clone();
+    
+    if (originalRequest.local.containsKey('noRpcAge')) {
+      if (!request.isCachable) {
+        throw new ArgumentError("Cannot specify noRpcAge parameter on a non-cachable request.");
+      }
+      return _handleAgeQuery(request, originalRequest.local['noRpcAge']);
+    }
+    
+    var active = _newActiveStream(request);
+
+    // Only cachable requests need to be handled by the multiplexer (right now).
+    if (request.isCachable) {
+
+      // Make cache request (always).
+      _cache.get(request)
+        .catchError(active.sendError)
+        .then((cachedEntity) {
+          if (cachedEntity != null) {
+            active.submit(cachedEntity);
+          }
+        });
+    }
+    
+    _sendRpc(request, active);
+    
     return active.stream;
   }
 
@@ -157,5 +214,20 @@ class Multiplexer extends RequestHandler {
     entity.streamy
       ..ts = new DateTime.now().millisecondsSinceEpoch
       ..source = 'RPC';
+  }
+}
+
+/// A [RequestHandler] which wraps [Multiplexer] and adds a few
+/// utility methods to delegate to it.
+abstract class BaseMultiplexedRequestHandler extends RequestHandler {
+
+  final Multiplexer delegate;
+
+  BaseMultiplexedRequestHandler(this.delegate);
+
+  /// Retrieve an entity from cache only, if present.
+  Future<Entity> getFromCache(Request request) {
+    request.local['noRpcAge'] = Multiplexer.AGE_CACHE_LOOKUP_ONCE;
+    return delegate.handle(request).pipe(new ZeroOrOneConsumer());
   }
 }

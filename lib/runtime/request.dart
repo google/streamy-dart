@@ -175,3 +175,50 @@ abstract class Request {
     return "$runtimeType|$path|$payloadSig";
   }
 }
+
+class BranchingRequestHandlerBuilder {
+  final _typeMap = new Map<Type, List<_Branch>>();
+  
+  void addBranch(Type requestType, RequestHandler handler, {predicate: null}) {
+    if (!_typeMap.containsKey(requestType)) {
+      _typeMap[requestType] = [];
+    }
+    _typeMap[requestType].add(new _Branch(predicate, handler));
+  }
+
+  void addBranchForAll(List<Type> requestTypes, RequestHandler handler, {predicate: null}) {
+    requestTypes.forEach((requestType) {
+      addBranch(requestType, handler, predicate: predicate);
+    });
+  }
+  
+  RequestHandler build(RequestHandler defaultHandler) =>
+      new _BranchingRequestHandler(defaultHandler, _typeMap);
+}
+
+class _Branch {
+  final predicate;
+  final RequestHandler handler;
+  
+  _Branch(this.predicate, this.handler);
+}
+
+class _BranchingRequestHandler extends RequestHandler {
+  
+  RequestHandler _delegate;
+  Map<Type, List<_Branch>> _typeMap;
+  
+  _BranchingRequestHandler(this._delegate, this._typeMap);
+  
+  Stream handle(Request request) {
+    if (!_typeMap.containsKey(request.runtimeType)) {
+      return _delegate.handle(request);
+    }
+    for (var branch in _typeMap[request.runtimeType]) {
+      if (branch.predicate == null || branch.predicate(request)) {
+        return branch.handler.handle(request);
+      }
+    }
+    return _delegate.handle(request);
+  }
+}
