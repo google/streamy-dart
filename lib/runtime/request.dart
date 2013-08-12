@@ -161,18 +161,6 @@ abstract class Request {
       + _payload.hashCode;
 }
 
-abstract class DelegatingRequestHandler extends RequestHandler {
-  
-  final RequestHandler delegate;
-  
-  DelegatingRequestHandler(this.delegate);
-  
-  Future<Entity> getFromCache(Request request) {
-    request.local['noRpcAge'] = Multiplexer.AGE_CACHE_LOOKUP_ONCE;
-    return delegate.handle(request).pipe(new ZeroOrOneConsumer());
-  }
-}
-
 class BranchingRequestHandlerBuilder {
   final _typeMap = new Map<Type, List<_Branch>>();
   
@@ -181,6 +169,12 @@ class BranchingRequestHandlerBuilder {
       _typeMap[requestType] = [];
     }
     _typeMap[requestType].add(new _Branch(predicate, handler));
+  }
+
+  void addBranchForAll(List<Type> requestTypes, RequestHandler handler, {predicate: null}) {
+    for (Type requestType in requestTypes) {
+      addBranch(requestType, handler, predicate: predicate);
+    }
   }
   
   RequestHandler build(RequestHandler defaultHandler) =>

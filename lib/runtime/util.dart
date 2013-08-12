@@ -44,15 +44,18 @@ class ClosureInvocationException extends StreamyException {
       'they cannot contain closures. Field: $memberName';
 }
 
+/// A [StreamConsumer] which publishes zero or one entities, depending on whether
+/// the [Stream] returns a value or not. Like a [Stream].single which returns
+/// null if no value is ever published.
 class ZeroOrOneConsumer<Entity> extends StreamConsumer<Entity> {
-  
+
   Future<Entity> addStream(Stream<Entity> stream) =>
       stream.fold(null, (prev, elem) {
         if (prev == null) {
           return elem;
         }
-        throw new StateError('More than one result on the stream');
+        throw new StateError('More than one result on the stream: $elem');
       });
-      
+
   Future<Entity> close() => new Future.value(null);
 }
