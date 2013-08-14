@@ -25,7 +25,8 @@ bool compareMapObjects(first, second) {
 
 /// Helper method to compute the hash code for [Map]s.
 int hashCodeForMap(Map map) => map.keys.fold(0,
-      (r, k) => r + 17 * k.hashCode + map[k].hashCode * (k.hashCode % 31));
+      (r, k) => (r + 17 * k.hashCode + map[k].hashCode * (k.hashCode % 31))
+      % 2147483647);
 
 /// A [Map] which supports being compared to another [Map].
 class ComparableMap<K, V> implements Map<K, V> {
@@ -107,7 +108,7 @@ class ComparableList<V> extends ListBase<V> {
     return true;
   }
 
-  int get hashCode => _delegate.fold(0, (h, v) => h * 17 + v.hashCode);
+  int get hashCode => _delegate.fold(0, (h, v) => (h * 17 + v.hashCode) % 2147483647);
 }
 
 /// A [Map] of keys to [Set]s (that does not implement the [Map] interface).
