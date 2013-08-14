@@ -89,8 +89,6 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
       }
     });
     
-    completer.future.whenComplete(() => print("Completed!"));
-    
     // Publish a tracking record for this request (synchronously).
     _controller.add(new TrackedRequest._private(request, completer.future));
     
