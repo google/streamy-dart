@@ -22,8 +22,8 @@ class OneShotRequestTransformer<T extends Entity>
     implements StreamTransformer<T, T> {
 
   Stream<T> bind(Stream<T> input) {
-    var output = new StreamController<T>();
     var sub;
+    var output = new StreamController<T>(onCancel: () => sub.cancel());
     sub = input.listen((e) {
       output.add(e);
       if (e.streamy.source == 'RPC') {
@@ -60,7 +60,7 @@ class TrackedRequest {
   
   /// A future that completes when the first response for the request is returned
   /// (may be an error).
-  final Future<Entity> onFirstResponse;
+  final Future onFirstResponse;
   
   TrackedRequest._private(this.request, this.onFirstResponse);
 }
@@ -77,40 +77,52 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
   
   Stream bind(Request request, Stream responseStream) {
     var sub;
+    var completer = new Completer.sync();
+    // Whether the input Stream was closed.
+    var closed = false;
+    // Whether the input Stream has yet to see a value.
+    var sawValue = false;
+    var c = new StreamController<Entity>(onCancel: () {
+      sub.cancel();
+      if (!completer.isCompleted && !(closed && sawValue)) {
+        completer.complete();
+      }
+    });
     
-    var c = new StreamController<Entity>(onCancel: () => sub.cancel());
-    var completer = new Completer<Entity>.sync();
+    completer.future.whenComplete(() => print("Completed!"));
     
     // Publish a tracking record for this request (synchronously).
     _controller.add(new TrackedRequest._private(request, completer.future));
-    
-    var first = true;
     
     // To be called when an event has been processed. Only on the first one, this
     // should complete the future sent on the tracking stream, indicating a response
     // has been processed.
     void done(entity, [error]) {
-      if (!first) {
+      if (completer.isCompleted) {
         return;
       }
-      first = false;
       if (entity != null) {
         completer.complete(entity);
       } else {
-        completer.completeError(error);
+        completer.complete(error);
       }
     }
     
     // Subscribe to the stream. On a new value or error, publish it to the controller.
     sub = responseStream.listen((entity) {
+      sawValue = true;
       runZonedExperimental(() {
         c.add(entity);
       }, onDone: () => done(entity));
     })..onError((error) {
+      sawValue = true;
       runZonedExperimental(() {
         c.addError(error);
       }, onDone: () => done(null, error));
     })..onDone(() {
+      // If the stream completed without any results, the resulting
+      // subscription cancellation will complete the competer.
+      closed = true;
       c.close();
     });
     
