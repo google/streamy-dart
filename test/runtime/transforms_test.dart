@@ -35,16 +35,13 @@ main() {
 
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
-        print("Got tracker");
         event.onFirstResponse.then(expectAsync1((error) {
-          print("onFirstResponse");
           expect(error, new isInstanceOf<ArgumentError>());
         }));
       }));
       handler.handle(TEST_GET_REQUEST).listen((_) {
         // Never called.
       }).onError(expectAsync1((error) {
-        print("OnError");
         expect(error, new isInstanceOf<ArgumentError>());
       }));
     });
