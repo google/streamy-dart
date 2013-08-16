@@ -80,7 +80,7 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
     var completer = new Completer.sync();
     // Whether the input Stream was closed.
     var closed = false;
-    // Whether the input Stream has yet to see a value.
+    // Whether the input Stream has seen a value.
     var sawValue = false;
     var c = new StreamController<Entity>(onCancel: () {
       sub.cancel();
