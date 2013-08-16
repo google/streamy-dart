@@ -1,5 +1,6 @@
 library streamy.runtime.transforms.test;
 
+import 'dart:async';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:streamy/streamy.dart';
@@ -34,7 +35,7 @@ main() {
 
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
-        event.onFirstResponse.catchError(expectAsync1((error) {
+        event.onFirstResponse.then(expectAsync1((error) {
           expect(error, new isInstanceOf<ArgumentError>());
         }));
       }));
