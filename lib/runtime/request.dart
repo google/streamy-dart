@@ -159,7 +159,7 @@ abstract class Request {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    var = new List.from(parameters.keys);
+    var keys = new List.from(parameters.keys);
     var len = keys.length;
     if (other.parameters.keys.length != len) {
       return false;
