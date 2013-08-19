@@ -62,7 +62,6 @@ abstract class Entity {
     var fieldNames = first.fieldNames.toList();
     var len = fieldNames.length;
     if (second.fieldNames.length != len) {
-      print("NE: field lengths");
       return false;
     }
     for (var i = 0; i < len; i++) {
