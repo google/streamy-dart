@@ -159,14 +159,14 @@ abstract class Request {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    List<String> keys = new List.from(parameters.keys);
-    int len = keys.length;
+    var = new List.from(parameters.keys);
+    var len = keys.length;
     if (other.parameters.keys.length != len) {
       return false;
     }
-    for (int i = 0; i < len; i++) {
-      String key = keys[i];
-      var value = parameters[key];
+    for (var i = 0; i < len; i++) {
+      var key = keys[i];
+      dynamic value = parameters[key];
       if (!other.parameters.containsKey(key)) {
         return false;
       }
@@ -184,7 +184,6 @@ abstract class Request {
         // duplicates, so they are compared as sorted Lists, not Sets.
         value = new List.from(value)..sort();
         otherList = new List.from(otherList)..sort();
-        
         for (var j = 0; j < listLen; j++) {
           if (value[j] != otherList[j]) {
             return false;
@@ -202,10 +201,10 @@ abstract class Request {
 
   int get hashCode {
     // Running total, kept under MAX_HASHCODE.
-    int running = runtimeType.hashCode % MAX_HASHCODE;
+    var running = runtimeType.hashCode % MAX_HASHCODE;
 
-    List<String> keys = parameters.keys.toList()..sort();
-    int len = keys.length;
+    var keys = parameters.keys.toList()..sort();
+    var len = keys.length;
     for (int i = 0; i < len; i++) {
       dynamic value = parameters[keys[i]];
       if (value is List) {

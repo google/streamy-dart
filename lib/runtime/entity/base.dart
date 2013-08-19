@@ -59,8 +59,8 @@ abstract class Entity {
     }
     
     // Loop through each field, checking equality of the values.
-    List<String> fieldNames = first.fieldNames.toList();
-    int len = fieldNames.length;
+    var fieldNames = first.fieldNames.toList();
+    var len = fieldNames.length;
     if (second.fieldNames.length != len) {
       print("NE: field lengths");
       return false;
@@ -89,10 +89,6 @@ abstract class Entity {
           }
         }
       } else if (firstValue != secondValue) {
-        if (firstValue.toString().contains("'Foo'")) {
-          var x = (firstValue is Entity);
-          print(firstValue.runtimeType);
-        }
         return false;
       }
     }
@@ -102,12 +98,12 @@ abstract class Entity {
   /// Compute the deep hash code of an entity (slow).
   static int deepHashCode(Entity entity) {
     // Running total, kept under MAX_HASHCODE.
-    int running = 0;
-    List<String> fieldNames = new List.from(entity.fieldNames)..sort();
-    int len = fieldNames.length;
+    var running = 0;
+    var fieldNames = new List.from(entity.fieldNames)..sort();
+    var len = fieldNames.length;
     for (var i = 0; i < len; i++) {
       running = ((17 * running) + fieldNames[i].hashCode) % MAX_HASHCODE;
-      var value = entity[fieldNames[i]];
+      dynamic value = entity[fieldNames[i]];
       if (value is Entity) {
         running = ((17 * running) + Entity.hashCode(value)) % MAX_HASHCODE;
       } else if (value is List) {
