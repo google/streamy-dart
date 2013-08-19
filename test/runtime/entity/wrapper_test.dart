@@ -19,9 +19,8 @@ main() {
         "a": 1,
         "b": "z",
       });
-      var fields = new ComparableList.from(subject.fieldNames);
-      var expectedFields = new ComparableList.from(["a", "b"]);
-      expect(fields, equals(expectedFields));
+      var expectedFields = ["a", "b"];
+      expect(subject.fieldNames, equals(expectedFields));
     });
   });
 }

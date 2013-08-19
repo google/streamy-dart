@@ -47,10 +47,81 @@ abstract class Entity {
 
   /// Return the Streamy implementation type of this entity.
   Type get streamyType;
-
-  /// Compare two Entities.
-  bool operator==(other);
-
-  /// Get the hashCode of this entity.
-  int get hashCode;
+  
+  /// Check for deep equality of entities (slow).
+  /// TODO(arick): figure out a way to clean this up a bit.
+  static bool deepEquals(Entity first, Entity second) {
+    if (identical(first, second)) {
+      return true;
+    }
+    if (first == null || second == null) {
+      return (first == second);
+    }
+    
+    // Loop through each field, checking equality of the values.
+    List<String> fieldNames = first.fieldNames.toList();
+    int len = fieldNames.length;
+    if (second.fieldNames.length != len) {
+      print("NE: field lengths");
+      return false;
+    }
+    for (var i = 0; i < len; i++) {
+      if (!second.containsKey(fieldNames[i])) {
+        return false;
+      }
+      dynamic firstValue = first[fieldNames[i]];
+      dynamic secondValue = second[fieldNames[i]];
+      if (firstValue is Entity && secondValue is Entity) {
+        if (!Entity.deepEquals(firstValue, secondValue)) {
+          return false;
+        }
+      } else if (firstValue is List && secondValue is List) {
+        if (firstValue.length != secondValue.length) {
+          return false;
+        }
+        for (var j = 0; j < firstValue.length; j++) {
+          if (firstValue[j] is Entity && secondValue[j] is Entity) {
+            if (!Entity.deepEquals(firstValue[j], secondValue[j])) {
+              return false;
+            }
+          } else if (firstValue[j] != secondValue[j]) {
+            return false;
+          }
+        }
+      } else if (firstValue != secondValue) {
+        if (firstValue.toString().contains("'Foo'")) {
+          var x = (firstValue is Entity);
+          print(firstValue.runtimeType);
+        }
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  /// Compute the deep hash code of an entity (slow).
+  static int deepHashCode(Entity entity) {
+    // Running total, kept under MAX_HASHCODE.
+    int running = 0;
+    List<String> fieldNames = new List.from(entity.fieldNames)..sort();
+    int len = fieldNames.length;
+    for (var i = 0; i < len; i++) {
+      running = ((17 * running) + fieldNames[i].hashCode) % MAX_HASHCODE;
+      var value = entity[fieldNames[i]];
+      if (value is Entity) {
+        running = ((17 * running) + Entity.hashCode(value)) % MAX_HASHCODE;
+      } else if (value is List) {
+        for (dynamic listValue in value) {
+          if (listValue is Entity) {
+            running = ((17 * running) + Entity.hashCode(listValue)) % MAX_HASHCODE;
+          } else {
+            running = ((17 * running) + listValue.hashCode) % MAX_HASHCODE;
+          }
+        }
+      } else {
+        running = ((17 * running) + value.hashCode) % MAX_HASHCODE;
+      }
+    }
+    return running;
+  }
 }
