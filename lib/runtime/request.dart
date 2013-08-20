@@ -166,7 +166,7 @@ abstract class Request {
     }
     for (var i = 0; i < len; i++) {
       var key = keys[i];
-      dynamic value = parameters[key];
+      var value = parameters[key];
       if (!other.parameters.containsKey(key)) {
         return false;
       }
@@ -206,7 +206,7 @@ abstract class Request {
     var keys = parameters.keys.toList()..sort();
     var len = keys.length;
     for (int i = 0; i < len; i++) {
-      dynamic value = parameters[keys[i]];
+      var value = parameters[keys[i]];
       if (value is List) {
         var valueList = new List.from(value)..sort();
         var valueLen = valueList.length;

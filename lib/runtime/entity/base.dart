@@ -68,8 +68,8 @@ abstract class Entity {
       if (!second.containsKey(fieldNames[i])) {
         return false;
       }
-      dynamic firstValue = first[fieldNames[i]];
-      dynamic secondValue = second[fieldNames[i]];
+      var firstValue = first[fieldNames[i]];
+      var secondValue = second[fieldNames[i]];
       if (firstValue is Entity && secondValue is Entity) {
         if (!Entity.deepEquals(firstValue, secondValue)) {
           return false;
@@ -102,11 +102,11 @@ abstract class Entity {
     var len = fieldNames.length;
     for (var i = 0; i < len; i++) {
       running = ((17 * running) + fieldNames[i].hashCode) % MAX_HASHCODE;
-      dynamic value = entity[fieldNames[i]];
+      var value = entity[fieldNames[i]];
       if (value is Entity) {
         running = ((17 * running) + Entity.hashCode(value)) % MAX_HASHCODE;
       } else if (value is List) {
-        for (dynamic listValue in value) {
+        for (var listValue in value) {
           if (listValue is Entity) {
             running = ((17 * running) + Entity.hashCode(listValue)) % MAX_HASHCODE;
           } else {
