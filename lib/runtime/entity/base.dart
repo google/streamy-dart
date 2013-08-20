@@ -104,11 +104,11 @@ abstract class Entity {
       running = ((17 * running) + fieldNames[i].hashCode) % MAX_HASHCODE;
       var value = entity[fieldNames[i]];
       if (value is Entity) {
-        running = ((17 * running) + Entity.hashCode(value)) % MAX_HASHCODE;
+        running = ((17 * running) + Entity.deepHashCode(value)) % MAX_HASHCODE;
       } else if (value is List) {
         for (var listValue in value) {
           if (listValue is Entity) {
-            running = ((17 * running) + Entity.hashCode(listValue)) % MAX_HASHCODE;
+            running = ((17 * running) + Entity.deepHashCode(listValue)) % MAX_HASHCODE;
           } else {
             running = ((17 * running) + listValue.hashCode) % MAX_HASHCODE;
           }
