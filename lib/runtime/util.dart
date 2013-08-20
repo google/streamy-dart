@@ -1,5 +1,10 @@
 part of streamy.runtime;
 
+/// 2^25. Chosen to ensure that ((17 * runningHashCode) + valueHashCode)
+/// never exceeds 2^30, the limit of unboxed integers in 32-bit DartVM.
+/// Hopefully this will keep hashCode math fast.
+const MAX_HASHCODE = 33554432;
+
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;
 

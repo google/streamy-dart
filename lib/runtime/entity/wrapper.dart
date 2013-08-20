@@ -44,14 +44,6 @@ abstract class EntityWrapper extends Entity {
     _delegate[key] = value;
   }
 
-  // Equality is tricky - we could be comparing different levels of nested
-  // wrapping. Thus, we need to unwrap until we get to non-wrappers.
-  bool operator==(other) =>
-      other is EntityWrapper && other.streamyType == streamyType &&
-      other._root == _root;
-
-  int get hashCode => _delegate.hashCode;
-
   Map toJson() => _delegate.toJson();
 
   LocalDataMap get local => _delegate.local;

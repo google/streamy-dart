@@ -21,7 +21,7 @@ class FoosGetRequest extends streamy.Request {
   String get pathFormat => 'foos/{barId}/{fooId}';
   bool get hasPayload => false;
   FoosGetRequest(MethodParamsTest root) : super(root) {
-    param3 = new ComparableList<String>();
+    param3 = new List<String>();
   }
   List<String> get pathParameters => const ['barId','fooId',];
   List<String> get queryParameters => const ['param1','param2','param3',];
@@ -55,11 +55,11 @@ class FoosGetRequest extends streamy.Request {
   bool removeParam2() => parameters.remove('param2');
 
   /// A repeated parameter
-  ComparableList<String> get param3 => parameters['param3'];
-  set param3(ComparableList<String> value) {
+  List<String> get param3 => parameters['param3'];
+  set param3(List<String> value) {
     parameters['param3'] = value;
   }
-  ComparableList<String> removeParam3() => parameters.remove('param3');
+  List<String> removeParam3() => parameters.remove('param3');
   Stream send() =>
       this.root.send(this);
   StreamSubscription listen(void onData(event)) =>
