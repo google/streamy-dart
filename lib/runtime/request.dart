@@ -50,7 +50,7 @@ abstract class Request {
   final Root root;
 
   /// Request parameters.
-  final ComparableMap<String, dynamic> parameters = new ComparableMap();
+  final Map<String, dynamic> parameters = {};
 
   /// Payload, if any.
   final Entity _payload;
@@ -148,8 +148,8 @@ abstract class Request {
   Request clone();
 
   _cloneFrom(Request other) => other.parameters.forEach((k, v) {
-    if (v is ComparableList) {
-      parameters[k] = new ComparableList.from(v);
+    if (v is List) {
+      parameters[k] = new List.from(v);
     } else {
       parameters[k] = v;
     }
@@ -159,14 +159,69 @@ abstract class Request {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    if (hasPayload && other._payload != _payload) {
+    var keys = new List.from(parameters.keys);
+    var len = keys.length;
+    if (other.parameters.keys.length != len) {
       return false;
     }
-    return other.parameters == parameters;
+    for (var i = 0; i < len; i++) {
+      var key = keys[i];
+      var value = parameters[key];
+      if (!other.parameters.containsKey(key)) {
+        return false;
+      }
+      if (value is List) {
+        var otherList = other.parameters[key];
+        if (otherList is! List) {
+          return false;
+        }
+        var listLen = value.length;
+        if (value.length != otherList.length) {
+          return false;
+        }
+        
+        // These are Lists and not Sets. However, the comparison needs to consider
+        // duplicates, so they are compared as sorted Lists, not Sets.
+        value = new List.from(value)..sort();
+        otherList = new List.from(otherList)..sort();
+        for (var j = 0; j < listLen; j++) {
+          if (value[j] != otherList[j]) {
+            return false;
+          }
+        }
+      } else if (value != other.parameters[key]) {
+        return false;
+      }
+    }
+    if (hasPayload && !Entity.deepEquals(_payload, other._payload)) {
+      return false;
+    }
+    return true;
   }
 
-  int get hashCode => 17 * (17 * runtimeType.hashCode + parameters.hashCode)
-      + _payload.hashCode;
+  int get hashCode {
+    // Running total, kept under MAX_HASHCODE.
+    var running = runtimeType.hashCode % MAX_HASHCODE;
+
+    var keys = parameters.keys.toList()..sort();
+    var len = keys.length;
+    for (int i = 0; i < len; i++) {
+      var value = parameters[keys[i]];
+      if (value is List) {
+        var valueList = new List.from(value)..sort();
+        var valueLen = valueList.length;
+        for (var j = 0; j < valueLen; j++) {
+          running = ((17 * running) + valueList[j].hashCode) % MAX_HASHCODE;
+        }
+      } else {
+        running = ((17 * running) + value.hashCode) % MAX_HASHCODE;
+      }
+    }
+    if (hasPayload) {
+      running = ((17 * running) + Entity.deepHashCode(_payload)) % MAX_HASHCODE;
+    }
+    return running;
+  }
       
   /// A serialized version of this request which is suitable for use as a cache key in a
   /// system such as IndexedDB which requires String keys.

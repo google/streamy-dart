@@ -7,7 +7,7 @@ class RawEntity extends Entity {
   RawEntity() : super.base();
 
   /// Actual fields of the Apiary entity.
-  var _data = new ComparableMap<String, dynamic>();
+  var _data = {};
 
   /// Metadata about this entity.
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
@@ -34,9 +34,6 @@ class RawEntity extends Entity {
 
   /// Data field setter.
   void operator[]=(String key, dynamic value) {
-    if (value is List && value is! ComparableList) {
-      value = new ComparableList.from(value);
-    }
     if (value is Function && !key.startsWith('local.')) {
       throw new ClosureInEntityException(key, value.toString());
     }
@@ -84,10 +81,6 @@ class RawEntity extends Entity {
     });
     return jsonMap;
   }
-
-  bool operator ==(other) => other is RawEntity && other._data == _data;
-
-  int get hashCode => _data.hashCode;
   
   String get signature => json.stringify(this);
 

@@ -4,7 +4,7 @@ part of streamy.runtime;
 class StreamyEntityMetadata {
 
   /// Internal map of metadata.
-  final _metadata = new ComparableMap<String, dynamic>();
+  final _metadata = {};
 
   /// Internal constructor.
   StreamyEntityMetadata._private();
@@ -27,11 +27,6 @@ class StreamyEntityMetadata {
   void set source(String v) {
     _metadata['source'] = v;
   }
-
-  bool operator ==(other) =>
-    other is StreamyEntityMetadata && other._metadata == _metadata;
-
-  int get hashCode => _metadata.hashCode;
 }
 
 /// A [Map] that has dot-property access and equality, which backs the .local
@@ -94,9 +89,6 @@ class LocalDataMap implements Map {
       this[key] = value;
     });
   }
-
-  bool operator==(other) => compareMapObjects(this, other);
-  int get hashCode => hashCodeForMap(this);
 
   /// [noSuchMethod] provides dot-property access to fields.
   noSuchMethod(Invocation invocation) {

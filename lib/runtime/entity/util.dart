@@ -54,13 +54,13 @@ _clone(v) {
   if (v is Entity) {
     return v.clone();
   } else if (v is Map) {
-    var c = new ComparableMap();
-    v.forEach((key, value) {
-      c[key] = _clone(value);
+    Map c = new Map();
+    v.forEach((k, v) {
+      c[k] = _clone(v);
     });
     return c;
   } else if (v is List) {
-    return new ComparableList.from(v.map((value) => _clone(value)));
+    return new List.from(v.map((value) => _clone(value)));
   } else {
     return v;
   }

@@ -9,7 +9,7 @@ class EntityDedupTransformer<T extends Entity>
   var _last = null;
 
   handleData(T data, EventSink<T> sink) {
-    if (data != _last) {
+    if (!Entity.deepEquals(data, _last)) {
       sink.add(data);
     }
     _last = data;

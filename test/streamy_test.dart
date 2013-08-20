@@ -61,14 +61,6 @@ main() {
       var s2 = entity.toJson();
       expect(s2, equals(s1));
     });
-    test('has equality semantics', () {
-      var entity2 = new RawEntity();
-      entity.local.foo = 'bar';
-      entity2.local.foo = 'bar';
-      expect(entity.local == entity2.local, isTrue);
-      entity2.local.foo = 'baz';
-      expect(entity.local == entity2.local, isFalse);
-    });
     test('does not survive cloning', () {
       entity.local.foo = 'this should not be cloned';
       expect(entity.clone().local.foo, isNull);
@@ -92,8 +84,8 @@ main() {
         .transform(new EntityDedupTransformer())
         .single
         .then(expectAsync1((e) {
-          expect(e, equals(a));
-          expect(e, equals(b));
+          expect(Entity.deepEquals(e, a), equals(true));
+          expect(Entity.deepEquals(e, b), equals(true));
         }));
     });
   });

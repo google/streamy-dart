@@ -339,7 +339,7 @@ class MethodInfo {
       var paramArgTypeName = paramTypeName;
       if (param.repeated) {
         paramArgTypeName = 'List<$paramTypeName>';
-        paramTypeName = 'ComparableList<$paramTypeName>';
+        paramTypeName = 'List<$paramTypeName>';
       }
       var parameter = {
         'type': paramTypeName,
