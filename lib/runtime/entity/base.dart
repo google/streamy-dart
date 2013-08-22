@@ -25,7 +25,7 @@ abstract class Entity {
 
   /// Determine whether this entity has a given field.
   bool containsKey(String key);
-  
+
   /// Deprecated contains() method. Use [containsKey] instead.
   @deprecated
   bool contains(String key) => containsKey(key);
@@ -47,7 +47,7 @@ abstract class Entity {
 
   /// Return the Streamy implementation type of this entity.
   Type get streamyType;
-  
+
   /// Check for deep equality of entities (slow).
   /// TODO(arick): figure out a way to clean this up a bit.
   static bool deepEquals(Entity first, Entity second) {
@@ -57,13 +57,14 @@ abstract class Entity {
     if (first == null || second == null) {
       return (first == second);
     }
-    
-    // Loop through each field, checking equality of the values.
-    var fieldNames = first.fieldNames.toList();
-    var len = fieldNames.length;
-    if (second.fieldNames.length != len) {
+
+    if (first.local.length != second.local.length) {
       return false;
     }
+
+    // Loop through each field, checking equality of the values.
+    var fieldNames = first.fieldNames.toList(growable: false);
+    var len = fieldNames.length;
     for (var i = 0; i < len; i++) {
       if (!second.containsKey(fieldNames[i])) {
         return false;
@@ -93,7 +94,7 @@ abstract class Entity {
     }
     return true;
   }
-  
+
   /// Compute the deep hash code of an entity (slow).
   static int deepHashCode(Entity entity) {
     // Running total, kept under MAX_HASHCODE.
