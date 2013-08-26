@@ -144,7 +144,7 @@ class Multiplexer extends RequestHandler {
           });
         _inFlightRequests[request] = new _InFlightRequest(pending, cancel);
       } else {
-        pending = _inFlightRequests[request];
+        pending = _inFlightRequests[request].future;
       }
 
       // RPC replies are handled in one place, but errors for requests are

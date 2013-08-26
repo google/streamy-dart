@@ -14,11 +14,15 @@ class ProxyClient extends RequestHandler {
     var payload = req.hasPayload ? stringify(req.payload) : null;
     var httpRequest = httpHandler.request(url, req.httpMethod, payload: payload);
     
-    var c = new StreamController(onCancel: () {
-      httpRequest.cancel();
+    var c;
+    c = new StreamController(onCancel: () {
+      // Only cancel requests if they haven't already completed.
+      if (!c.isClosed) {
+        httpRequest.cancel();
+      }
     });
     
-    return httpRequest.future.then((resp) {
+    httpRequest.future.then((resp) {
       if (resp.statusCode != 200) {
         Map jsonError = null;
         List errors = null;
