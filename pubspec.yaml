@@ -13,7 +13,7 @@ dependencies:
   mustache: ">=0.1.5"
   args: any
   meta: any
+  fixnum: any
 dev_dependencies:
   path: any
   unittest: any
-
