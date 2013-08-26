@@ -83,7 +83,7 @@ main() {
         expect(response, new isInstanceOf<EmptyEntity>());
       }));
     });
-    solo_test('handles a request cancellation', () {
+    test('handles a request cancellation', () {
       var sub = client.foos.cancel(1).send().listen((_) {
         fail("Request should have been canceled.");
       });
