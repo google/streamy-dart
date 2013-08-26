@@ -83,6 +83,12 @@ main() {
         expect(response, new isInstanceOf<EmptyEntity>());
       }));
     });
+    solo_test('handles a request cancellation', () {
+      var sub = client.foos.cancel(1).send().listen((_) {
+        fail("Request should have been canceled.");
+      });
+      sub.cancel();
+    });
   });
 }
 
@@ -99,6 +105,13 @@ class ImmediateRequestHandler extends RequestHandler {
         ..bar = '${request.payload['bar']}.updated.${_id++}').asStream();
     } else if (request is FoosDeleteRequest) {
       return new Future.value(request.responseDeserializer("")).asStream();
+    } else if (request is FoosCancelRequest) {
+      var c = new StreamController<Foo>(onCancel: expectAsync0(() {
+        // Pass.
+      }));
+      c.add(new Foo()..id = 1);
+      c.close();
+      return c.stream;
     }
   }
 }

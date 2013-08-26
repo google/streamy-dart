@@ -5,6 +5,8 @@ part of streamy.runtime;
 /// Hopefully this will keep hashCode math fast.
 const MAX_HASHCODE = 33554432;
 
+typedef void CancelFn();
+
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;
 

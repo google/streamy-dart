@@ -44,6 +44,13 @@ class _ActiveStream {
   close() => _sink.close();
 }
 
+class _InFlightRequest {
+  Future future;
+  CancelFn cancel;
+  
+  _InFlightRequest(this.future, this.cancel);
+}
+
 /// The multiplexer is an intermediary that handles the routing of requests
 /// between caches and the true Apiary interface.
 class Multiplexer extends RequestHandler {
@@ -60,7 +67,7 @@ class Multiplexer extends RequestHandler {
   /**
    * Guaranteed to contain only in flight requests.
    */
-  var _inFlightRequests = new Map<Request, Future>();
+  var _inFlightRequests = new Map<Request, _InFlightRequest>();
 
   /**
    * Index of [Request]s to outgoing [_ActiveStream]s for those requests.
@@ -117,7 +124,16 @@ class Multiplexer extends RequestHandler {
       // Make an RPC if it's not already in flight.
       Future pending;
       if (!_inFlightRequests.containsKey(request)) {
-        pending = _delegate.handle(request).single;
+        var completer = new Completer();
+        var sub = _delegate.handle(request).listen(completer.complete)
+          ..onError(completer.completeError);
+        var cancel = () {
+          // The pending future will never complete.
+          sub.cancel();
+          
+          _inFlightRequests.remove(request);
+        };
+        pending = completer.future;
         pending
           // Report internal error but don't process it, processing is done in
           // a separate catcher below.
@@ -126,7 +142,7 @@ class Multiplexer extends RequestHandler {
           .whenComplete(() {
             _inFlightRequests.remove(request);
           });
-        _inFlightRequests[request] = pending;
+        _inFlightRequests[request] = new _InFlightRequest(pending, cancel);
       } else {
         pending = _inFlightRequests[request];
       }

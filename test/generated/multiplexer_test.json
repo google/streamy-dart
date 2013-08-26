@@ -76,6 +76,22 @@
             }
           },
           "parameterOrder": ["id"]
+        },
+        "cancel": {
+          "id": "service.foos.cancel",
+          "path": "foos/cancel/{id}",
+          "name": "",
+          "httpMethod": "DELETE",
+          "description": "A method to test request cancellation",
+          "parameters": {
+            "id": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["id"]
         }
       }
     }

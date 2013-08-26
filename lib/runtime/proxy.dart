@@ -12,7 +12,13 @@ class ProxyClient extends RequestHandler {
   Stream handle(Request req) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? stringify(req.payload) : null;
-    return httpHandler.request(url, req.httpMethod, payload: payload).then((resp) {
+    var httpRequest = httpHandler.request(url, req.httpMethod, payload: payload);
+    
+    var c = new StreamController(onCancel: () {
+      httpRequest.cancel();
+    });
+    
+    return httpRequest.future.then((resp) {
       if (resp.statusCode != 200) {
         Map jsonError = null;
         List errors = null;
@@ -30,8 +36,22 @@ class ProxyClient extends RequestHandler {
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
       return req.responseDeserializer(resp.body);
-    }).asStream();
+    }).then((value) {
+      c.add(value);
+      c.close();
+    }).catchError((error) {
+      c.addError(error);
+      c.close();
+    });
+    return c.stream;
   }
+}
+
+class StreamyHttpRequest {
+  final Future<StreamyHttpResponse> future;
+  final CancelFn cancel;
+  
+  StreamyHttpRequest(this.future, this.cancel);
 }
 
 class StreamyHttpResponse {
@@ -44,6 +64,7 @@ class StreamyHttpResponse {
 }
 
 abstract class StreamyHttpService {
-  Future<StreamyHttpResponse> request(String url, String method,
+  StreamyHttpRequest request(String url, String method,
       {String payload: null, String contentType: 'application/json'});
 }
+  

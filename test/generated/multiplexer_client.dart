@@ -143,12 +143,41 @@ class FoosDeleteRequest extends streamy.Request {
       new streamy.EmptyEntity();
 }
 
+/// A method to test request cancellation
+class FoosCancelRequest extends streamy.Request {
+  static final List<String> KNOWN_PARAMETERS = [
+    'id',
+  ];
+  String get httpMethod => 'DELETE';
+  String get pathFormat => 'foos/cancel/{id}';
+  bool get hasPayload => false;
+  FoosCancelRequest(MultiplexerTest root) : super(root) {
+  }
+  List<String> get pathParameters => const ['id',];
+  List<String> get queryParameters => const [];
+
+  /// Primary key of foo
+  int get id => parameters['id'];
+  set id(int value) {
+    parameters['id'] = value;
+  }
+  int removeId() => parameters.remove('id');
+  Stream send() =>
+      this.root.send(this);
+  StreamSubscription listen(void onData(event)) =>
+      this.root.send(this).listen(onData);
+  FoosCancelRequest clone() => streamy.internalCloneFrom(new FoosCancelRequest(root), this);
+  streamy.Deserializer get responseDeserializer => (String str) =>
+      new streamy.EmptyEntity();
+}
+
 class FoosResource {
   final MultiplexerTest _root;
   static final List<String> KNOWN_METHODS = [
     'get',
     'update',
     'delete',
+    'cancel',
   ];
   FoosResource(this._root);
 
@@ -170,6 +199,15 @@ class FoosResource {
   /// Deletes a foo
   FoosDeleteRequest delete(int id) {
     var request = new FoosDeleteRequest(_root);
+    if (id != null) {
+      request.id = id;
+    }
+    return request;
+  }
+
+  /// A method to test request cancellation
+  FoosCancelRequest cancel(int id) {
+    var request = new FoosCancelRequest(_root);
     if (id != null) {
       request.id = id;
     }
