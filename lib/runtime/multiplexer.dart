@@ -190,7 +190,6 @@ class Multiplexer extends RequestHandler {
 
     // Only cachable requests need to be handled by the multiplexer (right now).
     if (request.isCachable) {
-
       // Make cache request (always).
       _cache.get(request)
         .catchError(active.sendError)
@@ -228,7 +227,6 @@ class Multiplexer extends RequestHandler {
     _activeIndex.removeValue(request, stream);
     if (!_activeIndex.containsKey(request) && _inFlightRequests.containsKey(request)) {
       _inFlightRequests[request].cancel();
-      _inFlightRequests.remove(request);
     }
   }
 

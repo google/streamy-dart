@@ -81,7 +81,7 @@
           "id": "service.foos.cancel",
           "path": "foos/cancel/{id}",
           "name": "",
-          "httpMethod": "DELETE",
+          "httpMethod": "GET",
           "description": "A method to test request cancellation",
           "parameters": {
             "id": {

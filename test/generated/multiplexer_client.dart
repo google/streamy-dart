@@ -148,7 +148,7 @@ class FoosCancelRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
-  String get httpMethod => 'DELETE';
+  String get httpMethod => 'GET';
   String get pathFormat => 'foos/cancel/{id}';
   bool get hasPayload => false;
   FoosCancelRequest(MultiplexerTest root) : super(root) {

@@ -106,11 +106,11 @@ class ImmediateRequestHandler extends RequestHandler {
     } else if (request is FoosDeleteRequest) {
       return new Future.value(request.responseDeserializer("")).asStream();
     } else if (request is FoosCancelRequest) {
-      var c = new StreamController<Foo>(onCancel: expectAsync0(() {
-        // Pass.
+      var c;
+      c = new StreamController<Foo>(onCancel: expectAsync0(() {
+        expect(c.isClosed, isFalse);
       }));
       c.add(new Foo()..id = 1);
-      c.close();
       return c.stream;
     }
   }
