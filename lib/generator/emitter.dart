@@ -271,11 +271,11 @@ class ProcessTypeResult {
     switch (format) {
       case 'int64':
         if (typeName == 'String') {
-          parseExpr = 'streamy.Int64.parseInt';
+          parseExpr = 'fixnum.Int64.parseInt';
         } else if (typeName == 'num') {
-          parseExpr = '(v) => new streamy.Int64.fromInt(v)';
+          parseExpr = '(v) => new fixnum.Int64.fromInt(v)';
         }
-        typeName = 'streamy.Int64';
+        typeName = 'fixnum.Int64';
         break;
       case 'double':
         if (typeName == 'String') {
