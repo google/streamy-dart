@@ -223,8 +223,14 @@ class Multiplexer extends RequestHandler {
     }
   }
 
-  _removeActive(_ActiveStream stream) =>
-      _activeIndex.removeValue(stream.request, stream);
+  _removeActive(_ActiveStream stream) {
+    var request = stream.request;
+    _activeIndex.removeValue(request, stream);
+    if (!_activeIndex.containsKey(request) && _inFlightRequests.containsKey(request)) {
+      _inFlightRequests[request].cancel();
+      _inFlightRequests.remove(request);
+    }
+  }
 
   _recordRpcData(entity) {
     entity.streamy
