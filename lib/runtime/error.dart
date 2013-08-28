@@ -47,34 +47,50 @@ class RetryingRequestHandler extends RequestHandler {
       strategy = request.local['retryStrategy'];
     }
 
+    // Pending request subscription. Used to cancel the request if asked.
+    var pendingSub = null;
+    
+    var output;
+    output = new StreamController(onCancel: () {
+      if (output.isClosed) {
+        return;
+      }
+      pendingSub.cancel();
+    });
+
     int retry = 0;
 
-    Future doRpc() {
-      return delegate.handle(request).single
-        // A successful RPC returns from here.
-        .catchError((e) {
-          if (!_isRetryable(request, e)) {
-            // Rethrow exceptions which can't be handled.
-            throw e;
+    void doRpc() {
+      pendingSub = delegate.handle(request).listen((result) {
+        // We're done.
+        output.add(result);
+        output.close();
+      })..onError((e) {
+        // If the request/error is not retryable, or the number of retries is over the limit, stop retrying.
+        retry++;
+        if (!_isRetryable(request, e) || (maxRetries > 0 && retry > maxRetries)) {
+          // If this error can't be handled, pass it to the app and stop trying.
+          output.addError(e);
+          output.close();
+          return;
+        }
+        // This request may need to be retried. Ask the retry strategy.
+        strategy(request, retry, e).catchError((_) => false).then((shouldRetry) {
+          if (!shouldRetry) {
+            // The retry handler says to give up. Pass the original error through.
+            output.addError(e);
+            output.close();
+            return;
           }
-          // We need to retry. retryFuture is a future that doesn't return a value, but indicates when
-          // the call should be retried.
-          retry++;
-          if (maxRetries > 0 && retry > maxRetries) {
-            // Time to give up.
-            throw e;
-          }
-          var retryFuture = strategy(request, retry, e);
-          return retryFuture.then((shouldRetry) {
-            if (!shouldRetry) {
-              throw e;
-            }
-            return doRpc();
-          });
+          // Retry now!
+          doRpc();
         });
+      });
     }
 
-    return doRpc().asStream();
+    // Kick off the first request.
+    doRpc();
+    return output.stream;
   }
 
   bool _isRetryable(request, e) {
