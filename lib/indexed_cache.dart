@@ -79,7 +79,7 @@ class IndexedDbCache extends Cache {
   }
 
   /// Run garbage collection to remove all entries older than the stated date.
-  Future gc() {
+  void gc() {
     if (_inGc) {
       return;
     }
@@ -93,7 +93,7 @@ class IndexedDbCache extends Cache {
       .listen((cursor) {
         futures.add(cursor.delete());
       });
-    return Future.wait(futures).whenComplete(() {
+    Future.wait(futures).whenComplete(() {
       _inGc = false;
     });
   }
