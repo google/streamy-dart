@@ -123,12 +123,6 @@ main() {
       asyncExpect(stream.length, equals(2));
     });
   });
-  group('fixnum', () {
-    test('int64 operator==', () {
-      expect(new int64.fromInt(123) == int64.parseInt("123"), equals(true));
-      expect(new int64.fromInt(3) == new Object(), equals(false));
-    });
-  });
 }
 
 asyncExpect(Future future, matcher) => future.then(expectAsync1((v) {

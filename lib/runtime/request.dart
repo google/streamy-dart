@@ -91,7 +91,7 @@ abstract class Request {
     if (hasPayload) {
       pathParameters.forEach((param) {
         if (payload.contains(param) &&
-            (payload[param] is String || payload[param] is int || payload[param] is int64)) {
+            (payload[param] is String || payload[param] is int || payload[param] is Int64)) {
           parameters[param] = payload[param];
         }
       });
