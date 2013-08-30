@@ -82,7 +82,7 @@ class RawEntity extends Entity {
     return jsonMap;
   }
   
-  String get signature => json.stringify(this);
+  String get signature => stringify(this);
 
   Type get streamyType => RawEntity;
 }
