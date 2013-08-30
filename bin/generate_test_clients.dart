@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:json';
+import 'package:path/path.dart';
 import 'package:streamy/generator.dart';
 
 /// Generates test clients defined by JSON in test/generated folder.
@@ -28,7 +29,8 @@ main() {
       print('Processing addendum: $testJsonFile');
       addendumData = parse(addendumFile.readAsStringSync());
     }
-    String generatedCode = g.generate(new Path(basePath).filename, d, addendumData: addendumData);
+    String filename = basename(basePath);
+    String generatedCode = g.generate(filename, d, addendumData: addendumData);
     testClientFile.writeAsString(generatedCode);
   });
 }
