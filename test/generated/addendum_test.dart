@@ -30,9 +30,9 @@ class ImmediateRequestHandler extends RequestHandler {
     this.stream = new Stream.fromIterable([stringify(value.toJson())]);
   }
   Stream<Foo> handle(Request request) {
-    expect(request.local.dedup, equals(true));
-    expect(request.local.ttl, equals(800));
-    expect(request.local.foo, equals('baz'));
+    expect(request.local['dedup'], equals(true));
+    expect(request.local['ttl'], equals(800));
+    expect(request.local['foo'], equals('baz'));
     Deserializer d = request.responseDeserializer;
     return new StreamTransformer(
         handleData: (String data, EventSink<Foo> sink) {

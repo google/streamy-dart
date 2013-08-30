@@ -47,14 +47,14 @@ class _ActiveStream {
 class _InFlightRequest {
   Future future;
   CancelFn cancel;
-  
+
   _InFlightRequest(this.future, this.cancel);
 }
 
 /// The multiplexer is an intermediary that handles the routing of requests
 /// between caches and the true Apiary interface.
 class Multiplexer extends RequestHandler {
-  
+
   static const AGE_NO_RPC = -1;
   static const AGE_CACHE_LOOKUP_ONCE = -2;
 
@@ -76,7 +76,7 @@ class Multiplexer extends RequestHandler {
 
   Multiplexer(this._delegate, {Cache cache: null})
       : this._cache = cache == null ? new AsyncMapCache() : cache;
-  
+
   _newActiveStream(request) {
     // Create a new stream for this request.
     var active = new _ActiveStream(request);
@@ -84,10 +84,10 @@ class Multiplexer extends RequestHandler {
 
     return active;
   }
-  
+
   _handleAgeQuery(request, age) {
     var active = _newActiveStream(request);
-    
+
     _cache.get(request)
       .catchError(active.sendError)
       .then((cachedEntity) {
@@ -95,7 +95,7 @@ class Multiplexer extends RequestHandler {
         if (cachedEntity != null) {
           active.submit(cachedEntity);
         }
-        var ts = new DateTime.now().millisecondsSinceEpoch;
+        var ts = new DateTime.now().millisecondsSinceEpoch;  // TODO: not testable
         // If we don't need to issue an rpc
         if (age < 0 || (cachedEntity != null && (ts - cachedEntity.streamy.ts) < age)) {
           if (age == AGE_CACHE_LOOKUP_ONCE) {
@@ -107,16 +107,16 @@ class Multiplexer extends RequestHandler {
           }
           return;
         }
-        
-        _sendRpc(request);
-        
+
+        _sendRpc(request, active);
+
         // Interested in future responses.
         _activeIndex[request].add(active);
       });
-      
+
       return active.stream;
   }
-  
+
   _sendRpc(request, active) {
     // Only cachable requests need to be handled by the multiplexer (right now).
     if (request.isCachable) {
@@ -130,7 +130,7 @@ class Multiplexer extends RequestHandler {
         var cancel = () {
           // The pending future will never complete.
           sub.cancel();
-          
+
           _inFlightRequests.remove(request);
         };
         pending = completer.future;
@@ -178,14 +178,14 @@ class Multiplexer extends RequestHandler {
     // Make a copy of the request for use in the multiplexer, since it's not
     // immutable.
     var request = originalRequest.clone();
-    
+
     if (originalRequest.local.containsKey('noRpcAge')) {
       if (!request.isCachable) {
         throw new ArgumentError("Cannot specify noRpcAge parameter on a non-cachable request.");
       }
       return _handleAgeQuery(request, originalRequest.local['noRpcAge']);
     }
-    
+
     var active = _newActiveStream(request);
 
     // Only cachable requests need to be handled by the multiplexer (right now).
@@ -199,9 +199,9 @@ class Multiplexer extends RequestHandler {
           }
         });
     }
-    
+
     _sendRpc(request, active);
-    
+
     return active.stream;
   }
 
