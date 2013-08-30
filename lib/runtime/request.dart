@@ -104,7 +104,7 @@ abstract class Request {
 
   /// Returns the payload, if any.
   Entity get payload => _payload;
-  
+
   Map toJson() {
     return new Map()
       ..['parameters'] = parameters
@@ -179,7 +179,7 @@ abstract class Request {
         if (value.length != otherList.length) {
           return false;
         }
-        
+
         // These are Lists and not Sets. However, the comparison needs to consider
         // duplicates, so they are compared as sorted Lists, not Sets.
         value = new List.from(value)..sort();
@@ -222,18 +222,20 @@ abstract class Request {
     }
     return running;
   }
-      
+
   /// A serialized version of this request which is suitable for use as a cache key in a
   /// system such as IndexedDB which requires String keys.
   String get signature {
-    var payloadSig = _payload != null ? _payload.signature : "null";
+    // TODO: should the cast be necessary? Maybe _payload should be RawEntity.
+    var payloadSig =
+        _payload != null ? (_payload as RawEntity).signature : "null";
     return "$runtimeType|$path|$payloadSig";
   }
 }
 
 class BranchingRequestHandlerBuilder {
   final _typeMap = new Map<Type, List<_Branch>>();
-  
+
   void addBranch(Type requestType, RequestHandler handler, {predicate: null}) {
     if (!_typeMap.containsKey(requestType)) {
       _typeMap[requestType] = [];
@@ -246,7 +248,7 @@ class BranchingRequestHandlerBuilder {
       addBranch(requestType, handler, predicate: predicate);
     });
   }
-  
+
   RequestHandler build(RequestHandler defaultHandler) =>
       new _BranchingRequestHandler(defaultHandler, _typeMap);
 }
@@ -254,17 +256,17 @@ class BranchingRequestHandlerBuilder {
 class _Branch {
   final predicate;
   final RequestHandler handler;
-  
+
   _Branch(this.predicate, this.handler);
 }
 
 class _BranchingRequestHandler extends RequestHandler {
-  
+
   RequestHandler _delegate;
   Map<Type, List<_Branch>> _typeMap;
-  
+
   _BranchingRequestHandler(this._delegate, this._typeMap);
-  
+
   Stream handle(Request request) {
     if (!_typeMap.containsKey(request.runtimeType)) {
       return _delegate.handle(request);
