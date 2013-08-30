@@ -1,6 +1,7 @@
 library streamy.generated.schema_object.test;
 
 import 'dart:json';
+import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/collections.dart';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
@@ -13,7 +14,8 @@ main() {
       foo = new Foo()
       ..id = 1
       ..bar = 'bar'
-      ..baz = 2;
+      ..baz = 2
+      ..qux = new fixnum.Int64.fromInt(1234);
     });
     test('DataCorrectlyPopulated', () {
       expect(foo.id, equals(1));
@@ -30,6 +32,7 @@ main() {
         'id': 1,
         'bar': 'bar',
         'baz': 2,
+        'qux': '1234',
       }));
     });
     test('RemovedKeyNotPresentInJson', () {
@@ -37,6 +40,7 @@ main() {
       expect(foo.toJson(), equals({
         'id': 1,
         'bar': 'bar',
+        'qux': '1234',
       }));
     });
     test('RemovedKeyGetsNull', () {
@@ -71,7 +75,7 @@ main() {
         'qux': '123456789123456789123456789',
         'quux': ['2.5', '3.5', '4.5', '5.5']
       });
-      expect(foo2.qux, equals(streamy.int64.parseInt('123456789123456789123456789')));
+      expect(foo2.qux, equals(fixnum.Int64.parseInt('123456789123456789123456789')));
       expect(foo2.quux, equals([2.5, 3.5, 4.5, 5.5]));
     });
     test("clone()'d entities are equal", () {
