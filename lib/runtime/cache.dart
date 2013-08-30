@@ -51,7 +51,7 @@ class AsyncCacheWrapper implements Cache {
   
   /// Get an entity from the cache.
   Future<Entity> get(Request key) {
-    if (_degelate == null) {
+    if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.get(key);
       });
@@ -61,7 +61,7 @@ class AsyncCacheWrapper implements Cache {
 
   /// Set an entity in the cache.
   Future set(Request key, Entity entity) {
-    if (_degelate == null) {
+    if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.set(key, entity);
       });
@@ -71,7 +71,7 @@ class AsyncCacheWrapper implements Cache {
 
   /// Invalidate an entity in the cache.
   Future invalidate(Request key) {
-    if (_degelate == null) {
+    if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.invalidate(key);
       });
