@@ -12,5 +12,8 @@ homepage: https://github.com/google/streamy-dart
 dependencies:
   mustache: ">=0.1.5"
   args: any
-  unittest: any
   meta: any
+dev_dependencies:
+  path: any
+  unittest: any
+
