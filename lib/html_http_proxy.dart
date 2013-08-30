@@ -10,7 +10,7 @@ class DartHtmlHttpService implements StreamyHttpService {
 
   const DartHtmlHttpService();
 
-  Future<StreamyHttpResponse> request(String url, String method,
+  StreamyHttpRequest request(String url, String method,
       {String payload: null, String contentType: 'application/json'}) {
     var c = new Completer<StreamyHttpResponse>();
 
@@ -34,6 +34,10 @@ class DartHtmlHttpService implements StreamyHttpService {
     });
     req.onError.first.then(c.completeError);
 
-    return c.future;
+    return new StreamyHttpRequest(
+        c.future,
+        () {
+          req.abort();
+        });
   }
 }
