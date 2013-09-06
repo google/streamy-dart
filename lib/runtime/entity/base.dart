@@ -5,11 +5,11 @@ abstract class Entity {
 
   Entity.base();
 
-  /// Create a new [DynamicEntity].
-  factory Entity() => new DynamicEntity();
+  /// Create a new [RawEntity].
+  factory Entity() => new RawEntity();
 
-  /// Create a [DynamicEntity] from a [Map].
-  factory Entity.fromMap(Map data) => new DynamicEntity.fromMap(data);
+  /// Create a [RawEntity] from a [Map].
+  factory Entity.fromMap(Map data) => new RawEntity.fromMap(data);
 
   /// Access metadata exposed by Streamy about this entity.
   StreamyEntityMetadata get streamy;

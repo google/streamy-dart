@@ -10,7 +10,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:streamy/collections.dart';
 
 part 'runtime/entity/base.dart';
-part 'runtime/entity/dynamic.dart';
 part 'runtime/entity/empty.dart';
 part 'runtime/entity/raw.dart';
 part 'runtime/entity/util.dart';

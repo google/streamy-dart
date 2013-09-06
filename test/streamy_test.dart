@@ -1,9 +1,16 @@
 import 'dart:async';
 import 'package:streamy/streamy.dart';
+import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
 
 main() {
   group('RawEntity', () {
+    test('factory constructor returns a RawEntity', () {
+      expect(new Entity(), new isInstanceOf<RawEntity>());
+    });
+    test('factory constructor fromMap returns a RawEntity', () {
+      expect(new Entity.fromMap({'foo': 'bar'}), new isInstanceOf<RawEntity>());
+    });
     test('does not allow setting closures on non-.local keys', () {
       var e = new RawEntity();
       expect(() => e['foo'] = () => false, throwsA(new isInstanceOf<ClosureInEntityException>()));
@@ -14,19 +21,13 @@ main() {
     });
   });
   group('DynamicEntity', () {
-    test('factory constructor returns a DynamicEntity', () {
-      expect(new Entity(), new isInstanceOf<DynamicEntity>());
-    });
-    test('factory constructor fromMap returns a DynamicEntity', () {
-      expect(new Entity.fromMap({'foo': 'bar'}), new isInstanceOf<DynamicEntity>());
-    });
     test('noSuchMethod getters/setters work', () {
-      var e = new Entity();
+      var e = new DynamicEntity();
       e.foo = 'bar';
       expect(e.foo, equals('bar'));
     });
     test('Exception on non-accessor invocation.', () {
-      var e = new Entity();
+      var e = new DynamicEntity();
       e.foo = 'a';
       expect(() => e.foo(), throwsA(new isInstanceOf<ClosureInvocationException>()));
     });
