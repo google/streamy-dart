@@ -71,8 +71,9 @@ main() {
 }
 
 expectAsync3(fn, {count: 1, max: 0}) {
-  var close = expectAsync1((args) => fn(args[0], args[1], args[2]), count: count, max: max);
+  var tracker = expectAsync0(() {}, count: count, max: max);
   return (a, b, c) {
-    return close([a, b, c]);
+    tracker();
+    return fn(a, b, c);
   };
 }
