@@ -57,14 +57,16 @@ class TrackedRequest {
   
   /// Request that was issued.
   final Request request;
-  
-  final Future onFirstResponsePending;
+
+  /// A future that completes before the first response for the request is returned
+  /// (may be an error).
+  final Future beforeFirstResponse;
   
   /// A future that completes when the first response for the request is returned
   /// (may be an error).
   final Future onFirstResponse;
   
-  TrackedRequest._private(this.request, this.onFirstResponsePending, this.onFirstResponse);
+  TrackedRequest._private(this.request, this.beforeFirstResponse, this.onFirstResponse);
 }
 
 /// Provides a global notification of when requests are issued and when they receive
@@ -113,12 +115,17 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
     // Subscribe to the stream. On a new value or error, publish it to the controller.
     sub = responseStream.listen((entity) {
       sawValue = true;
-      preCallbackCompleter.complete();
+      if (!preCallbackCompleter.isCompleted) {
+        preCallbackCompleter.complete(entity);
+      }
       runZonedExperimental(() {
         c.add(entity);
       }, onDone: () => done(entity));
     })..onError((error) {
       sawValue = true;
+      if (!preCallbackCompleter.isCompleted) {
+        preCallbackCompleter.complete(error);
+      }
       runZonedExperimental(() {
         c.addError(error);
       }, onDone: () => done(null, error));
