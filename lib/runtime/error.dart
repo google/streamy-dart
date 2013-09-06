@@ -48,7 +48,7 @@ class RetryingRequestHandler extends RequestHandler {
     }
 
     // Pending request subscription. Used to cancel the request if asked.
-    var pendingSub = null;
+    var pendingSub;
     
     var output;
     output = new StreamController(onCancel: () {
