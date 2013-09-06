@@ -9,7 +9,7 @@ class EmptyEntity extends Entity {
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
   /// Local data associated with this entity instance.
-  LocalDataMap get local => null;
+  Map<String, dynamic> get local => null;
 
   /// Create a deep copy of this entity.
   EmptyEntity clone() => new EmptyEntity()..streamy._mergeFrom(streamy);

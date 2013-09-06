@@ -1,4 +1,4 @@
-part of streamy.runtime;
+part of streamy.testing;
 
 class DynamicEntity extends RawEntity {
 
@@ -22,7 +22,7 @@ class DynamicEntity extends RawEntity {
       // Perhaps the called was trying to call a nonexistent method,
       // or perhaps the caller was trying to invoke a data member as a
       // completion. Throw an appropriate error.
-      if (contains(memberName)) {
+      if (containsKey(memberName)) {
         throw new ClosureInvocationException(memberName);
       } else {
         // The Invocation class and NoSuchMethodError have different ideas
@@ -38,4 +38,14 @@ class DynamicEntity extends RawEntity {
   }
 
   Type get streamyType => DynamicEntity;
+}
+
+class ClosureInvocationException extends StreamyException {
+
+  final String memberName;
+
+  ClosureInvocationException(this.memberName);
+
+  String toString() => "Fields of DynamicEntity objects can't be invoked, as " +
+      'they cannot contain closures. Field: $memberName';
 }

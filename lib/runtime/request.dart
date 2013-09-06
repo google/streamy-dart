@@ -77,7 +77,7 @@ abstract class Request {
 
   /// Local data map, used to pass arbitrary information about this request to
   /// the [RequestHandler].
-  final LocalDataMap local = new LocalDataMap();
+  final Map<String, dynamic> local = <String, dynamic>{};
 
   /// Construct a new request.
   Request(this.root, [this._payload = null]) {
