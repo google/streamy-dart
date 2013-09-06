@@ -17,7 +17,7 @@ class RawEntity extends Entity {
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
   /// Local data.
-  final LocalDataMap local = new LocalDataMap();
+  final Map<String, dynamic> local = <String, dynamic>{};
 
   /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);

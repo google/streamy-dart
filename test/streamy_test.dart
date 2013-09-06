@@ -37,7 +37,7 @@ main() {
     setUp(() {
       entity = new RawEntity();
     });
-    test('exists and looks like a Map', () {
+    test('exists and is a Map', () {
       expect(entity.local, isNotNull);
       expect(entity.local, new isInstanceOf<Map>());
     });
@@ -45,25 +45,15 @@ main() {
       entity.local['foo'] = 'bar';
       expect(entity.local['foo'], equals('bar'));
     });
-    test('has dot property access', () {
-      entity.local['foo'] = 'bar';
-      expect(entity.local.foo, equals('bar'));
-      entity.local.foo = 'baz';
-      expect(entity.local['foo'], equals('baz'));
-    });
-    test('converts Maps to LocalDataMaps', () {
-      entity.local.foo = {'bar': true};
-      expect(entity.local.foo, new isInstanceOf<LocalDataMap>());
-    });
     test('does not affect serialization of the entity', () {
       var s1 = entity.toJson();
-      entity.local.foo = 'not serialized';
+      entity.local['foo'] = 'not serialized';
       var s2 = entity.toJson();
       expect(s2, equals(s1));
     });
     test('does not survive cloning', () {
-      entity.local.foo = 'this should not be cloned';
-      expect(entity.clone().local.foo, isNull);
+      entity.local['foo'] = 'this should not be cloned';
+      expect(entity.clone().local['foo'], isNull);
     });
     test('cannot be set', () {
       expect(() => entity.local = {},
