@@ -29,7 +29,7 @@ class IndexedDbCache extends Cache {
   }) {
     return window.indexedDB.open(name, version: 1, onUpgradeNeeded: _initDb).then((database) {
       return new IndexedDbCache._private(database, gcCycle, maxAge, gcPerCycleLimit);
-    })
+    });
   }
   
   IndexedDbCache._private(this.db, gcCycle, this.maxAge, this.gcPerCycleLimit) {
@@ -38,7 +38,7 @@ class IndexedDbCache extends Cache {
     }
   }
   
-  void _initDb(idb.VersionChangeEvent e) {
+  static void _initDb(idb.VersionChangeEvent e) {
     idb.Database db = (e.target as idb.Request).result;
     
     var store = db.createObjectStore("entityCache", keyPath: "request");
@@ -73,13 +73,13 @@ class IndexedDbCache extends Cache {
 
   /// Invalidate an entity in the cache.
   Future invalidate(Request key) {
-    var txn = db.transaction("entityCache");
+    var txn = db.transaction("entityCache", "readwrite");
     var store = txn.objectStore("entityCache");
     return store.delete(key.signature);
   }
 
   /// Run garbage collection to remove all entries older than the stated date.
-  Future gc() {
+  void gc() {
     if (_inGc) {
       return;
     }
@@ -93,7 +93,7 @@ class IndexedDbCache extends Cache {
       .listen((cursor) {
         futures.add(cursor.delete());
       });
-    return Future.wait(futures).whenComplete(() {
+    Future.wait(futures).whenComplete(() {
       _inGc = false;
     });
   }

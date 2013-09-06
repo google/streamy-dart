@@ -57,12 +57,16 @@ class TrackedRequest {
   
   /// Request that was issued.
   final Request request;
+
+  /// A future that completes before the first response for the request is returned
+  /// (may be an error).
+  final Future beforeFirstResponse;
   
   /// A future that completes when the first response for the request is returned
   /// (may be an error).
   final Future onFirstResponse;
   
-  TrackedRequest._private(this.request, this.onFirstResponse);
+  TrackedRequest._private(this.request, this.beforeFirstResponse, this.onFirstResponse);
 }
 
 /// Provides a global notification of when requests are issued and when they receive
@@ -77,43 +81,51 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
   
   Stream bind(Request request, Stream responseStream) {
     var sub;
-    var completer = new Completer.sync();
+    var preCallbackCompleter = new Completer.sync();
+    var postCallbackCompleter = new Completer.sync();
     // Whether the input Stream was closed.
     var closed = false;
     // Whether the input Stream has seen a value.
     var sawValue = false;
     var c = new StreamController<Entity>(onCancel: () {
       sub.cancel();
-      if (!completer.isCompleted && !(closed && sawValue)) {
-        completer.complete();
+      if (!postCallbackCompleter.isCompleted && !(closed && sawValue)) {
+        postCallbackCompleter.complete();
       }
     });
     
     // Publish a tracking record for this request (synchronously).
-    _controller.add(new TrackedRequest._private(request, completer.future));
+    _controller.add(new TrackedRequest._private(
+        request, preCallbackCompleter.future, postCallbackCompleter.future));
     
     // To be called when an event has been processed. Only on the first one, this
     // should complete the future sent on the tracking stream, indicating a response
     // has been processed.
     void done(entity, [error]) {
-      if (completer.isCompleted) {
+      if (postCallbackCompleter.isCompleted) {
         return;
       }
       if (entity != null) {
-        completer.complete(entity);
+        postCallbackCompleter.complete(entity);
       } else {
-        completer.complete(error);
+        postCallbackCompleter.complete(error);
       }
     }
     
     // Subscribe to the stream. On a new value or error, publish it to the controller.
     sub = responseStream.listen((entity) {
       sawValue = true;
+      if (!preCallbackCompleter.isCompleted) {
+        preCallbackCompleter.complete(entity);
+      }
       runZonedExperimental(() {
         c.add(entity);
       }, onDone: () => done(entity));
     })..onError((error) {
       sawValue = true;
+      if (!preCallbackCompleter.isCompleted) {
+        preCallbackCompleter.complete(error);
+      }
       runZonedExperimental(() {
         c.addError(error);
       }, onDone: () => done(null, error));

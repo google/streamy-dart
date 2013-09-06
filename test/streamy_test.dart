@@ -5,6 +5,12 @@ import 'package:unittest/unittest.dart';
 
 main() {
   group('RawEntity', () {
+    test('factory constructor returns a RawEntity', () {
+      expect(new Entity(), new isInstanceOf<RawEntity>());
+    });
+    test('factory constructor fromMap returns a RawEntity', () {
+      expect(new Entity.fromMap({'foo': 'bar'}), new isInstanceOf<RawEntity>());
+    });
     test('does not allow setting closures on non-.local keys', () {
       var e = new RawEntity();
       expect(() => e['foo'] = () => false, throwsA(new isInstanceOf<ClosureInEntityException>()));
@@ -15,19 +21,13 @@ main() {
     });
   });
   group('DynamicEntity', () {
-    test('factory constructor returns a DynamicEntity', () {
-      expect(new Entity(), new isInstanceOf<DynamicEntity>());
-    });
-    test('factory constructor fromMap returns a DynamicEntity', () {
-      expect(new Entity.fromMap({'foo': 'bar'}), new isInstanceOf<DynamicEntity>());
-    });
     test('noSuchMethod getters/setters work', () {
-      var e = new Entity();
+      var e = new DynamicEntity();
       e.foo = 'bar';
       expect(e.foo, equals('bar'));
     });
     test('Exception on non-accessor invocation.', () {
-      var e = new Entity();
+      var e = new DynamicEntity();
       e.foo = 'a';
       expect(() => e.foo(), throwsA(new isInstanceOf<ClosureInvocationException>()));
     });
@@ -37,7 +37,7 @@ main() {
     setUp(() {
       entity = new RawEntity();
     });
-    test('exists and looks like a Map', () {
+    test('exists and is a Map', () {
       expect(entity.local, isNotNull);
       expect(entity.local, new isInstanceOf<Map>());
     });
@@ -45,25 +45,15 @@ main() {
       entity.local['foo'] = 'bar';
       expect(entity.local['foo'], equals('bar'));
     });
-    test('has dot property access', () {
-      entity.local['foo'] = 'bar';
-      expect(entity.local.foo, equals('bar'));
-      entity.local.foo = 'baz';
-      expect(entity.local['foo'], equals('baz'));
-    });
-    test('converts Maps to LocalDataMaps', () {
-      entity.local.foo = {'bar': true};
-      expect(entity.local.foo, new isInstanceOf<LocalDataMap>());
-    });
     test('does not affect serialization of the entity', () {
       var s1 = entity.toJson();
-      entity.local.foo = 'not serialized';
+      entity.local['foo'] = 'not serialized';
       var s2 = entity.toJson();
       expect(s2, equals(s1));
     });
     test('does not survive cloning', () {
-      entity.local.foo = 'this should not be cloned';
-      expect(entity.clone().local.foo, isNull);
+      entity.local['foo'] = 'this should not be cloned';
+      expect(entity.clone().local['foo'], isNull);
     });
     test('cannot be set', () {
       expect(() => entity.local = {},
@@ -121,12 +111,6 @@ main() {
       asyncExpect(stream.first.then((e) => e.streamy.source), equals('CACHE'));
       asyncExpect(stream.last.then((e) => e.streamy.source), equals('RPC'));
       asyncExpect(stream.length, equals(2));
-    });
-  });
-  group('fixnum', () {
-    test('int64 operator==', () {
-      expect(new int64.fromInt(123) == int64.parseInt("123"), equals(true));
-      expect(new int64.fromInt(3) == new Object(), equals(false));
     });
   });
 }

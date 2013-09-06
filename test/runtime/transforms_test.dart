@@ -18,6 +18,10 @@ main() {
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
         expect(x, equals(' '));
+        x = '_';
+        event.beforeFirstResponse.then(expectAsync1((_) {
+          expect(x, equals('_'));
+        }));
         event.onFirstResponse.then(expectAsync1((entity) {
           expect(x, equals('a'));
         }));
@@ -32,17 +36,24 @@ main() {
         .build();
       var tracker = new RequestTrackingTransformer();
       var handler = bareHandler.transformResponses(tracker);
+      var sawErrorOnStream = false;
 
       tracker.trackingStream.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
+        event.beforeFirstResponse.then(expectAsync1((error) {
+          expect(error, new isInstanceOf<ArgumentError>());
+          expect(sawErrorOnStream, isFalse);
+        }));
         event.onFirstResponse.then(expectAsync1((error) {
           expect(error, new isInstanceOf<ArgumentError>());
+          expect(sawErrorOnStream, isTrue);
         }));
       }));
       handler.handle(TEST_GET_REQUEST).listen((_) {
         // Never called.
       }).onError(expectAsync1((error) {
         expect(error, new isInstanceOf<ArgumentError>());
+        sawErrorOnStream = true;
       }));
     });
   });

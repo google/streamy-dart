@@ -1,3 +1,4 @@
+import 'dart:convert' as convert;
 import 'dart:io' as io;
 import 'dart:json';
 import 'package:args/args.dart';
@@ -7,7 +8,7 @@ import 'package:streamy/generator.dart';
 main() {
   ApigenOptions options = parseArgs();
   var discoveryFile = new io.File(options.discoveryFile);
-  discoveryFile.readAsString(encoding: io.Encoding.UTF_8).then((String json) {
+  discoveryFile.readAsString(encoding: convert.UTF8).then((String json) {
     var discovery = new Discovery.fromJsonString(json);
     var clientFile = new io.File(options.clientFile);
     var addendumData = {};
@@ -17,7 +18,7 @@ main() {
     }
     String code = new Emitter(new DefaultTemplateProvider(options.templatesDir))
         .generate(options.libraryName, discovery, addendumData: addendumData);
-    clientFile.writeAsString(code, encoding: io.Encoding.UTF_8);
+    clientFile.writeAsString(code, encoding: convert.UTF8);
   });
 }
 

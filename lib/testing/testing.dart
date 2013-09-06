@@ -2,8 +2,11 @@
 library streamy.testing;
 
 import 'dart:async';
+import 'dart:mirrors';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
+
+part 'dynamic_entity.dart';
 
 /**
  * Use this method to build test request handlers that return pre-defined
