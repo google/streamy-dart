@@ -2,7 +2,7 @@ part of streamy.runtime;
 
 /// Parent of all data transfer objects. Provides map-like methods for
 /// accessing field values.
-class RawEntity extends Entity {
+class RawEntity extends Entity implements Map {
 
   RawEntity() : super.base();
   
@@ -89,4 +89,15 @@ class RawEntity extends Entity {
   String get signature => stringify(this);
 
   Type get streamyType => RawEntity;
+  
+  // Delegation of the remaining [Map] interface.
+  bool get isEmpty => _data.isEmpty;
+  bool get isNotEmpty => _data.isNotEmpty;
+  Iterable<String> get keys => _data.keys;
+  Iterable get values => _data.values;
+  void addAll(Map<String, dynamic> other) => _data.addAll(other);
+  void clear() => _data.clear();
+  bool containsValue(value) => _data.containsValue(value);
+  void forEach(void fn(String key, value)) => _data.forEach(fn);
+  putIfAbsent(String key, ifAbsent()) => _data.putIfAbsent(key, ifAbsent);
 }
