@@ -41,16 +41,6 @@ class ClosureInEntityException extends StreamyException {
       'Use .local for that instead. Key: $key, Closure: $closureToString';
 }
 
-class ClosureInvocationException extends StreamyException {
-
-  final String memberName;
-
-  ClosureInvocationException(this.memberName);
-
-  String toString() => "Fields of DynamicEntity objects can't be invoked, as " +
-      'they cannot contain closures. Field: $memberName';
-}
-
 /// A [StreamConsumer] which publishes zero or one entities, depending on whether
 /// the [Stream] returns a value or not. Like a [Stream].single which returns
 /// null if no value is ever published.

@@ -5,6 +5,10 @@ part of streamy.runtime;
 class RawEntity extends Entity {
 
   RawEntity() : super.base();
+  
+  RawEntity.fromMap(Map<String, dynamic> map) : super.base() {
+    _data.addAll(map);
+  }
 
   /// Actual fields of the Apiary entity.
   var _data = {};
@@ -13,7 +17,7 @@ class RawEntity extends Entity {
   final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
 
   /// Local data.
-  final LocalDataMap local = new LocalDataMap();
+  final Map<String, dynamic> local = <String, dynamic>{};
 
   /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);

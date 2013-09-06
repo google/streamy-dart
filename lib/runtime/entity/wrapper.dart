@@ -46,7 +46,7 @@ abstract class EntityWrapper extends Entity {
 
   Map toJson() => _delegate.toJson();
 
-  LocalDataMap get local => _delegate.local;
+  Map<String, dynamic> get local => _delegate.local;
 
   Type get streamyType;
 }
