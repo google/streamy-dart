@@ -3,7 +3,6 @@ library streamy.runtime;
 
 import 'dart:async';
 import 'dart:json';
-import 'dart:mirrors';
 
 import 'package:meta/meta.dart';
 import 'package:fixnum/fixnum.dart';
