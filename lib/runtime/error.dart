@@ -33,13 +33,14 @@ class RetryingRequestHandler extends RequestHandler {
   final List errorCodesToRetry;
   final int maxRetries;
 
-  RetryingRequestHandler(this.delegate, {this.strategy: retryImmediately, this.maxRetries: 0, this.errorCodesToRetry: const [
-    408, // Request timeout
-    500, // Internal server error
-    502, // Bad gateway
-    503, // Service unavailable
-    504  // Gateway timeout
-  ]});
+  RetryingRequestHandler(this.delegate, {this.strategy: retryImmediately, this.maxRetries: 0,
+      this.errorCodesToRetry: const [
+        408, // Request timeout
+        500, // Internal server error
+        502, // Bad gateway
+        503, // Service unavailable
+        504  // Gateway timeout
+      ]});
 
   Stream handle(Request request) {
     var strategy = this.strategy;
@@ -66,7 +67,8 @@ class RetryingRequestHandler extends RequestHandler {
         output.add(result);
         output.close();
       })..onError((e) {
-        // If the request/error is not retryable, or the number of retries is over the limit, stop retrying.
+        // If the request/error is not retryable, or the number of retries is over the limit,
+        // stop retrying.
         retry++;
         if (!_isRetryable(request, e) || (maxRetries > 0 && retry > maxRetries)) {
           // If this error can't be handled, pass it to the app and stop trying.
