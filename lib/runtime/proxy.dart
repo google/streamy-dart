@@ -69,6 +69,6 @@ class StreamyHttpResponse {
 
 abstract class StreamyHttpService {
   StreamyHttpRequest request(String url, String method,
-      {String payload: null, String contentType: 'application/json'});
+      {String payload: null, String contentType: 'application/json; charset=utf8'});
 }
   
