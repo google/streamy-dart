@@ -36,6 +36,35 @@ class AsyncMapCache implements Cache {
   }
 }
 
+/// A [Cache] wrapper that honors a 'caching: false' [Request] local property.
+class CachingFlagCacheWrapper implements Cache {
+  
+  final Cache delegate;
+  
+  CachingFlagCacheWrapper(this.delegate);
+  
+  Future<Entity> get(Request key) {
+    if (key.local['caching'] == false) {
+      return new Future.value(null);
+    }
+    return delegate.get(key);
+  }
+
+  Future set(Request key, Entity entity) {
+    if (key.local['caching'] == false) {
+      return new Future.value(true);
+    }
+    return delegate.set(key, entity);
+  }
+
+  Future invalidate(Request key, Entity entity) {
+    if (key.local['caching'] == false) {
+      return new Future.value(true);
+    }
+    return delegate.invalidate(key, entity);
+  }
+}  
+
 /// Wraps a [Future]<[Cache]> and pretends to be synchronous, delaying cache calls
 /// until the delegate cache is asynchronously loaded.
 class AsyncCacheWrapper implements Cache {
@@ -78,5 +107,4 @@ class AsyncCacheWrapper implements Cache {
     }
     return _delegate.invalidate(key);
   }
-  
 }
