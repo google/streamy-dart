@@ -14,10 +14,17 @@ class RawEntity extends Entity implements Map {
   var _data = {};
 
   /// Metadata about this entity.
-  final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
+  StreamyEntityMetadata streamy;
 
   /// Local data.
-  final Map<String, dynamic> local = <String, dynamic>{};
+  Map<String, dynamic> get local {
+    if (_local == null) {
+      _local = <String, dynamic>{};
+    }
+    return _local;
+  }
+
+  Map<String, dynamic> _local = null;
 
   /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);
@@ -25,7 +32,10 @@ class RawEntity extends Entity implements Map {
   /// Merge fields from an input map.
   _cloneFrom(RawEntity input) {
     _data = _clone(input._data);
-    streamy._mergeFrom(input.streamy);
+    if (input.streamy != null) {
+      streamy = new StreamyEntityMetadata._private;
+      streamy._mergeFrom(input.streamy);
+    }
   }
 
   /// Data field getter.
