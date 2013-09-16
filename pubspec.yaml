@@ -17,3 +17,4 @@ dependencies:
 dev_dependencies:
   path: any
   unittest: any
+  benchmark_harness: any
