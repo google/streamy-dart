@@ -8,7 +8,7 @@ import 'package:fixnum/fixnum.dart';
 import 'generated/benchmark_client.dart';
 
 const MAX = 10000000;
-const REPL = 35;
+const EXPANSION = 35;
 const LEVEL = 3;
 
 class DeserializationBenchmark extends BenchmarkBase {
@@ -36,11 +36,14 @@ class DeserializationBenchmark extends BenchmarkBase {
       ..id = _random.nextInt(MAX)
       ..baz = _random.nextInt(MAX)
       ..qux = new Int64.fromInts(_random.nextInt(MAX), _random.nextInt(MAX))
-      ..quux = new List.generate(_random.nextInt(REPL), (_) => _random.nextDouble(), growable: false)
-      ..corge = new List.generate(_random.nextInt(REPL), (_) => _random.nextInt(MAX), growable: false)
+      ..quux = new List.generate(_random.nextInt(EXPANSION),
+          (_) => _random.nextDouble(), growable: false)
+      ..corge = new List.generate(_random.nextInt(EXPANSION),
+          (_) => _random.nextInt(MAX), growable: false)
       ..bar = new Bar();
     if (level > 0) {
-      foo.bar.foos = new List.generate(REPL, (_) => _makePopulatedFoo(level - 1), growable: false);
+      foo.bar.foos = new List.generate(EXPANSION,
+          (_) => _makePopulatedFoo(level - 1), growable: false);
     }
     return foo;
   }
