@@ -10,11 +10,12 @@ import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
 
 class Foo extends streamy.EntityWrapper {
-  static final List<String> KNOWN_PROPERTIES = [
+  static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'baz',
-  ];
+  ]);
   static final String KIND = """type#foo""";
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
+  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -31,15 +32,20 @@ class Foo extends streamy.EntityWrapper {
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, bool copy: false}) {
     if (json == null) {
       return null;
     }
-    json = new Map.from(json);
-    var result = new Foo()
-      ..baz = json.remove('baz')
+    if (copy) {
+      json = new Map.from(json);
+    }
+    var result = new Foo.fromMap(json);
+    result
+      ..baz = result.baz
 ;
-    streamy.addUnknownProperties(result, json, typeRegistry);
+    result.fieldNames.where((key) => !KNOWN_PROPERTIES.contains(key)).forEach((key) {
+      result[key] = deserialize(result[key], typeRegistry);
+    });
     return result;
   }
   Map toJson() {
@@ -52,10 +58,11 @@ class Foo extends streamy.EntityWrapper {
 }
 
 class Bar extends streamy.EntityWrapper {
-  static final List<String> KNOWN_PROPERTIES = [
-  ];
+  static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
+  ]);
   static final String KIND = """type#bar""";
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
+  Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Bar._wrap(cloned));
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -65,14 +72,19 @@ class Bar extends streamy.EntityWrapper {
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Bar.fromJson(json, typeRegistry: reg);
   factory Bar.fromJson(Map json,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, bool copy: false}) {
     if (json == null) {
       return null;
     }
-    json = new Map.from(json);
-    var result = new Bar()
+    if (copy) {
+      json = new Map.from(json);
+    }
+    var result = new Bar.fromMap(json);
+    result
 ;
-    streamy.addUnknownProperties(result, json, typeRegistry);
+    result.fieldNames.where((key) => !KNOWN_PROPERTIES.contains(key)).forEach((key) {
+      result[key] = deserialize(result[key], typeRegistry);
+    });
     return result;
   }
   Map toJson() {

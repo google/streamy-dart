@@ -33,7 +33,7 @@ class RawEntity extends Entity implements Map {
   _cloneFrom(RawEntity input) {
     _data = _clone(input._data);
     if (input.streamy != null) {
-      streamy = new StreamyEntityMetadata._private;
+      streamy = new StreamyEntityMetadata._private();
       streamy._mergeFrom(input.streamy);
     }
   }

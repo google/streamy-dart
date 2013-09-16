@@ -110,6 +110,8 @@ _deserialize(dynamic value, TypeRegistry reg) {
   }
 }
 
+deserialize(value, TypeRegistry reg) => _deserialize(value, reg);
+
 /// A sentinel value which indicates that an RPC returned an error.
 class _ErrorEntity implements Entity {
 

@@ -2,11 +2,12 @@
 {{#docs}}/// {{.}}
 {{/docs}}
 class {{name}} extends streamy.EntityWrapper {
-  static final List<String> KNOWN_PROPERTIES = [
+  static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
 {{#properties}}    '{{name}}',
-{{/properties}}  ];
+{{/properties}}  ]);
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
   {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
+  {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new {{name}}._wrap(cloned));
 
   {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned));
 
@@ -31,26 +32,31 @@ class {{name}} extends streamy.EntityWrapper {
       new {{name}}.fromJson(json, typeRegistry: reg);
 
   factory {{name}}.fromJson(Map json,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, bool copy: false}) {
     if (json == null) {
       return null;
     }
-    json = new Map.from(json);
-    var result = new {{name}}()
+    if (copy) {
+      json = new Map.from(json);
+    }
+    var result = new {{name}}.fromMap(json);
+    result
 {{#properties}}
 {{#list}}
-      ..{{name}} = streamy.nullSafeMapToList(json.remove('{{name}}'), (val) => {{#mustSerialize}}new {{listType}}.fromJson(val){{/mustSerialize}}{{^mustSerialize}}{{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}val{{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}{{/mustSerialize}})
+      ..{{name}} = streamy.nullSafeMapToList(result.{{name}}, (val) => {{#mustSerialize}}new {{listType}}.fromJson(val){{/mustSerialize}}{{^mustSerialize}}{{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}val{{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}{{/mustSerialize}})
 {{/list}}
 {{^list}}
 {{#mustSerialize}}
-      ..{{name}} = new {{type}}.fromJson(json.remove('{{name}}'))
+      ..{{name}} = new {{type}}.fromJson(result.{{name}})
 {{/mustSerialize}}
 {{^mustSerialize}}
-      ..{{name}} = {{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}json.remove('{{name}}'){{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}
+      ..{{name}} = {{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}result.{{name}}{{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}
 {{/mustSerialize}}
 {{/list}}
 {{/properties}};
-    streamy.addUnknownProperties(result, json, typeRegistry);
+    result.fieldNames.where((key) => !KNOWN_PROPERTIES.contains(key)).forEach((key) {
+      result[key] = deserialize(result[key], typeRegistry);
+    });
     return result;
   }
 
