@@ -39,24 +39,46 @@ class {{name}} extends streamy.EntityWrapper {
     if (copy) {
       json = new Map.from(json);
     }
+    var list;
+    var len;
     var result = new {{name}}.fromMap(json);
-    result
+    var fields = result.fieldNames.toList();
 {{#properties}}
 {{#list}}
-      ..{{name}} = streamy.nullSafeMapToList(result.{{name}}, (val) => {{#mustSerialize}}new {{listType}}.fromJson(val){{/mustSerialize}}{{^mustSerialize}}{{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}val{{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}{{/mustSerialize}})
+    list = result.{{name}};
+    if (list != null) {
+{{#mustSerialize}}
+      len = list.length;
+      for (var i = 0; i < len; i++) {
+        list[i] = new {{listType}}.fromJson(list[i]);
+      }
+{{/mustSerialize}}
+{{^mustSerialize}}
+{{#hasParseExpr}}
+      list = result.{{name}};
+      len = list.length;
+      for (var i = 0; i < len; i++) {
+        list[i] = {{parseExpr}}(list[i]);
+      }
+{{/hasParseExpr}}
+{{/mustSerialize}}
+    }
 {{/list}}
 {{^list}}
 {{#mustSerialize}}
-      ..{{name}} = new {{type}}.fromJson(result.{{name}})
+    result.{{name}} = new {{type}}.fromJson(result.{{name}});
 {{/mustSerialize}}
 {{^mustSerialize}}
-      ..{{name}} = {{#hasParseExpr}}streamy.nullSafeOperation({{/hasParseExpr}}result.{{name}}{{#hasParseExpr}}, {{parseExpr}}){{/hasParseExpr}}
+    {{#hasParseExpr}}result.{{name}} = (result.{{name}} != null) ? {{parseExpr}}(result.{{name}}) : null;{{/hasParseExpr}}
 {{/mustSerialize}}
 {{/list}}
 {{/properties}};
-    result.fieldNames.where((key) => !KNOWN_PROPERTIES.contains(key)).forEach((key) {
-      result[key] = deserialize(result[key], typeRegistry);
-    });
+{{#properties}}
+    fields.remove('{{name}}');
+{{/properties}}
+    for (var i = 0; i < fields.length; i++) {
+      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+    }
     return result;
   }
 

@@ -78,18 +78,29 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new Map.from(json);
     }
+    var list;
+    var len;
     var result = new Foo.fromMap(json);
-    result
-      ..id = result.id
-      ..bar = result.bar
-      ..baz = result.baz
-      ..qux = streamy.nullSafeOperation(result.qux, fixnum.Int64.parseInt)
-      ..quux = streamy.nullSafeMapToList(result.quux, (val) => streamy.nullSafeOperation(val, double.parse))
-      ..corge = result.corge
+    var fields = result.fieldNames.toList();
+    result.qux = (result.qux != null) ? fixnum.Int64.parseInt(result.qux) : null;
+    list = result.quux;
+    if (list != null) {
+      list = result.quux;
+      len = list.length;
+      for (var i = 0; i < len; i++) {
+        list[i] = double.parse(list[i]);
+      }
+    }
 ;
-    result.fieldNames.where((key) => !KNOWN_PROPERTIES.contains(key)).forEach((key) {
-      result[key] = deserialize(result[key], typeRegistry);
-    });
+    fields.remove('id');
+    fields.remove('bar');
+    fields.remove('baz');
+    fields.remove('qux');
+    fields.remove('quux');
+    fields.remove('corge');
+    for (var i = 0; i < fields.length; i++) {
+      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+    }
     return result;
   }
   Map toJson() {
@@ -136,13 +147,22 @@ class Bar extends streamy.EntityWrapper {
     if (copy) {
       json = new Map.from(json);
     }
+    var list;
+    var len;
     var result = new Bar.fromMap(json);
-    result
-      ..foos = streamy.nullSafeMapToList(result.foos, (val) => new Foo.fromJson(val))
+    var fields = result.fieldNames.toList();
+    list = result.foos;
+    if (list != null) {
+      len = list.length;
+      for (var i = 0; i < len; i++) {
+        list[i] = new Foo.fromJson(list[i]);
+      }
+    }
 ;
-    result.fieldNames.where((key) => !KNOWN_PROPERTIES.contains(key)).forEach((key) {
-      result[key] = deserialize(result[key], typeRegistry);
-    });
+    fields.remove('foos');
+    for (var i = 0; i < fields.length; i++) {
+      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+    }
     return result;
   }
   Map toJson() {
