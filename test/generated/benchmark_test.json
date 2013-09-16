@@ -1,0 +1,57 @@
+{
+  "name": "SchemaObjectTest",
+  "servicePath": "schemaObjectTest/v1/",
+  "schemas": {
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        },
+        "bar": {
+          "$ref": "Bar",
+          "description": "Foo's favorite bar."
+        },
+        "baz": {
+          "type": "integer",
+          "description": "It's spelled buzz."
+        },
+        "qux": {
+          "type": "string",
+          "description": "Not what it seems.",
+          "format": "int64"
+        },
+        "quux": {
+          "type": "array",
+          "description": "The plural of qux",
+          "items": {
+            "type": "string",
+            "format": "double"
+          }
+        },
+        "corge": {
+          "type": "array",
+          "description": "A double field that's serialized as a number.",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "Bar": {
+      "id": "Bar",
+      "type": "object",
+      "properties": {
+        "foos": {
+          "type": "array",
+          "description": "A bunch of foos.",
+          "items": {
+            "$ref": "Foo"
+          }
+        }
+      }
+    }
+  }
+}
