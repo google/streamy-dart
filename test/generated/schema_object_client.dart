@@ -81,7 +81,7 @@ class Foo extends streamy.EntityWrapper {
     var list;
     var len;
     var result = new Foo.fromMap(json);
-    var fields = result.fieldNames.toList();
+    var numFields = json.length;
     result.qux = (result.qux != null) ? fixnum.Int64.parseInt(result.qux) : null;
     list = result.quux;
     if (list != null) {
@@ -92,14 +92,17 @@ class Foo extends streamy.EntityWrapper {
       }
     }
 ;
-    fields.remove('id');
-    fields.remove('bar');
-    fields.remove('baz');
-    fields.remove('qux');
-    fields.remove('quux');
-    fields.remove('corge');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+    if (json.length > KNOWN_PROPERTIES.length) {
+      var fields = result.fieldNames.toList();
+      fields.remove('id');
+      fields.remove('bar');
+      fields.remove('baz');
+      fields.remove('qux');
+      fields.remove('quux');
+      fields.remove('corge');
+      for (var i = 0; i < fields.length; i++) {
+        result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+      }
     }
     return result;
   }
@@ -150,7 +153,7 @@ class Bar extends streamy.EntityWrapper {
     var list;
     var len;
     var result = new Bar.fromMap(json);
-    var fields = result.fieldNames.toList();
+    var numFields = json.length;
     list = result.foos;
     if (list != null) {
       len = list.length;
@@ -159,9 +162,12 @@ class Bar extends streamy.EntityWrapper {
       }
     }
 ;
-    fields.remove('foos');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+    if (json.length > KNOWN_PROPERTIES.length) {
+      var fields = result.fieldNames.toList();
+      fields.remove('foos');
+      for (var i = 0; i < fields.length; i++) {
+        result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+      }
     }
     return result;
   }

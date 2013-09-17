@@ -231,6 +231,9 @@ class Multiplexer extends RequestHandler {
   }
 
   _recordRpcData(entity) {
+    if (entity.streamy == null) {
+      entity.streamy = new StreamyEntityMetadata._private();
+    }
     entity.streamy
       ..ts = new DateTime.now().millisecondsSinceEpoch
       ..source = 'RPC';

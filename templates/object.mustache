@@ -72,10 +72,8 @@ class {{name}} extends streamy.EntityWrapper {
     {{#hasParseExpr}}result.{{name}} = (result.{{name}} != null) ? {{parseExpr}}(result.{{name}}) : null;{{/hasParseExpr}}
 {{/mustSerialize}}
 {{/list}}
-{{/properties}};
-{{#properties}}
     fields.remove('{{name}}');
-{{/properties}}
+{{/properties}};
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
     }

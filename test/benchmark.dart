@@ -69,6 +69,7 @@ class JsonParseBenchmark extends BenchmarkBase {
   void setup() {
     var foo = makePopulatedFoo(random, LEVEL);
     js = json.stringify(foo);
+    print("js length: ${js.length}");
   }
 }
 
