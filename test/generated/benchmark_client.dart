@@ -10,15 +10,16 @@ import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
 
 class Foo extends streamy.EntityWrapper {
-  static final List<String> KNOWN_PROPERTIES = [
+  static const Set<String> KNOWN_PROPERTIES = const Set<String>.from([
     'id',
     'bar',
     'baz',
     'qux',
     'quux',
     'corge',
-  ];
+  ]);
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
+  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -70,20 +71,40 @@ class Foo extends streamy.EntityWrapper {
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, bool copy: false}) {
     if (json == null) {
       return null;
     }
-    json = new Map.from(json);
-    var result = new Foo()
-      ..id = json.remove('id')
-      ..bar = new Bar.fromJson(json.remove('bar'))
-      ..baz = json.remove('baz')
-      ..qux = streamy.nullSafeOperation(json.remove('qux'), fixnum.Int64.parseInt)
-      ..quux = streamy.nullSafeMapToList(json.remove('quux'), (val) => streamy.nullSafeOperation(val, double.parse))
-      ..corge = streamy.nullSafeMapToList(json.remove('corge'), (val) => val)
+    if (copy) {
+      json = new Map.from(json);
+    }
+    var list;
+    var len;
+    var result = new Foo.fromMap(json);
+    var fields = result.fieldNames.toList();
+    fields.remove('id');
+    result.bar = new Bar.fromJson(result['bar']);
+    fields.remove('bar');
+    fields.remove('baz');
+    result.qux = (result['qux'] != null) ? fixnum.Int64.parseInt(result['qux']) : null;
+    fields.remove('qux');
+    list = result['quux'];
+    if (list != null) {
+      list = result['quux'];
+      len = list.length;
+      for (var i = 0; i < len; i++) {
+        list[i] = double.parse(list[i]);
+      }
+    }
+    fields.remove('quux');
+    list = result['corge'];
+    if (list != null) {
+    }
+    fields.remove('corge');
 ;
-    streamy.addUnknownProperties(result, json, typeRegistry);
+    for (var i = 0; i < fields.length; i++) {
+      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
+    }
     return result;
   }
   Map toJson() {
@@ -102,10 +123,11 @@ class Foo extends streamy.EntityWrapper {
 }
 
 class Bar extends streamy.EntityWrapper {
-  static final List<String> KNOWN_PROPERTIES = [
+  static const Set<String> KNOWN_PROPERTIES = const Set<String>.from([
     'foos',
-  ];
+  ]);
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
+  Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Bar._wrap(cloned));
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -122,15 +144,29 @@ class Bar extends streamy.EntityWrapper {
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Bar.fromJson(json, typeRegistry: reg);
   factory Bar.fromJson(Map json,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) {
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, bool copy: false}) {
     if (json == null) {
       return null;
     }
-    json = new Map.from(json);
-    var result = new Bar()
-      ..foos = streamy.nullSafeMapToList(json.remove('foos'), (val) => new Foo.fromJson(val))
+    if (copy) {
+      json = new Map.from(json);
+    }
+    var list;
+    var len;
+    var result = new Bar.fromMap(json);
+    var fields = result.fieldNames.toList();
+    list = result['foos'];
+    if (list != null) {
+      len = list.length;
+      for (var i = 0; i < len; i++) {
+        list[i] = new Foo.fromJson(list[i]);
+      }
+    }
+    fields.remove('foos');
 ;
-    streamy.addUnknownProperties(result, json, typeRegistry);
+    for (var i = 0; i < fields.length; i++) {
+      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
+    }
     return result;
   }
   Map toJson() {

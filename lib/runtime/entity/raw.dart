@@ -13,11 +13,25 @@ class RawEntity extends Entity implements Map {
   /// Actual fields of the Apiary entity.
   var _data = {};
 
+  StreamyEntityMetadata _streamy;
+
   /// Metadata about this entity.
-  final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
+  StreamyEntityMetadata get streamy {
+    if (_streamy == null) {
+      _streamy = new StreamyEntityMetadata._private();
+    }
+    return _streamy;
+  }
+
+  Map<String, dynamic> _local;
 
   /// Local data.
-  final Map<String, dynamic> local = <String, dynamic>{};
+  Map<String, dynamic> get local {
+    if (_local == null) {
+      _local = <String, dynamic>{};
+    }
+    return _local;
+  }
 
   /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);
@@ -25,7 +39,10 @@ class RawEntity extends Entity implements Map {
   /// Merge fields from an input map.
   _cloneFrom(RawEntity input) {
     _data = _clone(input._data);
-    streamy._mergeFrom(input.streamy);
+    if (input.streamy != null) {
+      _streamy = new StreamyEntityMetadata._private()
+        .._mergeFrom(input.streamy);
+    }
   }
 
   /// Data field getter.
