@@ -83,27 +83,27 @@ class Foo extends streamy.EntityWrapper {
     var result = new Foo.fromMap(json);
     var fields = result.fieldNames.toList();
     fields.remove('id');
-    result.bar = new Bar.fromJson(result.bar);
+    result.bar = new Bar.fromJson(result['bar']);
     fields.remove('bar');
     fields.remove('baz');
-    result.qux = (result.qux != null) ? fixnum.Int64.parseInt(result.qux) : null;
+    result.qux = (result['qux'] != null) ? fixnum.Int64.parseInt(result['qux']) : null;
     fields.remove('qux');
-    list = result.quux;
+    list = result['quux'];
     if (list != null) {
-      list = result.quux;
+      list = result['quux'];
       len = list.length;
       for (var i = 0; i < len; i++) {
         list[i] = double.parse(list[i]);
       }
     }
     fields.remove('quux');
-    list = result.corge;
+    list = result['corge'];
     if (list != null) {
     }
     fields.remove('corge');
 ;
     for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }
     return result;
   }
@@ -155,7 +155,7 @@ class Bar extends streamy.EntityWrapper {
     var len;
     var result = new Bar.fromMap(json);
     var fields = result.fieldNames.toList();
-    list = result.foos;
+    list = result['foos'];
     if (list != null) {
       len = list.length;
       for (var i = 0; i < len; i++) {
@@ -165,7 +165,7 @@ class Bar extends streamy.EntityWrapper {
     fields.remove('foos');
 ;
     for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }
     return result;
   }

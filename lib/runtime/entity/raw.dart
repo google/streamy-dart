@@ -14,7 +14,14 @@ class RawEntity extends Entity implements Map {
   var _data = {};
 
   /// Metadata about this entity.
-  StreamyEntityMetadata streamy;
+  StreamyEntityMetadata get streamy {
+    if (_streamy == null) {
+      _streamy = new StreamyEntityMetadata._private();
+    }
+    return _streamy;
+  }
+
+  StreamyEntityMetadata _streamy;
 
   /// Local data.
   Map<String, dynamic> get local {
@@ -33,8 +40,8 @@ class RawEntity extends Entity implements Map {
   _cloneFrom(RawEntity input) {
     _data = _clone(input._data);
     if (input.streamy != null) {
-      streamy = new StreamyEntityMetadata._private();
-      streamy._mergeFrom(input.streamy);
+      _streamy = new StreamyEntityMetadata._private()
+        .._mergeFrom(input.streamy);
     }
   }
 

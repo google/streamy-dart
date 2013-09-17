@@ -45,7 +45,7 @@ class {{name}} extends streamy.EntityWrapper {
     var fields = result.fieldNames.toList();
 {{#properties}}
 {{#list}}
-    list = result.{{name}};
+    list = result['{{name}}'];
     if (list != null) {
 {{#mustSerialize}}
       len = list.length;
@@ -55,7 +55,7 @@ class {{name}} extends streamy.EntityWrapper {
 {{/mustSerialize}}
 {{^mustSerialize}}
 {{#hasParseExpr}}
-      list = result.{{name}};
+      list = result['{{name}}'];
       len = list.length;
       for (var i = 0; i < len; i++) {
         list[i] = {{parseExpr}}(list[i]);
@@ -66,16 +66,16 @@ class {{name}} extends streamy.EntityWrapper {
 {{/list}}
 {{^list}}
 {{#mustSerialize}}
-    result.{{name}} = new {{type}}.fromJson(result.{{name}});
+    result.{{name}} = new {{type}}.fromJson(result['{{name}}']);
 {{/mustSerialize}}
 {{^mustSerialize}}
-    {{#hasParseExpr}}result.{{name}} = (result.{{name}} != null) ? {{parseExpr}}(result.{{name}}) : null;{{/hasParseExpr}}
+    {{#hasParseExpr}}result.{{name}} = (result['{{name}}'] != null) ? {{parseExpr}}(result['{{name}}']) : null;{{/hasParseExpr}}
 {{/mustSerialize}}
 {{/list}}
     fields.remove('{{name}}');
 {{/properties}};
     for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
+      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }
     return result;
   }
