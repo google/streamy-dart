@@ -81,8 +81,12 @@ class Foo extends streamy.EntityWrapper {
     var list;
     var len;
     var result = new Foo.fromMap(json);
-    var numFields = json.length;
+    var fields = result.fieldNames.toList();
+    fields.remove('id');
+    fields.remove('bar');
+    fields.remove('baz');
     result.qux = (result.qux != null) ? fixnum.Int64.parseInt(result.qux) : null;
+    fields.remove('qux');
     list = result.quux;
     if (list != null) {
       list = result.quux;
@@ -91,18 +95,11 @@ class Foo extends streamy.EntityWrapper {
         list[i] = double.parse(list[i]);
       }
     }
+    fields.remove('quux');
+    fields.remove('corge');
 ;
-    if (json.length > KNOWN_PROPERTIES.length) {
-      var fields = result.fieldNames.toList();
-      fields.remove('id');
-      fields.remove('bar');
-      fields.remove('baz');
-      fields.remove('qux');
-      fields.remove('quux');
-      fields.remove('corge');
-      for (var i = 0; i < fields.length; i++) {
-        result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
-      }
+    for (var i = 0; i < fields.length; i++) {
+      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
     }
     return result;
   }
@@ -153,7 +150,7 @@ class Bar extends streamy.EntityWrapper {
     var list;
     var len;
     var result = new Bar.fromMap(json);
-    var numFields = json.length;
+    var fields = result.fieldNames.toList();
     list = result.foos;
     if (list != null) {
       len = list.length;
@@ -161,13 +158,10 @@ class Bar extends streamy.EntityWrapper {
         list[i] = new Foo.fromJson(list[i]);
       }
     }
+    fields.remove('foos');
 ;
-    if (json.length > KNOWN_PROPERTIES.length) {
-      var fields = result.fieldNames.toList();
-      fields.remove('foos');
-      for (var i = 0; i < fields.length; i++) {
-        result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
-      }
+    for (var i = 0; i < fields.length; i++) {
+      result[fields[i]] = deserialize(result[fields[i]], typeRegistry);
     }
     return result;
   }
