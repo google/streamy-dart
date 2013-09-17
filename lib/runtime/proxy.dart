@@ -39,8 +39,7 @@ class ProxyClient extends RequestHandler {
         }
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
-      return req.responseDeserializer(resp.body)
-        ..streamy = new StreamyEntityMetadata._private();
+      return req.responseDeserializer(resp.body);
     }).then((value) {
       c.add(value);
       c.close();

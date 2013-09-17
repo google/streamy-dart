@@ -13,6 +13,8 @@ class RawEntity extends Entity implements Map {
   /// Actual fields of the Apiary entity.
   var _data = {};
 
+  StreamyEntityMetadata _streamy;
+
   /// Metadata about this entity.
   StreamyEntityMetadata get streamy {
     if (_streamy == null) {
@@ -21,7 +23,7 @@ class RawEntity extends Entity implements Map {
     return _streamy;
   }
 
-  StreamyEntityMetadata _streamy;
+  Map<String, dynamic> _local;
 
   /// Local data.
   Map<String, dynamic> get local {
@@ -30,8 +32,6 @@ class RawEntity extends Entity implements Map {
     }
     return _local;
   }
-
-  Map<String, dynamic> _local = null;
 
   /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);

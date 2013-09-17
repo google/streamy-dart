@@ -10,7 +10,7 @@ import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
 
 class Foo extends streamy.EntityWrapper {
-  static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
+  static const Set<String> KNOWN_PROPERTIES = const Set<String>.from([
     'id',
     'bar',
   ]);
