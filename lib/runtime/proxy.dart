@@ -6,8 +6,10 @@ class ProxyClient extends RequestHandler {
   /// The base url of the proxy.
   final String proxyUrl;
   final StreamyHttpService httpHandler;
+  
+  final Profiler profiler;
 
-  ProxyClient(this.proxyUrl, this.httpHandler);
+  ProxyClient(this.proxyUrl, this.httpHandler, {this.profiler: NOOP_PROFILER});
 
   Stream handle(Request req) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
@@ -39,7 +41,11 @@ class ProxyClient extends RequestHandler {
         }
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
-      return req.responseDeserializer(resp.body);
+      req.local['xFull'] = profiler.startTimer('${req.runtimeType}: Full Processing');
+      var timer = profiler.startTimer('${req.runtimeType}: Deserialize');
+      var entity = req.responseDeserializer(resp.body);
+      profiler.stopTimer(timer);
+      return entity;
     }).then((value) {
       c.add(value);
       c.close();

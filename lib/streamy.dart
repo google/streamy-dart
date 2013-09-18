@@ -6,6 +6,7 @@ import 'dart:json';
 
 import 'package:meta/meta.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:perf_api/perf_api.dart';
 import 'package:streamy/collections.dart';
 
 part 'runtime/entity/base.dart';

@@ -26,7 +26,7 @@ class _ActiveStream {
   }
 
   /// Maybe send an [Entity] across this stream.
-  submit(Entity entity) {
+  submit(Entity entity, [profile]) {
     if (current != null && current.streamy.ts > entity.streamy.ts) {
       // Drop this entity, it has an older timestamp than the one we last sent.
       return;
@@ -36,6 +36,9 @@ class _ActiveStream {
     // mutate elements.
     current = entity;
     _sink.add(entity.clone());
+    if (profile != null) {
+      profile();
+    }
   }
 
   /// Send an error.
@@ -63,6 +66,8 @@ class Multiplexer extends RequestHandler {
 
   /** Delegate handler (usually a real HTTP stack). */
   final RequestHandler _delegate;
+  
+  final Profiler profiler;
 
   /**
    * Guaranteed to contain only in flight requests.
@@ -74,7 +79,7 @@ class Multiplexer extends RequestHandler {
    */
   var _activeIndex = new SetMultimap<Request, _ActiveStream>();
 
-  Multiplexer(this._delegate, {Cache cache: null})
+  Multiplexer(this._delegate, {Cache cache: null, Profiler this.profiler: NOOP_PROFILER})
       : this._cache = cache == null ? new AsyncMapCache() : cache;
 
   _newActiveStream(request) {
@@ -138,7 +143,9 @@ class Multiplexer extends RequestHandler {
           // Report internal error but don't process it, processing is done in
           // a separate catcher below.
           .catchError((_) => _INTERNAL_ERROR)
-          .then((entity) => _handleRpcReply(request, entity))
+          .then((entity) {
+            return _handleRpcReply(request, entity);
+          })
           .whenComplete(() {
             _inFlightRequests.remove(request);
           });
@@ -214,11 +221,11 @@ class Multiplexer extends RequestHandler {
     _recordRpcData(entity);
 
     // Publish this new entity on every channel.
-    _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
+    _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity, () => profiler.stopTimer(request.local['xFull']))));
 
     // Commit to cache with a modified source.
     if (entity != null) {
-      _cache.set(request, entity.clone()..streamy.source = 'CACHE');
+      _cache.set(request, profiler.time("${request.runtimeType}: clone() for cache", entity.clone)..streamy.source = 'CACHE');
     }
   }
 
