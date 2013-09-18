@@ -11,7 +11,7 @@ class DartHtmlHttpService implements StreamyHttpService {
   const DartHtmlHttpService();
 
   StreamyHttpRequest request(String url, String method,
-      {String payload: null, String contentType: 'application/json; charset=utf8'}) {
+      {String payload: null, String contentType: 'application/json; charset=utf-8'}) {
     var c = new Completer<StreamyHttpResponse>();
 
     var req = new HttpRequest();
