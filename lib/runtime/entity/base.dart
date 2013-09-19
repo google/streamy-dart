@@ -14,7 +14,10 @@ abstract class Entity {
   /// Access metadata exposed by Streamy about this entity.
   StreamyEntityMetadata get streamy;
   
+  /// Whether this entity is frozen (read only).
   bool get isFrozen;
+  
+  /// Deep freeze (ha!) this entity to no longer allow changes.
   void _freeze();
 
   /// Create a deep copy of this entity.

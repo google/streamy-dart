@@ -11,6 +11,8 @@ class RawEntity extends Entity implements Map {
   }
   
   bool _frozen = false;
+
+  // Has this entity been frozen yet?
   bool get isFrozen => _frozen;
 
   /// Actual fields of the Apiary entity.
