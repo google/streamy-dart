@@ -13,6 +13,9 @@ abstract class Entity {
 
   /// Access metadata exposed by Streamy about this entity.
   StreamyEntityMetadata get streamy;
+  
+  bool get isFrozen;
+  void _freeze();
 
   /// Create a deep copy of this entity.
   Entity clone();

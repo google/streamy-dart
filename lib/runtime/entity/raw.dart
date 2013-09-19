@@ -9,11 +9,20 @@ class RawEntity extends Entity implements Map {
   RawEntity.fromMap(Map<String, dynamic> map) : super.base() {
     _data.addAll(map);
   }
+  
+  bool _frozen = false;
+  bool get isFrozen => _frozen;
 
   /// Actual fields of the Apiary entity.
   var _data = {};
 
   StreamyEntityMetadata _streamy;
+  
+  void _freeze() {
+    _frozen = true;
+    _local = null;
+    _freezeHelper(_data);
+  }
 
   /// Metadata about this entity.
   StreamyEntityMetadata get streamy {
@@ -27,6 +36,9 @@ class RawEntity extends Entity implements Map {
 
   /// Local data.
   Map<String, dynamic> get local {
+    if (_frozen) {
+      return const {};
+    }
     if (_local == null) {
       _local = <String, dynamic>{};
     }
@@ -55,6 +67,9 @@ class RawEntity extends Entity implements Map {
 
   /// Data field setter.
   void operator[]=(String key, dynamic value) {
+    if (_frozen) {
+      throw new StateError('Entity is frozen, cannot mutate: $key.');
+    }
     if (value is Function && !key.startsWith('local.')) {
       throw new ClosureInEntityException(key, value.toString());
     }
@@ -90,7 +105,12 @@ class RawEntity extends Entity implements Map {
   Iterable<String> get fieldNames => _data.keys;
 
   // Remove a field by name.
-  remove(String key) => _data.remove(key);
+  remove(String key) {
+    if (_frozen) {
+      throw new StateError('Entity is frozen, cannot mutate: $key.');
+    }
+    return _data.remove(key);
+  }
 
   /// Turn this entity into a Map for JSON serialization.
   Map toJson() {
@@ -112,9 +132,24 @@ class RawEntity extends Entity implements Map {
   bool get isNotEmpty => _data.isNotEmpty;
   Iterable<String> get keys => _data.keys;
   Iterable get values => _data.values;
-  void addAll(Map<String, dynamic> other) => _data.addAll(other);
-  void clear() => _data.clear();
+  void addAll(Map<String, dynamic> other) {
+    if (_frozen) {
+      throw new StateError('Entity is frozen, cannot addAll().');
+    }
+    _data.addAll(other);
+  }
+  void clear() {
+    if (_frozen) {
+      throw new StateError('Entity is frozen, cannot clear().');
+    }
+    _data.clear();
+  }
   bool containsValue(value) => _data.containsValue(value);
   void forEach(void fn(String key, value)) => _data.forEach(fn);
-  putIfAbsent(String key, ifAbsent()) => _data.putIfAbsent(key, ifAbsent);
+  putIfAbsent(String key, ifAbsent()) {
+    if (_frozen) {
+      throw new StateError('Entity is frozen, cannot mutate: $key');
+    }
+    return _data.putIfAbsent(key, ifAbsent);
+  }
 }

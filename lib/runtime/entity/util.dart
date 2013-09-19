@@ -6,6 +6,16 @@ typedef Entity EntityFactory(Map json, TypeRegistry reg);
 /// Doesn't contain any types.
 const TypeRegistry EMPTY_REGISTRY = const _EmptyTypeRegistry();
 
+void _freezeHelper(object) {
+  if (object is Entity) {
+    object._freeze();
+  } else if (object is Map) {
+    object.values.forEach(_freezeHelper);
+  } else if (object is List) {
+    object.forEach(_freezeHelper);
+  }
+}
+
 /// Information about types generated from a discovery document.
 abstract class TypeRegistry {
 

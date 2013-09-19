@@ -35,7 +35,7 @@ class _ActiveStream {
     // Safe to cache a reference here, as the multiplexer takes care not to
     // mutate elements.
     current = entity;
-    _sink.add(entity.clone());
+    _sink.add(entity);
   }
 
   /// Send an error.
@@ -210,15 +210,18 @@ class Multiplexer extends RequestHandler {
       // An error occurred, no need to handle it here.
       return;
     }
-
+    
     _recordRpcData(entity);
+    entity._freeze();
+
 
     // Publish this new entity on every channel.
     _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
 
-    // Commit to cache with a modified source.
+    // Commit to cache. It's expected that the cache will clone, serialize, or otherwise
+    // copy the entity to avoid modifications.
     if (entity != null) {
-      _cache.set(request, entity.clone()..streamy.source = 'CACHE');
+      _cache.set(request, entity);
     }
   }
 
