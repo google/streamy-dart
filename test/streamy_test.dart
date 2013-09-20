@@ -75,8 +75,8 @@ main() {
         .transform(new EntityDedupTransformer())
         .single
         .then(expectAsync1((e) {
-          expect(Entity.deepEquals(e, a), equals(true));
-          expect(Entity.deepEquals(e, b), equals(true));
+          expect(Entity.deepEquals(e.result, a), equals(true));
+          expect(Entity.deepEquals(e.result, b), equals(true));
         }));
     });
   });
@@ -87,7 +87,6 @@ main() {
     var b = new Result(new RawEntity()
       ..['id'] = 'foo'
       ..['seq'] = 2, 'RPC');
-      ..streamy.source = 'RPC';
     var c = new Result(new RawEntity()
       ..['id'] = 'foo'
       ..['seq'] = 3, 'UPDATE');

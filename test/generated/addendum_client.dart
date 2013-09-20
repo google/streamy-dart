@@ -93,7 +93,7 @@ class FoosGetRequest extends streamy.Request {
     this.local['dedup'] = dedup;
     this.local['ttl'] = ttl;
     this.local['foo'] = foo;
-    return this.root.transform(new ResultToEntityTransformer()).send(this);
+    return this.root.send(this).transform(new streamy.ResultToEntityTransformer());
   }
   StreamSubscription<Foo> listen(void onData(Foo event), {
       bool dedup: true,
@@ -102,7 +102,7 @@ class FoosGetRequest extends streamy.Request {
     this.local['dedup'] = dedup;
     this.local['ttl'] = ttl;
     this.local['foo'] = foo;
-    return this.root.send(this).transform(new ResultToEntityTransformer()).listen(onData);
+    return this.root.send(this).transform(new streamy.ResultToEntityTransformer()).listen(onData);
   }
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
   streamy.Deserializer get responseDeserializer => (String str) =>
