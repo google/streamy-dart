@@ -151,9 +151,13 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
   }
 }
 
-class ResultToEntityTransformer<T extends Entity> extends StreamEventTransformer<Result<T>, T> {
+class ResultToEntityTransformer<T extends Entity> extends StreamEventTransformer<dynamic, T> {
   
-  handleData(Result<T> result, EventSink<T> sink) {
-    sink.add(result.result);
+  handleData(result, EventSink<T> sink) {
+    if (result is Result) {
+      sink.add(result.result);
+    } else {
+      sink.add(result);
+    }
   }
 }
