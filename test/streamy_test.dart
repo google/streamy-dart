@@ -71,6 +71,7 @@ main() {
         ..['id'] = 'foo';
       var eStream = new Stream.fromIterable([a, b]);
       eStream
+        .map((e) => new Result(e, 'TEST'))
         .transform(new EntityDedupTransformer())
         .single
         .then(expectAsync1((e) {
@@ -80,18 +81,16 @@ main() {
     });
   });
   group('OneShotRequestTransformer', () {
-    var a = new RawEntity()
+    var a = new Result(new RawEntity()
       ..['id'] = 'foo'
-      ..['seq'] = 1
-      ..streamy.source = 'CACHE';
-    var b = new RawEntity()
+      ..['seq'] = 1, 'CACHE');
+    var b = new Result(new RawEntity()
       ..['id'] = 'foo'
-      ..['seq'] = 2
+      ..['seq'] = 2, 'RPC');
       ..streamy.source = 'RPC';
-    var c = new RawEntity()
+    var c = new Result(new RawEntity()
       ..['id'] = 'foo'
-      ..['seq'] = 3
-      ..streamy.source = 'UPDATE';
+      ..['seq'] = 3, 'UPDATE');
     var rpcOnly;
     var cacheAndRpc;
     setUp(() {
@@ -102,14 +101,14 @@ main() {
       var onlyResponse = rpcOnly
         .transform(new OneShotRequestTransformer())
         .single;
-      asyncExpect(onlyResponse.then((e) => e.streamy.source), equals('RPC'));
+      asyncExpect(onlyResponse.then((e) => e.source), equals('RPC'));
     });
     test('handles multiple responses correctly', () {
       var stream = cacheAndRpc
         .transform(new OneShotRequestTransformer())
         .asBroadcastStream();
-      asyncExpect(stream.first.then((e) => e.streamy.source), equals('CACHE'));
-      asyncExpect(stream.last.then((e) => e.streamy.source), equals('RPC'));
+      asyncExpect(stream.first.then((e) => e.source), equals('CACHE'));
+      asyncExpect(stream.last.then((e) => e.source), equals('RPC'));
       asyncExpect(stream.length, equals(2));
     });
   });

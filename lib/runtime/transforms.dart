@@ -5,28 +5,28 @@ part of streamy.runtime;
 /// prevent multiple values from being published on [Stream]s when core [Entity]
 /// data has not changed.
 class EntityDedupTransformer<T extends Entity>
-    extends StreamEventTransformer<T, T> {
-  var _last = null;
+    extends StreamEventTransformer<Result<T>, Result<T>> {
+  var _last;
 
-  handleData(T data, EventSink<T> sink) {
-    if (!Entity.deepEquals(data, _last)) {
-      sink.add(data);
+  handleData(Result<T> result, EventSink<Result<T>> sink) {
+    if (!Entity.deepEquals(result.result, _last)) {
+      sink.add(result);
     }
-    _last = data;
+    _last = result.result;
   }
 }
 
 /// A [StreamTransformer] that closes the stream after the RPC reply is
 /// received.
 class OneShotRequestTransformer<T extends Entity>
-    implements StreamTransformer<T, T> {
+    implements StreamTransformer<Result<T>, Result<T>> {
 
   Stream<T> bind(Stream<T> input) {
     var sub;
     var output = new StreamController<T>(onCancel: () => sub.cancel());
-    sub = input.listen((e) {
-      output.add(e);
-      if (e.streamy.source == 'RPC') {
+    sub = input.listen((result) {
+      output.add(result);
+      if (result.source == 'RPC') {
         sub.cancel();
         output.close();
       }
@@ -38,13 +38,13 @@ class OneShotRequestTransformer<T extends Entity>
   }
 }
 
-class MutableTransformer<T extends Entity> extends StreamEventTransformer<T, T> {
+class MutableTransformer<T extends Entity> extends StreamEventTransformer<Result<T>, Result<T>> {
   
-  handleData(Entity data, EventSink<Entity> sink) {
-    if (data.isFrozen) {
-      sink.add(data.clone());
+  handleData(Result<T> result, EventSink<Result<T>> sink) {
+    if (result.result.isFrozen) {
+      sink.add(new Result<T>(result.result.clone(), result.source));
     } else {
-      sink.add(data);
+      sink.add(result);
     }
   }
 }
@@ -148,5 +148,12 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
     });
     
     return c.stream;
+  }
+}
+
+class ResultToEntityTransformer<T extends Entity> extends StreamEventTransformer<Result<T>, T> {
+  
+  handleData(Result<T> result, EventSink<T> sink) {
+    sink.add(result.result);
   }
 }

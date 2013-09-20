@@ -43,7 +43,7 @@ class {{name}} extends streamy.Request {
 {{#sendParams}}
     this.local['{{name}}'] = {{name}};
 {{/sendParams}}
-    return this.root.send(this);
+    return this.root.transform(new ResultToEntityTransformer()).send(this);
   }
   StreamSubscription{{#hasResponse}}<{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}{{responseType}} {{/hasResponse}}event), {
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
@@ -51,7 +51,7 @@ class {{name}} extends streamy.Request {
 {{#sendParams}}
     this.local['{{name}}'] = {{name}};
 {{/sendParams}}
-    return this.root.send(this).listen(onData);
+    return this.root.send(this).transform(new ResultToEntityTransformer()).listen(onData);
   }{{/hasSendParams}}
   
   

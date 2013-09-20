@@ -26,7 +26,7 @@ class _ActiveStream {
   }
 
   /// Maybe send an [Entity] across this stream.
-  submit(Entity entity) {
+  submit(Entity entity, String source) {
     if (current != null && current.streamy.ts > entity.streamy.ts) {
       // Drop this entity, it has an older timestamp than the one we last sent.
       return;
@@ -35,7 +35,7 @@ class _ActiveStream {
     // Safe to cache a reference here, as the multiplexer takes care not to
     // mutate elements.
     current = entity;
-    _sink.add(entity);
+    _sink.add(new Result(entity, source));
   }
 
   /// Send an error.
@@ -93,7 +93,7 @@ class Multiplexer extends RequestHandler {
       .then((cachedEntity) {
         // If there actually was an entity response, send it to the client.
         if (cachedEntity != null) {
-          active.submit(cachedEntity);
+          active.submit(cachedEntity, 'CACHE');
         }
         var ts = new DateTime.now().millisecondsSinceEpoch;  // TODO: not testable
         // If we don't need to issue an rpc
@@ -167,7 +167,7 @@ class Multiplexer extends RequestHandler {
         .then((entity) {
           if (entity != _INTERNAL_ERROR) {
             _recordRpcData(entity);
-            active.submit(entity);
+            active.submit(entity, 'RPC');
           }
         })
         .whenComplete(active.close);
@@ -195,7 +195,7 @@ class Multiplexer extends RequestHandler {
         .catchError(active.sendError)
         .then((cachedEntity) {
           if (cachedEntity != null) {
-            active.submit(cachedEntity);
+            active.submit(cachedEntity, 'CACHE');
           }
         });
     }
@@ -216,7 +216,7 @@ class Multiplexer extends RequestHandler {
 
 
     // Publish this new entity on every channel.
-    _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
+    _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity, 'RPC')));
 
     // Commit to cache. It's expected that the cache will clone, serialize, or otherwise
     // copy the entity to avoid modifications.
@@ -235,8 +235,7 @@ class Multiplexer extends RequestHandler {
 
   _recordRpcData(entity) {
     entity.streamy
-      ..ts = new DateTime.now().millisecondsSinceEpoch
-      ..source = 'RPC';
+      ..ts = new DateTime.now().millisecondsSinceEpoch;
   }
 }
 
