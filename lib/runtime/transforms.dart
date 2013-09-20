@@ -38,6 +38,17 @@ class OneShotRequestTransformer<T extends Entity>
   }
 }
 
+class MutableTransformer<T extends Entity> extends StreamEventTransformer<T, T> {
+  
+  handleData(Entity data, EventSink<Entity> sink) {
+    if (data.isFrozen) {
+      sink.add(data.clone());
+    } else {
+      sink.add(data);
+    }
+  }
+}
+
 abstract class RequestStreamTransformer {
   Stream bind(Request request, Stream stream);
 }
