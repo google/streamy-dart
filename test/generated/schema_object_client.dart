@@ -178,7 +178,6 @@ class SchemaObjectTest extends streamy.Root {
   final streamy.RequestHandler requestHandler;
   final String servicePath;
   SchemaObjectTest(this.requestHandler, {this.servicePath: 'schemaObjectTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
-  }
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
   Stream send(streamy.Request request) => requestHandler.handle(request);
 }
