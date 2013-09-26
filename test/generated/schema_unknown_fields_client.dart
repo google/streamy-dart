@@ -10,7 +10,7 @@ import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
 
 class Foo extends streamy.EntityWrapper {
-  static const Set<String> KNOWN_PROPERTIES = new Set<String>.from([
+  static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'baz',
   ]);
   static final String KIND = """type#foo""";
@@ -60,7 +60,7 @@ class Foo extends streamy.EntityWrapper {
 }
 
 class Bar extends streamy.EntityWrapper {
-  static const Set<String> KNOWN_PROPERTIES = new Set<String>.from([
+  static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
   static final String KIND = """type#bar""";
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
