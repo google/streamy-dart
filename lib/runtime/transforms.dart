@@ -38,6 +38,17 @@ class OneShotRequestTransformer<T extends Entity>
   }
 }
 
+class MutableTransformer<T extends Entity> extends StreamEventTransformer<T, T> {
+  
+  handleData(Entity data, EventSink<Entity> sink) {
+    if (data.isFrozen) {
+      sink.add(data.clone());
+    } else {
+      sink.add(data);
+    }
+  }
+}
+
 abstract class RequestStreamTransformer {
   Stream bind(Request request, Stream stream);
 }
@@ -118,17 +129,17 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
       if (!preCallbackCompleter.isCompleted) {
         preCallbackCompleter.complete(entity);
       }
-      runZonedExperimental(() {
+      _runZonedWithOnDone(() {
         c.add(entity);
-      }, onDone: () => done(entity));
+      }, () => done(entity));
     })..onError((error) {
       sawValue = true;
       if (!preCallbackCompleter.isCompleted) {
         preCallbackCompleter.complete(error);
       }
-      runZonedExperimental(() {
+      _runZonedWithOnDone(() {
         c.addError(error);
-      }, onDone: () => done(null, error));
+      }, () => done(null, error));
     })..onDone(() {
       // If the stream completed without any results, the resulting
       // subscription cancellation will complete the competer.
@@ -138,4 +149,32 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
     
     return c.stream;
   }
+}
+
+_runZonedWithOnDone(fn, onDone) {
+  // Initial count is 1 due to running 'fn'. This makes it work out
+  // nicely if 'fn' itself throws an Exception.
+  var asyncCount = 1;
+  runZonedExperimental(() {
+    try {
+      fn();
+    } finally {
+      asyncCount--;
+      if (asyncCount == 0) {
+        onDone();
+      }
+    }
+  }, onRunAsync: (callback) {
+    asyncCount++;
+    runAsync(() {
+      try {
+        callback();
+      } finally {
+        asyncCount--;
+        if (asyncCount == 0) {
+          onDone();
+        }
+      }
+    });
+  });
 }

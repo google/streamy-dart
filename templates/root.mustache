@@ -4,18 +4,19 @@
 class {{topLevelClassName}} extends streamy.Root {
 {{#resources}}
   {{type}} _{{name}};
-  {{type}} get {{name}} => _{{name}};
+  {{type}} get {{name}} {
+    if (_{{name}} == null) {
+      _{{name}} = new {{type}}(this);
+    }
+    return _{{name}};
+  }   
 {{/resources}}
 
   final streamy.RequestHandler requestHandler;
   final String servicePath;
 
   {{topLevelClassName}}(this.requestHandler, {this.servicePath: '{{servicePath}}',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
-{{#resources}}
-    this._{{name}} = new {{type}}(this);
-{{/resources}}
-  }
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
 
   Stream send(streamy.Request request) => requestHandler.handle(request);
 }

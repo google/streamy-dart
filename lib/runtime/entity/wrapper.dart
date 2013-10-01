@@ -31,6 +31,10 @@ abstract class EntityWrapper extends Entity {
   /// appropriate type. Note: failure to override [clone] when extending
   /// a subclass of [EntityWrapper] can result in broken behavior.
   Entity clone() => _clone(_delegate.clone());
+  
+  bool get isFrozen => _delegate.isFrozen;
+  
+  void _freeze() => _delegate._freeze();
 
   bool containsKey(String key) => _delegate.containsKey(key);
 
