@@ -5,11 +5,11 @@ part of streamy.runtime;
 class RawEntity extends Entity implements Map {
 
   RawEntity() : super.base();
-  
+
   RawEntity.fromMap(Map<String, dynamic> map) : super.base() {
     _data.addAll(map);
   }
-  
+
   bool _frozen = false;
 
   // Has this entity been frozen yet?
@@ -19,7 +19,9 @@ class RawEntity extends Entity implements Map {
   var _data = {};
 
   StreamyEntityMetadata _streamy;
-  
+
+  int get length => _data.length;
+
   void _freeze() {
     _frozen = true;
     _local = null;
@@ -124,11 +126,11 @@ class RawEntity extends Entity implements Map {
     });
     return jsonMap;
   }
-  
+
   String get signature => stringify(this);
 
   Type get streamyType => RawEntity;
-  
+
   // Delegation of the remaining [Map] interface.
   bool get isEmpty => _data.isEmpty;
   bool get isNotEmpty => _data.isNotEmpty;
