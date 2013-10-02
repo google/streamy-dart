@@ -6,7 +6,7 @@ class DynamicEntity extends RawEntity {
 
   DynamicEntity.fromMap(Map data) {
     data.forEach((key, value) {
-      this[key] = value;
+      this[key] = toObservable(value);
     });
   }
 
