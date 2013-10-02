@@ -62,7 +62,15 @@ main() {
           throwsA(new isInstanceOf<ArgumentError>()));
     });
   });
-
+  group('jsonParse', () {
+    test('creates Observable types', () {
+      var res = jsonParse('{"a":[{"b":3},{"c":4}]}');
+      expect(res, new isInstanceOf<ObservableMap>());
+      expect(res['a'], new isInstanceOf<ObservableList>());
+      expect(res['a'][0], new isInstanceOf<ObservableMap>());
+      expect(res['a'][1], new isInstanceOf<ObservableMap>());
+    });
+  });
   group('EntityDedupTransformer', () {
     test('properly dedups', () {
       var a = new RawEntity()
