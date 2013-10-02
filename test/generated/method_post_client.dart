@@ -4,10 +4,10 @@
  */
 library method_post;
 import 'dart:async';
-import 'dart:json';
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:streamy/collections.dart';
+import 'package:observe/observe.dart';
 
 class Foo extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
