@@ -10,9 +10,6 @@ abstract class Entity {
 
   /// Create a [RawEntity] from a [Map].
   factory Entity.fromMap(Map data) => new RawEntity.fromMap(data);
-  
-  /// Create a [RawEntity] that wraps an [ObservableMap].
-  factory Entity.wrapMap(ObservableMap data) => new RawEntity.wrapMap(data);
 
   /// Access metadata exposed by Streamy about this entity.
   StreamyEntityMetadata get streamy;

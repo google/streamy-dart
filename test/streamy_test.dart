@@ -20,6 +20,13 @@ main() {
       var e = new RawEntity();
       e['local.foo'] = () => true;
     });
+    test('.wrapMap constructor does not copy data', () {
+      var map = toObservable({'list': [1, 2, 3]});
+      var e = new RawEntity.wrapMap(map);
+      map['list'].add(4);
+      expect(e['list'].length, equals(4));
+      expect(e['list'][3], equals(4));
+    });
   });
   group('DynamicEntity', () {
     test('noSuchMethod getters/setters work', () {
