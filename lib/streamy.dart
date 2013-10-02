@@ -7,6 +7,7 @@ import 'dart:json';
 import 'package:meta/meta.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:streamy/collections.dart';
+import 'package:observe/observe.dart';
 
 part 'runtime/entity/base.dart';
 part 'runtime/entity/empty.dart';
