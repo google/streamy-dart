@@ -2,7 +2,7 @@ part of streamy.runtime;
 
 /// Parent of all data transfer objects. Provides map-like methods for
 /// accessing field values.
-class RawEntity extends Entity implements Map {
+class RawEntity extends Entity implements Map, Observable {
 
   RawEntity() : super.base();
 
@@ -16,7 +16,7 @@ class RawEntity extends Entity implements Map {
   bool get isFrozen => _frozen;
 
   /// Actual fields of the Apiary entity.
-  var _data = {};
+  var _data = new ObservableMap();
 
   StreamyEntityMetadata _streamy;
 
@@ -121,9 +121,11 @@ class RawEntity extends Entity implements Map {
     var jsonMap = new Map();
     // Sort keys before adding to the output map, to ensure equivalent entities
     // produce equivalent json.
-    var keys = (_data.keys.toList()..sort()).where((k) => _data[k] != null).forEach((k) {
-      jsonMap[k] = _data[k];
-    });
+    var keys = (_data.keys.toList()..sort())
+        .where((k) => _data[k] != null)
+        .forEach((k) {
+          jsonMap[k] = _data[k];
+        });
     return jsonMap;
   }
 
@@ -156,4 +158,11 @@ class RawEntity extends Entity implements Map {
     }
     return _data.putIfAbsent(key, ifAbsent);
   }
+
+  Stream<List<ChangeRecord>> get changes => _data.changes;
+  bool deliverChanges() => _data.deliverChanges();
+  void notifyChange(ChangeRecord record) {
+    _data.notifyChange(record);
+  }
+  bool get hasObservers => _data.hasObservers;
 }

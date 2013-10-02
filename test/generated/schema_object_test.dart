@@ -2,9 +2,9 @@ library streamy.generated.schema_object.test;
 
 import 'dart:json';
 import 'package:fixnum/fixnum.dart' as fixnum;
-import 'package:streamy/collections.dart';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
+import 'package:observe/observe.dart';
 import 'schema_object_client.dart';
 
 main() {
@@ -100,6 +100,71 @@ main() {
       // not the [RawEntity] entities inside them.
       bar.foos[0].baz = 42;
       expect(streamy.Entity.deepEquals(bar, bar2), equals(false));
+    });
+    test('objects are observable', () {
+      var foo = new Foo();
+      foo.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+        expect(changes, hasLength(7));
+
+        var r0 = changes[0] as PropertyChangeRecord;
+        expect(r0.field, const Symbol('length'));
+
+        var r1 = changes[1] as MapChangeRecord;
+        expect(r1.key, 'id');
+        expect(r1.isInsert, isTrue);
+        expect(r1.isRemove, isFalse);
+
+        var r2 = changes[2] as MapChangeRecord;
+        expect(r2.key, 'id');
+        expect(r2.isInsert, isFalse);
+        expect(r2.isRemove, isFalse);
+
+        var r3 = changes[3] as PropertyChangeRecord;
+        expect(r3.field, const Symbol('length'));
+
+        var r4 = changes[4] as MapChangeRecord;
+        expect(r4.key, 'bar');
+        expect(r4.isInsert, isTrue);
+        expect(r4.isRemove, isFalse);
+
+        var r5 = changes[5] as MapChangeRecord;
+        expect(r5.key, 'id');
+        expect(r5.isInsert, isFalse);
+        expect(r5.isRemove, isTrue);
+
+        var r6 = changes[6] as PropertyChangeRecord;
+        expect(r6.field, const Symbol('length'));
+      }, count: 1));
+      foo.id = 1;
+      foo.id = 2;
+      foo.bar = 'hello';
+      foo.removeId();
+    });
+    test('objects are not deeply observable', () {
+      var foo = new Foo();  // nested object
+      var bar = new Bar()  // top-level object
+        ..foos = [foo];
+
+      // Expect foo to receive notifications
+      foo.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+        expect(changes, hasLength(2));
+
+        var r0 = changes[0] as PropertyChangeRecord;
+        expect(r0.field, const Symbol('length'));
+
+        var r1 = changes[1] as MapChangeRecord;
+        expect(r1.key, 'id');
+        expect(r1.isInsert, isTrue);
+        expect(r1.isRemove, isFalse);
+      }, count: 1));
+
+      // Bar should not receive notifications
+      bar.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+        fail('Should not receive notifications');
+      }, count: 0));
+
+      // Fire changes
+      foo.id = 1;
     });
   });
 }
