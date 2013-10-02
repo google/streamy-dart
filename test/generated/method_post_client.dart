@@ -35,7 +35,7 @@ class Foo extends streamy.EntityWrapper {
   String removeBar() => this.remove('bar');
   factory Foo.fromJsonString(String strJson,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Foo.fromJson(parse(strJson), typeRegistry: typeRegistry);
+          new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,

@@ -67,7 +67,7 @@ class Foo extends streamy.EntityWrapper {
   double removeCorge() => this.remove('corge');
   factory Foo.fromJsonString(String strJson,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Foo.fromJson(parse(strJson), typeRegistry: typeRegistry);
+          new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
@@ -136,7 +136,7 @@ class Bar extends streamy.EntityWrapper {
   List<Foo> removeFoos() => this.remove('foos');
   factory Bar.fromJsonString(String strJson,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Bar.fromJson(parse(strJson), typeRegistry: typeRegistry);
+          new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Bar.fromJson(json, typeRegistry: reg);
   factory Bar.fromJson(Map json,

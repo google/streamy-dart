@@ -26,7 +26,7 @@ class {{name}} extends streamy.EntityWrapper {
 
   factory {{name}}.fromJsonString(String strJson,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new {{name}}.fromJson(parse(strJson), typeRegistry: typeRegistry);
+          new {{name}}.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
 
   static {{name}} entityFactory(Map json, streamy.TypeRegistry reg) =>
       new {{name}}.fromJson(json, typeRegistry: reg);
@@ -37,7 +37,7 @@ class {{name}} extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new Map.from(json);
+      json = new ObservableMap.from(json);
     }
     var list;
     var len;
