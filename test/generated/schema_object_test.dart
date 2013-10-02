@@ -166,5 +166,37 @@ main() {
       // Fire changes
       foo.id = 1;
     });
+    test('local is observable', () {
+      var foo = new Foo();
+      foo.local.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+        expect(changes, hasLength(5));
+
+        var r0 = changes[0] as PropertyChangeRecord;
+        expect(r0.field, const Symbol('length'));
+
+        var r1 = changes[1] as MapChangeRecord;
+        expect(r1.key, 'hello');
+        expect(r1.isInsert, isTrue);
+        expect(r1.isRemove, isFalse);
+
+        var r2 = changes[2] as MapChangeRecord;
+        expect(r2.key, 'hello');
+        expect(r2.isInsert, isFalse);
+        expect(r2.isRemove, isFalse);
+
+        var r3 = changes[3] as MapChangeRecord;
+        expect(r3.key, 'hello');
+        expect(r3.isInsert, isFalse);
+        expect(r3.isRemove, isTrue);
+
+        var r4 = changes[4] as PropertyChangeRecord;
+        expect(r4.field, const Symbol('length'));
+      }, count: 1));
+
+      // Fire changes
+      foo.local['hello'] = 1;
+      foo.local['hello'] = 2;
+      foo.local.remove('hello');
+    });
   });
 }

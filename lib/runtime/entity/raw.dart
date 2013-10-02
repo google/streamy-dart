@@ -36,7 +36,7 @@ class RawEntity extends Entity implements Map, Observable {
     return _streamy;
   }
 
-  Map<String, dynamic> _local;
+  ObservableMap<String, dynamic> _local;
 
   /// Local data.
   Map<String, dynamic> get local {
@@ -44,7 +44,7 @@ class RawEntity extends Entity implements Map, Observable {
       return const {};
     }
     if (_local == null) {
-      _local = <String, dynamic>{};
+      _local = new ObservableMap<String, dynamic>();
     }
     return _local;
   }
