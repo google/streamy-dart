@@ -8,7 +8,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:meta/meta.dart';
 import 'package:observe/observe.dart';
 import 'package:streamy/collections.dart';
-import 'package:observe/observe.dart';
 
 part 'runtime/entity/base.dart';
 part 'runtime/entity/empty.dart';

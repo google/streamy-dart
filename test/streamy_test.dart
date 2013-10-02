@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:observe/observe.dart';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
@@ -9,7 +10,7 @@ main() {
       expect(new Entity(), new isInstanceOf<RawEntity>());
     });
     test('factory constructor fromMap returns a RawEntity', () {
-      expect(new Entity.fromMap({'foo': 'bar'}), new isInstanceOf<RawEntity>());
+      expect(new Entity.fromMap(new ObservableMap.from({'foo': 'bar'})), new isInstanceOf<RawEntity>());
     });
     test('does not allow setting closures on non-.local keys', () {
       var e = new RawEntity();

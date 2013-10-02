@@ -9,7 +9,7 @@ abstract class Entity {
   factory Entity() => new RawEntity();
 
   /// Create a [RawEntity] from a [Map].
-  factory Entity.fromMap(Map data) => new RawEntity.fromMap(data);
+  factory Entity.fromMap(ObservableMap data) => new RawEntity.fromMap(data);
 
   /// Access metadata exposed by Streamy about this entity.
   StreamyEntityMetadata get streamy;

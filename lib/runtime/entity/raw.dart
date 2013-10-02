@@ -6,8 +6,8 @@ class RawEntity extends Entity implements Map, Observable {
 
   RawEntity() : super.base();
 
-  RawEntity.fromMap(Map<String, dynamic> map) : super.base() {
-    _data.addAll(map);
+  RawEntity.fromMap(ObservableMap<String, dynamic> map) : super.base() {
+    _data = map;
   }
 
   bool _frozen = false;
@@ -16,7 +16,7 @@ class RawEntity extends Entity implements Map, Observable {
   bool get isFrozen => _frozen;
 
   /// Actual fields of the Apiary entity.
-  var _data = new ObservableMap();
+  ObservableMap _data = new ObservableMap();
 
   StreamyEntityMetadata _streamy;
 

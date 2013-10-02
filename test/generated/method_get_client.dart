@@ -44,7 +44,7 @@ class Foo extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new Map.from(json);
+      json = new ObservableMap.from(json);
     }
     var list;
     var len;
