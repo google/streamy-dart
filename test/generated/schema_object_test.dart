@@ -198,5 +198,9 @@ main() {
       foo.local['hello'] = 2;
       foo.local.remove('hello');
     });
+    test('lists are observable', () {
+      var bar = new Bar.fromJsonString('{"foos": [{}]}');
+      expect(bar.foos, new isInstanceOf<ObservableList>());
+    });
   });
 }
