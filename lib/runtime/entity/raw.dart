@@ -4,10 +4,16 @@ part of streamy.runtime;
 /// accessing field values.
 class RawEntity extends Entity implements Map, Observable {
 
-  RawEntity() : super.base();
+  RawEntity() : super.base() {
+    _data = new ObservableMap();
+  }
 
-  RawEntity.fromMap(Map<String, dynamic> map) : super.base() {
-    _data.addAll(map);
+  RawEntity.fromMap(Map map) : super.base() {
+    _data = toObservable(map);
+  }
+  
+  RawEntity.wrapMap(ObservableMap map) : super.base() {
+    _data = map;
   }
 
   bool _frozen = false;
@@ -16,7 +22,7 @@ class RawEntity extends Entity implements Map, Observable {
   bool get isFrozen => _frozen;
 
   /// Actual fields of the Apiary entity.
-  var _data = new ObservableMap();
+  ObservableMap _data;
 
   StreamyEntityMetadata _streamy;
 
