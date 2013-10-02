@@ -16,6 +16,7 @@ class Foo extends streamy.EntityWrapper {
   static final String KIND = """type#foo""";
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
   Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned));
+  Foo.wrapMap(ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -41,7 +42,7 @@ class Foo extends streamy.EntityWrapper {
     }
     var list;
     var len;
-    var result = new Foo.fromMap(json);
+    var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
     fields.remove('baz');
 ;
@@ -65,6 +66,7 @@ class Bar extends streamy.EntityWrapper {
   static final String KIND = """type#bar""";
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
   Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Bar._wrap(cloned));
+  Bar.wrapMap(ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Bar._wrap(cloned));
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -83,7 +85,7 @@ class Bar extends streamy.EntityWrapper {
     }
     var list;
     var len;
-    var result = new Bar.fromMap(json);
+    var result = new Bar.wrapMap(json);
     var fields = result.fieldNames.toList();
 ;
     for (var i = 0; i < fields.length; i++) {

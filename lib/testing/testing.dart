@@ -3,6 +3,7 @@ library streamy.testing;
 
 import 'dart:async';
 import 'dart:mirrors';
+import 'package:observe/observe.dart';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 

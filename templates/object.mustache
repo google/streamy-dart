@@ -8,6 +8,7 @@ class {{name}} extends streamy.EntityWrapper {
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
   {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
   {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new {{name}}._wrap(cloned));
+  {{name}}.wrapMap(ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new {{name}}._wrap(cloned));
 
   {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned));
 
@@ -41,7 +42,7 @@ class {{name}} extends streamy.EntityWrapper {
     }
     var list;
     var len;
-    var result = new {{name}}.fromMap(json);
+    var result = new {{name}}.wrapMap(json);
     var fields = result.fieldNames.toList();
 {{#properties}}
 {{#list}}

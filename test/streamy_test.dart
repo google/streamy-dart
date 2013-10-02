@@ -10,7 +10,7 @@ main() {
       expect(new Entity(), new isInstanceOf<RawEntity>());
     });
     test('factory constructor fromMap returns a RawEntity', () {
-      expect(new Entity.fromMap(new ObservableMap.from({'foo': 'bar'})), new isInstanceOf<RawEntity>());
+      expect(new Entity.fromMap({'foo': 'bar'}), new isInstanceOf<RawEntity>());
     });
     test('does not allow setting closures on non-.local keys', () {
       var e = new RawEntity();

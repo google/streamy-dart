@@ -16,6 +16,7 @@ class Foo extends streamy.EntityWrapper {
   ]);
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
   Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned));
+  Foo.wrapMap(ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -48,7 +49,7 @@ class Foo extends streamy.EntityWrapper {
     }
     var list;
     var len;
-    var result = new Foo.fromMap(json);
+    var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
     fields.remove('id');
     fields.remove('bar');
