@@ -64,17 +64,17 @@ main() {
       expect(foo.toJson()['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
     });
     test('type=number format=double works correctly', () {
-      var foo2 = new Foo.fromJson({
+      var foo2 = new Foo.fromJson(new ObservableMap.from({
         'corge': 1.2
-      });
+      }));
       expect(foo2.corge, equals(1.2));
       expect(foo2.corge, new isInstanceOf<double>());
     });
     test('Deserialize formatted strings and lists', () {
-      var foo2 = new Foo.fromJson({
+      var foo2 = new Foo.fromJson(new ObservableMap.from({
         'qux': '123456789123456789123456789',
         'quux': ['2.5', '3.5', '4.5', '5.5']
-      });
+      }));
       expect(foo2.qux, equals(fixnum.Int64.parseInt('123456789123456789123456789')));
       expect(foo2.quux, equals([2.5, 3.5, 4.5, 5.5]));
     });
@@ -197,6 +197,10 @@ main() {
       foo.local['hello'] = 1;
       foo.local['hello'] = 2;
       foo.local.remove('hello');
+    });
+    test('lists are observable', () {
+      var bar = new Bar.fromJsonString('{"foos": [{}]}');
+      expect(bar.foos, new isInstanceOf<ObservableList>());
     });
   });
 }

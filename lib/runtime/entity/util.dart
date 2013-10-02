@@ -64,13 +64,13 @@ _clone(v) {
   if (v is Entity) {
     return v.clone();
   } else if (v is Map) {
-    Map c = new Map();
+    ObservableMap c = new ObservableMap();
     v.forEach((k, v) {
       c[k] = _clone(v);
     });
     return c;
   } else if (v is List) {
-    return new List.from(v.map((value) => _clone(value)));
+    return new ObservableList.from(v.map((value) => _clone(value)));
   } else {
     return v;
   }
