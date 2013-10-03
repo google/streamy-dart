@@ -128,12 +128,15 @@ class FoosResource {
 
 class AddendumApi extends streamy.Root {
   FoosResource _foos;
-  FoosResource get foos => _foos;
+  FoosResource get foos {
+    if (_foos == null) {
+      _foos = new FoosResource(this);
+    }
+    return _foos;
+  }   
   final streamy.RequestHandler requestHandler;
   final String servicePath;
   AddendumApi(this.requestHandler, {this.servicePath: 'addendum/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry) {
-    this._foos = new FoosResource(this);
-  }
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
   Stream send(streamy.Request request) => requestHandler.handle(request);
 }
