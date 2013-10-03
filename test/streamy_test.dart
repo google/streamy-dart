@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:observe/observe.dart';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
@@ -18,6 +19,13 @@ main() {
     test('does allow setting closures on .local', () {
       var e = new RawEntity();
       e['local.foo'] = () => true;
+    });
+    test('.wrapMap constructor does not copy data', () {
+      var map = toObservable({'list': [1, 2, 3]});
+      var e = new RawEntity.wrapMap(map);
+      map['list'].add(4);
+      expect(e['list'].length, equals(4));
+      expect(e['list'][3], equals(4));
     });
   });
   group('DynamicEntity', () {
@@ -62,7 +70,15 @@ main() {
           throwsA(new isInstanceOf<ArgumentError>()));
     });
   });
-
+  group('jsonParse', () {
+    test('creates Observable types', () {
+      var res = jsonParse('{"a":[{"b":3},{"c":4}]}');
+      expect(res, new isInstanceOf<ObservableMap>());
+      expect(res['a'], new isInstanceOf<ObservableList>());
+      expect(res['a'][0], new isInstanceOf<ObservableMap>());
+      expect(res['a'][1], new isInstanceOf<ObservableMap>());
+    });
+  });
   group('EntityDedupTransformer', () {
     test('properly dedups', () {
       var a = new RawEntity()

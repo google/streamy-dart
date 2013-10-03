@@ -2,24 +2,32 @@ part of streamy.runtime;
 
 /// Parent of all data transfer objects. Provides map-like methods for
 /// accessing field values.
-class RawEntity extends Entity implements Map {
+class RawEntity extends Entity implements Map, Observable {
 
-  RawEntity() : super.base();
-  
-  RawEntity.fromMap(Map<String, dynamic> map) : super.base() {
-    _data.addAll(map);
+  RawEntity() : super.base() {
+    _data = new ObservableMap();
+  }
+
+  RawEntity.fromMap(Map map) : super.base() {
+    _data = toObservable(map);
   }
   
+  RawEntity.wrapMap(ObservableMap map) : super.base() {
+    _data = map;
+  }
+
   bool _frozen = false;
 
   // Has this entity been frozen yet?
   bool get isFrozen => _frozen;
 
   /// Actual fields of the Apiary entity.
-  var _data = {};
+  ObservableMap _data;
 
   StreamyEntityMetadata _streamy;
-  
+
+  int get length => _data.length;
+
   void _freeze() {
     _frozen = true;
     _local = null;
@@ -34,7 +42,7 @@ class RawEntity extends Entity implements Map {
     return _streamy;
   }
 
-  Map<String, dynamic> _local;
+  ObservableMap<String, dynamic> _local;
 
   /// Local data.
   Map<String, dynamic> get local {
@@ -42,7 +50,7 @@ class RawEntity extends Entity implements Map {
       return const {};
     }
     if (_local == null) {
-      _local = <String, dynamic>{};
+      _local = new ObservableMap<String, dynamic>();
     }
     return _local;
   }
@@ -119,16 +127,18 @@ class RawEntity extends Entity implements Map {
     var jsonMap = new Map();
     // Sort keys before adding to the output map, to ensure equivalent entities
     // produce equivalent json.
-    var keys = (_data.keys.toList()..sort()).where((k) => _data[k] != null).forEach((k) {
-      jsonMap[k] = _data[k];
-    });
+    var keys = (_data.keys.toList()..sort())
+        .where((k) => _data[k] != null)
+        .forEach((k) {
+          jsonMap[k] = _data[k];
+        });
     return jsonMap;
   }
-  
+
   String get signature => stringify(this);
 
   Type get streamyType => RawEntity;
-  
+
   // Delegation of the remaining [Map] interface.
   bool get isEmpty => _data.isEmpty;
   bool get isNotEmpty => _data.isNotEmpty;
@@ -154,4 +164,11 @@ class RawEntity extends Entity implements Map {
     }
     return _data.putIfAbsent(key, ifAbsent);
   }
+
+  Stream<List<ChangeRecord>> get changes => _data.changes;
+  bool deliverChanges() => _data.deliverChanges();
+  void notifyChange(ChangeRecord record) {
+    _data.notifyChange(record);
+  }
+  bool get hasObservers => _data.hasObservers;
 }
