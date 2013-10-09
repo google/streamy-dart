@@ -8,7 +8,7 @@ class {{name}} extends streamy.EntityWrapper {
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
   {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
   {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new {{name}}._wrap(cloned));
-  {{name}}.wrapMap(ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new {{name}}._wrap(cloned));
+  {{name}}.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new {{name}}._wrap(cloned));
 
   {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned));
 
@@ -20,6 +20,11 @@ class {{name}} extends streamy.EntityWrapper {
 {{/docs}}
   {{type}} get {{name}} => this['{{name}}'];
   set {{name}}({{type}} value) {
+{{#list}}
+    if (value is! obs.ObservableList) {
+      value = new obs.ObservableList.from(value);
+    }
+{{/list}}
     this['{{name}}'] = value;
   }
   {{type}} remove{{capName}}() => this.remove('{{name}}');
@@ -38,7 +43,7 @@ class {{name}} extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new ObservableMap.from(json);
+      json = new obs.ObservableMap.from(json);
     }
     var list;
     var len;

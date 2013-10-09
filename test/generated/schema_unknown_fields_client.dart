@@ -6,8 +6,7 @@ library schema_unknown_fields;
 import 'dart:async';
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
-import 'package:streamy/collections.dart';
-import 'package:observe/observe.dart';
+import 'package:observe/observe.dart' as obs;
 
 class Foo extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
@@ -16,7 +15,7 @@ class Foo extends streamy.EntityWrapper {
   static final String KIND = """type#foo""";
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
   Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned));
-  Foo.wrapMap(ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned));
+  Foo.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned));
   Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -38,7 +37,7 @@ class Foo extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new ObservableMap.from(json);
+      json = new obs.ObservableMap.from(json);
     }
     var list;
     var len;
@@ -66,7 +65,7 @@ class Bar extends streamy.EntityWrapper {
   static final String KIND = """type#bar""";
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
   Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Bar._wrap(cloned));
-  Bar.wrapMap(ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Bar._wrap(cloned));
+  Bar.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Bar._wrap(cloned));
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned));
@@ -81,7 +80,7 @@ class Bar extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new ObservableMap.from(json);
+      json = new obs.ObservableMap.from(json);
     }
     var list;
     var len;
