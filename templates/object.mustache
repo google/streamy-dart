@@ -20,6 +20,11 @@ class {{name}} extends streamy.EntityWrapper {
 {{/docs}}
   {{type}} get {{name}} => this['{{name}}'];
   set {{name}}({{type}} value) {
+{{#list}}
+    if (value is! ObservableList) {
+      value = new ObservableList.from(value);
+    }
+{{/list}}
     this['{{name}}'] = value;
   }
   {{type}} remove{{capName}}() => this.remove('{{name}}');

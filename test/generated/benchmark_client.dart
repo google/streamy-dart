@@ -56,6 +56,9 @@ class Foo extends streamy.EntityWrapper {
   /// The plural of qux
   List<double> get quux => this['quux'];
   set quux(List<double> value) {
+    if (value is! ObservableList) {
+      value = new ObservableList.from(value);
+    }
     this['quux'] = value;
   }
   List<double> removeQuux() => this.remove('quux');
@@ -63,6 +66,9 @@ class Foo extends streamy.EntityWrapper {
   /// A double field that's serialized as a number.
   List<int> get corge => this['corge'];
   set corge(List<int> value) {
+    if (value is! ObservableList) {
+      value = new ObservableList.from(value);
+    }
     this['corge'] = value;
   }
   List<int> removeCorge() => this.remove('corge');
@@ -137,6 +143,9 @@ class Bar extends streamy.EntityWrapper {
   /// A bunch of foos.
   List<Foo> get foos => this['foos'];
   set foos(List<Foo> value) {
+    if (value is! ObservableList) {
+      value = new ObservableList.from(value);
+    }
     this['foos'] = value;
   }
   List<Foo> removeFoos() => this.remove('foos');

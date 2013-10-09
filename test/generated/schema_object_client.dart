@@ -56,6 +56,9 @@ class Foo extends streamy.EntityWrapper {
   /// The plural of qux
   List<double> get quux => this['quux'];
   set quux(List<double> value) {
+    if (value is! ObservableList) {
+      value = new ObservableList.from(value);
+    }
     this['quux'] = value;
   }
   List<double> removeQuux() => this.remove('quux');
@@ -133,6 +136,9 @@ class Bar extends streamy.EntityWrapper {
   /// A bunch of foos.
   List<Foo> get foos => this['foos'];
   set foos(List<Foo> value) {
+    if (value is! ObservableList) {
+      value = new ObservableList.from(value);
+    }
     this['foos'] = value;
   }
   List<Foo> removeFoos() => this.remove('foos');
