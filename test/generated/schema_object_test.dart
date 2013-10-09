@@ -202,5 +202,22 @@ main() {
       var bar = new Bar.fromJsonString('{"foos": [{}]}');
       expect(bar.foos, new isInstanceOf<ObservableList>());
     });
+    test('lists become observable via setter', () {
+      var bar = new Bar();
+      bar.foos = [new Foo()..bar = 'hello'];
+      expect(bar.foos, new isInstanceOf<ObservableList>(),
+          reason: 'Expected plain list to be converted to observable list');
+      expect(bar.foos, hasLength(1),
+          reason: 'Expected list to have the same size as the original');
+      expect(bar.foos[0].bar, 'hello',
+          reason: 'Expected list to contain the same stuff as the original');
+    });
+    test('observable lists not copied in setter', () {
+      var bar = new Bar();
+      var list = new ObservableList<Foo>();
+      bar.foos = list;
+      expect(bar.foos, same(list),
+          reason: 'Expected same instance of list');
+    });
   });
 }
