@@ -16,7 +16,7 @@ abstract class EntityWrapper extends Entity implements Observable {
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, EntityGlobalFn> globals: const <String, EntityGlobalFn>{}}) : super.base(), _globals = globals;
+  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, EntityGlobalFn> globals: const <String, EntityGlobalFn>{} }) : super.base(), _globals = globals;
 
   /// Get the root entity for this wrapper. Wrappers can compose other wrappers,
   /// so this will follow that chain until the root [Entity] is discovered.
@@ -56,6 +56,7 @@ abstract class EntityWrapper extends Entity implements Observable {
       }
     }
     return _delegate[key];
+  }
 
   void operator[]=(String key, value) {
     _delegate[key] = value;

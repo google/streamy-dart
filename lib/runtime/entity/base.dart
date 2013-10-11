@@ -11,7 +11,7 @@ EntityGlobalFn memoizeGlobalFn(EntityGlobalFn fn) {
       expando[entity] = value;
     }
     return value;
-  }
+  };
 }
 
 /// Public interface of Streamy entities.

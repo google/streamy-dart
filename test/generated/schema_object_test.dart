@@ -220,12 +220,32 @@ main() {
           reason: 'Expected same instance of list');
     });
   });
-  group('Globals', () {
+  group('.global', () {
+    var foo;
+    var foo2;
+    setUp(() {
+      foo = new Foo()..id = 1;
+      foo2 = new Foo()..id = 2;
+    });
     test('Simple global', () {
       Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}');
-      var foo = new Foo();
-      foo.id = 1;
       expect(foo['global.idStr'], equals('Id #1'));
+      expect(foo2['global.idStr'], equals('Id #2'));
+      foo.id = 3;
+      expect(foo['global.idStr'], equals('Id #3'));
+      expect(foo2['global.idStr'], equals('Id #2'));
+    });
+    test('Memoized global', () {
+      Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}', memoize: true);
+      expect(foo['global.idStr'], equals('Id #1'));
+      expect(foo2['global.idStr'], equals('Id #2'));
+      foo.id = 3;
+      foo2.id = 4;
+      expect(foo['global.idStr'], equals('Id #1'));
+      expect(foo2['global.idStr'], equals('Id #2'));
+    });
+    test('Persists through cloning', () {
+      expect(foo.clone()['global.idStr'], equals('Id #1'));
     });
   });
 }
