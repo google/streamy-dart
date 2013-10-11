@@ -7,18 +7,27 @@ import 'dart:async';
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:observe/observe.dart' as obs;
+typedef dynamic FooGlobalFn(Foo entity);
 
 class Foo extends streamy.EntityWrapper {
+  static final Map<String, dynamic> _globals = <String, dynamic>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'id',
     'bar',
   ]);
-  Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
-  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned));
-  Foo.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned));
-  Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
+  static void addGlobal(String name, FooGlobalFn computeFn, {memoize: false}) {
+    if (memoize) {
+      _globals[name] = streamy.memoizeGlobalFn(computeFn);
+    } else {
+      _globals[name] = computeFn;
+    }
+  }
+  Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
+  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);
+  Foo.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);
+  Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned), globals: _globals);
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned));
+      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Primary key.
   int get id => this['id'];

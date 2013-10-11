@@ -1,19 +1,32 @@
 
+typedef dynamic {{name}}GlobalFn({{name}} entity);
+
 {{#docs}}/// {{.}}
 {{/docs}}
 class {{name}} extends streamy.EntityWrapper {
+  static final Map<String, dynamic> _globals = <String, dynamic>{};
+  
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
 {{#properties}}    '{{name}}',
 {{/properties}}  ]);
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
-  {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
-  {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new {{name}}._wrap(cloned));
-  {{name}}.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new {{name}}._wrap(cloned));
 
-  {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned));
+  static void addGlobal(String name, {{name}}GlobalFn computeFn, {memoize: false}) {
+    if (memoize) {
+      _globals[name] = streamy.memoizeGlobalFn(computeFn);
+    } else {
+      _globals[name] = computeFn;
+    }
+  }
+
+  {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned), globals: _globals);
+  {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new {{name}}._wrap(cloned), globals: _globals);
+  {{name}}.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new {{name}}._wrap(cloned), globals: _globals);
+
+  {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned), globals: _globals);
 
   {{name}}.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned));
+      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
 {{#properties}}
 {{#docs}}  /// {{.}}

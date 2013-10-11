@@ -220,4 +220,12 @@ main() {
           reason: 'Expected same instance of list');
     });
   });
+  group('Globals', () {
+    test('Simple global', () {
+      Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}');
+      var foo = new Foo();
+      foo.id = 1;
+      expect(foo['global.idStr'], equals('Id #1'));
+    });
+  });
 }

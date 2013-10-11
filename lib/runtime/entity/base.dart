@@ -1,5 +1,19 @@
 part of streamy.runtime;
 
+typedef dynamic EntityGlobalFn(entity);
+
+EntityGlobalFn memoizeGlobalFn(EntityGlobalFn fn) {
+  var expando = new Expando(fn.toString());
+  return (entity) {
+    var value = expando[entity];
+    if (value == null) {
+      value = fn(entity);
+      expando[entity] = value;
+    }
+    return value;
+  }
+}
+
 /// Public interface of Streamy entities.
 abstract class Entity {
 
