@@ -4,10 +4,9 @@
  */
 library method_params;
 import 'dart:async';
-import 'dart:json';
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
-import 'package:streamy/collections.dart';
+import 'package:observe/observe.dart' as obs;
 
 /// Gets a foo
 class FoosGetRequest extends streamy.Request {
