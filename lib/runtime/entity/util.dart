@@ -10,11 +10,86 @@ void _freezeHelper(object) {
   if (object is Entity) {
     object._freeze();
   } else if (object is Map) {
-    object.values.forEach(_freezeHelper);
+    object.forEach((key, value) {
+      if (value is ObservableList) {
+        object[key] = new _ObservableImmutableListView(value);
+      }
+      _freezeHelper(value);
+    });
   } else if (object is List) {
     object.forEach(_freezeHelper);
   }
 }
+
+class _ObservableImmutableListView implements ObservableList {
+  
+  ObservableList _delegate;
+  
+  _ObservableImmutableListView(ObservableList this._delegate);
+  
+  Stream<List<ChangeRecord>> get changes => _delegate.changes;
+  get first => _delegate.first;
+  bool get hasObservers => _delegate.hasObservers;
+  bool get isEmpty => _delegate.isEmpty;
+  bool get isNotEmpty => _delegate.isNotEmpty;
+  Iterator get iterator => _delegate.iterator;
+  get last => _delegate.last;
+  int get length => _delegate.length;
+  set length(int value) => _throw();
+  Iterable get reversed => _delegate.reversed;
+  get single => _delegate.single;
+  operator[](int index) => _delegate[index];
+  operator[]=(_a, _b) => _throw();
+  void add(_) => _throw();
+  void addAll(Iterable _) => _throw();
+  bool any(bool test(element)) => _delegate.any(test);
+  Map asMap() => _delegate.asMap();
+  void clear() => _throw();
+  bool contains(element) => _delegate.contains(element);
+  bool deliverChanges() => _delegate.deliverChanges();
+  elementAt(int index) => _delegate.elementAt(index);
+  bool every(bool test(element)) => _delegate.every(test);
+  Iterable expand(Iterable f(element)) => _delegate.expand(element);
+  void fillRange(_a, _b, [_c]) => _throw();
+  firstWhere(bool test(element), {Object orElse()}) => _delegate.firstWhere(test, orElse: orElse);
+  fold(initialValue, combine(previousValue, element)) => _delegate.fold(initialValue, combine);
+  void forEach(void action(element)) => _delegate.forEach(action);
+  Iterable getRange(int start, int end) => _delegate.getRange(start, end);
+  int indexOf(Object element, [int startIndex = 0]) => _delegate.indexOf(element, startIndex);
+  void insert(_a, _b) => _throw();
+  void insertAll(_a, _b) => _throw();
+  String join([String separator = '']) => _delegate.join(separator);
+  int lastIndexOf(Object element, [int startIndex]) => _delegate.lastIndexOf(element, startIndex);
+  lastWhere(bool test(element), {Object orElse()}) => _delegate.lastWhere(test, orElse: orElse);
+  Iterable map(f(element)) => _delegate.map(f);
+  void notifyChange(_) => _throw();
+  void notifyPropertyChange(_a, _b, _c) => _throw();
+  reduce(combine(previous, element)) => _delegate.reduce(combine);
+  bool remove(_) => _throw();
+  removeAt(_) => _throw();
+  removeLast() => _throw();
+  void removeRange(_a, _b) => _throw();
+  void removeWhere(_) => _throw();
+  void replaceRange(_a, _b, _c) => _throw();
+  void retainWhere(_) => _throw();
+  void setAll(_a, _b) => _throw();
+  void setRange(_a, _b, _c, [_d]) => _throw();
+  void shuffle() => _throw();
+  singleWhere(bool test(element)) => _delegate.singleWhere(test);
+  Iterable skip(int count) => _delegate.skip(count);
+  Iterable skipWhile(bool test(element)) => _delegate.skipWhile(test);
+  void sort([_]) => _throw();
+  List sublist(int start, [int end]) => _delegate.sublist(start, end);
+  Iterable take(int count) => _delegate.take(count);
+  Iterable takeWhile(bool test(element)) => _delegate.takeWhile(test);
+  List toList({bool growable: true}) => _delegate.toList(growable: growable);
+  Set toSet() => _delegate.toSet();
+  String toString() => _delegate.toString();
+  Iterable where(test(element)) => _delegate.where(test);
+  
+  _throw() => throw new UnsupportedError('List is immutable.');
+}
+
 
 /// Information about types generated from a discovery document.
 abstract class TypeRegistry {
