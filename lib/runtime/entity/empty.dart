@@ -14,7 +14,7 @@ class EmptyEntity extends Entity {
   bool get isFrozen => true;
 
   /// Create a deep copy of this entity.
-  EmptyEntity clone() => new EmptyEntity()..streamy._mergeFrom(streamy);
+  EmptyEntity clone({bool mutable: true}) => new EmptyEntity()..streamy._mergeFrom(streamy);
 
   /// Data field getter.
   dynamic operator[](String key) => null;
