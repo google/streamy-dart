@@ -2,18 +2,23 @@
 {{#docs}}/// {{.}}
 {{/docs}}
 class {{name}} extends streamy.EntityWrapper {
+
+  static {{name}} _cloneFn(cloned, {bool copyOnWrite: false}) =>
+    new {{name}}._wrap(cloned, copyOnWrite: copyOnWrite);
+  
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
 {{#properties}}    '{{name}}',
 {{/properties}}  ]);
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
-  {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned));
-  {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new {{name}}._wrap(cloned));
-  {{name}}.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new {{name}}._wrap(cloned));
+  {{name}}() : super.wrap(new streamy.RawEntity(), _cloneFn);
+  {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), _cloneFn);
+  {{name}}.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), _cloneFn);
 
-  {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned));
+  {{name}}._wrap(streamy.Entity entity, {bool copyOnWrite: false}) :
+      super.wrap(entity, _cloneFn, copyOnWrite: copyOnWrite);
 
   {{name}}.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned));
+      super.wrap(entity, _cloneFn);
 
 {{#properties}}
 {{#docs}}  /// {{.}}
@@ -98,7 +103,7 @@ class {{name}} extends streamy.EntityWrapper {
     return map;
   }
 
-  {{name}} clone({bool mutable: true}) => new {{name}}._wrap(super.clone(mutable: mutable));
+  {{name}} clone({bool mutable: true, bool copyOnWrite: false}) => new {{name}}._wrap(super.clone(mutable: mutable, copyOnWrite: copyOnWrite));
 
   Type get streamyType => {{name}};
 }

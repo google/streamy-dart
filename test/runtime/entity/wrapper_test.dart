@@ -8,7 +8,7 @@ import 'package:unittest/unittest.dart';
 
 class TestWrappedEntity extends EntityWrapper {
   TestWrappedEntity(Map data) : super.wrap(
-      new DynamicEntity.fromMap(data), (entity) => throw "Not supported");
+      new DynamicEntity.fromMap(data), (entity, {bool copyOnWrite}) => throw "Not supported");
   Type get streamyType => throw "Not supported";
 }
 

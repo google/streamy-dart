@@ -9,16 +9,19 @@ import 'package:streamy/streamy.dart' as streamy;
 import 'package:observe/observe.dart' as obs;
 
 class Foo extends streamy.EntityWrapper {
+  static Foo _cloneFn(cloned, {bool copyOnWrite: false}) =>
+    new Foo._wrap(cloned, copyOnWrite: copyOnWrite);
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'baz',
   ]);
   static final String KIND = """type#foo""";
-  Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned));
-  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned));
-  Foo.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned));
-  Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned));
+  Foo() : super.wrap(new streamy.RawEntity(), _cloneFn);
+  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), _cloneFn);
+  Foo.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), _cloneFn);
+  Foo._wrap(streamy.Entity entity, {bool copyOnWrite: false}) :
+      super.wrap(entity, _cloneFn, copyOnWrite: copyOnWrite);
   Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned));
+      super.wrap(entity, _cloneFn);
 
   /// Foo's favorite baz.
   String get baz => this['baz'];
@@ -55,20 +58,23 @@ class Foo extends streamy.EntityWrapper {
 ;
     return map;
   }
-  Foo clone({bool mutable: true}) => new Foo._wrap(super.clone(mutable: mutable));
+  Foo clone({bool mutable: true, bool copyOnWrite: false}) => new Foo._wrap(super.clone(mutable: mutable, copyOnWrite: copyOnWrite));
   Type get streamyType => Foo;
 }
 
 class Bar extends streamy.EntityWrapper {
+  static Bar _cloneFn(cloned, {bool copyOnWrite: false}) =>
+    new Bar._wrap(cloned, copyOnWrite: copyOnWrite);
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
   static final String KIND = """type#bar""";
-  Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned));
-  Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Bar._wrap(cloned));
-  Bar.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Bar._wrap(cloned));
-  Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned));
+  Bar() : super.wrap(new streamy.RawEntity(), _cloneFn);
+  Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), _cloneFn);
+  Bar.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), _cloneFn);
+  Bar._wrap(streamy.Entity entity, {bool copyOnWrite: false}) :
+      super.wrap(entity, _cloneFn, copyOnWrite: copyOnWrite);
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned));
+      super.wrap(entity, _cloneFn);
   factory Bar.fromJsonString(String strJson,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -97,7 +103,7 @@ class Bar extends streamy.EntityWrapper {
 ;
     return map;
   }
-  Bar clone({bool mutable: true}) => new Bar._wrap(super.clone(mutable: mutable));
+  Bar clone({bool mutable: true, bool copyOnWrite: false}) => new Bar._wrap(super.clone(mutable: mutable, copyOnWrite: copyOnWrite));
   Type get streamyType => Bar;
 }
 
