@@ -4,17 +4,22 @@ part of streamy.runtime;
 /// generated entities.
 abstract class EntityWrapper extends Entity implements Observable {
 
-  final Entity _delegate;
+  Entity _delegate;
 
   /// A function which clones the subclass of this [EntityWrapper].
   final EntityWrapperCloneFn _clone;
   
-  final bool _isCopyOnWrite;
+  bool _isCopyOnWrite;
+  StreamController<List<ChangeRecord>> _cowChangesController;
+  var _cowChangesSubscription;
+  
 
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone, {copyOnWrite: false}) : super.base(), _isCopyOnWrite = copyOnWrite;
+  EntityWrapper.wrap(this._delegate, this._clone, {copyOnWrite: false}) : super.base(), _isCopyOnWrite = copyOnWrite {
+    print('creating cow($copyOnWrite) wrapper of ${_delegate.runtimeType}');
+  }
 
   /// Get the root entity for this wrapper. Wrappers can compose other wrappers,
   /// so this will follow that chain until the root [Entity] is discovered.
@@ -80,7 +85,25 @@ abstract class EntityWrapper extends Entity implements Observable {
     return _delegate as Observable;
   }
 
-  Stream<List<ChangeRecord>> get changes => _observableDelegate.changes;
+  Stream<List<ChangeRecord>> get changes {
+    if (!_isCopyOnWrite) {
+      return _delegate.changes;
+    }
+    if (_cowChangesController == null) {
+      _cowChangesController = new StreamController<List<ChangeRecord>>.broadcast(sync: true, onCancel: () {
+        _cowChangesSubscription.cancel();
+        _cowChangesSubscription = null;
+      });
+      _subscribeToDelegateChanges();
+    }
+    return _cowChangesController.stream;
+  }
+  
+  _subscribeToDelegateChanges() {
+    _cowChangesSubscription = _delegate.changes.listen(_cowChangesController.add)
+      ..onError(_cowChangesController.addError)
+      ..onDone(_cowChangesController.close);
+  }
   bool deliverChanges() => _observableDelegate.deliverChanges();
   void notifyChange(ChangeRecord record) {
     _observableDelegate.notifyChange(record);
@@ -89,7 +112,12 @@ abstract class EntityWrapper extends Entity implements Observable {
   
   _fulfillCopyOnWrite() {
     _isCopyOnWrite = false;
-    _delegate = _delegate.clone();
+    _delegate = _delegate.clone(mutable: true);
+    
+    if (_cowChangesSubscription != null) {
+      _cowChangesSubscription.cancel();
+      _subscribeToDelegateChanges();
+    }
   }
 }
 

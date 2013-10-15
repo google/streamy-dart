@@ -263,4 +263,31 @@ main() {
       expect(foo2.id, equals(2));
     });
   });
+  group('Copy-on-Write', () {
+    test('basic copy', () {
+      var m = new ObservableMap()
+        ..['id'] = 1;
+      var foo1 = new Foo.wrapMap(m);
+      streamy.freezeForTest(foo1);
+      var foo2 = foo1.clone(copyOnWrite: true);
+      expect(foo2.isFrozen, isFalse);
+      m['id'] = 2;
+      expect(foo2.id, equals(2));
+      foo2.id = 3;
+      expect(foo1.id, equals(2));
+      expect(foo2.id, equals(3));
+    });
+    test('observe works on copy-on-write entity', () {
+      var foo = new Foo()
+        ..id = 1;
+      streamy.freezeForTest(foo);
+      var foo2 = foo.clone(copyOnWrite: true);
+      foo2.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+        expect(changes, hasLength(1));
+        var r0 = changes[0] as MapChangeRecord;
+        expect(r0.key, 'id');
+      }, count: 1));
+      foo2.id = 2;
+    });
+  });
 }
