@@ -15,6 +15,7 @@ dependencies:
   meta: any
   fixnum: any
   observe: any
+  quiver: ">=0.10.3"
 dev_dependencies:
   path: any
   unittest: any
