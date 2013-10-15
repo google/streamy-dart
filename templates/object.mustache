@@ -1,4 +1,5 @@
 
+/// An EntityGlobalFn for {{name}} entities.
 typedef dynamic {{name}}GlobalFn({{name}} entity);
 
 {{#docs}}/// {{.}}
@@ -11,6 +12,7 @@ class {{name}} extends streamy.EntityWrapper {
 {{/properties}}  ]);
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
 
+  /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, {{name}}GlobalFn computeFn, {memoize: false}) {
     if (memoize) {
       _globals[name] = streamy.memoizeGlobalFn(computeFn);

@@ -7,6 +7,8 @@ import 'dart:async';
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:observe/observe.dart' as obs;
+
+/// An EntityGlobalFn for Foo entities.
 typedef dynamic FooGlobalFn(Foo entity);
 
 class Foo extends streamy.EntityWrapper {
@@ -15,6 +17,8 @@ class Foo extends streamy.EntityWrapper {
     'id',
     'bar',
   ]);
+
+  /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn, {memoize: false}) {
     if (memoize) {
       _globals[name] = streamy.memoizeGlobalFn(computeFn);
