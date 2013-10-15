@@ -273,7 +273,7 @@ class ProcessTypeResult {
         if (typeName == 'String') {
           parseExpr = 'fixnum.Int64.parseInt';
         } else if (typeName == 'num') {
-          parseExpr = '(v) => new fixnum.Int64.fromInt(v)';
+          parseExpr = '(v) => new fixnum.Int64(v)';
         }
         typeName = 'fixnum.Int64';
         break;

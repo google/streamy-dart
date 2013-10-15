@@ -13,7 +13,7 @@ dependencies:
   mustache: ">=0.1.5"
   args: any
   meta: any
-  fixnum: any
+  fixnum: ">=0.7.6"
   observe: any
   quiver: ">=0.10.3"
 dev_dependencies:
