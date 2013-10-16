@@ -2,7 +2,6 @@ library streamy.runtime.entity.wrapper.test;
 
 import 'dart:async';
 import 'package:streamy/streamy.dart';
-import 'package:streamy/collections.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
 

@@ -15,7 +15,7 @@ main() {
       ..id = 1
       ..bar = 'bar'
       ..baz = 2
-      ..qux = new fixnum.Int64.fromInt(1234);
+      ..qux = new fixnum.Int64(1234);
     });
     test('DataCorrectlyPopulated', () {
       expect(foo.id, equals(1));

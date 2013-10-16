@@ -108,7 +108,7 @@ class Multiplexer extends RequestHandler {
             active.close();
           } else {
             // Don't want to send the RPC, but still interested in future responses.
-            _activeIndex[request].add(active);
+            _activeIndex.add(request, active);
           }
           return;
         }
@@ -116,7 +116,7 @@ class Multiplexer extends RequestHandler {
         _sendRpc(request, active);
 
         // Interested in future responses.
-        _activeIndex[request].add(active);
+        _activeIndex.add(request, active);
       });
 
       return active.stream;
@@ -163,7 +163,7 @@ class Multiplexer extends RequestHandler {
       });
 
       // Remember that this client is interested in this request.
-      _activeIndex[request].add(active);
+      _activeIndex.add(request, active);
     } else {
       // Non-cachable requests generate one reply only, ever.
       _delegate.handle(request).single
@@ -234,7 +234,7 @@ class Multiplexer extends RequestHandler {
 
   _removeActive(_ActiveStream stream) {
     var request = stream.request;
-    _activeIndex.removeValue(request, stream);
+    _activeIndex.remove(request, stream);
     if (!_activeIndex.containsKey(request) && _inFlightRequests.containsKey(request)) {
       _inFlightRequests[request].cancel();
     }

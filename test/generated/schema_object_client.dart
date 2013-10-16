@@ -6,6 +6,7 @@ library schema_object;
 import 'dart:async';
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
+import 'package:quiver/collection.dart' as collect;
 import 'package:observe/observe.dart' as obs;
 
 class Foo extends streamy.EntityWrapper {
