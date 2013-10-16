@@ -10,6 +10,7 @@ import 'package:quiver/collection.dart' as collect;
 import 'package:observe/observe.dart' as obs;
 
 class Foo extends streamy.EntityWrapper {
+  String get apiType => 'Foo';
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'id',
     'bar',
@@ -70,8 +71,15 @@ class Foo extends streamy.EntityWrapper {
   }
   double removeCorge() => this.remove('corge');
   factory Foo.fromJsonString(String strJson,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, Profiler profiler: streamy.NOOP_PROFILER, String requestType: '(Unknown)'}) {
+    var parseId = profiler.startTimer('${requestType}: Json parsing');
+    var data = streamy.jsonParse(strJson);
+    profiler.stopTimer(parseId);
+    var wrapId = profiler.startTimer('${requestType}: Wrapping');
+    var result = new Foo.fromJson(data, typeRegistry: typeRegistry);
+    profiler.stopTimer(wrapId);
+    return result;
+  }
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
@@ -123,6 +131,7 @@ class Foo extends streamy.EntityWrapper {
 }
 
 class Bar extends streamy.EntityWrapper {
+  String get apiType => 'Bar';
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'foos',
   ]);
@@ -143,8 +152,15 @@ class Bar extends streamy.EntityWrapper {
   }
   List<Foo> removeFoos() => this.remove('foos');
   factory Bar.fromJsonString(String strJson,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, Profiler profiler: streamy.NOOP_PROFILER, String requestType: '(Unknown)'}) {
+    var parseId = profiler.startTimer('${requestType}: Json parsing');
+    var data = streamy.jsonParse(strJson);
+    profiler.stopTimer(parseId);
+    var wrapId = profiler.startTimer('${requestType}: Wrapping');
+    var result = new Bar.fromJson(data, typeRegistry: typeRegistry);
+    profiler.stopTimer(wrapId);
+    return result;
+  }
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Bar.fromJson(json, typeRegistry: reg);
   factory Bar.fromJson(Map json,

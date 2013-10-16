@@ -10,6 +10,7 @@ import 'package:quiver/collection.dart' as collect;
 import 'package:observe/observe.dart' as obs;
 
 class Foo extends streamy.EntityWrapper {
+  String get apiType => 'Foo';
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'id',
     'bar',
@@ -35,8 +36,15 @@ class Foo extends streamy.EntityWrapper {
   }
   String removeBar() => this.remove('bar');
   factory Foo.fromJsonString(String strJson,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, Profiler profiler: streamy.NOOP_PROFILER, String requestType: '(Unknown)'}) {
+    var parseId = profiler.startTimer('${requestType}: Json parsing');
+    var data = streamy.jsonParse(strJson);
+    profiler.stopTimer(parseId);
+    var wrapId = profiler.startTimer('${requestType}: Wrapping');
+    var result = new Foo.fromJson(data, typeRegistry: typeRegistry);
+    profiler.stopTimer(wrapId);
+    return result;
+  }
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
@@ -74,6 +82,7 @@ class FoosUpdateRequest extends streamy.Request {
     'id',
   ];
   Foo get payload => streamy.internalGetPayload(this);
+  String get apiType => 'FoosUpdateRequest';
   String get httpMethod => 'POST';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => true;
@@ -93,7 +102,7 @@ class FoosUpdateRequest extends streamy.Request {
   StreamSubscription listen(void onData(event)) =>
       this.root.send(this).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
       new streamy.EmptyEntity();
 }
 

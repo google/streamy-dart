@@ -10,6 +10,7 @@ import 'package:quiver/collection.dart' as collect;
 import 'package:observe/observe.dart' as obs;
 
 class Foo extends streamy.EntityWrapper {
+  String get apiType => 'Foo';
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'id',
     'bar',
@@ -35,8 +36,15 @@ class Foo extends streamy.EntityWrapper {
   }
   String removeBar() => this.remove('bar');
   factory Foo.fromJsonString(String strJson,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, Profiler profiler: streamy.NOOP_PROFILER, String requestType: '(Unknown)'}) {
+    var parseId = profiler.startTimer('${requestType}: Json parsing');
+    var data = streamy.jsonParse(strJson);
+    profiler.stopTimer(parseId);
+    var wrapId = profiler.startTimer('${requestType}: Wrapping');
+    var result = new Foo.fromJson(data, typeRegistry: typeRegistry);
+    profiler.stopTimer(wrapId);
+    return result;
+  }
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
@@ -73,6 +81,7 @@ class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
@@ -92,8 +101,8 @@ class FoosGetRequest extends streamy.Request {
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
       this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
-      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry);
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
+      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry, profiler: profiler, requestType: apiType);
 }
 
 /// Updates a foo
@@ -102,6 +111,7 @@ class FoosUpdateRequest extends streamy.Request {
     'id',
   ];
   Foo get payload => streamy.internalGetPayload(this);
+  String get apiType => 'FoosUpdateRequest';
   String get httpMethod => 'PUT';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => true;
@@ -121,8 +131,8 @@ class FoosUpdateRequest extends streamy.Request {
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
       this.root.send(this).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
-      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry);
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
+      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry, profiler: profiler, requestType: apiType);
 }
 
 /// Deletes a foo
@@ -130,6 +140,7 @@ class FoosDeleteRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosDeleteRequest';
   String get httpMethod => 'DELETE';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
@@ -149,7 +160,7 @@ class FoosDeleteRequest extends streamy.Request {
   StreamSubscription listen(void onData(event)) =>
       this.root.send(this).listen(onData);
   FoosDeleteRequest clone() => streamy.internalCloneFrom(new FoosDeleteRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
       new streamy.EmptyEntity();
 }
 
@@ -158,6 +169,7 @@ class FoosCancelRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosCancelRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/cancel/{id}';
   bool get hasPayload => false;
@@ -177,7 +189,7 @@ class FoosCancelRequest extends streamy.Request {
   StreamSubscription listen(void onData(event)) =>
       this.root.send(this).listen(onData);
   FoosCancelRequest clone() => streamy.internalCloneFrom(new FoosCancelRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
       new streamy.EmptyEntity();
 }
 

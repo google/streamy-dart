@@ -2,9 +2,39 @@ library streamy.generated.multiplexer.test;
 
 import 'dart:async';
 import 'dart:json';
+import 'package:perf_api/perf_api.dart';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'multiplexer_client.dart';
+
+class TestProfiler extends Profiler {
+  var count = 0;
+  final events = [];
+  
+  int startTimer(String name, [String extraData]) {
+    events.add('start:$name');
+    return count++;
+  }
+  
+  
+  void stopTimer(dynamic idOrName) {
+    events.add('end:$idOrName');
+  }
+}
+
+class TestBackend implements StreamyHttpService {
+
+  var completer = new Completer.sync();
+  
+  StreamyHttpRequest request(String url, String method,
+      {String payload: null, String contentType: 'application/json; charset=utf-8'}) =>
+      new StreamyHttpRequest(completer.future, () {});
+    
+  
+  void complete() {
+    completer.complete(new StreamyHttpResponse(404, 'Not Found', '', 'text/plain'));
+  }
+}
 
 main() {
   group('multiplexer', () {
@@ -88,6 +118,23 @@ main() {
         fail("Request should have been canceled.");
       });
       sub.cancel();
+    });
+  });
+  solo_group('Profiling', () {
+    test('Response deserializer', () {
+      var p = new TestProfiler();
+      var foo = new Foo.fromJsonString('{"id":1}', profiler: p, requestType: 'FooRequest');
+      expect(p.events, equals(['start:FooRequest: Json parsing', 'end:0', 'start:FooRequest: Wrapping', 'end:1']));
+    });
+    test('Proxy', () {
+      var b=  new TestBackend();
+      var p = new TestProfiler();
+      var proxy = new ProxyClient('/testUrl', b, profiler: p);
+      var test = new MultiplexerTest(null);
+      proxy.handle(test.foos.get(1));
+      expect(p.events, equals(['start:FoosGetRequest: Proxy request']));
+      b.complete();
+      expect(p.events, equals(['start:FoosGetRequest: Proxy request', 'end:0']));
     });
   });
 }

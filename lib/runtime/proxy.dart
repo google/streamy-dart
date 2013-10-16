@@ -14,7 +14,7 @@ class ProxyClient extends RequestHandler {
   Stream handle(Request req) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? stringify(req.payload) : null;
-    var httpId = profiler.start('${req.apiType}: Proxy request');
+    var httpId = profiler.startTimer('${req.apiType}: Proxy request');
     var httpRequest = httpHandler.request(url, req.httpMethod, payload: payload);
     
     var c;
@@ -46,8 +46,7 @@ class ProxyClient extends RequestHandler {
           }
           throw new StreamyRpcException(resp.statusCode, req, jsonError);
         }
-        req.local['perf.FullTimer'] = profiler.startTimer('${req.runtimeType}: Full Processing');
-        return req.responseDeserializer(resp.body, profiler);
+        return req.responseDeserializer(resp.body, profiler: profiler);
       }).then((value) {
         c.add(value);
         c.close();

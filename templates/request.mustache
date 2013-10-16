@@ -61,11 +61,11 @@ class {{name}} extends streamy.Request {
   {{name}} clone() => streamy.internalCloneFrom(new {{name}}(root{{#payload}}, payload.clone(){{/payload}}), this);
 
 {{#hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str, Profiler profiler) =>
-      new {{responseType}}.fromJsonString(str, typeRegistry: root.typeRegistry, profiler: profiler, fromRequest: apiType);
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
+      new {{responseType}}.fromJsonString(str, typeRegistry: root.typeRegistry, profiler: profiler, requestType: apiType);
 {{/hasResponse}}
 {{^hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
       new streamy.EmptyEntity();
 {{/hasResponse}}
 }

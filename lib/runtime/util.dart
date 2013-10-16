@@ -23,7 +23,7 @@ Map removeNulls(Map m) => m..keys
     .forEach(m.remove);
 
 /// A function that can deserialize a JSON string into a Dart object.
-typedef dynamic Deserializer(String str, Profiler profiler);
+typedef dynamic Deserializer(String str, {Profiler profiler});
 
 /// Returns the object that was passed as the parameter.
 identityFn(Object o) => o;
