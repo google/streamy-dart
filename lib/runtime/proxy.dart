@@ -14,6 +14,7 @@ class ProxyClient extends RequestHandler {
   Stream handle(Request req) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? stringify(req.payload) : null;
+    var httpId = profiler.start('${req.apiType}: Proxy request');
     var httpRequest = httpHandler.request(url, req.httpMethod, payload: payload);
     
     var c;
@@ -24,35 +25,36 @@ class ProxyClient extends RequestHandler {
       }
     });
     
-    httpRequest.future.then((resp) {
-      if (resp.statusCode != 200) {
-        Map jsonError = null;
-        List errors = null;
-        // If the bodyType is not available, optimistically try parsing it as JSON.
-        if (resp.bodyType == null || resp.bodyType.startsWith('application/json')) {
-          try {
-            jsonError = parse(resp.body);
-            if (jsonError.containsKey('error') && jsonError['error'].containsKey('errors')) {
-              errors = jsonError['error']['errors'];
+    httpRequest.future
+      .whenComplete(() {
+        profiler.stopTimer(httpId);
+      })
+      .then((resp) {
+        if (resp.statusCode != 200) {
+          Map jsonError = null;
+          List errors = null;
+          // If the bodyType is not available, optimistically try parsing it as JSON.
+          if (resp.bodyType == null || resp.bodyType.startsWith('application/json')) {
+            try {
+              jsonError = parse(resp.body);
+              if (jsonError.containsKey('error') && jsonError['error'].containsKey('errors')) {
+                errors = jsonError['error']['errors'];
+              }
+            } catch(_) {
+              // Apparently, the body wan't JSON. The caller will have to make do.
             }
-          } catch(_) {
-            // Apparently, the body wan't JSON. The caller will have to make do.
           }
+          throw new StreamyRpcException(resp.statusCode, req, jsonError);
         }
-        throw new StreamyRpcException(resp.statusCode, req, jsonError);
-      }
-      req.local['xFull'] = profiler.startTimer('${req.runtimeType}: Full Processing');
-      var timer = profiler.startTimer('${req.runtimeType}: Deserialize');
-      var entity = req.responseDeserializer(resp.body);
-      profiler.stopTimer(timer);
-      return entity;
-    }).then((value) {
-      c.add(value);
-      c.close();
-    }).catchError((error) {
-      c.addError(error);
-      c.close();
-    });
+        req.local['perf.FullTimer'] = profiler.startTimer('${req.runtimeType}: Full Processing');
+        return req.responseDeserializer(resp.body, profiler);
+      }).then((value) {
+        c.add(value);
+        c.close();
+      }).catchError((error) {
+        c.addError(error);
+        c.close();
+      });
     return c.stream;
   }
 }

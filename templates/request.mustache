@@ -7,6 +7,8 @@ class {{name}} extends streamy.Request {
 {{/parameters}}  ];
 
   {{#payload}}{{payloadType}} get payload => streamy.internalGetPayload(this);{{/payload}}
+  
+  String get apiType => '{{name}}';
 
   String get httpMethod => '{{httpMethod}}';
 
@@ -59,8 +61,8 @@ class {{name}} extends streamy.Request {
   {{name}} clone() => streamy.internalCloneFrom(new {{name}}(root{{#payload}}, payload.clone(){{/payload}}), this);
 
 {{#hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str) =>
-      new {{responseType}}.fromJsonString(str, typeRegistry: root.typeRegistry);
+  streamy.Deserializer get responseDeserializer => (String str, Profiler profiler) =>
+      new {{responseType}}.fromJsonString(str, typeRegistry: root.typeRegistry, profiler: profiler, fromRequest: apiType);
 {{/hasResponse}}
 {{^hasResponse}}
   streamy.Deserializer get responseDeserializer => (String str) =>
