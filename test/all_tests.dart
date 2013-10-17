@@ -1,5 +1,6 @@
 library streamy.test;
 
+import 'http_test.dart' as http_test;
 import 'streamy_test.dart' as streamy_test;
 import 'generated/addendum_test.dart' as addendum_test;
 import 'generated/method_get_test.dart' as method_get_test;
@@ -26,6 +27,7 @@ main() {
   schema_unknown_fields_test.main();
   multiplexer_test.main();
   profiling_test.main();
+  http_test.main();
   streamy_test.main();
   generator_emitter_test.main();
   runtime_multiplexer_test.main();
