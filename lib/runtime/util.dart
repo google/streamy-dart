@@ -23,11 +23,10 @@ Map removeNulls(Map m) => m..keys
     .forEach(m.remove);
 
 /// A function that can deserialize a JSON string into a Dart object.
-typedef dynamic Deserializer(String str);
+typedef dynamic Deserializer(String str, {Profiler profiler});
 
 /// Returns the object that was passed as the parameter.
 identityFn(Object o) => o;
-
 
 abstract class StreamyException implements Exception { }
 
@@ -55,4 +54,47 @@ class ZeroOrOneConsumer<Entity> extends StreamConsumer<Entity> {
       });
 
   Future<Entity> close() => new Future.value(null);
+}
+
+/// A [Profiler] that does nothing (for use as a default value).
+const Profiler NOOP_PROFILER = const NoopProfiler();
+
+class NoopProfiler implements Profiler {
+
+  const NoopProfiler();
+
+  int startTimer(String name, [String extraData]) => null;
+
+  void stopTimer(dynamic idOrName) {}
+
+  void markTime(String name, [String extraData]) {}
+
+  dynamic time(String name, functionOrFuture, [String extraData]) {
+    if (functionOrFuture is Future) {
+      return functionOrFuture;
+    }
+    return functionOrFuture();
+  }
+}
+
+class PrintingProfiler extends Profiler {
+  
+  var _names = {};
+  var _startTimes = {};
+  var _id = 0;
+  
+
+  int startTimer(String name, [String extraData]) {
+    _id++;
+    _names[_id] = name;
+    _startTimes[_id] = new DateTime.now().millisecondsSinceEpoch;
+    return _id;
+  }
+
+  void stopTimer(dynamic idOrName) {
+    var endTime = new DateTime.now().millisecondsSinceEpoch;
+    var delta = endTime - _startTimes.remove(idOrName);
+    var name = _names.remove(idOrName);
+    print("$name: $delta ms");
+  }
 }

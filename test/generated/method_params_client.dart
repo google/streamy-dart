@@ -18,6 +18,7 @@ class FoosGetRequest extends streamy.Request {
     'param2',
     'param3',
   ];
+  String get apiType => 'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{barId}/{fooId}';
   bool get hasPayload => false;
@@ -66,7 +67,7 @@ class FoosGetRequest extends streamy.Request {
   StreamSubscription listen(void onData(event)) =>
       this.root.send(this).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, {Profiler profiler: streamy.NOOP_PROFILER}) =>
       new streamy.EmptyEntity();
 }
 

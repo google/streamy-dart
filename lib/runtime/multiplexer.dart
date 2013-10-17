@@ -63,6 +63,8 @@ class Multiplexer extends RequestHandler {
 
   /** Delegate handler (usually a real HTTP stack). */
   final RequestHandler _delegate;
+  
+  final Profiler profiler;
 
   /**
    * Guaranteed to contain only in flight requests.
@@ -74,7 +76,7 @@ class Multiplexer extends RequestHandler {
    */
   var _activeIndex = new SetMultimap<Request, _ActiveStream>();
 
-  Multiplexer(this._delegate, {Cache cache: null})
+  Multiplexer(this._delegate, {Cache cache: null, Profiler this.profiler: NOOP_PROFILER})
       : this._cache = cache == null ? new AsyncMapCache() : cache;
 
   _newActiveStream(request) {
@@ -87,8 +89,10 @@ class Multiplexer extends RequestHandler {
 
   _handleAgeQuery(request, age) {
     var active = _newActiveStream(request);
+    var cacheId = profiler.startTimer('${request.apiType}: Cache fetch');
 
     _cache.get(request)
+      .whenComplete(() => profiler.stopTimer(cacheId))
       .catchError(active.sendError)
       .then((cachedEntity) {
         // If there actually was an entity response, send it to the client.
@@ -187,11 +191,14 @@ class Multiplexer extends RequestHandler {
     }
 
     var active = _newActiveStream(request);
+    
+    var cacheId = profiler.startTimer('${request.apiType}: Cache fetch');
 
     // Only cachable requests need to be handled by the multiplexer (right now).
     if (request.isCachable) {
       // Make cache request (always).
       _cache.get(request)
+        .whenComplete(() => profiler.stopTimer(cacheId))
         .catchError(active.sendError)
         .then((cachedEntity) {
           if (cachedEntity != null) {
@@ -213,7 +220,6 @@ class Multiplexer extends RequestHandler {
     
     _recordRpcData(entity);
     entity._freeze();
-
 
     // Publish this new entity on every channel.
     _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));

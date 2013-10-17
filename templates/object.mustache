@@ -2,6 +2,8 @@
 {{#docs}}/// {{.}}
 {{/docs}}
 class {{name}} extends streamy.EntityWrapper {
+
+  String get apiType => '{{name}}';
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
 {{#properties}}    '{{name}}',
 {{/properties}}  ]);
@@ -31,8 +33,15 @@ class {{name}} extends streamy.EntityWrapper {
 {{/properties}}
 
   factory {{name}}.fromJsonString(String strJson,
-      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new {{name}}.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+      {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, Profiler profiler: streamy.NOOP_PROFILER, String requestType: '(Unknown)'}) {
+    var parseId = profiler.startTimer('${requestType}: Json parsing');
+    var data = streamy.jsonParse(strJson);
+    profiler.stopTimer(parseId);
+    var wrapId = profiler.startTimer('${requestType}: Wrapping');
+    var result = new {{name}}.fromJson(data, typeRegistry: typeRegistry);
+    profiler.stopTimer(wrapId);
+    return result;
+  }
 
   static {{name}} entityFactory(Map json, streamy.TypeRegistry reg) =>
       new {{name}}.fromJson(json, typeRegistry: reg);

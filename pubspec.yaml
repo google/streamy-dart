@@ -15,6 +15,7 @@ dependencies:
   meta: any
   fixnum: ">=0.7.6"
   observe: any
+  perf_api: any
   quiver: ">=0.10.3"
 dev_dependencies:
   path: any
