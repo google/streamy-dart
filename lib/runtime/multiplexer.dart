@@ -26,7 +26,7 @@ class _ActiveStream {
   }
 
   /// Maybe send an [Entity] across this stream.
-  submit(Entity entity, [profile]) {
+  submit(Entity entity) {
     if (current != null && current.streamy.ts > entity.streamy.ts) {
       // Drop this entity, it has an older timestamp than the one we last sent.
       return;
@@ -36,9 +36,6 @@ class _ActiveStream {
     // mutate elements.
     current = entity;
     _sink.add(entity);
-    if (profile != null) {
-      profile();
-    }
   }
 
   /// Send an error.
@@ -228,7 +225,7 @@ class Multiplexer extends RequestHandler {
     entity._freeze();
 
     // Publish this new entity on every channel.
-    _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity, () => profiler.stopTimer(request.local['xFull']))));
+    _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
 
     // Commit to cache. It's expected that the cache will clone, serialize, or otherwise
     // copy the entity to avoid modifications.
