@@ -219,5 +219,48 @@ main() {
       expect(bar.foos, same(list),
           reason: 'Expected same instance of list');
     });
+    test('clone(mutable: false) works on mutable entities', () {
+      var foo = new Foo()
+        ..id = 1;
+      var foo2 = foo.clone(mutable: false);
+      expect(foo2.isFrozen, isTrue);
+      foo.id = 2;
+      expect(foo2.id, equals(1));
+    });
+    test('clone(mutable: false) works on immutable entities', () {
+      var foo = new Foo()
+        ..id = 1;
+      streamy.freezeForTest(foo);
+      var foo2 = foo.clone(mutable: false);
+      expect(foo2.isFrozen, isTrue);
+    });
+    test('clone(mutable: true) works on mutable entities', () {
+      var foo = new Foo()
+        ..id = 1;
+      var foo2 = foo.clone(mutable: true);
+      foo.id = 2;
+      foo2.id = 3;
+      expect(foo.id, equals(2));
+    });
+    test('clone(mutable: true) works on immutable entities', () {
+      var foo = new Foo()
+        ..id = 1;
+      streamy.freezeForTest(foo);
+      var foo2 = foo.clone(mutable: true);
+      foo2.id = 2;
+      expect(foo.id, equals(1));
+    });
+    test("clone(mutable: false) on immutable entity doesn't copy data, gives " +
+        "different .streamy instances", () {
+      var m = new ObservableMap()
+        ..['id'] = 1;
+      var foo1 = new Foo.wrapMap(m);
+      streamy.freezeForTest(foo1);
+      var foo2 = foo1.clone(mutable: false);
+      expect(identical(foo1.streamy, foo2.streamy), isFalse);
+      m['id'] = 2;
+      expect(foo1.id, equals(2));
+      expect(foo2.id, equals(2));
+    });
   });
 }

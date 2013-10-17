@@ -30,7 +30,7 @@ abstract class EntityWrapper extends Entity implements Observable {
   /// Subclasses should override [clone] to return an instance of the
   /// appropriate type. Note: failure to override [clone] when extending
   /// a subclass of [EntityWrapper] can result in broken behavior.
-  Entity clone() => _clone(_delegate.clone());
+  Entity clone({bool mutable: true}) => _clone(_delegate.clone(mutable: mutable));
 
   bool get isFrozen => _delegate.isFrozen;
 

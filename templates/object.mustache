@@ -98,7 +98,7 @@ class {{name}} extends streamy.EntityWrapper {
     return map;
   }
 
-  {{name}} clone() => new {{name}}._wrap(super.clone());
+  {{name}} clone({bool mutable: true}) => new {{name}}._wrap(super.clone(mutable: mutable));
 
   Type get streamyType => {{name}};
 }
