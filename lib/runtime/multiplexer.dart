@@ -89,7 +89,6 @@ class Multiplexer extends RequestHandler {
 
   _handleAgeQuery(request, age) {
     var active = _newActiveStream(request);
-    print(request);
     var cacheId = profiler.startTimer('${request.apiType}: Cache fetch');
 
     _cache.get(request)
