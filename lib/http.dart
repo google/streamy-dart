@@ -12,7 +12,7 @@ class HttpRequest {
   final String method;
   final Map<String, String> headers = <String, String>{};
   
-  HttpRequest(this.url, {this.method: 'GET', this.body: null, headers: null}) {
+  HttpRequest(this.url, {this.method: 'GET', this.body: null, Map<String, String> headers: null}) {
     if (headers != null) {
       headers.forEach((name, value) {
         this.headers[name.toLowerCase()] = value;
@@ -24,7 +24,8 @@ class HttpRequest {
     }
   }
   
-  factory HttpRequest.multipart(String url, List<HttpRequest> requests, {String method: 'POST', Map<String, String> headers: null}) {
+  factory HttpRequest.multipart(String url, List<HttpRequest> requests,
+      {String method: 'POST', Map<String, String> headers: null}) {
     var boundary = _generateBoundary();
     var body = '--$boundary\r\n' + requests.map((r) => r.toString()).join('--$boundary\r\n');
     return new HttpRequest(url, method: method, headers: headers, body: body)
