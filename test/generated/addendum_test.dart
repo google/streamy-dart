@@ -37,6 +37,6 @@ class ImmediateRequestHandler extends RequestHandler {
     return new StreamTransformer(
         handleData: (String data, EventSink<Foo> sink) {
           sink.add(d(data));
-        }).bind(stream);
+        }).bind(stream).map((e) => new Result(e, 'IMMEDIATE'));
   }
 }

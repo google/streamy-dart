@@ -26,7 +26,7 @@ main() {
 
       var subject = new Multiplexer(testHandler);
       subject.handle(req).listen(expectAsync1((actual) {
-        expect(actual['foo'], 'rpc');
+        expect(actual.result['foo'], 'rpc');
       }, count: 1));
     });
     test('returns cached then rpc entity on age query on stale cache', () {
@@ -50,9 +50,9 @@ main() {
       cache.set(cachedReq, cachedResp).then(expectAsync1((_) {
         subject.handle(req).listen(expectAsync1((actual) {
           if (count == 1) {
-            expect(actual['foo'], 'cached');
+            expect(actual.result['foo'], 'cached');
           } else if (count == 2) {
-            expect(actual['foo'], 'rpc');
+            expect(actual.result['foo'], 'rpc');
           } else {
             fail('Did not expect to reach this line');
           }
@@ -77,7 +77,7 @@ main() {
 
       cache.set(cachedReq, cachedResp).then(expectAsync1((_) {
         subject.handle(req).listen(expectAsync1((actual) {
-          expect(actual['foo'], 'cached');
+          expect(actual.result['foo'], 'cached');
         }, count: 1));
       }, count: 1));
     });
