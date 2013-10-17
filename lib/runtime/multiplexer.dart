@@ -143,9 +143,7 @@ class Multiplexer extends RequestHandler {
           // Report internal error but don't process it, processing is done in
           // a separate catcher below.
           .catchError((_) => _INTERNAL_ERROR)
-          .then((entity) {
-            return _handleRpcReply(request, entity);
-          })
+          .then((entity) => _handleRpcReply(request, entity))
           .whenComplete(() {
             _inFlightRequests.remove(request);
           });
