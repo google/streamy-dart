@@ -8,6 +8,7 @@ import 'generated/method_params_test.dart' as method_params_test;
 import 'generated/multiplexer_test.dart' as multiplexer_test;
 import 'generated/schema_object_test.dart' as schema_object_test;
 import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
+import 'generated/profiling_test.dart' as profiling_test;
 import 'generator/emitter_test.dart' as generator_emitter_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
@@ -24,6 +25,7 @@ main() {
   schema_object_test.main();
   schema_unknown_fields_test.main();
   multiplexer_test.main();
+  profiling_test.main();
   streamy_test.main();
   generator_emitter_test.main();
   runtime_multiplexer_test.main();

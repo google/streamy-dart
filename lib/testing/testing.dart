@@ -106,6 +106,9 @@ final Request TEST_DELETE_REQUEST = new TestRequest("DELETE");
 // TODO(yjbanov): add POST and PUT test requests
 
 class TestRequest extends Request {
+  
+  String get apiType => 'TestRequest';
+
   final String _httpMethod;
 
   TestRequest(this._httpMethod) : super(null);

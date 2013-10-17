@@ -92,8 +92,11 @@ class Multiplexer extends RequestHandler {
 
   _handleAgeQuery(request, age) {
     var active = _newActiveStream(request);
+    print(request);
+    var cacheId = profiler.startTimer('${request.apiType}: Cache fetch');
 
     _cache.get(request)
+      .whenComplete(() => profiler.stopTimer(cacheId))
       .catchError(active.sendError)
       .then((cachedEntity) {
         // If there actually was an entity response, send it to the client.
@@ -194,11 +197,14 @@ class Multiplexer extends RequestHandler {
     }
 
     var active = _newActiveStream(request);
+    
+    var cacheId = profiler.startTimer('${request.apiType}: Cache fetch');
 
     // Only cachable requests need to be handled by the multiplexer (right now).
     if (request.isCachable) {
       // Make cache request (always).
       _cache.get(request)
+        .whenComplete(() => profiler.stopTimer(cacheId))
         .catchError(active.sendError)
         .then((cachedEntity) {
           if (cachedEntity != null) {
@@ -220,7 +226,6 @@ class Multiplexer extends RequestHandler {
     
     _recordRpcData(entity);
     entity._freeze();
-
 
     // Publish this new entity on every channel.
     _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity, () => profiler.stopTimer(request.local['xFull']))));
