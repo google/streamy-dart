@@ -56,7 +56,18 @@ class RawEntity extends Entity implements Map, Observable {
   }
 
   /// Copy this entity (but not local data).
-  RawEntity clone() => new RawEntity().._cloneFrom(this);
+  RawEntity clone({bool mutable: false}) {
+    if (mutable || !_frozen) {
+      var cloned = new RawEntity().._cloneFrom(this);
+      if (!mutable) {
+        cloned._freeze();
+      }
+      return cloned;
+    }
+    return new RawEntity.wrapMap(this._data)
+      ..streamy._mergeFrom(this.streamy)
+      .._freeze();
+  }
 
   /// Merge fields from an input map.
   _cloneFrom(RawEntity input) {

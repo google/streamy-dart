@@ -20,7 +20,7 @@ class AsyncMapCache implements Cache {
 
   Future get(key) {
     if (_cache.containsKey(key)) {
-      return new Future.value(_cache[key].clone()..streamy.source = 'CACHE');
+      return new Future.value(_cache[key].clone(mutable: false)..streamy.source = 'CACHE');
     }
     return new Future.value(null);
   }

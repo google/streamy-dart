@@ -227,3 +227,5 @@ const _INTERNAL_ERROR = const _ErrorEntity();
 /// Walk a map-like structure through a list of keys, beginning with an initial value.
 _walk(initial, pieces) => pieces.fold(initial,
       (current, keyPiece) => current != null ? current[keyPiece] : null);
+      
+freezeForTest(Entity e) => e._freeze();
