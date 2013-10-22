@@ -25,14 +25,8 @@ class DynamicEntity extends RawEntity {
       if (containsKey(memberName)) {
         throw new ClosureInvocationException(memberName);
       } else {
-        // The Invocation class and NoSuchMethodError have different ideas
-        // about the type of the named arguments map.
-        Map<String, dynamic> namedArgs = {};
-        for (key in invocation.namedArguments.keys) {
-          namedArgs[MirrorSystem.getName(key)] = invocation.namedArguments[key];
-        }
         throw new NoSuchMethodError(this, memberName,
-            invocation.positionalArguments, namedArgs);
+            invocation.positionalArguments, invocation.namedArguments);
       }
     }
   }
