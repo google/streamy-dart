@@ -8,10 +8,10 @@ abstract class EntityWrapper extends Entity implements Observable {
 
   /// A function which clones the subclass of this [EntityWrapper].
   final EntityWrapperCloneFn _clone;
-  
+
   final Map<String, EntityGlobalFn> _globals;
-  
-  const _GLOBAL_PREFIX = 'global.';
+
+  static const _GLOBAL_PREFIX = 'global.';
 
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
