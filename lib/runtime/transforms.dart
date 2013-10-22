@@ -4,15 +4,18 @@ part of streamy.runtime;
 /// metadata about the entity (Entity.streamy) to be inaccurate, but will
 /// prevent multiple values from being published on [Stream]s when core [Entity]
 /// data has not changed.
-class EntityDedupTransformer<T extends Entity>
-    extends StreamEventTransformer<T, T> {
+class EntityDedupTransformer<T extends Entity> implements StreamTransformer<T, T> {
+  final StreamController _controller = new StreamController();
   var _last = null;
 
-  handleData(T data, EventSink<T> sink) {
-    if (!Entity.deepEquals(data, _last)) {
-      sink.add(data);
-    }
-    _last = data;
+  Stream<T> bind(Stream<T> stream) {
+    stream.listen((T data) {
+      if (!Entity.deepEquals(data, _last)) {
+        _controller.add(data);
+      }
+      _last = data;
+    }, onError: _controller.addError, onDone: _controller.close);
+    return _controller.stream;
   }
 }
 
@@ -38,14 +41,18 @@ class OneShotRequestTransformer<T extends Entity>
   }
 }
 
-class MutableTransformer<T extends Entity> extends StreamEventTransformer<T, T> {
-  
-  handleData(Entity data, EventSink<Entity> sink) {
-    if (data.isFrozen) {
-      sink.add(data.clone());
-    } else {
-      sink.add(data);
-    }
+class MutableTransformer<T extends Entity> implements StreamTransformer<T, T> {
+  final StreamController _controller = new StreamController();
+
+  Stream<T> bind(Stream<T> stream) {
+    stream.listen((T data) {
+      if (data.isFrozen) {
+        _controller.add(data.clone());
+      } else {
+        _controller.add(data);
+      }
+    }, onError: _controller.addError, onDone: _controller.close);
+    return _controller.stream;
   }
 }
 
@@ -65,31 +72,31 @@ class TransformingRequestHandler extends RequestHandler {
 
 /// Represents a request that was issued, and allows listening for its completion.
 class TrackedRequest {
-  
+
   /// Request that was issued.
   final Request request;
 
   /// A future that completes before the first response for the request is returned
   /// (may be an error).
   final Future beforeFirstResponse;
-  
+
   /// A future that completes when the first response for the request is returned
   /// (may be an error).
   final Future onFirstResponse;
-  
+
   TrackedRequest._private(this.request, this.beforeFirstResponse, this.onFirstResponse);
 }
 
 /// Provides a global notification of when requests are issued and when they receive
 /// their first response.
 class RequestTrackingTransformer extends RequestStreamTransformer {
-  
+
   final _controller = new StreamController<TrackedRequest>.broadcast(sync: true);
-  
+
   Stream<TrackedRequest> get trackingStream => _controller.stream;
-  
+
   RequestTrackingTransformer();
-  
+
   Stream bind(Request request, Stream responseStream) {
     var sub;
     var preCallbackCompleter = new Completer.sync();
@@ -104,11 +111,11 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
         postCallbackCompleter.complete();
       }
     });
-    
+
     // Publish a tracking record for this request (synchronously).
     _controller.add(new TrackedRequest._private(
         request, preCallbackCompleter.future, postCallbackCompleter.future));
-    
+
     // To be called when an event has been processed. Only on the first one, this
     // should complete the future sent on the tracking stream, indicating a response
     // has been processed.
@@ -122,7 +129,7 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
         postCallbackCompleter.complete(error);
       }
     }
-    
+
     // Subscribe to the stream. On a new value or error, publish it to the controller.
     sub = responseStream.listen((entity) {
       sawValue = true;
@@ -146,7 +153,7 @@ class RequestTrackingTransformer extends RequestStreamTransformer {
       closed = true;
       c.close();
     });
-    
+
     return c.stream;
   }
 }

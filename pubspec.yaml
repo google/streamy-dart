@@ -9,13 +9,15 @@ authors:
 - Alex Rickabaugh <arick@google.com>
 - Yegor Jbanov <yjbanov@google.com>
 homepage: https://github.com/google/streamy-dart
+environment:
+  sdk: '>=0.8.1'
 dependencies:
   mustache: ">=0.1.5"
   args: any
   meta: any
   fixnum: ">=0.7.6"
   observe: any
-  quiver: ">=0.10.3"
+  quiver: ">=0.11.0"
 dev_dependencies:
   path: any
   unittest: any

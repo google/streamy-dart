@@ -34,7 +34,7 @@ class ImmediateRequestHandler extends RequestHandler {
     expect(request.local['ttl'], equals(800));
     expect(request.local['foo'], equals('baz'));
     Deserializer d = request.responseDeserializer;
-    return new StreamTransformer(
+    return new StreamTransformer.fromHandlers(
         handleData: (String data, EventSink<Foo> sink) {
           sink.add(d(data));
         }).bind(stream);
