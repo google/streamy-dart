@@ -64,9 +64,9 @@ main() {
       expect(mpReq.headers['content-length'], equals('469'));
       expect(mpReq.headers['host'], equals('multipart.google.com'));
       expect(mpReq.body, equals('--$boundary\r\nGET /test/url HTTP/1.1\r\nhost: google.com\r\n' +
-          'accept-encoding: utf-8\r\n\r\n--$boundary\r\nPOST /test/another/url HTTP/1.1\r\n' + 
+          'accept-encoding: utf-8\r\n\r\n--$boundary\r\nPOST /test/another/url HTTP/1.1\r\n' +
           'host: api.google.com\r\ncontent-type: text/plain; charset=utf-8\r\ncontent-length: 12' +
-          '\r\n\r\nHello world!\r\n--$boundary\r\nGET /a/third/url HTTP/1.1\r\nhost: google.com' + 
+          '\r\n\r\nHello world!\r\n--$boundary\r\nGET /a/third/url HTTP/1.1\r\nhost: google.com' +
           '\r\naccept-encoding: utf-8\r\ncontent-length: 14\r\n\r\nGoodbye world!\r\n'));
     });
   });

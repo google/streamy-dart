@@ -34,7 +34,7 @@ class Foo extends streamy.EntityWrapper {
     this['bar'] = value;
   }
   String removeBar() => this.remove('bar');
-  factory Foo.fromJsonString(String strJson,
+  factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -87,13 +87,16 @@ class FoosGetRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Foo> send() =>
-      this.root.send(this);
+  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<Response<Foo>> sendRaw() =>
+      _sendDirect();
+  Stream<Response<Foo>> send() =>
+      _sendDirect().map((response) => response.entity);
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
-      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry);
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
+      new Foo.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }
 
 /// Updates a foo
@@ -116,13 +119,16 @@ class FoosUpdateRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Foo> send() =>
-      this.root.send(this);
+  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<Response<Foo>> sendRaw() =>
+      _sendDirect();
+  Stream<Response<Foo>> send() =>
+      _sendDirect().map((response) => response.entity);
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
-      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry);
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
+      new Foo.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }
 
 /// Deletes a foo
@@ -144,12 +150,15 @@ class FoosDeleteRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream send() =>
-      this.root.send(this);
+  Stream<Response> _sendDirect() => this.root.send(this);
+  Stream<Response> sendRaw() =>
+      _sendDirect();
+  Stream<Response> send() =>
+      _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosDeleteRequest clone() => streamy.internalCloneFrom(new FoosDeleteRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
       new streamy.EmptyEntity();
 }
 
@@ -172,12 +181,15 @@ class FoosCancelRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream send() =>
-      this.root.send(this);
+  Stream<Response> _sendDirect() => this.root.send(this);
+  Stream<Response> sendRaw() =>
+      _sendDirect();
+  Stream<Response> send() =>
+      _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosCancelRequest clone() => streamy.internalCloneFrom(new FoosCancelRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
       new streamy.EmptyEntity();
 }
 
@@ -232,10 +244,11 @@ class MultiplexerTest extends streamy.Root {
       _foos = new FoosResource(this);
     }
     return _foos;
-  }   
+  }
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer tracer;
   final String servicePath;
   MultiplexerTest(this.requestHandler, {this.servicePath: 'multiplexerTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
+  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

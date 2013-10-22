@@ -5,9 +5,6 @@ class EmptyEntity extends Entity {
 
   EmptyEntity() : super.base();
 
-  /// Access metadata exposed by Streamy about this entity.
-  final StreamyEntityMetadata streamy = new StreamyEntityMetadata._private();
-
   /// Local data associated with this entity instance.
   Map<String, dynamic> get local => null;
   

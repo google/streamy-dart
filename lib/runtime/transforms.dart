@@ -4,151 +4,182 @@ part of streamy.runtime;
 /// metadata about the entity (Entity.streamy) to be inaccurate, but will
 /// prevent multiple values from being published on [Stream]s when core [Entity]
 /// data has not changed.
-class EntityDedupTransformer<T extends Entity>
-    extends StreamEventTransformer<T, T> {
+class EntityDedupTransformer extends EventTransformer {
   var _last = null;
 
-  handleData(T data, EventSink<T> sink) {
-    if (!Entity.deepEquals(data, _last)) {
-      sink.add(data);
+  EntityDedupTransformer() : super();
+
+  void handleData(Response<T> response, EventSink<T> sink, Trace trace) {
+    if (!Entity.deepEquals(response.entity, _last)) {
+      sink.add(response);
     }
-    _last = data;
+    _last = response.entity;
   }
 }
 
 /// A [StreamTransformer] that closes the stream after the RPC reply is
 /// received.
-class OneShotRequestTransformer<T extends Entity>
-    implements StreamTransformer<T, T> {
+class OneShotRequestTransformer extends EventTransformer {
 
-  Stream<T> bind(Stream<T> input) {
-    var sub;
-    var output = new StreamController<T>(onCancel: () => sub.cancel());
-    sub = input.listen((e) {
-      output.add(e);
-      if (e.streamy.source == 'RPC') {
-        sub.cancel();
-        output.close();
-      }
-    });
-    sub
-      ..onError(output.addError)
-      ..onDone(output.close);
-    return output.stream;
-  }
-}
+  const OneShotRequestTransformer() : super();
 
-class MutableTransformer<T extends Entity> extends StreamEventTransformer<T, T> {
-  
-  handleData(Entity data, EventSink<Entity> sink) {
-    if (data.isFrozen) {
-      sink.add(data.clone());
-    } else {
-      sink.add(data);
+  void handleData(Response response, EventSink<Response> sink, Trace trace) {
+    sink.add(response);
+    if (response.source == Source.RPC) {
+      sink.close();
     }
   }
 }
 
-abstract class RequestStreamTransformer {
-  Stream bind(Request request, Stream stream);
+/// A [StreamTransformer] that clones frozen entities, to make them mutable.
+class MutableTransformer extends EventTransformer {
+
+  const MutableTransformer() : super();
+
+  void handleData(Response response, EventSink<Response> sink, Trace trace) {
+    if (response.entity.isFrozen) {
+      sink.add(new Response(response.entity.clone(), response.source, response.ts));
+    } else {
+      sink.add(response);
+    }
+  }
 }
+
+/// An [EventTransformer] that traces user callback timings. Should be the last
+/// transformer before user code.
+class UserCallbackTracingTransformer extends EventTransformer {
+
+  var _runCount = 0;
+
+  UserCallbackTracingTransformer() : super();
+
+  void handleData(Response response, EventSink<Response> sink, Trace trace) {
+    _runCount++;
+    trace.record(const UserCallbackQueuedEvent());
+    runningCallback = true;
+    _runZonedWithOnDone(() => sink.add(response), () {
+      _runCount--;
+      trace.record(const UserCallbackDoneEvent());
+    });
+  }
+
+  void handleError(error, EventSink<Response> sink, Trace trace) {
+    trace.record(const UserCallbackQueuedEvent());
+    _runZonedWithOnDone(() => sink.add(response), () {
+      trace.record(const UserCallbackDoneEvent());
+    });
+  }
+}
+
+/// Fired when the user callback of a response is queued.
+class UserCallbackQueuedEvent implements TraceEvent {
+  const UserCallbackQueuedEvent();
+
+  String toString() => 'streamy.userCallback.start';
+}
+
+/// Fired when the user callback of a response completes.
+class UserCallbackDoneEvent implements TraceEvent {
+  const UserCallbackDoneEvent();
+
+  String toString() => 'streamy.userCallback.done';
+}
+
+/// An operation that can be applied during request processing. A [Transformer]
+/// has the opportunity to modify both the [Request] and [Response], as well as
+/// fulfill [Request]s itself.
+abstract class Transformer {
+
+  Stream<Response> bind(Request request, RequestHandler delegate, Trace trace);
+}
+
+/// A [Transformer] that's implemented by overriding a number of methods for
+/// handling different events.
+abstract class EventTransformer implements Transformer {
+
+  const EventTransformer();
+
+  Stream<Response> bind(Request request, RequestHandler delegate, Trace trace) {
+    var sub;
+    var output = new StreamController<Response>(onCancel: () {
+      sub.cancel();
+      handleCancel(trace);
+    });
+    var input = delegate.handle(handleRequest(request, output, trace), trace);
+    sub = input.listen((response) {
+      handleData(response, output, trace);
+      if (output.isClosed) {
+        sub.cancel();
+      }
+    })..onError((error) {
+      handleError(error, output, trace);
+      if (output.isClosed) {
+        sub.cancel();
+      }
+    })..onDone(() {
+      handleDone(output, trace);
+      sub.cancel();
+      if (!output.isClosed) {
+        output.close();
+      }
+    });
+    return output.stream;
+  }
+
+  Request handleRequest(Request request, EventSink<Response> sink, Trace trace) => request;
+
+  void handleData(Response response, EventSink<Response> sink, Trace trace) => sink.add(response);
+  void handleError(error, EventSink<Response> sink, Trace trace) => sink.addError(error);
+  void handleDone(EventSink<Response> sink, Trace trace) {
+    sink.close();
+  }
+  void handleCancel(Trace trace) {}
+}
+
+/// A factory method for constructing a new [Transformer]. For stateless [Transformer]s, this can
+/// be optimized to return a const-constructed [Transformer].
+typedef Transformer TransformerFactory();
 
 class TransformingRequestHandler extends RequestHandler {
   final RequestHandler delegate;
-  final RequestStreamTransformer transformer;
+  final TransformerFactory transformerFactory;
 
-  TransformingRequestHandler(this.delegate, this.transformer);
+  TransformingRequestHandler(this.delegate, this.transformerFactory);
 
-  Stream handle(Request request) =>
-      transformer.bind(request, delegate.handle(request));
+  Stream<Response> handle(Request request, Trace trace) =>
+      transformerFactory().bind(request, delegate, trace);
+}
+
+/// A factory method for constructing a new [StreamTransformer]. For stateless [StreamTransformer]s,
+// this can be optimized to return a const-constructed [StreamTransformer].
+typedef StreamTransformer<Response, Response> StreamTransformerFactory(Request request, Trace trace);
+
+/// A [RequestHandler] that transforms [Response] [Stream]s with a dart:async [StreamTransformer].
+class DartAsyncTransformRequestHandler extends RequestHandler {
+  final RequestHandler delegate;
+  StreamTransformerFactory transformerFactory;
+
+  DartAsyncTransformRequestHandler(this.delegate, this.transformerFactory);
+
+  Stream<Response> handle(Request request, Trace trace) =>
+    delegate.handle(request).transform(transformerFactory(request, trace));
 }
 
 /// Represents a request that was issued, and allows listening for its completion.
 class TrackedRequest {
-  
+
   /// Request that was issued.
   final Request request;
 
   /// A future that completes before the first response for the request is returned
   /// (may be an error).
   final Future beforeFirstResponse;
-  
+
   /// A future that completes when the first response for the request is returned
   /// (may be an error).
   final Future onFirstResponse;
-  
-  TrackedRequest._private(this.request, this.beforeFirstResponse, this.onFirstResponse);
-}
 
-/// Provides a global notification of when requests are issued and when they receive
-/// their first response.
-class RequestTrackingTransformer extends RequestStreamTransformer {
-  
-  final _controller = new StreamController<TrackedRequest>.broadcast(sync: true);
-  
-  Stream<TrackedRequest> get trackingStream => _controller.stream;
-  
-  RequestTrackingTransformer();
-  
-  Stream bind(Request request, Stream responseStream) {
-    var sub;
-    var preCallbackCompleter = new Completer.sync();
-    var postCallbackCompleter = new Completer.sync();
-    // Whether the input Stream was closed.
-    var closed = false;
-    // Whether the input Stream has seen a value.
-    var sawValue = false;
-    var c = new StreamController<Entity>(onCancel: () {
-      sub.cancel();
-      if (!postCallbackCompleter.isCompleted && !(closed && sawValue)) {
-        postCallbackCompleter.complete();
-      }
-    });
-    
-    // Publish a tracking record for this request (synchronously).
-    _controller.add(new TrackedRequest._private(
-        request, preCallbackCompleter.future, postCallbackCompleter.future));
-    
-    // To be called when an event has been processed. Only on the first one, this
-    // should complete the future sent on the tracking stream, indicating a response
-    // has been processed.
-    void done(entity, [error]) {
-      if (postCallbackCompleter.isCompleted) {
-        return;
-      }
-      if (entity != null) {
-        postCallbackCompleter.complete(entity);
-      } else {
-        postCallbackCompleter.complete(error);
-      }
-    }
-    
-    // Subscribe to the stream. On a new value or error, publish it to the controller.
-    sub = responseStream.listen((entity) {
-      sawValue = true;
-      if (!preCallbackCompleter.isCompleted) {
-        preCallbackCompleter.complete(entity);
-      }
-      _runZonedWithOnDone(() {
-        c.add(entity);
-      }, () => done(entity));
-    })..onError((error) {
-      sawValue = true;
-      if (!preCallbackCompleter.isCompleted) {
-        preCallbackCompleter.complete(error);
-      }
-      _runZonedWithOnDone(() {
-        c.addError(error);
-      }, () => done(null, error));
-    })..onDone(() {
-      // If the stream completed without any results, the resulting
-      // subscription cancellation will complete the competer.
-      closed = true;
-      c.close();
-    });
-    
-    return c.stream;
-  }
+  TrackedRequest._private(this.request, this.beforeFirstResponse, this.onFirstResponse);
 }
 
 _runZonedWithOnDone(fn, onDone) {

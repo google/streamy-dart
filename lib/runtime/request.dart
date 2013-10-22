@@ -1,7 +1,7 @@
 part of streamy.runtime;
 
 /// A function that handles Streamy RPC requests.
-typedef Stream RequestHandlingFunction(Request);
+typedef Stream<Response> RequestHandlingFunction(Request, Trace);
 
 /// Defines interface for a request handler.
 abstract class RequestHandler {
@@ -13,9 +13,9 @@ abstract class RequestHandler {
     return new _FunctionRequestHandler(func);
   }
 
-  Stream handle(Request request);
-  RequestHandler transformResponses(RequestStreamTransformer transformer)
-      => new TransformingRequestHandler(this, transformer);
+  Stream<Response> handle(Request request, Trace trace);
+  RequestHandler transform(TransformerFactory transformerFactory) =>
+      new TransformingRequestHandler(this, transformerFactory);
 }
 
 class _FunctionRequestHandler extends RequestHandler {
@@ -23,7 +23,7 @@ class _FunctionRequestHandler extends RequestHandler {
 
   _FunctionRequestHandler(RequestHandlingFunction this._func);
 
-  Stream handle(Request request) => _func(request);
+  Stream<Response> handle(Request request, Trace trace) => _func(request, trace);
 }
 
 /// The root object representing an entire API, which makes its resources
@@ -35,7 +35,7 @@ abstract class Root {
   String get servicePath;
 
   /// Execute a [Request] and return a [Stream] of the results.
-  Stream send(Request req);
+  Stream<Response> send(Request req);
 
   Root(this.typeRegistry);
 }

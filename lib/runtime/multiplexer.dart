@@ -13,29 +13,29 @@ class _ActiveStream {
   var _sink;
 
   /// The actual [Stream] returned to the client.
-  Stream get stream => _sink.stream;
+  Stream<Response> get stream => _sink.stream;
 
   /// The last entity seen across this stream.
-  Entity current = null;
+  var current = null;
 
   /// A [Future] that completes when this stream loses its subscriber(s).
   Future get closed => _closeCompleter.future;
 
   _ActiveStream(this.request) {
-    _sink = new StreamController(onCancel: _closeCompleter.complete);
+    _sink = new StreamController<Response>(onCancel: _closeCompleter.complete);
   }
 
   /// Maybe send an [Entity] across this stream.
-  submit(Entity entity) {
-    if (current != null && current.streamy.ts > entity.streamy.ts) {
+  submit(Response response) {
+    if (current != null && current.ts > response.ts) {
       // Drop this entity, it has an older timestamp than the one we last sent.
       return;
     }
 
     // Safe to cache a reference here, as the multiplexer takes care not to
     // mutate elements.
-    current = entity;
-    _sink.add(entity);
+    current = response;
+    _sink.add(response);
   }
 
   /// Send an error.
@@ -90,14 +90,14 @@ class Multiplexer extends RequestHandler {
 
     _cache.get(request)
       .catchError(active.sendError)
-      .then((cachedEntity) {
+      .then((cached) {
         // If there actually was an entity response, send it to the client.
-        if (cachedEntity != null) {
-          active.submit(cachedEntity);
+        if (cached != null) {
+          active.submit(new Response(cached.entity, Source.CACHE, cached.ts));
         }
         var ts = new DateTime.now().millisecondsSinceEpoch;  // TODO: not testable
         // If we don't need to issue an rpc
-        if (age < 0 || (cachedEntity != null && (ts - cachedEntity.streamy.ts) < age)) {
+        if (age < 0 || (cached != null && (ts - cached.ts) < age)) {
           if (age == AGE_CACHE_LOOKUP_ONCE) {
             // Not interested in future responses at all.
             active.close();
@@ -138,7 +138,7 @@ class Multiplexer extends RequestHandler {
           // Report internal error but don't process it, processing is done in
           // a separate catcher below.
           .catchError((_) => _INTERNAL_ERROR)
-          .then((entity) => _handleRpcReply(request, entity))
+          .then((response) => _handleRpcReply(request, response))
           .whenComplete(() {
             _inFlightRequests.remove(request);
           });
@@ -164,17 +164,16 @@ class Multiplexer extends RequestHandler {
           active.sendError(error);
           return _INTERNAL_ERROR;
         })
-        .then((entity) {
-          if (entity != _INTERNAL_ERROR) {
-            _recordRpcData(entity);
-            active.submit(entity);
+        .then((response) {
+          if (response.entity != _INTERNAL_ERROR) {
+            active.submit(response);
           }
         })
         .whenComplete(active.close);
     }
   }
 
-  Stream handle(Request originalRequest) {
+  Stream handle(Request originalRequest, Trace trace) {
     // Make a copy of the request for use in the multiplexer, since it's not
     // immutable.
     var request = originalRequest.clone();
@@ -193,9 +192,9 @@ class Multiplexer extends RequestHandler {
       // Make cache request (always).
       _cache.get(request)
         .catchError(active.sendError)
-        .then((cachedEntity) {
-          if (cachedEntity != null) {
-            active.submit(cachedEntity);
+        .then((cached) {
+          if (cached != null) {
+            active.submit(new Response(cached.entity, Source.CACHE, cached.ts));
           }
         });
     }
@@ -205,23 +204,22 @@ class Multiplexer extends RequestHandler {
     return active.stream;
   }
 
-  _handleRpcReply(Request request, Entity entity) {
-    if (entity == _INTERNAL_ERROR) {
+  _handleRpcReply(Request request, Response response) {
+    if (response == _INTERNAL_ERROR) {
       // An error occurred, no need to handle it here.
       return;
     }
-    
-    _recordRpcData(entity);
-    entity._freeze();
+
+    response.entity._freeze();
 
 
     // Publish this new entity on every channel.
-    _activeIndex[request].forEach((act) => runAsync(() => act.submit(entity)));
+    _activeIndex[request].forEach((act) => runAsync(() => act.submit(response)));
 
     // Commit to cache. It's expected that the cache will clone, serialize, or otherwise
     // copy the entity to avoid modifications.
-    if (entity != null) {
-      _cache.set(request, entity);
+    if (response.entity != null) {
+      _cache.set(request, new CachedEntity(response.entity, response.ts));
     }
   }
 
@@ -231,12 +229,6 @@ class Multiplexer extends RequestHandler {
     if (!_activeIndex.containsKey(request) && _inFlightRequests.containsKey(request)) {
       _inFlightRequests[request].cancel();
     }
-  }
-
-  _recordRpcData(entity) {
-    entity.streamy
-      ..ts = new DateTime.now().millisecondsSinceEpoch
-      ..source = 'RPC';
   }
 }
 

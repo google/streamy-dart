@@ -42,7 +42,7 @@ class RetryingRequestHandler extends RequestHandler {
         504  // Gateway timeout
       ]});
 
-  Stream handle(Request request) {
+  Stream<Response> handle(Request request, Trace trace) {
     var strategy = this.strategy;
     if (request.local['retryStrategy'] != null) {
       strategy = request.local['retryStrategy'];
@@ -52,7 +52,7 @@ class RetryingRequestHandler extends RequestHandler {
     var pendingSub;
     
     var output;
-    output = new StreamController(onCancel: () {
+    output = new StreamController<Response>(onCancel: () {
       if (output.isClosed) {
         return;
       }

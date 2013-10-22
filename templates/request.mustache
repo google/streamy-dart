@@ -33,37 +33,52 @@ class {{name}} extends streamy.Request {
   {{type}} remove{{capVarName}}() => parameters.remove('{{name}}');
 {{/parameters}}
 
-  {{^hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() =>
-      this.root.send(this);
-  StreamSubscription{{#hasResponse}}<{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}{{responseType}} {{/hasResponse}}event)) =>
-      this.root.send(this).listen(onData);{{/hasSendParams}}
-  {{#hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send({
+  Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> _sendDirect() => this.root.send(this);
+
+
+  {{^hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> sendRaw() =>
+      _sendDirect();{{/hasSendParams}}
+  {{#hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> sendRaw({
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}
     this.local['{{name}}'] = {{name}};
 {{/sendParams}}
-    return this.root.send(this);
+    return _sendDirect();
   }
-  StreamSubscription{{#hasResponse}}<{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}{{responseType}} {{/hasResponse}}event), {
+  {{/hasSendParams}}
+
+  {{^hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> send() =>
+      _sendDirect().map((response) => response.entity);{{/hasSendParams}}
+
+  {{#hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> send({
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}
     this.local['{{name}}'] = {{name}};
 {{/sendParams}}
-    return this.root.send(this).listen(onData);
+    return _sendDirect().map((response) => response.entity);
   }{{/hasSendParams}}
-  
-  
+
+  {{^hasSendParams}}StreamSubscription{{#hasResponse}}<{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}{{responseType}} {{/hasResponse}}event)) =>
+      _sendDirect().map((response) => response.entity).listen(onData);{{/hasSendParams}}
+  {{#hasSendParams}}StreamSubscription{{#hasResponse}}<{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}{{responseType}} {{/hasResponse}}event), {
+{{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
+{{/sendParams}}
+{{#sendParams}}
+    this.local['{{name}}'] = {{name}};
+{{/sendParams}}
+    return _sendDirect().map((response) => response.entity).listen(onData);
+  }{{/hasSendParams}}
 
   {{name}} clone() => streamy.internalCloneFrom(new {{name}}(root{{#payload}}, payload.clone(){{/payload}}), this);
 
 {{#hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str) =>
-      new {{responseType}}.fromJsonString(str, typeRegistry: root.typeRegistry);
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
+      new {{responseType}}.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 {{/hasResponse}}
 {{^hasResponse}}
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
       new streamy.EmptyEntity();
 {{/hasResponse}}
 }

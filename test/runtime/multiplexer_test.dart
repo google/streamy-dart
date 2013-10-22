@@ -5,7 +5,7 @@ import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
 
 main() {
-  group('Multiplexer', () {
+ solo_group('Multiplexer', () {
     test('does not throw on error but forward to error catchers', () {
       var testHandler = (
           testRequestHandler()

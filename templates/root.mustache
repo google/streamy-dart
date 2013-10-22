@@ -9,14 +9,15 @@ class {{topLevelClassName}} extends streamy.Root {
       _{{name}} = new {{type}}(this);
     }
     return _{{name}};
-  }   
+  }
 {{/resources}}
 
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer tracer;
   final String servicePath;
 
   {{topLevelClassName}}(this.requestHandler, {this.servicePath: '{{servicePath}}',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
 
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }
