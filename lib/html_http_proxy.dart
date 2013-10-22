@@ -6,23 +6,31 @@ import 'dart:async';
 
 import "package:streamy/streamy.dart";
 
+/**
+ * A plain HTTP service that sends HTTP requests via [HttpRequest].
+ */
 class DartHtmlHttpService implements StreamyHttpService {
 
   const DartHtmlHttpService();
 
-  StreamyHttpRequest request(String url, String method,
-      {String payload: null, String contentType: 'application/json; charset=utf-8'}) {
-    var c = new Completer<StreamyHttpResponse>();
-
+  Future<StreamyHttpResponse> send(StreamyHttpRequest request) {
     var req = new HttpRequest();
-    req.open(method, url, async: true);
-    if (payload != null) {
-      req.setRequestHeader('Content-Type', contentType);
-      req.send(payload);
+
+    req.open(request.method, request.url, async: true);
+    if (request.payload != null) {
+      request.headers.forEach((k, v) {
+        req.setRequestHeader(k, v);
+      });
+      req.send(request.payload);
     } else {
       req.send();
     }
 
+    request.onCancel.then((_) {
+      req.abort();
+    });
+
+    var c = new Completer<StreamyHttpResponse>();
     req.onLoad.first.then((_) {
       var bodyType = null;
       var responseType = req.getResponseHeader('Content-Type');
@@ -33,11 +41,6 @@ class DartHtmlHttpService implements StreamyHttpService {
           req.responseText, bodyType));
     });
     req.onError.first.then(c.completeError);
-
-    return new StreamyHttpRequest(
-        c.future,
-        () {
-          req.abort();
-        });
+    return c.future;
   }
 }
