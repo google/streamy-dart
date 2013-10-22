@@ -58,7 +58,7 @@ main() {
       expectContains(clientCode,
           '/// API definitions.\n'
           '/// With documentation\n'
-          'class DocsTest ');
+          'class DocsTest\n');
     });
     test('should emit docs for resource methods', () {
       expectContains(clientCode,

@@ -111,7 +111,7 @@ class FoosResource {
   }
 }
 
-class MethodPostTest extends streamy.Root {
+abstract class MethodPostTestResourcesMixin {
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
@@ -119,9 +119,33 @@ class MethodPostTest extends streamy.Root {
     }
     return _foos;
   }   
+}
+
+class MethodPostTest
+    extends streamy.Root
+    with MethodPostTestResourcesMixin {
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final String servicePath;
-  MethodPostTest(this.requestHandler, {this.servicePath: 'postTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
+  MethodPostTest(
+      this.requestHandler,
+      {String servicePath: 'postTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy;
   Stream send(streamy.Request request) => requestHandler.handle(request);
+  MethodPostTestTransaction beginTransaction() =>
+      new MethodPostTestTransaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [MethodPostTest] but runs all requests as
+/// part of the same transaction.
+class MethodPostTestTransaction
+    extends streamy.TransactionRoot
+    with MethodPostTestResourcesMixin {
+  MethodPostTestTransaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }

@@ -102,10 +102,34 @@ class Bar extends streamy.EntityWrapper {
   Type get streamyType => Bar;
 }
 
-class SchemaUnknownFieldsTest extends streamy.Root {
+abstract class SchemaUnknownFieldsTestResourcesMixin {
+}
+
+class SchemaUnknownFieldsTest
+    extends streamy.Root
+    with SchemaUnknownFieldsTestResourcesMixin {
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final String servicePath;
-  SchemaUnknownFieldsTest(this.requestHandler, {this.servicePath: 'schemaUnknownFieldsTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
+  SchemaUnknownFieldsTest(
+      this.requestHandler,
+      {String servicePath: 'schemaUnknownFieldsTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy;
   Stream send(streamy.Request request) => requestHandler.handle(request);
+  SchemaUnknownFieldsTestTransaction beginTransaction() =>
+      new SchemaUnknownFieldsTestTransaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [SchemaUnknownFieldsTest] but runs all requests as
+/// part of the same transaction.
+class SchemaUnknownFieldsTestTransaction
+    extends streamy.TransactionRoot
+    with SchemaUnknownFieldsTestResourcesMixin {
+  SchemaUnknownFieldsTestTransaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }

@@ -182,10 +182,34 @@ class Bar extends streamy.EntityWrapper {
   Type get streamyType => Bar;
 }
 
-class SchemaObjectTest extends streamy.Root {
+abstract class SchemaObjectTestResourcesMixin {
+}
+
+class SchemaObjectTest
+    extends streamy.Root
+    with SchemaObjectTestResourcesMixin {
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final String servicePath;
-  SchemaObjectTest(this.requestHandler, {this.servicePath: 'schemaObjectTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
+  SchemaObjectTest(
+      this.requestHandler,
+      {String servicePath: 'schemaObjectTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy;
   Stream send(streamy.Request request) => requestHandler.handle(request);
+  SchemaObjectTestTransaction beginTransaction() =>
+      new SchemaObjectTestTransaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [SchemaObjectTest] but runs all requests as
+/// part of the same transaction.
+class SchemaObjectTestTransaction
+    extends streamy.TransactionRoot
+    with SchemaObjectTestResourcesMixin {
+  SchemaObjectTestTransaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }

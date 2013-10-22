@@ -127,7 +127,7 @@ class FoosResource {
   }
 }
 
-class AddendumApi extends streamy.Root {
+abstract class AddendumApiResourcesMixin {
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
@@ -135,9 +135,33 @@ class AddendumApi extends streamy.Root {
     }
     return _foos;
   }   
+}
+
+class AddendumApi
+    extends streamy.Root
+    with AddendumApiResourcesMixin {
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final String servicePath;
-  AddendumApi(this.requestHandler, {this.servicePath: 'addendum/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
+  AddendumApi(
+      this.requestHandler,
+      {String servicePath: 'addendum/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy;
   Stream send(streamy.Request request) => requestHandler.handle(request);
+  AddendumApiTransaction beginTransaction() =>
+      new AddendumApiTransaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [AddendumApi] but runs all requests as
+/// part of the same transaction.
+class AddendumApiTransaction
+    extends streamy.TransactionRoot
+    with AddendumApiResourcesMixin {
+  AddendumApiTransaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }

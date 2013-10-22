@@ -1,7 +1,5 @@
 
-{{#docs}}/// {{.}}
-{{/docs}}
-class {{topLevelClassName}} extends streamy.Root {
+abstract class {{topLevelClassName}}ResourcesMixin {
 {{#resources}}
   {{type}} _{{name}};
   {{type}} get {{name}} {
@@ -11,12 +9,40 @@ class {{topLevelClassName}} extends streamy.Root {
     return _{{name}};
   }   
 {{/resources}}
+}
 
+{{#docs}}/// {{.}}
+{{/docs}}
+class {{topLevelClassName}}
+    extends streamy.Root
+    with {{topLevelClassName}}ResourcesMixin {
+
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final String servicePath;
 
-  {{topLevelClassName}}(this.requestHandler, {this.servicePath: '{{servicePath}}',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
+  {{topLevelClassName}}(
+      this.requestHandler,
+      {String servicePath: '{{servicePath}}',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy;
 
   Stream send(streamy.Request request) => requestHandler.handle(request);
+
+  {{topLevelClassName}}Transaction beginTransaction() =>
+      new {{topLevelClassName}}Transaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [{{topLevelClassName}}] but runs all requests as
+/// part of the same transaction.
+class {{topLevelClassName}}Transaction
+    extends streamy.TransactionRoot
+    with {{topLevelClassName}}ResourcesMixin {
+
+  {{topLevelClassName}}Transaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }

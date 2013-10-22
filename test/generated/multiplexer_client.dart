@@ -225,7 +225,7 @@ class FoosResource {
   }
 }
 
-class MultiplexerTest extends streamy.Root {
+abstract class MultiplexerTestResourcesMixin {
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
@@ -233,9 +233,33 @@ class MultiplexerTest extends streamy.Root {
     }
     return _foos;
   }   
+}
+
+class MultiplexerTest
+    extends streamy.Root
+    with MultiplexerTestResourcesMixin {
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final String servicePath;
-  MultiplexerTest(this.requestHandler, {this.servicePath: 'multiplexerTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
+  MultiplexerTest(
+      this.requestHandler,
+      {String servicePath: 'multiplexerTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy;
   Stream send(streamy.Request request) => requestHandler.handle(request);
+  MultiplexerTestTransaction beginTransaction() =>
+      new MultiplexerTestTransaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [MultiplexerTest] but runs all requests as
+/// part of the same transaction.
+class MultiplexerTestTransaction
+    extends streamy.TransactionRoot
+    with MultiplexerTestResourcesMixin {
+  MultiplexerTestTransaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }
