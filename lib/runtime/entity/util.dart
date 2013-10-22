@@ -206,6 +206,10 @@ class _ErrorEntity implements Entity {
   operator[]=(key, value) {
     throw "Not implemented";
   }
+  bool get isFrozen => true;
+  void _freeze() {
+    // Nothing to freeze in error entity
+  }
   toJson() => throw "Not implemented";
   clone() => throw "Not implemented";
   @deprecated  // defined here solely to conform to the interface
