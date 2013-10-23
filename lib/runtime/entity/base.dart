@@ -1,5 +1,23 @@
 part of streamy.runtime;
 
+/// A function which represents a synthetic property on an [Entity]. It computes the value of the
+/// property given an [Entity].
+typedef dynamic EntityGlobalFn(entity);
+
+/// Memoize an [EntityGlobalFn] so it only runs once per entity. This is done using an [Expando]
+// to ensure GC safety.
+EntityGlobalFn memoizeGlobalFn(EntityGlobalFn fn) {
+  var expando = new Expando(fn.toString());
+  return (entity) {
+    var value = expando[entity];
+    if (value == null) {
+      value = fn(entity);
+      expando[entity] = value;
+    }
+    return value;
+  };
+}
+
 /// Public interface of Streamy entities.
 abstract class Entity {
 

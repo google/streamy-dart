@@ -22,11 +22,11 @@ void _freezeHelper(object) {
 }
 
 class _ObservableImmutableListView implements ObservableList {
-  
+
   ObservableList _delegate;
-  
+
   _ObservableImmutableListView(ObservableList this._delegate);
-  
+
   Stream<List<ChangeRecord>> get changes => _delegate.changes;
   get first => _delegate.first;
   bool get hasObservers => _delegate.hasObservers;
@@ -49,7 +49,7 @@ class _ObservableImmutableListView implements ObservableList {
   bool deliverChanges() => _delegate.deliverChanges();
   elementAt(int index) => _delegate.elementAt(index);
   bool every(bool test(element)) => _delegate.every(test);
-  Iterable expand(Iterable f(element)) => _delegate.expand(element);
+  Iterable expand(Iterable f(element)) => _delegate.expand(f);
   void fillRange(_a, _b, [_c]) => _throw();
   firstWhere(bool test(element), {Object orElse()}) => _delegate.firstWhere(test, orElse: orElse);
   fold(initialValue, combine(previousValue, element)) => _delegate.fold(initialValue, combine);
@@ -86,7 +86,7 @@ class _ObservableImmutableListView implements ObservableList {
   Set toSet() => _delegate.toSet();
   String toString() => _delegate.toString();
   Iterable where(test(element)) => _delegate.where(test);
-  
+
   _throw() => throw new UnsupportedError('List is immutable.');
 }
 
@@ -205,6 +205,10 @@ class _ErrorEntity implements Entity {
   operator[](key) => throw "Not implemented";
   operator[]=(key, value) {
     throw "Not implemented";
+  }
+  bool get isFrozen => true;
+  void _freeze() {
+    // Nothing to freeze in error entity
   }
   toJson() => throw "Not implemented";
   clone() => throw "Not implemented";
