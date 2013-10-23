@@ -53,7 +53,13 @@ abstract class EntityWrapper extends Entity implements Observable {
 
   Iterable<String> get fieldNames => _delegate.fieldNames;
 
-  dynamic remove(String key) => _delegate.remove(key);
+  dynamic remove(String key) {
+    var res = _delegate.remove(key);
+    if (_globalView != null) {
+      _globalView._entityChanged();
+    }
+    return res;
+  }
 
   dynamic operator[](String key) {
     if (key.startsWith(_GLOBAL_PREFIX)) {
@@ -67,6 +73,9 @@ abstract class EntityWrapper extends Entity implements Observable {
 
   void operator[]=(String key, value) {
     _delegate[key] = value;
+    if (_globalView != null) {
+      _globalView._entityChanged();
+    }
   }
 
   Map toJson() => _delegate.toJson();
