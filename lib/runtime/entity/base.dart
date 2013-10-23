@@ -170,7 +170,7 @@ class GlobalView extends ChangeNotifierBase {
       var newValue = _globals[key](_entity);
       if (newValue != oldValue) {
         _read[key] = newValue;
-        notifyChange(new MapChangeRecord<String, dynamic>(key, oldValue, newValue));
+        notifyChange(new MapChangeRecord(key));
       }
     });
   }
