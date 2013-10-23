@@ -29,6 +29,15 @@ abstract class EntityWrapper extends Entity implements Observable {
     return _delegate;
   }
 
+  GlobalView _globalView;
+  
+  GlobalView get global {
+    if (_globalView == null) {
+      _globalView = new GlobalView(this, _globals);
+    }
+    return _globalView;
+  }
+
   StreamyEntityMetadata get streamy => _delegate.streamy;
 
   /// Subclasses should override [clone] to return an instance of the
@@ -49,11 +58,9 @@ abstract class EntityWrapper extends Entity implements Observable {
   dynamic operator[](String key) {
     if (key.startsWith(_GLOBAL_PREFIX)) {
       var property = key.substring(_GLOBAL_PREFIX.length);
-      if (_globals.containsKey(property)) {
-        return _globals[property](this);
-      } else {
-        return null;
-      }
+      return global[property];
+    } else if (key == 'global') {
+      return global;
     }
     return _delegate[key];
   }

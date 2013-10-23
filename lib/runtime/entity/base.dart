@@ -37,6 +37,8 @@ abstract class Entity {
   
   /// Deep freeze (ha!) this entity to no longer allow changes.
   void _freeze();
+  
+  GlobalView get global;
 
   /// Create a deep copy of this entity.
   Entity clone();
@@ -144,4 +146,41 @@ abstract class Entity {
     }
     return running;
   }
+}
+
+class GlobalView extends ChangeNotifierBase {
+
+  Entity _entity;
+  Map<String, EntityGlobalFn> _globals;
+  Map<String, dynamic> _read = {};
+
+  GlobalView(this._entity, this._globals);
+
+  bool containsKey(String key) => _globals.containsKey(key);
+  operator[](String key) {
+    if (!_globals.containsKey(key)) {
+      return null;
+    }
+    _read[key] = _globals[key](_entity);
+    return _read[key];
+  }
+
+  _entityChanged() {
+    _read.forEach((key, oldValue) {
+      var newValue = _globals[key](_entity);
+      if (newValue != oldValue) {
+        _read[key] = newValue;
+        notifyChange(new MapChangeRecord<String, dynamic>(key, oldValue, newValue));
+      }
+    });
+  }
+}
+
+class EmptyGlobalView extends ChangeNotifierBase implements GlobalView {
+
+  const EmptyGlobalView();
+
+  bool containsKey(String key) => false;
+  operator[](String key) => null;
+  _entityChanged() {};
 }
