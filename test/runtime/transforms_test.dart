@@ -14,9 +14,11 @@ main() {
           new Response(new Entity()..['x'] = 'b', Source.RPC, 0)]))
         .build();
       var handler = bareHandler.transform(() => new UserCallbackTracingTransformer());
+      var tracer = new StreamTracer();
+      var root = new TestingRoot(handler, tracer);
 
       var x = ' ';
-      tracker.trackingStream.listen(expectAsync1((event) {
+      tracer.listen(expectAsync1((event) {
         expect(event.request, equals(TEST_GET_REQUEST));
         expect(x, equals(' '));
         x = '_';

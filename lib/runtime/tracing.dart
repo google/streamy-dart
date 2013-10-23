@@ -9,6 +9,7 @@ abstract class TraceEvent {
 /// A trace for a particular request. Essentially a sink for [TraceEvent]s.
 abstract class Trace {
   void add(TraceEvent event);
+  void done();
 }
 
 /// A tracing strategy that creates [Trace]s for [Request]s. Supplied by the user during the
@@ -21,6 +22,7 @@ class NoopTrace implements Trace {
   const NoopTrace();
 
   void add(TraceEvent _) {}
+  void done();
 }
 
 /// A [Tracer] that drops [TraceEvent]s on the floor.
@@ -43,6 +45,10 @@ class _StreamTrace implements Trace {
 
   void add(TraceEvent event) {
     _controller.add(event);
+  }
+  
+  void done() {
+    _controller.done();
   }
 
   Stream<TraceEvent> get events => _controller.stream;
