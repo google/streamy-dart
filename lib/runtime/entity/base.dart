@@ -166,6 +166,9 @@ class GlobalView extends ChangeNotifierBase {
   }
 
   _entityChanged() {
+    if (!hasObservers) {
+      return;
+    }
     _read.forEach((key, oldValue) {
       var newValue = _globals[key](_entity);
       if (newValue != oldValue) {
