@@ -38,7 +38,7 @@ abstract class Entity {
   /// Deep freeze (ha!) this entity to no longer allow changes.
   void _freeze();
   
-  GlobalView get global;
+  GlobalView get global => new EmptyGlobalView();
 
   /// Create a deep copy of this entity.
   Entity clone();
@@ -178,9 +178,18 @@ class GlobalView extends ChangeNotifierBase {
 
 class EmptyGlobalView extends ChangeNotifierBase implements GlobalView {
 
-  const EmptyGlobalView();
+  static EmptyGlobalView _singleton;
+
+  factory EmptyGlobalView() {
+    if (_singleton == null) {
+      _singleton = new EmptyGlobalView._private();
+    }
+    return _singleton;
+  }
+  
+  EmptyGlobalView._private();
 
   bool containsKey(String key) => false;
   operator[](String key) => null;
-  _entityChanged() {};
+  _entityChanged() {}
 }

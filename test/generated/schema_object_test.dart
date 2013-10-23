@@ -226,26 +226,32 @@ main() {
     setUp(() {
       foo = new Foo()..id = 1;
       foo2 = new Foo()..id = 2;
+      Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}');
+      Foo.addGlobal('idStrMemo', (foo) => 'Id #${foo.id}', memoize: true);
     });
     test('Simple global', () {
-      Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}');
-      expect(foo['global.idStr'], equals('Id #1'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStr'], equals('Id #1'));
+      expect(foo2.global['idStr'], equals('Id #2'));
       foo.id = 3;
-      expect(foo['global.idStr'], equals('Id #3'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStr'], equals('Id #3'));
+      expect(foo2.global['idStr'], equals('Id #2'));
     });
     test('Memoized global', () {
-      Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}', memoize: true);
-      expect(foo['global.idStr'], equals('Id #1'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStrMemo'], equals('Id #1'));
+      expect(foo2.global['idStrMemo'], equals('Id #2'));
       foo.id = 3;
       foo2.id = 4;
-      expect(foo['global.idStr'], equals('Id #1'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStrMemo'], equals('Id #1'));
+      expect(foo2.global['idStrMemo'], equals('Id #2'));
     });
     test('Persists through cloning', () {
-      expect(foo.clone()['global.idStr'], equals('Id #1'));
+      expect(foo.clone().global['idStr'], equals('Id #1'));
+    });
+    test('Works via dot-property access', () {
+      expect(foo['global.idStr'], equals('Id #1'));
+    });
+    test('Does not crash on RawEntity', () {
+      expect(new streamy.RawEntity().global['foo'], isNull);
     });
   });
 }

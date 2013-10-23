@@ -21,8 +21,6 @@ class RawEntity extends Entity implements Map, Observable {
   // Has this entity been frozen yet?
   bool get isFrozen => _frozen;
 
-  GlobalView get global => const EmptyGlobalView();
-
   /// Actual fields of the Apiary entity.
   ObservableMap _data;
 
