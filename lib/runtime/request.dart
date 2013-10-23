@@ -14,8 +14,9 @@ abstract class RequestHandler {
   }
 
   Stream<Response> handle(Request request, Trace trace);
-  RequestHandler transform(TransformerFactory transformerFactory) =>
-      new TransformingRequestHandler(this, transformerFactory);
+  RequestHandler transform(transformerOrFactory) => transformerOrFactory is Function ?
+      new TransformingRequestHandler(this, transformerOrFactory) :
+      new TransformingRequestHandler(this, () => transformerOrFactory);
 }
 
 class _FunctionRequestHandler extends RequestHandler {

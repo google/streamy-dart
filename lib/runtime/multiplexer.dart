@@ -85,7 +85,7 @@ class Multiplexer extends RequestHandler {
     return active;
   }
 
-  _handleAgeQuery(request, age) {
+  _handleAgeQuery(request, age, trace) {
     var active = _newActiveStream(request);
 
     _cache.get(request)
@@ -108,7 +108,7 @@ class Multiplexer extends RequestHandler {
           return;
         }
 
-        _sendRpc(request, active);
+        _sendRpc(request, active, trace);
 
         // Interested in future responses.
         _activeIndex.add(request, active);
@@ -117,7 +117,7 @@ class Multiplexer extends RequestHandler {
       return active.stream;
   }
 
-  _sendRpc(request, active) {
+  _sendRpc(request, active, trace) {
     // Only cachable requests need to be handled by the multiplexer (right now).
     if (request.isCachable) {
 
@@ -125,7 +125,7 @@ class Multiplexer extends RequestHandler {
       Future pending;
       if (!_inFlightRequests.containsKey(request)) {
         var completer = new Completer();
-        var sub = _delegate.handle(request).listen(completer.complete)
+        var sub = _delegate.handle(request, trace).listen(completer.complete)
           ..onError(completer.completeError);
         var cancel = () {
           // The pending future will never complete.
@@ -182,7 +182,7 @@ class Multiplexer extends RequestHandler {
       if (!request.isCachable) {
         throw new ArgumentError("Cannot specify noRpcAge parameter on a non-cachable request.");
       }
-      return _handleAgeQuery(request, originalRequest.local['noRpcAge']);
+      return _handleAgeQuery(request, originalRequest.local['noRpcAge'], trace);
     }
 
     var active = _newActiveStream(request);
@@ -199,7 +199,7 @@ class Multiplexer extends RequestHandler {
         });
     }
 
-    _sendRpc(request, active);
+    _sendRpc(request, active, trace);
 
     return active.stream;
   }

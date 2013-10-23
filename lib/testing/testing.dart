@@ -129,3 +129,16 @@ class TestRequest extends Request {
     throw new StateError("Not supported");
   }
 }
+
+class TestingRoot extends Root {
+
+  final RequestHandler delegate;
+  final Tracer tracer;
+
+  TestingRoot(this.delegate, this.tracer) : super(EMPTY_REGISTRY);
+
+  String get servicePath => '/test';
+
+  Stream<Response> handle(Request request) =>
+    delegate.handle(request, tracer.trace(request));
+}

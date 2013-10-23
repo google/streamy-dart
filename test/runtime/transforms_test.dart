@@ -7,12 +7,13 @@ import 'package:streamy/streamy.dart';
 
 main() {
   group('RequestTrackingTransformer', () {
-    test('Properly tracks a request', () {
+    solo_test('Properly tracks a request', () {
       var bareHandler = (testRequestHandler()
-        ..values([new Entity()..['x'] = 'a', new Entity()..['x'] = 'b']))
+        ..values([
+          new Response(new Entity()..['x'] = 'a', Source.RPC, 0),
+          new Response(new Entity()..['x'] = 'b', Source.RPC, 0)]))
         .build();
-      var tracker = new RequestTrackingTransformer();
-      var handler = bareHandler.transformResponses(tracker);
+      var handler = bareHandler.transform(() => new UserCallbackTracingTransformer());
 
       var x = ' ';
       tracker.trackingStream.listen(expectAsync1((event) {
