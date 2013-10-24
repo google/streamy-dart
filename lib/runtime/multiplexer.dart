@@ -159,7 +159,7 @@ class Multiplexer extends RequestHandler {
       _activeIndex.add(request, active);
     } else {
       // Non-cachable requests generate one reply only, ever.
-      _delegate.handle(request).single
+      _delegate.handle(request, trace).single
         .catchError((error) {
           active.sendError(error);
           return _INTERNAL_ERROR;

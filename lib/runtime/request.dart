@@ -1,7 +1,7 @@
 part of streamy.runtime;
 
 /// A function that handles Streamy RPC requests.
-typedef Stream<Response> RequestHandlingFunction(Request, Trace);
+typedef Stream<Response> RequestHandlingFunction(Request request);
 
 /// Defines interface for a request handler.
 abstract class RequestHandler {
@@ -24,7 +24,7 @@ class _FunctionRequestHandler extends RequestHandler {
 
   _FunctionRequestHandler(RequestHandlingFunction this._func);
 
-  Stream<Response> handle(Request request, Trace trace) => _func(request, trace);
+  Stream<Response> handle(Request request, Trace trace) => _func(request);
 }
 
 /// The root object representing an entire API, which makes its resources

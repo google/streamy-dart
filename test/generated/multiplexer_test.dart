@@ -98,7 +98,7 @@ class ImmediateRequestHandler extends RequestHandler {
 
   int _ts() => new DateTime.now().millisecondsSinceEpoch;
 
-  Stream<Response<Foo>> handle(Request request) {
+  Stream<Response<Foo>> handle(Request request, Trace trace) {
     if (request is FoosGetRequest) {
       return new Future.value(new Response(new Foo()
         ..id = request.parameters['id']

@@ -22,7 +22,7 @@ main() {
         ..bar = 'bar';
       var testRequestHandler = new RequestHandler.fromFunction(
           (req) => new Stream.fromIterable(
-              [req.responseDeserializer(stringify(testResponse.toJson()))]));
+              [new Response(req.responseDeserializer(stringify(testResponse.toJson()), const NoopTrace()), Source.RPC, 0)]));
       var subject = new MethodGetTest(testRequestHandler);
       subject.foos.get(1).send().listen(expectAsync1((Foo v) {
         expect(v.toJson(), equals(testResponse.toJson()));
