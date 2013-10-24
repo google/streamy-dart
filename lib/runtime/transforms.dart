@@ -1,6 +1,6 @@
 part of streamy.runtime;
 
-/// A [StreamTransformer] that de-duplicates entities. This will cause
+/// An [EventTransformer] that de-duplicates entities. This will cause
 /// metadata about the entity (Entity.streamy) to be inaccurate, but will
 /// prevent multiple values from being published on [Stream]s when core [Entity]
 /// data has not changed.
@@ -17,7 +17,7 @@ class EntityDedupTransformer extends EventTransformer {
   }
 }
 
-/// A [StreamTransformer] that closes the stream after the RPC reply is
+/// An [EventTransformer] that closes the stream after the RPC reply is
 /// received.
 class OneShotRequestTransformer extends EventTransformer {
 
@@ -31,7 +31,7 @@ class OneShotRequestTransformer extends EventTransformer {
   }
 }
 
-/// A [StreamTransformer] that clones frozen entities, to make them mutable.
+/// An [EventTransformer] that clones frozen entities, to make them mutable.
 class MutableTransformer extends EventTransformer {
 
   const MutableTransformer() : super();
@@ -102,6 +102,7 @@ class UserCallbackDoneEvent implements TraceEvent {
   String toString() => 'streamy.userCallback.done';
 }
 
+/// Fired when the response [Stream] has terminated.
 class RequestOverEvent implements TraceEvent {
   const RequestOverEvent();
 
@@ -185,23 +186,6 @@ class DartAsyncTransformRequestHandler extends RequestHandler {
 
   Stream<Response> handle(Request request, Trace trace) =>
     delegate.handle(request).transform(transformerFactory(request, trace));
-}
-
-/// Represents a request that was issued, and allows listening for its completion.
-class TrackedRequest {
-
-  /// Request that was issued.
-  final Request request;
-
-  /// A future that completes before the first response for the request is returned
-  /// (may be an error).
-  final Future beforeFirstResponse;
-
-  /// A future that completes when the first response for the request is returned
-  /// (may be an error).
-  final Future onFirstResponse;
-
-  TrackedRequest._private(this.request, this.beforeFirstResponse, this.onFirstResponse);
 }
 
 _runZonedWithOnDone(fn, onDone) {

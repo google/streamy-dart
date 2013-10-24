@@ -7,8 +7,12 @@ class EmptyEntity extends Entity {
 
   /// Local data associated with this entity instance.
   Map<String, dynamic> get local => null;
-  
+
   bool get isFrozen => true;
+
+  void _freeze() {
+    // Nothing to freeze in empty entity
+  }
 
   /// Create a deep copy of this entity.
   EmptyEntity clone() => new EmptyEntity()..streamy._mergeFrom(streamy);

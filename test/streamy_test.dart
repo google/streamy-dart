@@ -1,3 +1,5 @@
+library streamy.streamy.test;
+
 import 'dart:async';
 import 'package:observe/observe.dart';
 import 'package:streamy/streamy.dart';
