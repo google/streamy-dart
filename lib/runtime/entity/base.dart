@@ -1,23 +1,5 @@
 part of streamy.runtime;
 
-/// A function which represents a synthetic property on an [Entity]. It computes the value of the
-/// property given an [Entity].
-typedef dynamic EntityGlobalFn(entity);
-
-/// Memoize an [EntityGlobalFn] so it only runs once per entity. This is done using an [Expando]
-// to ensure GC safety.
-EntityGlobalFn memoizeGlobalFn(EntityGlobalFn fn) {
-  var expando = new Expando(fn.toString());
-  return (entity) {
-    var value = expando[entity];
-    if (value == null) {
-      value = fn(entity);
-      expando[entity] = value;
-    }
-    return value;
-  };
-}
-
 /// Public interface of Streamy entities.
 abstract class Entity {
 
@@ -146,53 +128,4 @@ abstract class Entity {
     }
     return running;
   }
-}
-
-class GlobalView extends ChangeNotifierBase {
-
-  Entity _entity;
-  Map<String, EntityGlobalFn> _globals;
-  Map<String, dynamic> _read = {};
-
-  GlobalView(this._entity, this._globals);
-
-  bool containsKey(String key) => _globals.containsKey(key);
-  operator[](String key) {
-    if (!_globals.containsKey(key)) {
-      return null;
-    }
-    _read[key] = _globals[key](_entity);
-    return _read[key];
-  }
-
-  _entityChanged() {
-    if (!hasObservers) {
-      return;
-    }
-    _read.forEach((key, oldValue) {
-      var newValue = _globals[key](_entity);
-      if (newValue != oldValue) {
-        _read[key] = newValue;
-        notifyChange(new MapChangeRecord(key));
-      }
-    });
-  }
-}
-
-class EmptyGlobalView extends ChangeNotifierBase implements GlobalView {
-
-  static EmptyGlobalView _singleton;
-
-  factory EmptyGlobalView() {
-    if (_singleton == null) {
-      _singleton = new EmptyGlobalView._private();
-    }
-    return _singleton;
-  }
-  
-  EmptyGlobalView._private();
-
-  bool containsKey(String key) => false;
-  operator[](String key) => null;
-  _entityChanged() {}
 }

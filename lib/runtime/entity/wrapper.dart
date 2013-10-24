@@ -9,14 +9,14 @@ abstract class EntityWrapper extends Entity implements Observable {
   /// A function which clones the subclass of this [EntityWrapper].
   final EntityWrapperCloneFn _clone;
 
-  final Map<String, EntityGlobalFn> _globals;
+  final Map<String, GlobalRegistration> _globals;
 
   static const _GLOBAL_PREFIX = 'global.';
 
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, EntityGlobalFn> globals: const <String, EntityGlobalFn>{} }) : super.base(), _globals = globals;
+  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, GlobalRegistration> globals: const <String, GlobalRegistration>{} }) : super.base(), _globals = globals;
 
   /// Get the root entity for this wrapper. Wrappers can compose other wrappers,
   /// so this will follow that chain until the root [Entity] is discovered.
@@ -53,13 +53,7 @@ abstract class EntityWrapper extends Entity implements Observable {
 
   Iterable<String> get fieldNames => _delegate.fieldNames;
 
-  dynamic remove(String key) {
-    var res = _delegate.remove(key);
-    if (_globalView != null) {
-      _globalView._entityChanged();
-    }
-    return res;
-  }
+  dynamic remove(String key) => _delegate.remove(key);
 
   dynamic operator[](String key) {
     if (key.startsWith(_GLOBAL_PREFIX)) {
@@ -73,9 +67,6 @@ abstract class EntityWrapper extends Entity implements Observable {
 
   void operator[]=(String key, value) {
     _delegate[key] = value;
-    if (_globalView != null) {
-      _globalView._entityChanged();
-    }
   }
 
   Map toJson() => _delegate.toJson();

@@ -16,6 +16,7 @@ part 'runtime/entity/util.dart';
 part 'runtime/entity/wrapper.dart';
 part 'runtime/cache.dart';
 part 'runtime/error.dart';
+part 'runtime/global.dart';
 part 'runtime/json.dart';
 part 'runtime/metadata.dart';
 part 'runtime/multiplexer.dart';
