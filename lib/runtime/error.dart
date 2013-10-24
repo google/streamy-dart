@@ -12,7 +12,7 @@ class StreamyRpcException implements Exception {
   /// The deserializer error response (if any).
   final Map response;
 
-  /// Convenience accessor 
+  /// Convenience accessor
   List<Map> get errors => response != null ? response['error']['errors'] : null;
   Map get error => errors != null && errors.length > 0 ? errors[0] : null;
   String get message => error != null && error.containsKey('message') ? error['message'] : null;
@@ -50,7 +50,7 @@ class RetryingRequestHandler extends RequestHandler {
 
     // Pending request subscription. Used to cancel the request if asked.
     var pendingSub;
-    
+
     var output;
     output = new StreamController<Response>(onCancel: () {
       if (output.isClosed) {
@@ -62,7 +62,7 @@ class RetryingRequestHandler extends RequestHandler {
     int retry = 0;
 
     void doRpc() {
-      pendingSub = delegate.handle(request).listen((result) {
+      pendingSub = delegate.handle(request, trace).listen((result) {
         // We're done.
         output.add(result);
         output.close();
