@@ -268,15 +268,15 @@ class _BranchingRequestHandler extends RequestHandler {
 
   _BranchingRequestHandler(this._delegate, this._typeMap);
 
-  Stream handle(Request request) {
+  Stream handle(Request request, Trace trace) {
     if (!_typeMap.containsKey(request.runtimeType)) {
-      return _delegate.handle(request);
+      return _delegate.handle(request, trace);
     }
     for (var branch in _typeMap[request.runtimeType]) {
       if (branch.predicate == null || branch.predicate(request)) {
-        return branch.handler.handle(request);
+        return branch.handler.handle(request, trace);
       }
     }
-    return _delegate.handle(request);
+    return _delegate.handle(request, trace);
   }
 }
