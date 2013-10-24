@@ -139,6 +139,6 @@ class TestingRoot extends Root {
 
   String get servicePath => '/test';
 
-  Stream<Response> handle(Request request) =>
+  Stream<Response> send(Request request) =>
     delegate.handle(request, tracer.trace(request));
 }

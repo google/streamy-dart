@@ -49,26 +49,43 @@ class MutableTransformer extends EventTransformer {
 /// transformer before user code.
 class UserCallbackTracingTransformer extends EventTransformer {
 
-  var _runCount = 0;
+  var _openCallbacks = 0;
+  var _closed = false;
 
   UserCallbackTracingTransformer() : super();
 
   void handleData(Response response, EventSink<Response> sink, Trace trace) {
-    _runCount++;
     trace.record(const UserCallbackQueuedEvent());
-    runningCallback = true;
+    _openCallbacks++;
     _runZonedWithOnDone(() => sink.add(response), () {
-      _runCount--;
       trace.record(const UserCallbackDoneEvent());
+      _openCallbacks--;
+      if (_openCallbacks == 0 && _closed) {
+        trace.record(const RequestOverEvent());
+      }
     });
   }
 
   void handleError(error, EventSink<Response> sink, Trace trace) {
     trace.record(const UserCallbackQueuedEvent());
-    _runZonedWithOnDone(() => sink.add(response), () {
+    _openCallbacks++;
+    _runZonedWithOnDone(() => sink.addError(error), () {
       trace.record(const UserCallbackDoneEvent());
+      _openCallbacks--;
+      if (_openCallbacks == 0 && _closed) {
+        trace.record(const RequestOverEvent());
+      }
     });
   }
+
+  void handleDone(EventSink<Response> sink, Trace trace) {
+    _closed = true;
+    if (_openCallbacks == 0) {
+      trace.record(const RequestOverEvent());
+    }
+  }
+
+  static bool traceDonePredicate(TraceEvent event) => event is RequestOverEvent;
 }
 
 /// Fired when the user callback of a response is queued.
@@ -83,6 +100,12 @@ class UserCallbackDoneEvent implements TraceEvent {
   const UserCallbackDoneEvent();
 
   String toString() => 'streamy.userCallback.done';
+}
+
+class RequestOverEvent implements TraceEvent {
+  const RequestOverEvent();
+
+  String toString() => 'streamy.requestOver';
 }
 
 /// An operation that can be applied during request processing. A [Transformer]
@@ -118,7 +141,6 @@ abstract class EventTransformer implements Transformer {
       }
     })..onDone(() {
       handleDone(output, trace);
-      sub.cancel();
       if (!output.isClosed) {
         output.close();
       }

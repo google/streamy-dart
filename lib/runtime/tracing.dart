@@ -1,5 +1,7 @@
 part of streamy.runtime;
 
+typedef bool StreamTraceOverIndicator(TraceEvent event);
+
 /// An event that occurs during the processing of a particular request. Can be a const singleton
 /// instance or a subclass which contains more data about the event.
 abstract class TraceEvent {
@@ -8,8 +10,7 @@ abstract class TraceEvent {
 
 /// A trace for a particular request. Essentially a sink for [TraceEvent]s.
 abstract class Trace {
-  void add(TraceEvent event);
-  void done();
+  void record(TraceEvent event);
 }
 
 /// A tracing strategy that creates [Trace]s for [Request]s. Supplied by the user during the
@@ -21,8 +22,7 @@ abstract class Tracer {
 class NoopTrace implements Trace {
   const NoopTrace();
 
-  void add(TraceEvent _) {}
-  void done();
+  void record(TraceEvent _) {}
 }
 
 /// A [Tracer] that drops [TraceEvent]s on the floor.
@@ -42,13 +42,15 @@ class TracedRequest {
 
 class _StreamTrace implements Trace {
   var _controller = new StreamController<TraceEvent>.broadcast(sync: true);
+  StreamTraceOverIndicator traceOverPredicate;
 
-  void add(TraceEvent event) {
+  _StreamTrace(this.traceOverPredicate);
+
+  void record(TraceEvent event) {
     _controller.add(event);
-  }
-  
-  void done() {
-    _controller.done();
+    if (traceOverPredicate(event)) {
+      _controller.close();
+    }
   }
 
   Stream<TraceEvent> get events => _controller.stream;
@@ -58,10 +60,15 @@ class _StreamTrace implements Trace {
 /// [TraceEvent]s.
 class StreamTracer implements Tracer {
   var _controller = new StreamController<TracedRequest>.broadcast(sync: true);
+  StreamTraceOverIndicator traceOverPredicate;
+
+  StreamTracer(this.traceOverPredicate);
 
   Trace trace(Request request) {
-    var trace = new _StreamTrace();
+    var trace = new _StreamTrace(traceOverPredicate);
     _controller.add(new TracedRequest(request, trace.events));
     return trace;
   }
+
+  Stream<TraceRequest> get requests => _controller.stream;
 }
