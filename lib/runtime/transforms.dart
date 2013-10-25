@@ -55,25 +55,25 @@ class UserCallbackTracingTransformer extends EventTransformer {
   UserCallbackTracingTransformer() : super();
 
   void handleData(Response response, EventSink<Response> sink, Trace trace) {
-    trace.record(const UserCallbackQueuedEvent());
+    trace.record(new UserCallbackQueuedEvent());
     _openCallbacks++;
     _runZonedWithOnDone(() => sink.add(response), () {
-      trace.record(const UserCallbackDoneEvent());
+      trace.record(new UserCallbackDoneEvent());
       _openCallbacks--;
       if (_openCallbacks == 0 && _closed) {
-        trace.record(const RequestOverEvent());
+        trace.record(new RequestOverEvent());
       }
     });
   }
 
   void handleError(error, EventSink<Response> sink, Trace trace) {
-    trace.record(const UserCallbackQueuedEvent());
+    trace.record(new UserCallbackQueuedEvent());
     _openCallbacks++;
     _runZonedWithOnDone(() => sink.addError(error), () {
-      trace.record(const UserCallbackDoneEvent());
+      trace.record(new UserCallbackDoneEvent());
       _openCallbacks--;
       if (_openCallbacks == 0 && _closed) {
-        trace.record(const RequestOverEvent());
+        trace.record(new RequestOverEvent());
       }
     });
   }
@@ -81,7 +81,7 @@ class UserCallbackTracingTransformer extends EventTransformer {
   void handleDone(EventSink<Response> sink, Trace trace) {
     _closed = true;
     if (_openCallbacks == 0) {
-      trace.record(const RequestOverEvent());
+      trace.record(new RequestOverEvent());
     }
   }
 
@@ -90,21 +90,27 @@ class UserCallbackTracingTransformer extends EventTransformer {
 
 /// Fired when the user callback of a response is queued.
 class UserCallbackQueuedEvent implements TraceEvent {
-  const UserCallbackQueuedEvent();
+  factory UserCallbackQueuedEvent() => const UserCallbackQueuedEvent._private();
+
+  const UserCallbackQueuedEvent._private();
 
   String toString() => 'streamy.userCallback.start';
 }
 
 /// Fired when the user callback of a response completes.
 class UserCallbackDoneEvent implements TraceEvent {
-  const UserCallbackDoneEvent();
+  factory UserCallbackDoneEvent() => const UserCallbackDoneEvent._private();
+
+  const UserCallbackDoneEvent._private();
 
   String toString() => 'streamy.userCallback.done';
 }
 
 /// Fired when the response [Stream] has terminated.
 class RequestOverEvent implements TraceEvent {
-  const RequestOverEvent();
+  factory RequestOverEvent() => const RequestOverEvent._private();
+
+  const RequestOverEvent._private();
 
   String toString() => 'streamy.requestOver';
 }
