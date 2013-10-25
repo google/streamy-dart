@@ -37,8 +37,8 @@ class DartHtmlHttpService implements StreamyHttpService {
       if (responseType != null) {
         bodyType = responseType.split(';')[0];
       }
-      c.complete(new StreamyHttpResponse(req.status, req.statusText,
-          req.responseText, bodyType));
+      c.complete(new StreamyHttpResponse(req.status, req.responseText,
+          bodyType));
     });
     req.onError.first.then(c.completeError);
     return c.future;

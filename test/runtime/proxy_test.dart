@@ -43,7 +43,7 @@ main() {
         result = foo;
       });
       fakeHttp.lastCompleter.complete(new StreamyHttpResponse(
-          200, 'OK', '{"id": 123}', 'application/json'));
+          200, {'content-type': 'application/json'}, '{"id": 123}'));
       fastForward();
       expect(result, isNotNull);
       expect(result.id, 123);

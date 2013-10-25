@@ -1,6 +1,6 @@
 library streamy.test;
 
-import 'http_test.dart' as http_test;
+import 'runtime/http_test.dart' as http_test;
 import 'streamy_test.dart' as streamy_test;
 import 'generated/addendum_test.dart' as addendum_test;
 import 'generated/method_get_test.dart' as method_get_test;
@@ -11,6 +11,7 @@ import 'generated/schema_object_test.dart' as schema_object_test;
 import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
 import 'generator/emitter_test.dart' as generator_emitter_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
+import 'runtime/batching_http_service_test.dart' as batching_http_service_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/error_test.dart' as runtime_error_test;
 import 'runtime/transforms_test.dart' as runtime_transforms_test;
@@ -27,6 +28,7 @@ main() {
   schema_unknown_fields_test.main();
   multiplexer_test.main();
   http_test.main();
+  batching_http_service_test.main();
   streamy_test.main();
   generator_emitter_test.main();
   runtime_multiplexer_test.main();

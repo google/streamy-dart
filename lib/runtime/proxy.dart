@@ -1,5 +1,7 @@
 part of streamy.runtime;
 
+const _CONTENT_TYPE = 'content-type';
+
 /// A [RequestHandler] that proxies through a frontend server.
 class ProxyClient extends RequestHandler {
 
@@ -12,8 +14,8 @@ class ProxyClient extends RequestHandler {
   Stream handle(Request req) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? stringify(req.payload) : null;
-    var headers = {
-      'Content-Type': 'application/json; charset=utf-8',
+    var headers = const {
+      _CONTENT_TYPE: 'application/json; charset=utf-8',
     };
     var cancelCompleter = new Completer();
     var httpReq = new StreamyHttpRequest(url, req.httpMethod, headers,
@@ -28,14 +30,14 @@ class ProxyClient extends RequestHandler {
       }
     });
 
-    httpResponseWaiter.then((resp) {
+    httpResponseWaiter.then((StreamyHttpResponse resp) {
       if (resp.statusCode != 200) {
         Map jsonError = null;
         List errors = null;
         // If the bodyType is not available, optimistically try parsing it as
         // JSON.
-        if (resp.bodyType == null ||
-            resp.bodyType.startsWith('application/json')) {
+        if (resp.headers.containsKey(_CONTENT_TYPE) == null ||
+            resp.headers[_CONTENT_TYPE].startsWith('application/json')) {
           try {
             jsonError = parse(resp.body);
             if (jsonError.containsKey('error') &&
@@ -58,54 +60,4 @@ class ProxyClient extends RequestHandler {
     });
     return c.stream;
   }
-}
-
-/// Translation of a [Request] into HTTP parts.
-class StreamyHttpRequest {
-  /// Complete request URL.
-  final String url;
-
-  /// HTTP method
-  final String method;
-
-  /// HTTP headers
-  final Map<String, String> headers;
-
-  /// Local customizations of request. These could be anything and their
-  /// interpretation is up to the implementation of the [StreamyHttpService].
-  final Map local;
-
-  /// Tells the [StreamyHttpService] that this request was cancelled by the
-  /// client so that [StreamyHttpService] could clean-up.
-  final Future onCancel;
-
-  /// Optional request payload.
-  final String payload;
-
-  StreamyHttpRequest(this.url, this.method, this.headers, this.local,
-      this.onCancel, {this.payload});
-}
-
-/// Contains raw data of a HTTP response.
-class StreamyHttpResponse {
-  /// HTTP status code, e.g. 200, 404.
-  final int statusCode;
-
-  /// Status line, e.g. "200 OK".
-  final String statusText;
-
-  /// Response body
-  final String body;
-
-  /// Response content type
-  final String bodyType;
-
-  StreamyHttpResponse(this.statusCode, this.statusText, this.body,
-      this.bodyType);
-}
-
-/// Sends raw HTTP requests to the server.
-abstract class StreamyHttpService {
-  /// Sends a raw HTTP [request] to the server.
-  Future<StreamyHttpResponse> send(StreamyHttpRequest request);
 }

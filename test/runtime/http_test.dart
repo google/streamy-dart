@@ -1,4 +1,6 @@
-import 'package:streamy/http.dart' as http;
+library streamy.runtime.http.test;
+
+import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 
 var SIMPLE_RESPONSE = [
@@ -44,35 +46,60 @@ var MULTIPART_RESPONSE = [
 main() {
   group('Http Request', () {
     test('Simple get', () {
-      var req = new http.HttpRequest('/test/url',
-          headers: {'Host': 'google.com', 'Accept-Encoding': 'utf-8'});
+      var req = new StreamyHttpRequest('/test/url', 'GET',
+          {'Host': 'google.com', 'Accept-Encoding': 'utf-8'}, {}, null);
       expect(req.toString(), equals(
-          'GET /test/url HTTP/1.1\r\nhost: google.com\r\naccept-encoding: utf-8\r\n\r\n'));
+'''GET /test/url HTTP/1.1
+host: google.com
+accept-encoding: utf-8
+
+'''.replaceAll('\n', '\r\n')));
     });
     test('Multipart request', () {
-      var req1 = new http.HttpRequest('/test/url',
-          headers: {'Host': 'google.com', 'Accept-Encoding': 'utf-8'});
-      var req2 = new http.HttpRequest('/test/another/url', method: 'POST', body: 'Hello world!',
-          headers: {'Host': 'api.google.com', 'Content-Type': 'text/plain; charset=utf-8'});
-      var req3 = new http.HttpRequest('/a/third/url', body: 'Goodbye world!',
-          headers: {'Host': 'google.com', 'Accept-Encoding': 'utf-8'});
-      var mpReq = new http.HttpRequest.multipart('/multipart/url', [req1, req2, req3],
-          method: 'PUT', headers: {'Host': 'multipart.google.com'});
+      var req1 = new StreamyHttpRequest('/test/url', 'GET',
+          {'Host': 'google.com', 'Accept-Encoding': 'utf-8'}, {}, null);
+      var req2 = new StreamyHttpRequest('/test/another/url', 'POST',
+          {
+            'Host': 'api.google.com',
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
+          {}, null, payload: 'Hello world!');
+      var req3 = new StreamyHttpRequest('/a/third/url', 'POST',
+          {'Host': 'google.com', 'Accept-Encoding': 'utf-8'},
+          {}, null, payload: 'Goodbye world!');
+      var mpReq = new StreamyHttpRequest.multipart('/multipart/url', 'PUT',
+          {'Host': 'multipart.google.com'}, null, [req1, req2, req3]);
       var cType = mpReq.headers['content-type'];
       var boundary = cType.split('=')[1];
       expect(cType.startsWith('multipart/mixed; boundary='), isTrue);
-      expect(mpReq.headers['content-length'], equals('469'));
+      expect(mpReq.headers['content-length'], equals('470'));
       expect(mpReq.headers['host'], equals('multipart.google.com'));
-      expect(mpReq.body, equals('--$boundary\r\nGET /test/url HTTP/1.1\r\nhost: google.com\r\n' +
-          'accept-encoding: utf-8\r\n\r\n--$boundary\r\nPOST /test/another/url HTTP/1.1\r\n' + 
-          'host: api.google.com\r\ncontent-type: text/plain; charset=utf-8\r\ncontent-length: 12' +
-          '\r\n\r\nHello world!\r\n--$boundary\r\nGET /a/third/url HTTP/1.1\r\nhost: google.com' + 
-          '\r\naccept-encoding: utf-8\r\ncontent-length: 14\r\n\r\nGoodbye world!\r\n'));
+      expect(mpReq.payload, equals(
+'''--$boundary
+GET /test/url HTTP/1.1
+host: google.com
+accept-encoding: utf-8
+
+--$boundary
+POST /test/another/url HTTP/1.1
+host: api.google.com
+content-type: text/plain; charset=utf-8
+content-length: 12
+
+Hello world!
+--$boundary
+POST /a/third/url HTTP/1.1
+host: google.com
+accept-encoding: utf-8
+content-length: 14
+
+Goodbye world!
+'''.replaceAll('\n', '\r\n')));
     });
   });
   group('Http Response', () {
     test('Simple response', () {
-      var hr = http.HttpResponse.parse(SIMPLE_RESPONSE);
+      var hr = StreamyHttpResponse.parse(SIMPLE_RESPONSE);
       expect(hr.statusCode, equals(200));
       expect(hr.headers.length, equals(3));
       expect(hr.headers['host'], equals('google.com'));
@@ -81,7 +108,7 @@ main() {
       expect(hr.body, equals('Hello World!'));
     });
     test('Multipart response', () {
-      var hr = http.HttpResponse.parse(MULTIPART_RESPONSE);
+      var hr = StreamyHttpResponse.parse(MULTIPART_RESPONSE);
       var parts = hr.splitMultipart();
       expect(parts[0].body, equals('Hello World!'));
       expect(parts[1].body, equals('Hello Moon!'));

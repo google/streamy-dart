@@ -12,10 +12,11 @@ homepage: https://github.com/google/streamy-dart
 environment:
   sdk: '>=0.8.1'
 dependencies:
-  mustache: ">=0.1.5"
   args: any
-  meta: any
   fixnum: ">=0.7.6"
+  json: ">=0.8.5"
+  mustache: ">=0.1.5"
+  meta: any
   observe: any
   quiver: ">=0.11.0"
 dev_dependencies:

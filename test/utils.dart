@@ -56,15 +56,23 @@ async(Function fn) =>
   try {
     _asyncErrors = [];
     runZoned(fn,
-        onError: (e) => _asyncErrors.add(e),
-        zoneSpecification: new ZoneSpecification(scheduleMicrotask:
-          (_0, _1, _2, asyncFn) => _asyncQueue.add(asyncFn)));
+        onError: (e, s) {
+          _asyncErrors.add([e, s]);
+        },
+        zoneSpecification: new ZoneSpecification(
+            scheduleMicrotask: (_0, _1, _2, fn) {
+              _asyncQueue.add(fn);
+            },
+            handleUncaughtError: (_, __, ___, e, s) {
+              _asyncErrors.add([e, s]);
+            }));
 
     _asyncErrors.forEach((e) {
-      if (e is TestFailure) {
+      if (e[0] is TestFailure) {
+        print('Stacktrace: ${e[1]}');
         throw e;
       }
-      throw "During runZoned: $e.  Stack:\n${getAttachedStackTrace(e)}";
+      throw "During runZoned: $e. Stack:\n${e[1]}";
     });
   } finally {
     _wrappedAsync = false;
