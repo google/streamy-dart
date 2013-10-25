@@ -232,6 +232,18 @@ class Multiplexer extends RequestHandler {
   }
 }
 
+class MultiplexerCacheHit implements TraceEvent {
+  const MultiplexerCacheHit();
+
+  String toString() => 'streamy.multiplexer.cache.hit';
+}
+
+class MultiplexerCacheMiss implements TraceEvent {
+  const MultiplexerCacheMiss();
+
+  String toString() => 'streamy.multiplexer.cache.miss';
+}
+
 /// A [RequestHandler] which wraps [Multiplexer] and adds a few
 /// utility methods to delegate to it.
 abstract class BaseMultiplexedRequestHandler extends RequestHandler {
