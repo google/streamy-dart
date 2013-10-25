@@ -93,7 +93,10 @@ class Multiplexer extends RequestHandler {
       .then((cached) {
         // If there actually was an entity response, send it to the client.
         if (cached != null) {
+          trace.record(new MultiplexerCacheHitEvent());
           active.submit(new Response(cached.entity, Source.CACHE, cached.ts));
+        } else {
+          trace.record(new MultiplexerCacheMissEvent());
         }
         var ts = new DateTime.now().millisecondsSinceEpoch;  // TODO: not testable
         // If we don't need to issue an rpc
@@ -125,9 +128,11 @@ class Multiplexer extends RequestHandler {
       Future pending;
       if (!_inFlightRequests.containsKey(request)) {
         var completer = new Completer();
+        trace.record(new MultiplexerRpcSendEvent());
         var sub = _delegate.handle(request, trace).listen(completer.complete)
           ..onError(completer.completeError);
         var cancel = () {
+          trace.record(new MultiplexerRpcCancelEvent());
           // The pending future will never complete.
           sub.cancel();
 
@@ -159,6 +164,7 @@ class Multiplexer extends RequestHandler {
       _activeIndex.add(request, active);
     } else {
       // Non-cachable requests generate one reply only, ever.
+      trace.record(new MultiplexerRpcSendEvent());
       _delegate.handle(request, trace).single
         .catchError((error) {
           active.sendError(error);
@@ -232,17 +238,38 @@ class Multiplexer extends RequestHandler {
   }
 }
 
-class MultiplexerCacheHit implements TraceEvent {
-  const MultiplexerCacheHit();
+class MultiplexerCacheHitEvent implements TraceEvent {
+  factory MultiplexerCacheHitEvent() => const MultiplexerCacheHitEvent._private();
+
+  const MultiplexerCacheHitEvent._private();
 
   String toString() => 'streamy.multiplexer.cache.hit';
 }
 
-class MultiplexerCacheMiss implements TraceEvent {
-  const MultiplexerCacheMiss();
+class MultiplexerCacheMissEvent implements TraceEvent {
+  factory MultiplexerCacheMissEvent() => const MultiplexerCacheMissEvent._private();
+
+  const MultiplexerCacheMissEvent._private();
 
   String toString() => 'streamy.multiplexer.cache.miss';
 }
+
+class MultiplexerRpcSendEvent implements TraceEvent {
+  factory MultiplexerRpcSendEvent() => const MultiplexerRpcSendEvent._private();
+
+  const MultiplexerRpcSendEvent._private();
+
+  String toString() => 'streamy.multiplexer.rpc.send';
+}
+
+class MultiplexerRpcCancelEvent implements TraceEvent {
+  factory MultiplexerRpcCancelEvent() => const MultiplexerRpcCancelEvent._private();
+
+  const MultiplexerRpcCancelEvent._private();
+
+  String toString() => 'streamy.multiplexer.rpc.cancel';
+}
+
 
 /// A [RequestHandler] which wraps [Multiplexer] and adds a few
 /// utility methods to delegate to it.
