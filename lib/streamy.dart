@@ -8,7 +8,6 @@ import 'package:json/json.dart';
 import 'package:meta/meta.dart';
 import 'package:observe/observe.dart';
 import 'package:quiver/collection.dart';
-import 'package:quiver/time.dart';
 
 part 'runtime/entity/base.dart';
 part 'runtime/entity/empty.dart';
