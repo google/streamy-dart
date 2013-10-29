@@ -70,20 +70,27 @@ class RetryingRequestHandler extends RequestHandler {
         // If the request/error is not retryable, or the number of retries is over the limit,
         // stop retrying.
         retry++;
-        if (!_isRetryable(request, e) || (maxRetries > 0 && retry > maxRetries)) {
+        var retryable = !_isRetryable(request, e);
+        if (retryable || (maxRetries > 0 && retry > maxRetries)) {
+          if (retryable) {
+            trace.record(new RetryMaxedOutEvent());
+          }
           // If this error can't be handled, pass it to the app and stop trying.
           output.addError(e);
           output.close();
           return;
         }
         // This request may need to be retried. Ask the retry strategy.
+        trace.record(new MaybeRetryEvent());
         strategy(request, retry, e).catchError((_) => false).then((shouldRetry) {
           if (!shouldRetry) {
+            trace.record(new RetryAbortEvent());
             // The retry handler says to give up. Pass the original error through.
             output.addError(e);
             output.close();
             return;
           }
+          trace.record(new RetryEvent());
           // Retry now!
           doRpc();
         });
@@ -102,3 +109,38 @@ class RetryingRequestHandler extends RequestHandler {
     return errorCodesToRetry.contains(e.httpStatus);
   }
 }
+
+class RetryEvent implements TraceEvent {
+
+  factory RetryEvent() => const RetryEvent._private();
+
+  const RetryEvent._private();
+
+  String toString() => 'streamy.retry.retry';
+}
+
+class MaybeRetryEvent implements TraceEvent {
+  factory MaybeRetryEvent() => const MaybeRetryEvent._private();
+
+  const MaybeRetryEvent._private();
+
+  String toString() => 'streamy.retry.maybe';
+}
+
+class RetryAbortEvent implements TraceEvent {
+  factory RetryAbortEvent() => const RetryAbortEvent._private();
+
+  const RetryAbortEvent._private();
+
+  String toString() => 'streamy.retry.abort';
+}
+
+class RetryMaxedOutEvent implements TraceEvent {
+  factory RetryMaxedOutEvent() => const RetryMaxedOutEvent._private();
+
+  const RetryMaxedOutEvent._private();
+
+  String toString() => 'streamy.retry.maxedOut';
+}
+
+

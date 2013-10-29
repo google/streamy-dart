@@ -40,7 +40,7 @@ class ProxyClient extends RequestHandler {
         }
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
-      return new Response(req.responseDeserializer(resp.body), Source.RPC,
+      return new Response(req.responseDeserializer(resp.body, trace), Source.RPC,
           clock.now().millisecondsSinceEpoch);
     }).then((value) {
       c.add(value);

@@ -2,6 +2,9 @@ part of streamy.runtime;
 
 /// A function that handles Streamy RPC requests.
 typedef Stream<Response> RequestHandlingFunction(Request request);
+typedef bool RequestPredicate(Request request);
+
+bool _alwaysTrue(Request _) => true;
 
 /// Defines interface for a request handler.
 abstract class RequestHandler {
@@ -14,9 +17,9 @@ abstract class RequestHandler {
   }
 
   Stream<Response> handle(Request request, Trace trace);
-  RequestHandler transform(transformerOrFactory) => transformerOrFactory is Function ?
-      new TransformingRequestHandler(this, transformerOrFactory) :
-      new TransformingRequestHandler(this, () => transformerOrFactory);
+  RequestHandler transform(transformerOrFactory, {RequestPredicate predicate: _alwaysTrue}) => transformerOrFactory is Function ?
+      new TransformingRequestHandler(this, transformerOrFactory, predicate) :
+      new TransformingRequestHandler(this, () => transformerOrFactory, predicate);
 }
 
 class _FunctionRequestHandler extends RequestHandler {

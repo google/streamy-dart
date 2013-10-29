@@ -51,6 +51,7 @@ class UserCallbackTracingTransformer extends EventTransformer {
 
   var _openCallbacks = 0;
   var _closed = false;
+  var _sentDone = false;
 
   UserCallbackTracingTransformer() : super();
 
@@ -60,8 +61,9 @@ class UserCallbackTracingTransformer extends EventTransformer {
     _runZonedWithOnDone(() => sink.add(response), () {
       trace.record(new UserCallbackDoneEvent());
       _openCallbacks--;
-      if (_openCallbacks == 0 && _closed) {
+      if (_openCallbacks == 0 && _closed && !_sentDone) {
         trace.record(new RequestOverEvent());
+        _sentDone = true;
       }
     });
   }
@@ -72,16 +74,26 @@ class UserCallbackTracingTransformer extends EventTransformer {
     _runZonedWithOnDone(() => sink.addError(error), () {
       trace.record(new UserCallbackDoneEvent());
       _openCallbacks--;
-      if (_openCallbacks == 0 && _closed) {
+      if (_openCallbacks == 0 && _closed && !_sentDone) {
         trace.record(new RequestOverEvent());
+        _sentDone = true;
       }
     });
   }
 
   void handleDone(EventSink<Response> sink, Trace trace) {
     _closed = true;
-    if (_openCallbacks == 0) {
+    if (_openCallbacks == 0 && !_sentDone) {
       trace.record(new RequestOverEvent());
+      _sentDone = true;
+    }
+  }
+
+  void handleCancel(Trace trace) {
+    _closed = true;
+    if (_openCallbacks == 0 && !_sentDone) {
+      trace.record(new RequestOverEvent());
+      _sentDone = true;
     }
   }
 
@@ -172,11 +184,14 @@ typedef Transformer TransformerFactory();
 class TransformingRequestHandler extends RequestHandler {
   final RequestHandler delegate;
   final TransformerFactory transformerFactory;
+  final RequestPredicate predicate;
 
-  TransformingRequestHandler(this.delegate, this.transformerFactory);
+  TransformingRequestHandler(this.delegate, this.transformerFactory, this.predicate);
 
   Stream<Response> handle(Request request, Trace trace) =>
-      transformerFactory().bind(request, delegate, trace);
+      predicate(request) ?
+          transformerFactory().bind(request, delegate, trace) :
+          delegate.handle(request, trace);
 }
 
 /// A factory method for constructing a new [StreamTransformer]. For stateless [StreamTransformer]s,

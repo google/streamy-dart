@@ -200,7 +200,10 @@ class Multiplexer extends RequestHandler {
         .catchError(active.sendError)
         .then((cached) {
           if (cached != null) {
+            trace.record(new MultiplexerCacheHitEvent());
             active.submit(new Response(cached.entity, Source.CACHE, cached.ts));
+          } else {
+            trace.record(new MultiplexerCacheMissEvent());
           }
         });
     }
