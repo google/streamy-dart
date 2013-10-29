@@ -11,7 +11,7 @@ class RawEntity extends Entity implements Map, Observable {
   RawEntity.fromMap(Map map) : super.base() {
     _data = toObservable(map);
   }
-  
+
   RawEntity.wrapMap(ObservableMap map) : super.base() {
     _data = map;
   }
@@ -170,5 +170,7 @@ class RawEntity extends Entity implements Map, Observable {
   void notifyChange(ChangeRecord record) {
     _data.notifyChange(record);
   }
+  notifyPropertyChange(Symbol field, Object oldValue, Object newValue) =>
+      _data.notifyPropertyChange(field, oldValue, newValue);
   bool get hasObservers => _data.hasObservers;
 }

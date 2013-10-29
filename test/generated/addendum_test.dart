@@ -1,7 +1,7 @@
 library streamy.generated.addendum.test;
 
 import 'dart:async';
-import 'dart:json';
+import 'package:json/json.dart';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 import 'addendum_client.dart';

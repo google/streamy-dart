@@ -2,9 +2,9 @@
 library streamy.runtime;
 
 import 'dart:async';
-import 'dart:json';
 
 import 'package:fixnum/fixnum.dart';
+import 'package:json/json.dart';
 import 'package:meta/meta.dart';
 import 'package:observe/observe.dart';
 import 'package:quiver/collection.dart';

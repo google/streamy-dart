@@ -1,7 +1,7 @@
 import 'dart:convert' as convert;
 import 'dart:io' as io;
-import 'dart:json';
 import 'package:args/args.dart';
+import 'package:json/json.dart';
 import 'package:streamy/generator.dart';
 
 /// Generates an API client from a Google API discovery file.

@@ -10,15 +10,16 @@ authors:
 - Yegor Jbanov <yjbanov@google.com>
 homepage: https://github.com/google/streamy-dart
 environment:
-  sdk: '>=0.8.1'
+  sdk: '>=0.8.7'
 dependencies:
   mustache: ">=0.1.5"
-  args: any
-  meta: any
-  fixnum: ">=0.7.6"
-  observe: any
-  quiver: ">=0.11.0"
+  args: ">=0.8.7"
+  meta: ">=0.8.7"
+  fixnum: ">=0.8.7"
+  json: ">=0.8.7"
+  observe: ">=0.8.7"
+  quiver: ">=0.12.0"
 dev_dependencies:
   path: any
   unittest: any
-  benchmark_harness: any
+  benchmark_harness: ">=0.8.7"
