@@ -3,19 +3,19 @@ library streamy.indexed_cache;
 import 'dart:async';
 import 'dart:html';
 import 'dart:indexed_db' as idb;
-import 'dart:json' as json;
+import 'package:json/json.dart' as json;
 import 'package:streamy/streamy.dart';
 
 /// A [Cache] that persists data in IndexedDB.
 /// TODO(arick): Some kind of web test for this.
 class IndexedDbCache extends Cache {
-  
+
   final idb.Database db;
   final Duration maxAge;
   var _inGc = false;
   final int gcPerCycleLimit;
   Timer _gcTimer;
-  
+
   static Future<IndexedDbCache> open({
     Duration gcCycle: const Duration(minutes: 5),
     Duration maxAge: const Duration(days: 7),
@@ -31,16 +31,16 @@ class IndexedDbCache extends Cache {
       return new IndexedDbCache._private(database, gcCycle, maxAge, gcPerCycleLimit);
     });
   }
-  
+
   IndexedDbCache._private(this.db, gcCycle, this.maxAge, this.gcPerCycleLimit) {
     if (gcCycle != null) {
       _gcTimer = new Timer.periodic(gcCycle, (_) => gc());
     }
   }
-  
+
   static void _initDb(idb.VersionChangeEvent e) {
     idb.Database db = (e.target as idb.Request).result;
-    
+
     var store = db.createObjectStore("entityCache", keyPath: "request");
     store.createIndex("ts", "ts");
   }

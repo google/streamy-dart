@@ -1,7 +1,6 @@
 library streamy.generated.method_post.test;
 
 import 'dart:async';
-import 'dart:json';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'method_post_client.dart';

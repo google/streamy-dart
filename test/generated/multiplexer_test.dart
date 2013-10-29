@@ -1,7 +1,6 @@
 library streamy.generated.multiplexer.test;
 
 import 'dart:async';
-import 'dart:json';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'multiplexer_client.dart';

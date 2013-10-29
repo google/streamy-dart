@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:json';
+import 'package:json/json.dart';
 import 'package:path/path.dart';
 import 'package:streamy/generator.dart';
 
