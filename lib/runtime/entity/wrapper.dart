@@ -81,6 +81,8 @@ abstract class EntityWrapper extends Entity implements Observable {
   void notifyChange(ChangeRecord record) {
     _observableDelegate.notifyChange(record);
   }
+  notifyPropertyChange(Symbol field, Object oldValue, Object newValue) =>
+      _observableDelegate.notifyPropertyChange(field, oldValue, newValue);
   bool get hasObservers => _observableDelegate.hasObservers;
 }
 
