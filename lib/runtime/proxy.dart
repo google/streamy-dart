@@ -6,9 +6,8 @@ class ProxyClient extends RequestHandler {
   /// The base url of the proxy.
   final String proxyUrl;
   final StreamyHttpService httpHandler;
-  final Clock clock;
 
-  ProxyClient(this.proxyUrl, this.httpHandler, {this.clock: const Clock()});
+  ProxyClient(this.proxyUrl, this.httpHandler);
 
   Stream<Response> handle(Request req, Trace trace) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
@@ -41,7 +40,7 @@ class ProxyClient extends RequestHandler {
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
       return new Response(req.responseDeserializer(resp.body, trace), Source.RPC,
-          clock.now().millisecondsSinceEpoch);
+          new DateTime.now().millisecondsSinceEpoch);
     }).then((value) {
       c.add(value);
       c.close();
