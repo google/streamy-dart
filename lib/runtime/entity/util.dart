@@ -74,7 +74,7 @@ class _ObservableImmutableListView implements ObservableList {
   void retainWhere(_) => _throw();
   void setAll(_a, _b) => _throw();
   void setRange(_a, _b, _c, [_d]) => _throw();
-  void shuffle() => _throw();
+  void shuffle([random]) => _throw();
   singleWhere(bool test(element)) => _delegate.singleWhere(test);
   Iterable skip(int count) => _delegate.skip(count);
   Iterable skipWhile(bool test(element)) => _delegate.skipWhile(test);
