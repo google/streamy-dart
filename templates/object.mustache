@@ -45,7 +45,7 @@ class {{name}} extends streamy.EntityWrapper {
   {{type}} remove{{capName}}() => this.remove('{{name}}');
 {{/properties}}
 
-  factory {{name}}.fromJsonString(String strJson,
+  factory {{name}}.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new {{name}}.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
 

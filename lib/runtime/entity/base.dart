@@ -28,9 +28,6 @@ abstract class Entity {
 
   /// Create a [RawEntity] from a [Map].
   factory Entity.fromMap(Map data) => new RawEntity.fromMap(data);
-
-  /// Access metadata exposed by Streamy about this entity.
-  StreamyEntityMetadata get streamy;
   
   /// Whether this entity is frozen (read only).
   bool get isFrozen;

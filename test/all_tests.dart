@@ -13,6 +13,7 @@ import 'generator/emitter_test.dart' as generator_emitter_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/error_test.dart' as runtime_error_test;
+import 'runtime/request_test.dart' as runtime_request_test;
 import 'runtime/transforms_test.dart' as runtime_transforms_test;
 import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 
@@ -31,6 +32,7 @@ main() {
   runtime_multiplexer_test.main();
   runtime_branching_test.main();
   runtime_error_test.main();
+  runtime_request_test.main();
   runtime_transforms_test.main();
   runtime_entity_wrapper_test.main();
 }

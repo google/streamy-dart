@@ -24,22 +24,12 @@ class RawEntity extends Entity implements Map, Observable {
   /// Actual fields of the Apiary entity.
   ObservableMap _data;
 
-  StreamyEntityMetadata _streamy;
-
   int get length => _data.length;
 
   void _freeze() {
     _frozen = true;
     _local = null;
     _freezeHelper(_data);
-  }
-
-  /// Metadata about this entity.
-  StreamyEntityMetadata get streamy {
-    if (_streamy == null) {
-      _streamy = new StreamyEntityMetadata._private();
-    }
-    return _streamy;
   }
 
   ObservableMap<String, dynamic> _local;
@@ -61,10 +51,6 @@ class RawEntity extends Entity implements Map, Observable {
   /// Merge fields from an input map.
   _cloneFrom(RawEntity input) {
     _data = _clone(input._data);
-    if (input.streamy != null) {
-      _streamy = new StreamyEntityMetadata._private()
-        .._mergeFrom(input.streamy);
-    }
   }
 
   /// Data field getter.

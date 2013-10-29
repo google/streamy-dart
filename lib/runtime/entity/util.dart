@@ -219,14 +219,13 @@ class _ErrorEntity implements Entity {
   get local => throw "Not implemented";
   get fieldNames => throw "Not implemented";
   get streamyType => throw "Not implemented";
-  get streamy => throw "Not implemented";
 
   bool equals(Object other) => other is _ErrorEntity;
   int get hashCode => "error".hashCode;
   toString() => "Internal Streamy sentinel value - should not be exposed.";
 }
 
-const _INTERNAL_ERROR = const _ErrorEntity();
+const _INTERNAL_ERROR = const Response(null, Source.ERROR, 0);
 
 /// Walk a map-like structure through a list of keys, beginning with an initial value.
 _walk(initial, pieces) => pieces.fold(initial,

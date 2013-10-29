@@ -85,7 +85,7 @@ class Foo extends streamy.EntityWrapper {
     this['corge'] = value;
   }
   List<int> removeCorge() => this.remove('corge');
-  factory Foo.fromJsonString(String strJson,
+  factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -175,7 +175,7 @@ class Bar extends streamy.EntityWrapper {
     this['foos'] = value;
   }
   List<Foo> removeFoos() => this.remove('foos');
-  factory Bar.fromJsonString(String strJson,
+  factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -217,8 +217,9 @@ class Bar extends streamy.EntityWrapper {
 
 class SchemaObjectTest extends streamy.Root {
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer tracer;
   final String servicePath;
   SchemaObjectTest(this.requestHandler, {this.servicePath: 'schemaObjectTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
+  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

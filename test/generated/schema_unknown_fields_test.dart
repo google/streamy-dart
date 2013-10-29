@@ -19,7 +19,7 @@ main() {
             "baz": "buzz",
             "hello": "world"
           }
-          ''');
+          ''', const NoopTrace());
       // Known field
       expect(reflectClass(Foo).getters.containsKey(new Symbol('baz')), isTrue);
       expect(foo.baz, equals('buzz'));
@@ -37,7 +37,7 @@ main() {
               "baz": "buzz"
             }
           }
-          ''', typeRegistry: reg);
+          ''', const NoopTrace(), typeRegistry: reg);
       var foo = bar['foo'];
       expect(foo, new isInstanceOf<Foo>());
       expect(foo.baz, equals('buzz'));
@@ -57,7 +57,7 @@ main() {
               }
             ]
           }
-          ''', typeRegistry: reg);
+          ''', const NoopTrace(), typeRegistry: reg);
       var foos = bar['foos'];
       expect(foos, new isInstanceOf<List>());
       expect(foos.length, equals(2));
@@ -78,7 +78,7 @@ main() {
               }
             }
           }
-          ''', typeRegistry: reg);
+          ''', const NoopTrace(), typeRegistry: reg);
       var unknown = bar['unknown'];
       expect(unknown, new isInstanceOf<Entity>());
       expect(unknown['car'], equals('tesla'));

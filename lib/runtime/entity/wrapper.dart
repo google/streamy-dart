@@ -29,8 +29,6 @@ abstract class EntityWrapper extends Entity implements Observable {
     return _delegate;
   }
 
-  StreamyEntityMetadata get streamy => _delegate.streamy;
-
   /// Subclasses should override [clone] to return an instance of the
   /// appropriate type. Note: failure to override [clone] when extending
   /// a subclass of [EntityWrapper] can result in broken behavior.

@@ -40,7 +40,7 @@ class Foo extends streamy.EntityWrapper {
     this['baz'] = value;
   }
   String removeBaz() => this.remove('baz');
-  factory Foo.fromJsonString(String strJson,
+  factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -96,7 +96,7 @@ class Bar extends streamy.EntityWrapper {
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned), globals: _globals);
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
-  factory Bar.fromJsonString(String strJson,
+  factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -130,8 +130,9 @@ class Bar extends streamy.EntityWrapper {
 
 class SchemaUnknownFieldsTest extends streamy.Root {
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer tracer;
   final String servicePath;
   SchemaUnknownFieldsTest(this.requestHandler, {this.servicePath: 'schemaUnknownFieldsTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
+  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }
