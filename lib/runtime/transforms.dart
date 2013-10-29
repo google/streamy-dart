@@ -65,7 +65,7 @@ class UserCallbackTracingTransformer extends EventTransformer {
         trace.record(new RequestOverEvent());
         _sentDone = true;
       }
-    });
+    }, trace);
   }
 
   void handleError(error, EventSink<Response> sink, Trace trace) {
@@ -78,7 +78,7 @@ class UserCallbackTracingTransformer extends EventTransformer {
         trace.record(new RequestOverEvent());
         _sentDone = true;
       }
-    });
+    }, trace);
   }
 
   void handleDone(EventSink<Response> sink, Trace trace) {
@@ -116,6 +116,22 @@ class UserCallbackDoneEvent implements TraceEvent {
   const UserCallbackDoneEvent._private();
 
   String toString() => 'streamy.userCallback.done';
+}
+
+class UserCallbackAsyncEnterEvent implements TraceEvent {
+  factory UserCallbackAsyncEnterEvent() => const UserCallbackAsyncEnterEvent._private();
+
+  const UserCallbackAsyncEnterEvent._private();
+
+  String toString() => 'streamy.userCallback.async.start';
+}
+
+class UserCallbackAsyncExitEvent implements TraceEvent {
+  factory UserCallbackAsyncExitEvent() => const UserCallbackAsyncExitEvent._private();
+
+  const UserCallbackAsyncExitEvent._private();
+
+  String toString() => 'streamy.userCallback.async.done';
 }
 
 /// Fired when the response [Stream] has terminated.
@@ -209,7 +225,7 @@ class DartAsyncTransformRequestHandler extends RequestHandler {
     delegate.handle(request).transform(transformerFactory(request, trace));
 }
 
-_runZonedWithOnDone(fn, onDone) {
+_runZonedWithOnDone(fn, onDone, trace) {
   // Initial count is 1 due to running 'fn'. This makes it work out
   // nicely if 'fn' itself throws an Exception.
   var asyncCount = 1;
@@ -225,9 +241,11 @@ _runZonedWithOnDone(fn, onDone) {
   }, onRunAsync: (callback) {
     asyncCount++;
     runAsync(() {
+      trace.record(new UserCallbackAsyncEnterEvent());
       try {
         callback();
       } finally {
+        trace.record(new UserCallbackAsyncExitEvent());
         asyncCount--;
         if (asyncCount == 0) {
           onDone();
