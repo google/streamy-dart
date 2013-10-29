@@ -118,6 +118,7 @@ class UserCallbackDoneEvent implements TraceEvent {
   String toString() => 'streamy.userCallback.done';
 }
 
+/// Fired at the beginning of an asynchronous operation that happens during a user callback.
 class UserCallbackAsyncEnterEvent implements TraceEvent {
   factory UserCallbackAsyncEnterEvent() => const UserCallbackAsyncEnterEvent._private();
 
@@ -126,6 +127,7 @@ class UserCallbackAsyncEnterEvent implements TraceEvent {
   String toString() => 'streamy.userCallback.async.start';
 }
 
+// Fired at the end of an asynchronous operation that happens during a user callback.
 class UserCallbackAsyncExitEvent implements TraceEvent {
   factory UserCallbackAsyncExitEvent() => const UserCallbackAsyncExitEvent._private();
 

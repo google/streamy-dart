@@ -48,10 +48,10 @@ class {{name}} extends streamy.Request {
   }
   {{/hasSendParams}}
 
-  {{^hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> send() =>
+  {{^hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send() =>
       _sendDirect().map((response) => response.entity);{{/hasSendParams}}
 
-  {{#hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> send({
+  {{#hasSendParams}}Stream{{#hasResponse}}<{{responseType}}>{{/hasResponse}} send({
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}
