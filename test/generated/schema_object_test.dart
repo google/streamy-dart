@@ -1,7 +1,8 @@
 library streamy.generated.schema_object.test;
 
-import 'dart:json';
+import 'dart:async';
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:json/json.dart';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
@@ -49,12 +50,12 @@ main() {
     });
     test('SerializeListToJson', () {
       var bar = new Bar()..foos = [new Foo()..id = 321];
-      bar = new Bar.fromJsonString(stringify(bar.toJson()));
+      bar = new Bar.fromJsonString(stringify(bar.toJson()), const streamy.NoopTrace());
       expect(bar.foos.length, equals(1));
       expect(bar.foos[0].id, equals(321));
     });
     test('DeserializeMissingListToNull', () {
-      var bar = new Bar.fromJsonString('{}');
+      var bar = new Bar.fromJsonString('{}', const streamy.NoopTrace());
       expect(bar.foos, isNull);
     });
     test('List of doubles works properly', () {
@@ -199,7 +200,7 @@ main() {
       foo.local.remove('hello');
     });
     test('lists are observable', () {
-      var bar = new Bar.fromJsonString('{"foos": [{}]}');
+      var bar = new Bar.fromJsonString('{"foos": [{}]}', const streamy.NoopTrace());
       expect(bar.foos, new isInstanceOf<ObservableList>());
     });
     test('lists become observable via setter', () {
@@ -223,29 +224,82 @@ main() {
   group('.global', () {
     var foo;
     var foo2;
+    var exDep;
+    var exDepCancel;
     setUp(() {
       foo = new Foo()..id = 1;
       foo2 = new Foo()..id = 2;
+      idFn(foo) => 'Id #${foo.id}';
+      Foo.addGlobal('idStr', idFn);
+      exDepCancel = new Completer();
+      exDep = new StreamController.broadcast(onCancel: exDepCancel.complete);
+      Foo.addGlobal('idStrMemo', idFn, memoize: true);
+      Foo.addGlobal('depStr', idFn, dependencies: ['id']);
+      // The clause here is used to test that 'foo' is the entity in question.
+      Foo.addGlobal('depStr2', idFn, dependencies: [(foo) => exDep.stream.where((v) => v == foo.id)]);
+      Foo.addGlobal('depStr3', idFn, dependencies: ['id', (foo) => exDep.stream.where((v) => v == foo.id)]);
     });
     test('Simple global', () {
-      Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}');
-      expect(foo['global.idStr'], equals('Id #1'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStr'], equals('Id #1'));
+      expect(foo2.global['idStr'], equals('Id #2'));
       foo.id = 3;
-      expect(foo['global.idStr'], equals('Id #3'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStr'], equals('Id #3'));
+      expect(foo2.global['idStr'], equals('Id #2'));
     });
     test('Memoized global', () {
-      Foo.addGlobal('idStr', (foo) => 'Id #${foo.id}', memoize: true);
-      expect(foo['global.idStr'], equals('Id #1'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStrMemo'], equals('Id #1'));
+      expect(foo2.global['idStrMemo'], equals('Id #2'));
       foo.id = 3;
       foo2.id = 4;
-      expect(foo['global.idStr'], equals('Id #1'));
-      expect(foo2['global.idStr'], equals('Id #2'));
+      expect(foo.global['idStrMemo'], equals('Id #1'));
+      expect(foo2.global['idStrMemo'], equals('Id #2'));
     });
     test('Persists through cloning', () {
-      expect(foo.clone()['global.idStr'], equals('Id #1'));
+      expect(foo.clone().global['idStr'], equals('Id #1'));
+    });
+    test('Works via dot-property access', () {
+      expect(foo['global.idStr'], equals('Id #1'));
+    });
+    test('Does not crash on RawEntity', () {
+      expect(new streamy.RawEntity().global['foo'], isNull);
+    });
+    test('Observation with no dependencies', () {
+      foo.global.changes.listen(expectAsync1((_) {}, count: 0));
+    });
+    test('Observation with a property dependency', () {
+      foo.global.changes.listen(expectAsync1((changes) {
+        expect(changes.map((c) => c.key), contains('depStr'));
+        expect(foo.global['depStr'], 'Id #3');
+      }, count: 1));
+      foo.id = 3;
+    });
+    test('Observation with an external dependency', () {
+      var sub;
+      sub = foo.global.changes.listen(expectAsync1((changes) {
+        expect(changes.map((c) => c.key), contains('depStr2'));
+        sub.cancel();
+      }, count: 1));
+      exDepCancel.future.whenComplete(expectAsync0(() {}, count: 1));
+      exDep.add(foo.id);
+    });
+    test('Observation with both internal and external dependencies', () {
+      var sub;
+      sub = foo.global.changes.listen(expectAsync1((changes) {
+        expect(changes.map((c) => c.key), contains('depStr3'));
+        expect(foo.global['depStr3'], 'Id #1');
+        var sub2;
+        sub2 = foo.global.changes.listen(expectAsync1((changes) {
+          expect(changes.map((c) => c.key), contains('depStr3'));
+          expect(foo.global['depStr3'], 'Id #3');
+          sub2.cancel();
+        }, count: 1));
+        sub.cancel();
+        foo.id = 3;
+      }, count: 1));
+      exDepCancel.future.whenComplete(expectAsync0(() {
+        expect(foo.id, 3);
+      }, count: 1));
+      exDep.add(foo.id);
     });
   });
 }

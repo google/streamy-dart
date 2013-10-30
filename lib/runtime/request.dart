@@ -1,7 +1,10 @@
 part of streamy.runtime;
 
 /// A function that handles Streamy RPC requests.
-typedef Stream RequestHandlingFunction(Request);
+typedef Stream<Response> RequestHandlingFunction(Request request);
+typedef bool RequestPredicate(Request request);
+
+bool _alwaysTrue(Request _) => true;
 
 /// Defines interface for a request handler.
 abstract class RequestHandler {
@@ -13,9 +16,10 @@ abstract class RequestHandler {
     return new _FunctionRequestHandler(func);
   }
 
-  Stream handle(Request request);
-  RequestHandler transformResponses(RequestStreamTransformer transformer)
-      => new TransformingRequestHandler(this, transformer);
+  Stream<Response> handle(Request request, Trace trace);
+  RequestHandler transform(transformerOrFactory, {RequestPredicate predicate: _alwaysTrue}) => transformerOrFactory is Function ?
+      new TransformingRequestHandler(this, transformerOrFactory, predicate) :
+      new TransformingRequestHandler(this, () => transformerOrFactory, predicate);
 }
 
 class _FunctionRequestHandler extends RequestHandler {
@@ -23,7 +27,7 @@ class _FunctionRequestHandler extends RequestHandler {
 
   _FunctionRequestHandler(RequestHandlingFunction this._func);
 
-  Stream handle(Request request) => _func(request);
+  Stream<Response> handle(Request request, Trace trace) => _func(request);
 }
 
 /// The root object representing an entire API, which makes its resources
@@ -36,8 +40,11 @@ abstract class Root {
 
   Root(this.typeRegistry, this.servicePath);
 
+  // Type name as defined in the API.
+  String get apiType => 'Root';
+
   /// Execute a [Request] and return a [Stream] of the results.
-  Stream send(Request req);
+  Stream<Response> send(Request req);
 }
 
 /// Implementations of this interface provide concrete implementation of a
@@ -72,6 +79,9 @@ RegExp pathRegex = new RegExp(r'(\{[^\}]+\})');
 
 /// An HTTP request described by the API.
 abstract class Request {
+
+  /// Type name as defined in the API.
+  String get apiType => 'Request';
 
   /// The root object from the API which generated this request.
   final Root root;
@@ -294,15 +304,15 @@ class _BranchingRequestHandler extends RequestHandler {
 
   _BranchingRequestHandler(this._delegate, this._typeMap);
 
-  Stream handle(Request request) {
+  Stream handle(Request request, Trace trace) {
     if (!_typeMap.containsKey(request.runtimeType)) {
-      return _delegate.handle(request);
+      return _delegate.handle(request, trace);
     }
     for (var branch in _typeMap[request.runtimeType]) {
       if (branch.predicate == null || branch.predicate(request)) {
-        return branch.handler.handle(request);
+        return branch.handler.handle(request, trace);
       }
     }
-    return _delegate.handle(request);
+    return _delegate.handle(request, trace);
   }
 }

@@ -9,14 +9,14 @@ abstract class EntityWrapper extends Entity implements Observable {
   /// A function which clones the subclass of this [EntityWrapper].
   final EntityWrapperCloneFn _clone;
 
-  final Map<String, EntityGlobalFn> _globals;
+  final Map<String, GlobalRegistration> _globals;
 
   static const _GLOBAL_PREFIX = 'global.';
 
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, EntityGlobalFn> globals: const <String, EntityGlobalFn>{} }) : super.base(), _globals = globals;
+  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, GlobalRegistration> globals: const <String, GlobalRegistration>{} }) : super.base(), _globals = globals;
 
   /// Get the root entity for this wrapper. Wrappers can compose other wrappers,
   /// so this will follow that chain until the root [Entity] is discovered.
@@ -29,7 +29,14 @@ abstract class EntityWrapper extends Entity implements Observable {
     return _delegate;
   }
 
-  StreamyEntityMetadata get streamy => _delegate.streamy;
+  GlobalView _globalView;
+
+  GlobalView get global {
+    if (_globalView == null) {
+      _globalView = new GlobalView(this, _globals);
+    }
+    return _globalView;
+  }
 
   /// Subclasses should override [clone] to return an instance of the
   /// appropriate type. Note: failure to override [clone] when extending
@@ -49,11 +56,9 @@ abstract class EntityWrapper extends Entity implements Observable {
   dynamic operator[](String key) {
     if (key.startsWith(_GLOBAL_PREFIX)) {
       var property = key.substring(_GLOBAL_PREFIX.length);
-      if (_globals.containsKey(property)) {
-        return _globals[property](this);
-      } else {
-        return null;
-      }
+      return global[property];
+    } else if (key == 'global') {
+      return global;
     }
     return _delegate[key];
   }
@@ -81,6 +86,8 @@ abstract class EntityWrapper extends Entity implements Observable {
   void notifyChange(ChangeRecord record) {
     _observableDelegate.notifyChange(record);
   }
+  notifyPropertyChange(Symbol field, Object oldValue, Object newValue) =>
+      _observableDelegate.notifyPropertyChange(field, oldValue, newValue);
   bool get hasObservers => _observableDelegate.hasObservers;
 }
 

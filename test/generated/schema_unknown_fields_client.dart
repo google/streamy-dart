@@ -13,18 +13,23 @@ import 'package:observe/observe.dart' as obs;
 typedef dynamic FooGlobalFn(Foo entity);
 
 class Foo extends streamy.EntityWrapper {
-  static final Map<String, dynamic> _globals = <String, dynamic>{};
+  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'baz',
   ]);
   static final String KIND = """type#foo""";
+  String get apiType => 'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
-  static void addGlobal(String name, FooGlobalFn computeFn, {memoize: false}) {
+  static void addGlobal(String name, FooGlobalFn computeFn,
+      {bool memoize: false, List dependencies: null}) {
     if (memoize) {
-      _globals[name] = streamy.memoizeGlobalFn(computeFn);
+      if (dependencies != null) {
+        throw new ArgumentError('Memoized function should not have dependencies.');
+      }
+      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
     } else {
-      _globals[name] = computeFn;
+      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
     }
   }
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
@@ -40,7 +45,7 @@ class Foo extends streamy.EntityWrapper {
     this['baz'] = value;
   }
   String removeBaz() => this.remove('baz');
-  factory Foo.fromJsonString(String strJson,
+  factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -77,17 +82,22 @@ class Foo extends streamy.EntityWrapper {
 typedef dynamic BarGlobalFn(Bar entity);
 
 class Bar extends streamy.EntityWrapper {
-  static final Map<String, dynamic> _globals = <String, dynamic>{};
+  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
   static final String KIND = """type#bar""";
+  String get apiType => 'Bar';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
-  static void addGlobal(String name, BarGlobalFn computeFn, {memoize: false}) {
+  static void addGlobal(String name, BarGlobalFn computeFn,
+      {bool memoize: false, List dependencies: null}) {
     if (memoize) {
-      _globals[name] = streamy.memoizeGlobalFn(computeFn);
+      if (dependencies != null) {
+        throw new ArgumentError('Memoized function should not have dependencies.');
+      }
+      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
     } else {
-      _globals[name] = computeFn;
+      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
     }
   }
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned), globals: _globals);
@@ -96,7 +106,7 @@ class Bar extends streamy.EntityWrapper {
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned), globals: _globals);
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
-  factory Bar.fromJsonString(String strJson,
+  factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -134,18 +144,23 @@ abstract class SchemaUnknownFieldsTestResourcesMixin {
 class SchemaUnknownFieldsTest
     extends streamy.Root
     with SchemaUnknownFieldsTestResourcesMixin {
+  String get apiType => 'SchemaUnknownFieldsTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer _tracer;
   SchemaUnknownFieldsTest(
       this.requestHandler,
       {String servicePath: 'schemaUnknownFieldsTest/v1/',
       streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
-      streamy.TransactionStrategy txStrategy: null}) :
+      streamy.TransactionStrategy txStrategy: null,
+      Tracer tracer: const streamy.NoopTracer()}) :
           super(typeRegistry, servicePath),
-          this._txStrategy = txStrategy;
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+          this._txStrategy = txStrategy,
+          this._tracer = tracer;
+  Stream send(streamy.Request request) =>
+      requestHandler.handle(request, _tracer.trace(request));
   SchemaUnknownFieldsTestTransaction beginTransaction() =>
-      new SchemaUnknownFieldsTestTransaction(typeRegistry, servicePath,
+      new SchemaUnknownFieldsTestTransaction(typeRegistry, servicePath, _tracer,
           _txStrategy.beginTransaction());
 }
 
@@ -154,6 +169,7 @@ class SchemaUnknownFieldsTest
 class SchemaUnknownFieldsTestTransaction
     extends streamy.TransactionRoot
     with SchemaUnknownFieldsTestResourcesMixin {
+  String get apiType => 'SchemaUnknownFieldsTestTransaction';
   SchemaUnknownFieldsTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

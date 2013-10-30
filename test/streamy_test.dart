@@ -83,51 +83,55 @@ main() {
   });
   group('EntityDedupTransformer', () {
     test('properly dedups', () {
-      var a = new RawEntity()
-        ..['id'] = 'foo';
-      var b = new RawEntity()
-        ..['id'] = 'foo';
-      var eStream = new Stream.fromIterable([a, b]);
-      eStream
-        .transform(new EntityDedupTransformer())
+      var a = new Response(new RawEntity()
+        ..['id'] = 'foo', Source.RPC, 0);
+      var b = new Response(new RawEntity()
+        ..['id'] = 'foo', Source.RPC, 0);
+      (testRequestHandler()..values([a, b]))
+        .build()
+        .transform(() => new EntityDedupTransformer())
+        .handle(new TestRequest('GET'), const NoopTrace())
         .single
         .then(expectAsync1((e) {
-          expect(Entity.deepEquals(e, a), equals(true));
-          expect(Entity.deepEquals(e, b), equals(true));
+          expect(Entity.deepEquals(e.entity, a.entity), isTrue);
+          expect(Entity.deepEquals(e.entity, b.entity), isTrue);
         }));
     });
   });
   group('OneShotRequestTransformer', () {
-    var a = new RawEntity()
+    var a = new Response(new RawEntity()
       ..['id'] = 'foo'
-      ..['seq'] = 1
-      ..streamy.source = 'CACHE';
-    var b = new RawEntity()
+      ..['seq'] = 1, Source.CACHE, 0);
+    var b = new Response(new RawEntity()
       ..['id'] = 'foo'
-      ..['seq'] = 2
-      ..streamy.source = 'RPC';
-    var c = new RawEntity()
+      ..['seq'] = 2, Source.RPC, 0);
+    var c = new Response(new RawEntity()
       ..['id'] = 'foo'
-      ..['seq'] = 3
-      ..streamy.source = 'UPDATE';
+      ..['seq'] = 3, Source.RPC, 0);
     var rpcOnly;
     var cacheAndRpc;
     setUp(() {
-      rpcOnly = new Stream.fromIterable([b, c]);
-      cacheAndRpc = new Stream.fromIterable([a, b, c]);
+      rpcOnly = (testRequestHandler()
+        ..values([b, c]))
+        .build();
+      cacheAndRpc = (testRequestHandler()
+        ..values([a, b, c]))
+        .build();
     });
     test('handles one RPC response correctly', () {
       var onlyResponse = rpcOnly
-        .transform(new OneShotRequestTransformer())
+        .transform(() => const OneShotRequestTransformer())
+        .handle(new TestRequest('GET'), const NoopTrace())
         .single;
-      asyncExpect(onlyResponse.then((e) => e.streamy.source), equals('RPC'));
+      asyncExpect(onlyResponse.then((e) => e.source), equals('RPC'));
     });
     test('handles multiple responses correctly', () {
       var stream = cacheAndRpc
-        .transform(new OneShotRequestTransformer())
+        .transform(() => const OneShotRequestTransformer())
+        .handle(new TestRequest('GET'), const NoopTrace())
         .asBroadcastStream();
-      asyncExpect(stream.first.then((e) => e.streamy.source), equals('CACHE'));
-      asyncExpect(stream.last.then((e) => e.streamy.source), equals('RPC'));
+      asyncExpect(stream.first.then((e) => e.source), equals('CACHE'));
+      asyncExpect(stream.last.then((e) => e.source), equals('RPC'));
       asyncExpect(stream.length, equals(2));
     });
   });

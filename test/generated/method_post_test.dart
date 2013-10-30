@@ -1,7 +1,6 @@
 library streamy.generated.method_post.test;
 
 import 'dart:async';
-import 'dart:json';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'method_post_client.dart';
@@ -34,8 +33,8 @@ main() {
       var subject = new MethodPostTest(new ImmediateRequestHander());
       var testReq = subject.foos.update(foo)
         ..id = 123;
-      testReq.send().single.then(expectAsync1((Object v) {
-        expect(v, equals('test'));
+      testReq.send().single.then(expectAsync1((e) {
+        expect(e.bar, equals('test'));
       }, count: 1));
     });
     test('Prepopulates id from payload', () {
@@ -46,5 +45,5 @@ main() {
 }
 
 class ImmediateRequestHander extends RequestHandler {
-  Stream<Foo> handle(Request request) => new Stream.fromIterable(['test']);
+  Stream<Response> handle(Request request, Trace trace) => new Stream.fromIterable([new Response(new Foo()..bar = 'test', Source.RPC, 0)]);
 }

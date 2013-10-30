@@ -7,7 +7,7 @@ abstract class {{topLevelClassName}}ResourcesMixin {
       _{{name}} = new {{type}}(this);
     }
     return _{{name}};
-  }   
+  }
 {{/resources}}
 }
 
@@ -17,21 +17,26 @@ class {{topLevelClassName}}
     extends streamy.Root
     with {{topLevelClassName}}ResourcesMixin {
 
+  String get apiType => '{{discoveryName}}';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer _tracer;
 
   {{topLevelClassName}}(
       this.requestHandler,
       {String servicePath: '{{servicePath}}',
       streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
-      streamy.TransactionStrategy txStrategy: null}) :
+      streamy.TransactionStrategy txStrategy: null,
+      Tracer tracer: const streamy.NoopTracer()}) :
           super(typeRegistry, servicePath),
-          this._txStrategy = txStrategy;
+          this._txStrategy = txStrategy,
+          this._tracer = tracer;
 
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+  Stream send(streamy.Request request) =>
+      requestHandler.handle(request, _tracer.trace(request));
 
   {{topLevelClassName}}Transaction beginTransaction() =>
-      new {{topLevelClassName}}Transaction(typeRegistry, servicePath,
+      new {{topLevelClassName}}Transaction(typeRegistry, servicePath, _tracer,
           _txStrategy.beginTransaction());
 }
 
@@ -40,6 +45,8 @@ class {{topLevelClassName}}
 class {{topLevelClassName}}Transaction
     extends streamy.TransactionRoot
     with {{topLevelClassName}}ResourcesMixin {
+
+  String get apiType => '{{discoveryName}}Transaction';
 
   {{topLevelClassName}}Transaction(
       streamy.TypeRegistry typeRegistry,

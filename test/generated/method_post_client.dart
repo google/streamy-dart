@@ -13,18 +13,23 @@ import 'package:observe/observe.dart' as obs;
 typedef dynamic FooGlobalFn(Foo entity);
 
 class Foo extends streamy.EntityWrapper {
-  static final Map<String, dynamic> _globals = <String, dynamic>{};
+  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'id',
     'bar',
   ]);
+  String get apiType => 'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
-  static void addGlobal(String name, FooGlobalFn computeFn, {memoize: false}) {
+  static void addGlobal(String name, FooGlobalFn computeFn,
+      {bool memoize: false, List dependencies: null}) {
     if (memoize) {
-      _globals[name] = streamy.memoizeGlobalFn(computeFn);
+      if (dependencies != null) {
+        throw new ArgumentError('Memoized function should not have dependencies.');
+      }
+      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
     } else {
-      _globals[name] = computeFn;
+      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
     }
   }
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
@@ -47,7 +52,7 @@ class Foo extends streamy.EntityWrapper {
     this['bar'] = value;
   }
   String removeBar() => this.remove('bar');
-  factory Foo.fromJsonString(String strJson,
+  factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -86,6 +91,7 @@ class FoosUpdateRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosUpdateRequest';
   Foo get payload => streamy.internalGetPayload(this);
   String get httpMethod => 'POST';
   String get pathFormat => 'foos/{id}';
@@ -101,12 +107,15 @@ class FoosUpdateRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
+  Stream<Response> _sendDirect() => this.root.send(this);
+  Stream<Response> sendRaw() =>
+      _sendDirect();
   Stream send() =>
-      this.root.send(this);
+      _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
       new streamy.EmptyEntity();
 }
 
@@ -115,6 +124,7 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = [
     'update',
   ];
+  String get apiType => 'FoosResource';
   FoosResource(this._root);
 
   /// Updates a foo
@@ -131,24 +141,29 @@ abstract class MethodPostTestResourcesMixin {
       _foos = new FoosResource(this);
     }
     return _foos;
-  }   
+  }
 }
 
 class MethodPostTest
     extends streamy.Root
     with MethodPostTestResourcesMixin {
+  String get apiType => 'MethodPostTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer _tracer;
   MethodPostTest(
       this.requestHandler,
       {String servicePath: 'postTest/v1/',
       streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
-      streamy.TransactionStrategy txStrategy: null}) :
+      streamy.TransactionStrategy txStrategy: null,
+      Tracer tracer: const streamy.NoopTracer()}) :
           super(typeRegistry, servicePath),
-          this._txStrategy = txStrategy;
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+          this._txStrategy = txStrategy,
+          this._tracer = tracer;
+  Stream send(streamy.Request request) =>
+      requestHandler.handle(request, _tracer.trace(request));
   MethodPostTestTransaction beginTransaction() =>
-      new MethodPostTestTransaction(typeRegistry, servicePath,
+      new MethodPostTestTransaction(typeRegistry, servicePath, _tracer,
           _txStrategy.beginTransaction());
 }
 
@@ -157,6 +172,7 @@ class MethodPostTest
 class MethodPostTestTransaction
     extends streamy.TransactionRoot
     with MethodPostTestResourcesMixin {
+  String get apiType => 'MethodPostTestTransaction';
   MethodPostTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

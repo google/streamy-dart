@@ -31,7 +31,7 @@ class _TestRequestHandler extends RequestHandler {
 
   _TestRequestHandler._private();
 
-  Stream handle(Request request) {
+  Stream handle(Request request, Trace trace) {
     if (_index >= _responses.length) {
       fail('Too many requests. Expected: ${_responses.length} requests but ' +
           'got ${_index + 1} requests');
@@ -168,4 +168,15 @@ class TestHttpService implements StreamyHttpService {
       f();
     });
   }
+}
+
+class TestingRoot extends Root {
+
+  final RequestHandler delegate;
+  final Tracer tracer;
+
+  TestingRoot(this.delegate, this.tracer) : super(EMPTY_REGISTRY, '/test');
+
+  Stream<Response> send(Request request) =>
+    delegate.handle(request, tracer.trace(request));
 }

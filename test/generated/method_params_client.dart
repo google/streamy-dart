@@ -18,6 +18,7 @@ class FoosGetRequest extends streamy.Request {
     'param2',
     'param3',
   ];
+  String get apiType => 'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{barId}/{fooId}';
   bool get hasPayload => false;
@@ -61,12 +62,15 @@ class FoosGetRequest extends streamy.Request {
     parameters['param3'] = value;
   }
   List<String> removeParam3() => parameters.remove('param3');
+  Stream<Response> _sendDirect() => this.root.send(this);
+  Stream<Response> sendRaw() =>
+      _sendDirect();
   Stream send() =>
-      this.root.send(this);
+      _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
       new streamy.EmptyEntity();
 }
 
@@ -75,6 +79,7 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = [
     'get',
   ];
+  String get apiType => 'FoosResource';
   FoosResource(this._root);
 
   /// Gets a foo
@@ -97,24 +102,29 @@ abstract class MethodParamsTestResourcesMixin {
       _foos = new FoosResource(this);
     }
     return _foos;
-  }   
+  }
 }
 
 class MethodParamsTest
     extends streamy.Root
     with MethodParamsTestResourcesMixin {
+  String get apiType => 'MethodParamsTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer _tracer;
   MethodParamsTest(
       this.requestHandler,
       {String servicePath: 'paramsTest/v1/',
       streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
-      streamy.TransactionStrategy txStrategy: null}) :
+      streamy.TransactionStrategy txStrategy: null,
+      Tracer tracer: const streamy.NoopTracer()}) :
           super(typeRegistry, servicePath),
-          this._txStrategy = txStrategy;
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+          this._txStrategy = txStrategy,
+          this._tracer = tracer;
+  Stream send(streamy.Request request) =>
+      requestHandler.handle(request, _tracer.trace(request));
   MethodParamsTestTransaction beginTransaction() =>
-      new MethodParamsTestTransaction(typeRegistry, servicePath,
+      new MethodParamsTestTransaction(typeRegistry, servicePath, _tracer,
           _txStrategy.beginTransaction());
 }
 
@@ -123,6 +133,7 @@ class MethodParamsTest
 class MethodParamsTestTransaction
     extends streamy.TransactionRoot
     with MethodParamsTestResourcesMixin {
+  String get apiType => 'MethodParamsTestTransaction';
   MethodParamsTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,
