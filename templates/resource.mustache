@@ -7,6 +7,8 @@ class {{capName}}Resource {
 {{#methods}}    '{{name}}',
 {{/methods}}  ];
 
+  String get apiType => '{{capName}}Resource';
+
   {{capName}}Resource(this._root);
 
 {{#methods}}

@@ -2,6 +2,9 @@
 {{#docs}}/// {{.}}
 {{/docs}}
 class {{topLevelClassName}} extends streamy.Root {
+
+  String get apiType => '{{discoveryName}}';
+
 {{#resources}}
   {{type}} _{{name}};
   {{type}} get {{name}} {

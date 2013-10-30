@@ -32,6 +32,7 @@ class Emitter {
 
   final TemplateProvider _templateProvider;
   StringBuffer _out;
+  String _discoveryName;
   String _topLevelClassName;
 
   Emitter(this._templateProvider) {
@@ -49,7 +50,8 @@ class Emitter {
   /// Generates API client code and returns it as a string.
   String generate(String libName, Discovery discovery, {Map addendumData: const {}}) {
     this._out = new StringBuffer();
-    this._topLevelClassName = capitalize(discovery.name);
+    this._discoveryName = capitalize(discovery.name);
+    this._topLevelClassName = this._discoveryName;
     if (addendumData.containsKey('topLevelClassName')) {
       this._topLevelClassName = addendumData['topLevelClassName'];
     }
@@ -93,6 +95,7 @@ class Emitter {
         }));
 
     _render(_rootTmpl, {
+      'discoveryName': _discoveryName,
       'topLevelClassName': _topLevelClassName,
       'resources': resourceFields,
       'servicePath': discovery.servicePath,

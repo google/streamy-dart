@@ -10,13 +10,16 @@ abstract class Entity {
 
   /// Create a [RawEntity] from a [Map].
   factory Entity.fromMap(Map data) => new RawEntity.fromMap(data);
-  
+
+  /// Type name as defined in the API.
+  String get apiType => 'Entity';
+
   /// Whether this entity is frozen (read only).
   bool get isFrozen;
-  
+
   /// Deep freeze (ha!) this entity to no longer allow changes.
   void _freeze();
-  
+
   GlobalView get global => new EmptyGlobalView();
 
   /// Create a deep copy of this entity.

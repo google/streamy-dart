@@ -17,7 +17,6 @@ main() {
 
     test('handles a basic get', () {
       client.foos.get(1).sendRaw().listen(expectAsync1((v) {
-        print("got a: $v");
         expect(v.entity.id, equals(1));
         expect(v.source, equals(Source.RPC));
       }, count: 1));

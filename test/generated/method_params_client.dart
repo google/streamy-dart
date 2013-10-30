@@ -18,6 +18,7 @@ class FoosGetRequest extends streamy.Request {
     'param2',
     'param3',
   ];
+  String get apiType => 'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{barId}/{fooId}';
   bool get hasPayload => false;
@@ -64,7 +65,7 @@ class FoosGetRequest extends streamy.Request {
   Stream<Response> _sendDirect() => this.root.send(this);
   Stream<Response> sendRaw() =>
       _sendDirect();
-  Stream<Response> send() =>
+  Stream send() =>
       _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
       _sendDirect().map((response) => response.entity).listen(onData);
@@ -78,6 +79,7 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = [
     'get',
   ];
+  String get apiType => 'FoosResource';
   FoosResource(this._root);
 
   /// Gets a foo
@@ -94,6 +96,7 @@ class FoosResource {
 }
 
 class MethodParamsTest extends streamy.Root {
+  String get apiType => 'MethodParamsTest';
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
