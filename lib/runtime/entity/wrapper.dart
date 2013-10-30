@@ -9,14 +9,14 @@ abstract class EntityWrapper extends Entity implements Observable {
   /// A function which clones the subclass of this [EntityWrapper].
   final EntityWrapperCloneFn _clone;
 
-  final Map<String, EntityGlobalFn> _globals;
+  final Map<String, GlobalRegistration> _globals;
 
   static const _GLOBAL_PREFIX = 'global.';
 
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, EntityGlobalFn> globals: const <String, EntityGlobalFn>{} }) : super.base(), _globals = globals;
+  EntityWrapper.wrap(this._delegate, this._clone, {Map<String, GlobalRegistration> globals: const <String, GlobalRegistration>{} }) : super.base(), _globals = globals;
 
   /// Get the root entity for this wrapper. Wrappers can compose other wrappers,
   /// so this will follow that chain until the root [Entity] is discovered.
@@ -27,6 +27,15 @@ abstract class EntityWrapper extends Entity implements Observable {
       return wrapper._root;
     }
     return _delegate;
+  }
+
+  GlobalView _globalView;
+
+  GlobalView get global {
+    if (_globalView == null) {
+      _globalView = new GlobalView(this, _globals);
+    }
+    return _globalView;
   }
 
   /// Subclasses should override [clone] to return an instance of the
@@ -47,11 +56,9 @@ abstract class EntityWrapper extends Entity implements Observable {
   dynamic operator[](String key) {
     if (key.startsWith(_GLOBAL_PREFIX)) {
       var property = key.substring(_GLOBAL_PREFIX.length);
-      if (_globals.containsKey(property)) {
-        return _globals[property](this);
-      } else {
-        return null;
-      }
+      return global[property];
+    } else if (key == 'global') {
+      return global;
     }
     return _delegate[key];
   }
