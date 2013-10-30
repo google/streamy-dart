@@ -33,4 +33,15 @@ main() {
       expect(subject.servicePath, equals('getTest/v1/'));
     });
   });
+  group('apiType', () {
+    test('of MethodGetTest', () {
+      expect(new MethodGetTest(null).apiType, 'MethodGetTest');
+    });
+    test('of Foo', () {
+      expect(new Foo().apiType, 'Foo');
+    });
+    test('of FoosGetRequest', () {
+      expect(new MethodGetTest(null).foos.get(1).apiType, 'FoosGetRequest');
+    });
+  });
 }
