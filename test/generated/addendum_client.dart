@@ -18,6 +18,7 @@ class Foo extends streamy.EntityWrapper {
     'id',
     'bar',
   ]);
+  String get apiType => 'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -90,6 +91,7 @@ class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'fooId',
   ];
+  String get apiType => 'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{fooId}';
   bool get hasPayload => false;
@@ -114,7 +116,7 @@ class FoosGetRequest extends streamy.Request {
     this.local['foo'] = foo;
     return _sendDirect();
   }
-  Stream<Response<Foo>> send({
+  Stream<Foo> send({
       bool dedup: true,
       int ttl: 800,
       String foo: 'Bar' }) { 
@@ -142,6 +144,7 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = [
     'get',
   ];
+  String get apiType => 'FoosResource';
   FoosResource(this._root);
 
   /// Gets a foo
@@ -155,6 +158,7 @@ class FoosResource {
 }
 
 class AddendumApi extends streamy.Root {
+  String get apiType => 'AddendumTest';
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {

@@ -6,6 +6,8 @@ class {{name}} extends streamy.Request {
 {{#parameters}}    '{{name}}',
 {{/parameters}}  ];
 
+  String get apiType => '{{name}}';
+
   {{#payload}}{{payloadType}} get payload => streamy.internalGetPayload(this);{{/payload}}
 
   String get httpMethod => '{{httpMethod}}';

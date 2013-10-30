@@ -38,6 +38,9 @@ abstract class Root {
   /// The API service path.
   String get servicePath;
 
+  // Type name as defined in the API.
+  String get apiType => 'Root';
+
   /// Execute a [Request] and return a [Stream] of the results.
   Stream<Response> send(Request req);
 
@@ -49,6 +52,9 @@ RegExp pathRegex = new RegExp(r'(\{[^\}]+\})');
 
 /// An HTTP request described by the API.
 abstract class Request {
+
+  /// Type name as defined in the API.
+  String get apiType => 'Request';
 
   /// The root object from the API which generated this request.
   final Root root;

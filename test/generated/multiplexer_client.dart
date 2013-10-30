@@ -18,6 +18,7 @@ class Foo extends streamy.EntityWrapper {
     'id',
     'bar',
   ]);
+  String get apiType => 'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -90,6 +91,7 @@ class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
@@ -107,7 +109,7 @@ class FoosGetRequest extends streamy.Request {
   Stream<Response<Foo>> _sendDirect() => this.root.send(this);
   Stream<Response<Foo>> sendRaw() =>
       _sendDirect();
-  Stream<Response<Foo>> send() =>
+  Stream<Foo> send() =>
       _sendDirect().map((response) => response.entity);
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
       _sendDirect().map((response) => response.entity).listen(onData);
@@ -121,6 +123,7 @@ class FoosUpdateRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosUpdateRequest';
   Foo get payload => streamy.internalGetPayload(this);
   String get httpMethod => 'PUT';
   String get pathFormat => 'foos/{id}';
@@ -139,7 +142,7 @@ class FoosUpdateRequest extends streamy.Request {
   Stream<Response<Foo>> _sendDirect() => this.root.send(this);
   Stream<Response<Foo>> sendRaw() =>
       _sendDirect();
-  Stream<Response<Foo>> send() =>
+  Stream<Foo> send() =>
       _sendDirect().map((response) => response.entity);
   StreamSubscription<Foo> listen(void onData(Foo event)) =>
       _sendDirect().map((response) => response.entity).listen(onData);
@@ -153,6 +156,7 @@ class FoosDeleteRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosDeleteRequest';
   String get httpMethod => 'DELETE';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
@@ -170,7 +174,7 @@ class FoosDeleteRequest extends streamy.Request {
   Stream<Response> _sendDirect() => this.root.send(this);
   Stream<Response> sendRaw() =>
       _sendDirect();
-  Stream<Response> send() =>
+  Stream send() =>
       _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
       _sendDirect().map((response) => response.entity).listen(onData);
@@ -184,6 +188,7 @@ class FoosCancelRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     'id',
   ];
+  String get apiType => 'FoosCancelRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/cancel/{id}';
   bool get hasPayload => false;
@@ -201,7 +206,7 @@ class FoosCancelRequest extends streamy.Request {
   Stream<Response> _sendDirect() => this.root.send(this);
   Stream<Response> sendRaw() =>
       _sendDirect();
-  Stream<Response> send() =>
+  Stream send() =>
       _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
       _sendDirect().map((response) => response.entity).listen(onData);
@@ -218,6 +223,7 @@ class FoosResource {
     'delete',
     'cancel',
   ];
+  String get apiType => 'FoosResource';
   FoosResource(this._root);
 
   /// Gets a foo
@@ -255,6 +261,7 @@ class FoosResource {
 }
 
 class MultiplexerTest extends streamy.Root {
+  String get apiType => 'MultiplexerTest';
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {

@@ -22,6 +22,7 @@ class Foo extends streamy.EntityWrapper {
     'quux',
     'corge',
   ]);
+  String get apiType => 'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -154,6 +155,7 @@ class Bar extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     'foos',
   ]);
+  String get apiType => 'Bar';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BarGlobalFn computeFn,
@@ -224,6 +226,7 @@ class Bar extends streamy.EntityWrapper {
 }
 
 class SchemaObjectTest extends streamy.Root {
+  String get apiType => 'SchemaObjectTest';
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer tracer;
   final String servicePath;
