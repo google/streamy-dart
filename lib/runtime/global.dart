@@ -24,13 +24,13 @@ EntityGlobalFn memoizeGlobalFn(EntityGlobalFn fn) {
 class GlobalRegistration {
   final EntityGlobalFn fn;
   final List dependencies;
-  
+
   GlobalRegistration(this.fn, [this.dependencies = null]) {
     if (dependencies != null) {
       dependencies.forEach(_validateDep);
     }
   }
-  
+
   _validateDep(dep) {
     if (dep is String || dep is GlobalStreamDepFn || dep is GlobalStreamEntityDepFn || dep is Stream) {
       return;
@@ -41,7 +41,7 @@ class GlobalRegistration {
 
 /// A view of globals as they relate to a specific [Entity]. Implements observability based on
 /// dependencies of the globals involved.
-class GlobalView extends ChangeNotifierBase {
+class GlobalView extends ChangeNotifier {
 
   Entity _entity;
   Map<String, GlobalRegistration> _globals;
@@ -50,7 +50,7 @@ class GlobalView extends ChangeNotifierBase {
   var _depSubs = [];
 
   GlobalView(this._entity, this._globals);
-  
+
   Stream<List<ChangeRecord>> get changes {
     if (_changeController == null) {
       _changeController = new StreamController<List<ChangeRecord>>.broadcast(
@@ -72,7 +72,7 @@ class GlobalView extends ChangeNotifierBase {
     _changesSub = super.changes.listen(_changeController.add)
       ..onError(_changeController.addError)
       ..onDone(_changeController.close);
-    
+
     // Subscribe to global dependencies.
     _globals.forEach((key, reg) {
       if (reg.dependencies != null && reg.dependencies.isNotEmpty) {
@@ -90,13 +90,13 @@ class GlobalView extends ChangeNotifierBase {
             throw new StateError('Unknown dependency type: $dep');
           }
           _depSubs.add(stream.listen((_) {
-            notifyChange(new MapChangeRecord(key));
+            notifyChange(new MapChangeRecord(key, null, null));
           }));
         });
       }
     });
   }
-  
+
   _onChangeCancelled() {
     _changesSub.cancel();
     _depSubs.forEach((sub) => sub.cancel());
@@ -104,7 +104,7 @@ class GlobalView extends ChangeNotifierBase {
 }
 
 /// A [GlobalView] for an [Entity] that does not have globals.
-class EmptyGlobalView extends ChangeNotifierBase implements GlobalView {
+class EmptyGlobalView extends ChangeNotifier implements GlobalView {
 
   static EmptyGlobalView _singleton;
 
@@ -114,7 +114,7 @@ class EmptyGlobalView extends ChangeNotifierBase implements GlobalView {
     }
     return _singleton;
   }
-  
+
   EmptyGlobalView._private();
 
   bool containsKey(String key) => false;

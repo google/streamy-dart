@@ -1,8 +1,8 @@
 library streamy.generated.schema_object.test;
 
 import 'dart:async';
-import 'dart:json';
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:json/json.dart';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
@@ -50,12 +50,12 @@ main() {
     });
     test('SerializeListToJson', () {
       var bar = new Bar()..foos = [new Foo()..id = 321];
-      bar = new Bar.fromJsonString(stringify(bar.toJson()));
+      bar = new Bar.fromJsonString(stringify(bar.toJson()), const streamy.NoopTrace());
       expect(bar.foos.length, equals(1));
       expect(bar.foos[0].id, equals(321));
     });
     test('DeserializeMissingListToNull', () {
-      var bar = new Bar.fromJsonString('{}');
+      var bar = new Bar.fromJsonString('{}', const streamy.NoopTrace());
       expect(bar.foos, isNull);
     });
     test('List of doubles works properly', () {
@@ -200,7 +200,7 @@ main() {
       foo.local.remove('hello');
     });
     test('lists are observable', () {
-      var bar = new Bar.fromJsonString('{"foos": [{}]}');
+      var bar = new Bar.fromJsonString('{"foos": [{}]}', const streamy.NoopTrace());
       expect(bar.foos, new isInstanceOf<ObservableList>());
     });
     test('lists become observable via setter', () {

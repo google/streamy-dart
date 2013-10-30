@@ -1,7 +1,6 @@
 library streamy.generated.multiplexer.test;
 
 import 'dart:async';
-import 'dart:json';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'multiplexer_client.dart';
@@ -17,43 +16,44 @@ main() {
     });
 
     test('handles a basic get', () {
-      client.foos.get(1).send().listen(expectAsync1((v) {
-        expect(v.id, equals(1));
-        expect(v.streamy.source, equals('RPC'));
+      client.foos.get(1).sendRaw().listen(expectAsync1((v) {
+        print("got a: $v");
+        expect(v.entity.id, equals(1));
+        expect(v.source, equals(Source.RPC));
       }, count: 1));
     });
     test('handles a cached get', () {
       // Issue the first RPC just to get stuff in cache.
-      client.foos.get(2).send().first.then(expectAsync1((v) {
+      client.foos.get(2).sendRaw().first.then(expectAsync1((v) {
         var expects = [(v1) {
-          expect(v1.id, equals(2));
-          expect(v1.streamy.source, equals('CACHE'));
+          expect(v1.entity.id, equals(2));
+          expect(v1.source, equals('CACHE'));
         }, (v2) {
-          expect(v2.id, equals(2));
-          expect(v2.streamy.source, equals('RPC'));
+          expect(v2.entity.id, equals(2));
+          expect(v2.source, equals('RPC'));
         }].iterator;
-          client.foos.get(2).send().listen(expectAsync1(
+          client.foos.get(2).sendRaw().listen(expectAsync1(
             (v) => (expects..moveNext()).current(v), count: 2));
       }, count: 1));
     });
     test('handles dual streams', () {
       var v1ts = null;
       var expects = [(v1) {
-        expect(v1.id, equals(3));
-        expect(v1.streamy.source, equals('RPC'));
-        v1ts = v1.streamy.ts;
+        expect(v1.entity.id, equals(3));
+        expect(v1.source, equals('RPC'));
+        v1ts = v1.ts;
 
         // Issue a second RPC after the first one returns.
         client.foos.get(3).send();
         // Results of this second RPC are tested in 'cached get' above.
       }, (v2) {
-        expect(v2.id, equals(3));
-        expect(v2.streamy.source, equals('RPC'));
-        expect(v2.streamy.ts, greaterThanOrEqualTo(v1ts));
+        expect(v2.entity.id, equals(3));
+        expect(v2.source, equals('RPC'));
+        expect(v2.ts, greaterThanOrEqualTo(v1ts));
       }].iterator;
 
       // First RPC
-      client.foos.get(3).send().listen(expectAsync1(
+      client.foos.get(3).sendRaw().listen(expectAsync1(
         (v) => (expects..moveNext()).current(v), count: 2));
     });
     test('handles a basic non-cachable request', () {
@@ -94,23 +94,26 @@ main() {
 
 class ImmediateRequestHandler extends RequestHandler {
   var _id = 1;
-  Stream<Foo> handle(Request request) {
+
+  int _ts() => new DateTime.now().millisecondsSinceEpoch;
+
+  Stream<Response<Foo>> handle(Request request, Trace trace) {
     if (request is FoosGetRequest) {
-      return new Future.value(new Foo()
+      return new Future.value(new Response(new Foo()
         ..id = request.parameters['id']
-        ..bar = (_id++).toString()).asStream();
+        ..bar = (_id++).toString(), Source.RPC, _ts())).asStream();
     } else if (request is FoosUpdateRequest) {
-      return new Future.value(new Foo()
+      return new Future.value(new Response(new Foo()
         ..id = request.parameters['id']
-        ..bar = '${request.payload['bar']}.updated.${_id++}').asStream();
+        ..bar = '${request.payload['bar']}.updated.${_id++}', Source.RPC, _ts())).asStream();
     } else if (request is FoosDeleteRequest) {
-      return new Future.value(request.responseDeserializer("")).asStream();
+      return new Future.value(new Response(request.responseDeserializer('', const NoopTrace()), Source.RPC, _ts())).asStream();
     } else if (request is FoosCancelRequest) {
       var c;
-      c = new StreamController<Foo>(onCancel: expectAsync0(() {
+      c = new StreamController<Response<Foo>>(onCancel: expectAsync0(() {
         expect(c.isClosed, isFalse);
       }));
-      c.add(new Foo()..id = 1);
+      c.add(new Response(new Foo()..id = 1, Source.RPC, _ts()));
       return c.stream;
     }
   }

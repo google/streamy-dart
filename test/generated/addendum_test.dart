@@ -1,7 +1,7 @@
 library streamy.generated.addendum.test;
 
 import 'dart:async';
-import 'dart:json';
+import 'package:json/json.dart';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 import 'addendum_client.dart';
@@ -29,11 +29,11 @@ class ImmediateRequestHandler extends RequestHandler {
   ImmediateRequestHandler(Foo value) {
     this.stream = new Stream.fromIterable([stringify(value.toJson())]);
   }
-  Stream<Foo> handle(Request request) {
+  Stream<Foo> handle(Request request, Trace trace) {
     expect(request.local['dedup'], equals(true));
     expect(request.local['ttl'], equals(800));
     expect(request.local['foo'], equals('baz'));
     Deserializer d = request.responseDeserializer;
-    return stream.map(d);
+    return stream.map((data) => new Response(d(data, trace), Source.RPC, 0));
   }
 }

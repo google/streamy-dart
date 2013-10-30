@@ -31,7 +31,7 @@ class _TestRequestHandler extends RequestHandler {
 
   _TestRequestHandler._private();
 
-  Stream handle(Request request) {
+  Stream handle(Request request, Trace trace) {
     if (_index >= _responses.length) {
       fail("Too many requests. Expected: ${_responses.length} requests but " +
           "got ${_index + 1} requests");
@@ -66,7 +66,7 @@ class _TestErrorResponse extends _TestResponse {
 class _TestRpcErrorResponse extends _TestResponse {
   final statusCode;
   final jsonError;
-  
+
   _TestRpcErrorResponse(this.statusCode, this.jsonError);
 }
 
@@ -128,4 +128,17 @@ class TestRequest extends Request {
   Deserializer get responseDeserializer {
     throw new StateError("Not supported");
   }
+}
+
+class TestingRoot extends Root {
+
+  final RequestHandler delegate;
+  final Tracer tracer;
+
+  TestingRoot(this.delegate, this.tracer) : super(EMPTY_REGISTRY);
+
+  String get servicePath => '/test';
+
+  Stream<Response> send(Request request) =>
+    delegate.handle(request, tracer.trace(request));
 }

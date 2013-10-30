@@ -1,7 +1,7 @@
 library streamy.generator;
 
-import 'dart:json' as json;
 import 'dart:io' as io;
+import 'package:json/json.dart' as json;
 import 'package:mustache/mustache.dart' as mus;
 
 part 'generator/default.dart';

@@ -4,33 +4,40 @@ part of streamy.runtime;
 abstract class Cache {
 
   /// Get an entity from the cache.
-  Future<Entity> get(Request key);
+  Future<CachedEntity> get(Request key);
 
   /// Set an entity in the cache.
-  Future set(Request key, Entity entity);
+  Future set(Request key, CachedEntity value);
 
   /// Invalidate an entity in the cache.
   Future invalidate(Request key);
 }
 
+class CachedEntity {
+  final Entity entity;
+  final int ts;
+
+  CachedEntity(this.entity, this.ts);
+}
+
 /// A [Future] based [Cache] that's backed by a [Map].
 class AsyncMapCache implements Cache {
 
-  Map _cache = new Map();
+  var _cache = new Map<Request, CachedEntity>();
 
-  Future get(key) {
+  Future<CachedEntity> get(key) {
     if (_cache.containsKey(key)) {
-      return new Future.value(_cache[key].clone()..streamy.source = 'CACHE');
+      return new Future.value(_cache[key]);
     }
     return new Future.value(null);
   }
 
-  Future set(key, value) {
+  Future set(Request key, CachedEntity value) {
     _cache[key] = value;
     return new Future.value(true);
   }
 
-  Future invalidate(key) {
+  Future invalidate(Request key) {
     _cache.remove(key);
     return new Future.value(true);
   }
@@ -42,15 +49,14 @@ class CachingFlagCacheWrapper implements Cache {
   final Cache delegate;
 
   CachingFlagCacheWrapper(this.delegate);
-
-  Future<Entity> get(Request key) {
+  Future<CachedEntity> get(Request key) {
     if (key.local['caching'] == false) {
       return new Future.value(null);
     }
     return delegate.get(key);
   }
 
-  Future set(Request key, Entity entity) {
+  Future set(Request key, CachedEntity entity) {
     if (key.local['caching'] == false) {
       return new Future.value(true);
     }
@@ -79,7 +85,7 @@ class AsyncCacheWrapper implements Cache {
   }
 
   /// Get an entity from the cache.
-  Future<Entity> get(Request key) {
+  Future<CachedEntity> get(Request key) {
     if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.get(key);
@@ -89,7 +95,7 @@ class AsyncCacheWrapper implements Cache {
   }
 
   /// Set an entity in the cache.
-  Future set(Request key, Entity entity) {
+  Future set(Request key, CachedEntity entity) {
     if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.set(key, entity);

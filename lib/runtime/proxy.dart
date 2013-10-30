@@ -9,19 +9,19 @@ class ProxyClient extends RequestHandler {
 
   ProxyClient(this.proxyUrl, this.httpHandler);
 
-  Stream handle(Request req) {
+  Stream<Response> handle(Request req, Trace trace) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? stringify(req.payload) : null;
     var httpRequest = httpHandler.request(url, req.httpMethod, payload: payload);
-    
+
     var c;
-    c = new StreamController(onCancel: () {
+    c = new StreamController<Response>(onCancel: () {
       // Only cancel requests if they haven't already completed.
       if (!c.isClosed) {
         httpRequest.cancel();
       }
     });
-    
+
     httpRequest.future.then((resp) {
       if (resp.statusCode != 200) {
         Map jsonError = null;
@@ -39,7 +39,8 @@ class ProxyClient extends RequestHandler {
         }
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
-      return req.responseDeserializer(resp.body);
+      return new Response(req.responseDeserializer(resp.body, trace), Source.RPC,
+          new DateTime.now().millisecondsSinceEpoch);
     }).then((value) {
       c.add(value);
       c.close();
@@ -51,10 +52,18 @@ class ProxyClient extends RequestHandler {
   }
 }
 
+class ProxyRequestSent implements TraceEvent {
+  factory ProxyRequestSent() => const ProxyRequestSent._private();
+
+  const ProxyRequestSent._private();
+
+  String toString() => 'streamy.proxy.sent';
+}
+
 class StreamyHttpRequest {
   final Future<StreamyHttpResponse> future;
   final CancelFn cancel;
-  
+
   StreamyHttpRequest(this.future, this.cancel);
 }
 
@@ -71,4 +80,3 @@ abstract class StreamyHttpService {
   StreamyHttpRequest request(String url, String method,
       {String payload: null, String contentType: 'application/json; charset=utf-8'});
 }
-  

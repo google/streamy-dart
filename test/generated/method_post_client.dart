@@ -51,7 +51,7 @@ class Foo extends streamy.EntityWrapper {
     this['bar'] = value;
   }
   String removeBar() => this.remove('bar');
-  factory Foo.fromJsonString(String strJson,
+  factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -105,12 +105,15 @@ class FoosUpdateRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream send() =>
-      this.root.send(this);
+  Stream<Response> _sendDirect() => this.root.send(this);
+  Stream<Response> sendRaw() =>
+      _sendDirect();
+  Stream<Response> send() =>
+      _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
       new streamy.EmptyEntity();
 }
 
@@ -135,10 +138,11 @@ class MethodPostTest extends streamy.Root {
       _foos = new FoosResource(this);
     }
     return _foos;
-  }   
+  }
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer tracer;
   final String servicePath;
   MethodPostTest(this.requestHandler, {this.servicePath: 'postTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
+  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

@@ -30,15 +30,13 @@ abstract class EntityWrapper extends Entity implements Observable {
   }
 
   GlobalView _globalView;
-  
+
   GlobalView get global {
     if (_globalView == null) {
       _globalView = new GlobalView(this, _globals);
     }
     return _globalView;
   }
-
-  StreamyEntityMetadata get streamy => _delegate.streamy;
 
   /// Subclasses should override [clone] to return an instance of the
   /// appropriate type. Note: failure to override [clone] when extending
@@ -88,6 +86,8 @@ abstract class EntityWrapper extends Entity implements Observable {
   void notifyChange(ChangeRecord record) {
     _observableDelegate.notifyChange(record);
   }
+  notifyPropertyChange(Symbol field, Object oldValue, Object newValue) =>
+      _observableDelegate.notifyPropertyChange(field, oldValue, newValue);
   bool get hasObservers => _observableDelegate.hasObservers;
 }
 

@@ -51,7 +51,7 @@ class Foo extends streamy.EntityWrapper {
     this['bar'] = value;
   }
   String removeBar() => this.remove('bar');
-  factory Foo.fromJsonString(String strJson,
+  factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
@@ -104,14 +104,24 @@ class FoosGetRequest extends streamy.Request {
     parameters['fooId'] = value;
   }
   int removeFooId() => parameters.remove('fooId');
-  Stream<Foo> send({
+  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<Response<Foo>> sendRaw({
       bool dedup: true,
       int ttl: 800,
       String foo: 'Bar' }) { 
     this.local['dedup'] = dedup;
     this.local['ttl'] = ttl;
     this.local['foo'] = foo;
-    return this.root.send(this);
+    return _sendDirect();
+  }
+  Stream<Response<Foo>> send({
+      bool dedup: true,
+      int ttl: 800,
+      String foo: 'Bar' }) { 
+    this.local['dedup'] = dedup;
+    this.local['ttl'] = ttl;
+    this.local['foo'] = foo;
+    return _sendDirect().map((response) => response.entity);
   }
   StreamSubscription<Foo> listen(void onData(Foo event), {
       bool dedup: true,
@@ -120,11 +130,11 @@ class FoosGetRequest extends streamy.Request {
     this.local['dedup'] = dedup;
     this.local['ttl'] = ttl;
     this.local['foo'] = foo;
-    return this.root.send(this).listen(onData);
+    return _sendDirect().map((response) => response.entity).listen(onData);
   }
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
-      new Foo.fromJsonString(str, typeRegistry: root.typeRegistry);
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
+      new Foo.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }
 
 class FoosResource {
@@ -151,10 +161,11 @@ class AddendumApi extends streamy.Root {
       _foos = new FoosResource(this);
     }
     return _foos;
-  }   
+  }
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer tracer;
   final String servicePath;
   AddendumApi(this.requestHandler, {this.servicePath: 'addendum/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
+  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

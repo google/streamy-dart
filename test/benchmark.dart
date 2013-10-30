@@ -1,10 +1,10 @@
 library streamy.benchmarks;
 
-import 'dart:json' as json;
 import 'dart:math';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:json/json.dart' as json;
 import 'generated/benchmark_client.dart';
 
 const MAX = 10000000;
@@ -12,7 +12,7 @@ const EXPANSION = 35;
 const LEVEL = 3;
 
 
-  
+
 Foo makePopulatedFoo(Random random, int level) {
   Foo foo = new Foo()
     ..id = random.nextInt(MAX)
@@ -31,20 +31,20 @@ Foo makePopulatedFoo(Random random, int level) {
 }
 
 class DeserializationBenchmark extends BenchmarkBase {
-  
+
   final Random random = new Random(1234);
   var js;
 
   static void main() {
     new DeserializationBenchmark().report();
   }
-  
+
   DeserializationBenchmark() : super("Deserialization");
-  
+
   void run() {
     var foo = new Foo.fromJsonString(js);
   }
-  
+
   void setup() {
     var foo = makePopulatedFoo(random, LEVEL);
     js = json.stringify(foo);
@@ -52,20 +52,20 @@ class DeserializationBenchmark extends BenchmarkBase {
 }
 
 class JsonParseBenchmark extends BenchmarkBase {
-  
+
   final Random random = new Random(1234);
   var js;
 
   static void main() {
     new JsonParseBenchmark().report();
   }
-  
+
   JsonParseBenchmark() : super("JsonParse");
-  
+
   void run() {
     var foo = json.parse(js);
   }
-  
+
   void setup() {
     var foo = makePopulatedFoo(random, LEVEL);
     js = json.stringify(foo);

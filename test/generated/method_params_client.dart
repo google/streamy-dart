@@ -61,12 +61,15 @@ class FoosGetRequest extends streamy.Request {
     parameters['param3'] = value;
   }
   List<String> removeParam3() => parameters.remove('param3');
-  Stream send() =>
-      this.root.send(this);
+  Stream<Response> _sendDirect() => this.root.send(this);
+  Stream<Response> sendRaw() =>
+      _sendDirect();
+  Stream<Response> send() =>
+      _sendDirect().map((response) => response.entity);
   StreamSubscription listen(void onData(event)) =>
-      this.root.send(this).listen(onData);
+      _sendDirect().map((response) => response.entity).listen(onData);
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str) =>
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
       new streamy.EmptyEntity();
 }
 
@@ -97,10 +100,11 @@ class MethodParamsTest extends streamy.Root {
       _foos = new FoosResource(this);
     }
     return _foos;
-  }   
+  }
   final streamy.RequestHandler requestHandler;
+  final streamy.Tracer tracer;
   final String servicePath;
   MethodParamsTest(this.requestHandler, {this.servicePath: 'paramsTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) : super(typeRegistry);
-  Stream send(streamy.Request request) => requestHandler.handle(request);
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
+  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }
