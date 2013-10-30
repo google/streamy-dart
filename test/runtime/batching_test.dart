@@ -1,4 +1,4 @@
-library streamy.runtime.batching_http_service.test;
+library streamy.runtime.batching.test;
 
 import 'dart:async';
 import 'dart:math';

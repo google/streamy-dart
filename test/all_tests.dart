@@ -11,7 +11,7 @@ import 'generated/schema_object_test.dart' as schema_object_test;
 import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
 import 'generator/emitter_test.dart' as generator_emitter_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
-import 'runtime/batching_http_service_test.dart' as batching_http_service_test;
+import 'runtime/batching_test.dart' as batching_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/error_test.dart' as runtime_error_test;
 import 'runtime/request_test.dart' as runtime_request_test;
@@ -29,7 +29,7 @@ main() {
   schema_unknown_fields_test.main();
   multiplexer_test.main();
   http_test.main();
-  batching_http_service_test.main();
+  batching_test.main();
   streamy_test.main();
   generator_emitter_test.main();
   runtime_multiplexer_test.main();

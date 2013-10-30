@@ -16,7 +16,7 @@ part 'runtime/entity/empty.dart';
 part 'runtime/entity/raw.dart';
 part 'runtime/entity/util.dart';
 part 'runtime/entity/wrapper.dart';
-part 'runtime/batching_http_service.dart';
+part 'runtime/batching.dart';
 part 'runtime/cache.dart';
 part 'runtime/error.dart';
 part 'runtime/http.dart';
