@@ -35,12 +35,12 @@ class {{name}} extends streamy.Request {
   {{type}} remove{{capVarName}}() => parameters.remove('{{name}}');
 {{/parameters}}
 
-  Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> _sendDirect() => this.root.send(this);
 
 
-  {{^hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> sendRaw() =>
+  {{^hasSendParams}}Stream<streamy.Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> sendRaw() =>
       _sendDirect();{{/hasSendParams}}
-  {{#hasSendParams}}Stream<Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> sendRaw({
+  {{#hasSendParams}}Stream<streamy.Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> sendRaw({
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}

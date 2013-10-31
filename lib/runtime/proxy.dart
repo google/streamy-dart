@@ -1,5 +1,7 @@
 part of streamy.runtime;
 
+const _CONTENT_TYPE = 'content-type';
+
 /// A [RequestHandler] that proxies through a frontend server.
 class ProxyClient extends RequestHandler {
 
@@ -12,35 +14,44 @@ class ProxyClient extends RequestHandler {
   Stream<Response> handle(Request req, Trace trace) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = req.hasPayload ? stringify(req.payload) : null;
-    var httpRequest = httpHandler.request(url, req.httpMethod, payload: payload);
+    var headers = const {
+      _CONTENT_TYPE: 'application/json; charset=utf-8',
+    };
+    var cancelCompleter = new Completer();
+    var httpReq = new StreamyHttpRequest(url, req.httpMethod, headers,
+        req.local, cancelCompleter.future, payload: payload);
+    var waitForHttpResponse = httpHandler.send(httpReq);
 
     var c;
     c = new StreamController<Response>(onCancel: () {
       // Only cancel requests if they haven't already completed.
       if (!c.isClosed) {
-        httpRequest.cancel();
+        cancelCompleter.complete(null);
       }
     });
 
-    httpRequest.future.then((resp) {
+    waitForHttpResponse.then((StreamyHttpResponse resp) {
       if (resp.statusCode != 200) {
         Map jsonError = null;
         List errors = null;
-        // If the bodyType is not available, optimistically try parsing it as JSON.
-        if (resp.bodyType == null || resp.bodyType.startsWith('application/json')) {
+        // If the bodyType is not available, optimistically try parsing it as
+        // JSON.
+        if (resp.headers.containsKey(_CONTENT_TYPE) == null ||
+            resp.headers[_CONTENT_TYPE].startsWith('application/json')) {
           try {
             jsonError = parse(resp.body);
-            if (jsonError.containsKey('error') && jsonError['error'].containsKey('errors')) {
+            if (jsonError.containsKey('error') &&
+                jsonError['error'].containsKey('errors')) {
               errors = jsonError['error']['errors'];
             }
           } catch(_) {
-            // Apparently, the body wan't JSON. The caller will have to make do.
+            // Apparently, body wan't JSON. The caller will have to make do.
           }
         }
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
-      return new Response(req.responseDeserializer(resp.body, trace), Source.RPC,
-          new DateTime.now().millisecondsSinceEpoch);
+      return new Response(req.responseDeserializer(resp.body, trace),
+          Source.RPC, new DateTime.now().millisecondsSinceEpoch);
     }).then((value) {
       c.add(value);
       c.close();
@@ -58,25 +69,4 @@ class ProxyRequestSent implements TraceEvent {
   const ProxyRequestSent._private();
 
   String toString() => 'streamy.proxy.sent';
-}
-
-class StreamyHttpRequest {
-  final Future<StreamyHttpResponse> future;
-  final CancelFn cancel;
-
-  StreamyHttpRequest(this.future, this.cancel);
-}
-
-class StreamyHttpResponse {
-  final int statusCode;
-  final String statusText;
-  final String body;
-  final String bodyType;
-
-  StreamyHttpResponse(this.statusCode, this.statusText, this.body, this.bodyType);
-}
-
-abstract class StreamyHttpService {
-  StreamyHttpRequest request(String url, String method,
-      {String payload: null, String contentType: 'application/json; charset=utf-8'});
 }

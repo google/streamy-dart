@@ -106,8 +106,8 @@ class FoosGetRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
-  Stream<Response<Foo>> sendRaw() =>
+  Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
   Stream<Foo> send() =>
       _sendDirect().map((response) => response.entity);
@@ -139,8 +139,8 @@ class FoosUpdateRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
-  Stream<Response<Foo>> sendRaw() =>
+  Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
   Stream<Foo> send() =>
       _sendDirect().map((response) => response.entity);
@@ -171,8 +171,8 @@ class FoosDeleteRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response> _sendDirect() => this.root.send(this);
-  Stream<Response> sendRaw() =>
+  Stream<streamy.Response> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response> sendRaw() =>
       _sendDirect();
   Stream send() =>
       _sendDirect().map((response) => response.entity);
@@ -203,8 +203,8 @@ class FoosCancelRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response> _sendDirect() => this.root.send(this);
-  Stream<Response> sendRaw() =>
+  Stream<streamy.Response> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response> sendRaw() =>
       _sendDirect();
   Stream send() =>
       _sendDirect().map((response) => response.entity);
@@ -260,8 +260,7 @@ class FoosResource {
   }
 }
 
-class MultiplexerTest extends streamy.Root {
-  String get apiType => 'MultiplexerTest';
+abstract class MultiplexerTestResourcesMixin {
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
@@ -269,10 +268,39 @@ class MultiplexerTest extends streamy.Root {
     }
     return _foos;
   }
+}
+
+class MultiplexerTest
+    extends streamy.Root
+    with MultiplexerTestResourcesMixin {
+  String get apiType => 'MultiplexerTest';
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final streamy.Tracer tracer;
-  final String servicePath;
-  MultiplexerTest(this.requestHandler, {this.servicePath: 'multiplexerTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
-  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
+  final streamy.Tracer _tracer;
+  MultiplexerTest(
+      this.requestHandler,
+      {String servicePath: 'multiplexerTest/v1/',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null,
+      streamy.Tracer tracer: const streamy.NoopTracer()}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy,
+          this._tracer = tracer;
+  Stream send(streamy.Request request) =>
+      requestHandler.handle(request, _tracer.trace(request));
+  MultiplexerTestTransaction beginTransaction() =>
+      new MultiplexerTestTransaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [MultiplexerTest] but runs all requests as
+/// part of the same transaction.
+class MultiplexerTestTransaction
+    extends streamy.TransactionRoot
+    with MultiplexerTestResourcesMixin {
+  String get apiType => 'MultiplexerTestTransaction';
+  MultiplexerTestTransaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }

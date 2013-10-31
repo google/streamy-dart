@@ -1,10 +1,5 @@
 
-{{#docs}}/// {{.}}
-{{/docs}}
-class {{topLevelClassName}} extends streamy.Root {
-
-  String get apiType => '{{discoveryName}}';
-
+abstract class {{topLevelClassName}}ResourcesMixin {
 {{#resources}}
   {{type}} _{{name}};
   {{type}} get {{name}} {
@@ -14,13 +9,47 @@ class {{topLevelClassName}} extends streamy.Root {
     return _{{name}};
   }
 {{/resources}}
+}
 
+{{#docs}}/// {{.}}
+{{/docs}}
+class {{topLevelClassName}}
+    extends streamy.Root
+    with {{topLevelClassName}}ResourcesMixin {
+
+  String get apiType => '{{discoveryName}}';
+  final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
-  final streamy.Tracer tracer;
-  final String servicePath;
+  final streamy.Tracer _tracer;
 
-  {{topLevelClassName}}(this.requestHandler, {this.servicePath: '{{servicePath}}',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY, this.tracer: const streamy.NoopTracer()}) : super(typeRegistry);
+  {{topLevelClassName}}(
+      this.requestHandler,
+      {String servicePath: '{{servicePath}}',
+      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
+      streamy.TransactionStrategy txStrategy: null,
+      streamy.Tracer tracer: const streamy.NoopTracer()}) :
+          super(typeRegistry, servicePath),
+          this._txStrategy = txStrategy,
+          this._tracer = tracer;
 
-  Stream<streamy.Response> send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
+  Stream send(streamy.Request request) =>
+      requestHandler.handle(request, _tracer.trace(request));
+
+  {{topLevelClassName}}Transaction beginTransaction() =>
+      new {{topLevelClassName}}Transaction(typeRegistry, servicePath,
+          _txStrategy.beginTransaction());
+}
+
+/// Provides the same API as [{{topLevelClassName}}] but runs all requests as
+/// part of the same transaction.
+class {{topLevelClassName}}Transaction
+    extends streamy.TransactionRoot
+    with {{topLevelClassName}}ResourcesMixin {
+
+  String get apiType => '{{discoveryName}}Transaction';
+
+  {{topLevelClassName}}Transaction(
+      streamy.TypeRegistry typeRegistry,
+      String servicePath,
+      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
 }

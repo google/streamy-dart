@@ -19,7 +19,7 @@ part 'dynamic_entity.dart';
  *   ..value(testResponse, times: 2)  // returns testResponse 2 times
  *   ..proxyError('Not found', 404, times: 4)  // returns 404 error 4 times
  *   ..value(testResponse)  // returns testResponse once
- *   ..error(new ArgumentError("test"))  // return custom error once
+ *   ..error(new ArgumentError('test'))  // return custom error once
  *   .build();  // returns the test handler
  */
 TestRequestHandlerBuilder testRequestHandler() =>
@@ -33,8 +33,8 @@ class _TestRequestHandler extends RequestHandler {
 
   Stream handle(Request request, Trace trace) {
     if (_index >= _responses.length) {
-      fail("Too many requests. Expected: ${_responses.length} requests but " +
-          "got ${_index + 1} requests");
+      fail('Too many requests. Expected: ${_responses.length} requests but ' +
+          'got ${_index + 1} requests');
     }
     var resp = _responses[_index];
     _index++;
@@ -45,7 +45,7 @@ class _TestRequestHandler extends RequestHandler {
     } else if (resp is _TestRpcErrorResponse) {
       return new Stream.fromFuture(new Future.error(new StreamyRpcException(resp.statusCode, request, resp.jsonError)));
     } else {
-      throw new StateError("Unexpected type: ${resp.runtimeType}");
+      throw new StateError('Unexpected type: ${resp.runtimeType}');
     }
   }
 }
@@ -101,8 +101,8 @@ class TestRequestHandlerBuilder {
 }
 
 /// Use these requests when request contents don't matter.
-final Request TEST_GET_REQUEST = new TestRequest("GET");
-final Request TEST_DELETE_REQUEST = new TestRequest("DELETE");
+final Request TEST_GET_REQUEST = new TestRequest('GET');
+final Request TEST_DELETE_REQUEST = new TestRequest('DELETE');
 // TODO(yjbanov): add POST and PUT test requests
 
 class TestRequest extends Request {
@@ -116,7 +116,7 @@ class TestRequest extends Request {
 
   String get httpMethod => _httpMethod;
 
-  String get pathFormat => "/test${_httpMethod}";
+  String get pathFormat => '/test${_httpMethod}';
 
   List<String> get pathParameters => [];
 
@@ -126,7 +126,47 @@ class TestRequest extends Request {
   /// (see [testRequestHandler]), which returns canned responses and therefore
   /// we shouldn't ever reach this method.
   Deserializer get responseDeserializer {
-    throw new StateError("Not supported");
+    throw new StateError('Not supported');
+  }
+}
+
+class TestHttpService implements StreamyHttpService {
+  Map<String, StreamyHttpResponse> expectations = {};
+  List<Function> sendQueue = [];
+
+  void expect(StreamyHttpRequest request, StreamyHttpResponse response) {
+    expectations[request.toString()] = response;
+  }
+
+  Future<StreamyHttpResponse> send(StreamyHttpRequest req) {
+    bool cancelled = false;
+    var completer = new Completer.sync();
+    sendQueue.add(() {
+      if (!cancelled) {
+        var resp = expectations.remove(req.toString());
+
+        if (resp == null) {
+          fail('Unexpected request ${req}\n'
+          'Pending expectations: ${expectations}');
+        }
+
+        completer.complete(resp);
+      }
+    });
+
+    if (req.onCancel != null) {
+      req.onCancel.then((_) {
+        cancelled = true;
+      });
+    }
+
+    return completer.future;
+  }
+
+  void flush() {
+    sendQueue.forEach((f) {
+      f();
+    });
   }
 }
 
@@ -135,9 +175,7 @@ class TestingRoot extends Root {
   final RequestHandler delegate;
   final Tracer tracer;
 
-  TestingRoot(this.delegate, this.tracer) : super(EMPTY_REGISTRY);
-
-  String get servicePath => '/test';
+  TestingRoot(this.delegate, this.tracer) : super(EMPTY_REGISTRY, '/test');
 
   Stream<Response> send(Request request) =>
     delegate.handle(request, tracer.trace(request));
