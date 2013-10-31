@@ -25,7 +25,7 @@ class OneShotRequestTransformer extends EventTransformer {
 
   void handleData(Response response, EventSink<Response> sink, Trace trace) {
     sink.add(response);
-    if (response.source == Source.RPC) {
+    if (response.authority == Authority.PRIMARY) {
       sink.close();
     }
   }

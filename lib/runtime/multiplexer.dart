@@ -94,13 +94,15 @@ class Multiplexer extends RequestHandler {
         // If there actually was an entity response, send it to the client.
         if (cached != null) {
           trace.record(new MultiplexerCacheHitEvent());
-          active.submit(new Response(cached.entity, Source.CACHE, cached.ts));
         } else {
           trace.record(new MultiplexerCacheMissEvent());
         }
         var ts = new DateTime.now().millisecondsSinceEpoch;  // TODO: not testable
         // If we don't need to issue an rpc
         if (age < 0 || (cached != null && (ts - cached.ts) < age)) {
+          if (cached != null) {
+            active.submit(new Response(cached.entity, Source.CACHE, cached.ts));
+          }
           if (age == AGE_CACHE_LOOKUP_ONCE) {
             // Not interested in future responses at all.
             active.close();
@@ -109,6 +111,10 @@ class Multiplexer extends RequestHandler {
             _activeIndex.add(request, active);
           }
           return;
+        }
+        if (cached != null) {
+          active.submit(new Response(cached.entity, Source.CACHE, cached.ts,
+              authority: Authority.SECONDARY));
         }
 
         _sendRpc(request, active, trace);
@@ -201,7 +207,8 @@ class Multiplexer extends RequestHandler {
         .then((cached) {
           if (cached != null) {
             trace.record(new MultiplexerCacheHitEvent());
-            active.submit(new Response(cached.entity, Source.CACHE, cached.ts));
+            active.submit(new Response(cached.entity, Source.CACHE, cached.ts,
+                authority: Authority.SECONDARY));
           } else {
             trace.record(new MultiplexerCacheMissEvent());
           }

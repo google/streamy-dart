@@ -101,21 +101,28 @@ main() {
   group('OneShotRequestTransformer', () {
     var a = new Response(new RawEntity()
       ..['id'] = 'foo'
-      ..['seq'] = 1, Source.CACHE, 0);
+      ..['seq'] = 1, Source.CACHE, 0, authority: Authority.SECONDARY);
     var b = new Response(new RawEntity()
       ..['id'] = 'foo'
       ..['seq'] = 2, Source.RPC, 0);
     var c = new Response(new RawEntity()
       ..['id'] = 'foo'
       ..['seq'] = 3, Source.RPC, 0);
+    var d = new Response(new RawEntity()
+      ..['id'] = 'foo'
+      ..['seq'] = 4, Source.CACHE, 0, authority: Authority.PRIMARY);
     var rpcOnly;
     var cacheAndRpc;
+    var primaryCache;
     setUp(() {
       rpcOnly = (testRequestHandler()
         ..values([b, c]))
         .build();
       cacheAndRpc = (testRequestHandler()
         ..values([a, b, c]))
+        .build();
+      primaryCache = (testRequestHandler()
+        ..values([d, b]))
         .build();
     });
     test('handles one RPC response correctly', () {
@@ -133,6 +140,13 @@ main() {
       asyncExpect(stream.first.then((e) => e.source), equals('CACHE'));
       asyncExpect(stream.last.then((e) => e.source), equals('RPC'));
       asyncExpect(stream.length, equals(2));
+    });
+    test('handles cache with PRIMARY authority correctly', () {
+      var onlyResponse = primaryCache
+        .transform(() => const OneShotRequestTransformer())
+        .handle(new TestRequest('GET'), const NoopTrace())
+        .single;
+      asyncExpect(onlyResponse.then((e) => e.source), 'CACHE');
     });
   });
 }

@@ -27,6 +27,8 @@ main() {
       var subject = new Multiplexer(testHandler);
       subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
         expect(actual.entity['foo'], 'rpc');
+        expect(actual.source, Source.RPC);
+        expect(actual.authority, Authority.PRIMARY);
       }, count: 1));
     });
     test('returns cached then rpc entity on age query on stale cache', () {
@@ -52,9 +54,11 @@ main() {
             if (count == 1) {
               expect(actual.entity['foo'], 'cached');
               expect(actual.source, Source.CACHE);
+              expect(actual.authority, Authority.SECONDARY);
             } else if (count == 2) {
               expect(actual.entity['foo'], 'rpc');
               expect(actual.source, Source.RPC);
+              expect(actual.authority, Authority.PRIMARY);
             } else {
               fail('Did not expect to reach this line');
             }
@@ -79,6 +83,7 @@ main() {
         subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
           expect(actual.entity['foo'], 'cached');
           expect(actual.source, Source.CACHE);
+          expect(actual.authority, Authority.PRIMARY);
         }, count: 1));
       }, count: 1));
     });
