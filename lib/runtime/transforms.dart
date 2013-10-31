@@ -9,7 +9,7 @@ class EntityDedupTransformer extends EventTransformer {
 
   EntityDedupTransformer() : super();
 
-  void handleData(Response<T> response, EventSink<T> sink, Trace trace) {
+  void handleData(Response response, EventSink sink, Trace trace) {
     if (!Entity.deepEquals(response.entity, _last)) {
       sink.add(response);
     }
@@ -215,17 +215,6 @@ class TransformingRequestHandler extends RequestHandler {
 /// A factory method for constructing a new [StreamTransformer]. For stateless [StreamTransformer]s,
 // this can be optimized to return a const-constructed [StreamTransformer].
 typedef StreamTransformer<Response, Response> StreamTransformerFactory(Request request, Trace trace);
-
-/// A [RequestHandler] that transforms [Response] [Stream]s with a dart:async [StreamTransformer].
-class DartAsyncTransformRequestHandler extends RequestHandler {
-  final RequestHandler delegate;
-  StreamTransformerFactory transformerFactory;
-
-  DartAsyncTransformRequestHandler(this.delegate, this.transformerFactory);
-
-  Stream<Response> handle(Request request, Trace trace) =>
-    delegate.handle(request).transform(transformerFactory(request, trace));
-}
 
 _runZonedWithOnDone(fn, onDone, trace) {
   // Initial count is 1 due to running 'fn'. This makes it work out
