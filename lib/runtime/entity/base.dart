@@ -3,7 +3,7 @@ part of streamy.runtime;
 /// Public interface of Streamy entities.
 abstract class Entity {
 
-  Entity.base();
+  const Entity.base();
 
   /// Create a new [RawEntity].
   factory Entity() => new RawEntity();
