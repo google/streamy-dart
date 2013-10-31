@@ -29,7 +29,7 @@ class ImmediateRequestHandler extends RequestHandler {
   ImmediateRequestHandler(Foo value) {
     this.stream = new Stream.fromIterable([stringify(value.toJson())]);
   }
-  Stream<Foo> handle(Request request, Trace trace) {
+  Stream<Response<Foo>> handle(Request request, Trace trace) {
     expect(request.local['dedup'], equals(true));
     expect(request.local['ttl'], equals(800));
     expect(request.local['foo'], equals('baz'));

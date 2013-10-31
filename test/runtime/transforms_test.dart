@@ -1,6 +1,5 @@
 library streamy.runtime.transforms.test;
 
-import 'dart:async';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:streamy/streamy.dart';
@@ -38,7 +37,7 @@ main() {
           }
         }, count: 2));
         traced.events.last.then(expectAsync1((lastEvent) {
-          expect(lastEvent, new isInstanceOf<RequestDoneEvent>());
+          expect(lastEvent.runtimeType, RequestOverEvent);
         }));
       }));
       root.send(TEST_GET_REQUEST).listen(expectAsync1((response) {
@@ -64,7 +63,7 @@ main() {
           expect(sawErrorOnStream, isTrue);
         }));
         traced.events.last.then(expectAsync1((lastEvent) {
-          expect(lastEvent, new isInstanceOf<RequestDoneEvent>());
+          expect(lastEvent.runtimeType, RequestOverEvent);
         }));
       }));
       root.send(TEST_GET_REQUEST).listen(expectAsync1((_) {}, count: 0))
