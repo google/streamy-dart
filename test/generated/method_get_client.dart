@@ -106,8 +106,8 @@ class FoosGetRequest extends streamy.Request {
     parameters['fooId'] = value;
   }
   int removeFooId() => parameters.remove('fooId');
-  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
-  Stream<Response<Foo>> sendRaw() =>
+  Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
   Stream<Foo> send() =>
       _sendDirect().map((response) => response.entity);

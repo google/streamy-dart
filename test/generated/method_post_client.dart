@@ -107,8 +107,8 @@ class FoosUpdateRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response> _sendDirect() => this.root.send(this);
-  Stream<Response> sendRaw() =>
+  Stream<streamy.Response> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response> sendRaw() =>
       _sendDirect();
   Stream send() =>
       _sendDirect().map((response) => response.entity);

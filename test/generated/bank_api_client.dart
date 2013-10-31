@@ -376,8 +376,8 @@ class BranchesGetRequest extends streamy.Request {
     parameters['branchId'] = value;
   }
   fixnum.Int64 removeBranchId() => parameters.remove('branchId');
-  Stream<Response<Branch>> _sendDirect() => this.root.send(this);
-  Stream<Response<Branch>> sendRaw() =>
+  Stream<streamy.Response<Branch>> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response<Branch>> sendRaw() =>
       _sendDirect();
   Stream<Branch> send() =>
       _sendDirect().map((response) => response.entity);

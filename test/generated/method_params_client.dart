@@ -62,8 +62,8 @@ class FoosGetRequest extends streamy.Request {
     parameters['param3'] = value;
   }
   List<String> removeParam3() => parameters.remove('param3');
-  Stream<Response> _sendDirect() => this.root.send(this);
-  Stream<Response> sendRaw() =>
+  Stream<streamy.Response> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response> sendRaw() =>
       _sendDirect();
   Stream send() =>
       _sendDirect().map((response) => response.entity);

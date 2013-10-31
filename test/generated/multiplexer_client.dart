@@ -106,8 +106,8 @@ class FoosGetRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
-  Stream<Response<Foo>> sendRaw() =>
+  Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
   Stream<Foo> send() =>
       _sendDirect().map((response) => response.entity);
@@ -139,8 +139,8 @@ class FoosUpdateRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response<Foo>> _sendDirect() => this.root.send(this);
-  Stream<Response<Foo>> sendRaw() =>
+  Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
   Stream<Foo> send() =>
       _sendDirect().map((response) => response.entity);
@@ -171,8 +171,8 @@ class FoosDeleteRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response> _sendDirect() => this.root.send(this);
-  Stream<Response> sendRaw() =>
+  Stream<streamy.Response> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response> sendRaw() =>
       _sendDirect();
   Stream send() =>
       _sendDirect().map((response) => response.entity);
@@ -203,8 +203,8 @@ class FoosCancelRequest extends streamy.Request {
     parameters['id'] = value;
   }
   int removeId() => parameters.remove('id');
-  Stream<Response> _sendDirect() => this.root.send(this);
-  Stream<Response> sendRaw() =>
+  Stream<streamy.Response> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response> sendRaw() =>
       _sendDirect();
   Stream send() =>
       _sendDirect().map((response) => response.entity);
