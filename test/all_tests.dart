@@ -15,6 +15,7 @@ import 'runtime/batching_test.dart' as batching_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/error_test.dart' as runtime_error_test;
 import 'runtime/request_test.dart' as runtime_request_test;
+import 'runtime/transaction_test.dart' as runtime_transaction_test;
 import 'runtime/transforms_test.dart' as runtime_transforms_test;
 import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 import 'runtime/proxy_test.dart' as runtime_proxy_test;
@@ -36,6 +37,7 @@ main() {
   runtime_branching_test.main();
   runtime_error_test.main();
   runtime_request_test.main();
+  runtime_transaction_test.main();
   runtime_transforms_test.main();
   runtime_entity_wrapper_test.main();
   runtime_proxy_test.main();

@@ -27,7 +27,7 @@ class {{topLevelClassName}}
       {String servicePath: '{{servicePath}}',
       streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
       streamy.TransactionStrategy txStrategy: null,
-      Tracer tracer: const streamy.NoopTracer()}) :
+      streamy.Tracer tracer: const streamy.NoopTracer()}) :
           super(typeRegistry, servicePath),
           this._txStrategy = txStrategy,
           this._tracer = tracer;
@@ -36,7 +36,7 @@ class {{topLevelClassName}}
       requestHandler.handle(request, _tracer.trace(request));
 
   {{topLevelClassName}}Transaction beginTransaction() =>
-      new {{topLevelClassName}}Transaction(typeRegistry, servicePath, _tracer,
+      new {{topLevelClassName}}Transaction(typeRegistry, servicePath,
           _txStrategy.beginTransaction());
 }
 

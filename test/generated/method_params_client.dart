@@ -117,14 +117,14 @@ class MethodParamsTest
       {String servicePath: 'paramsTest/v1/',
       streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
       streamy.TransactionStrategy txStrategy: null,
-      Tracer tracer: const streamy.NoopTracer()}) :
+      streamy.Tracer tracer: const streamy.NoopTracer()}) :
           super(typeRegistry, servicePath),
           this._txStrategy = txStrategy,
           this._tracer = tracer;
   Stream send(streamy.Request request) =>
       requestHandler.handle(request, _tracer.trace(request));
   MethodParamsTestTransaction beginTransaction() =>
-      new MethodParamsTestTransaction(typeRegistry, servicePath, _tracer,
+      new MethodParamsTestTransaction(typeRegistry, servicePath,
           _txStrategy.beginTransaction());
 }
 

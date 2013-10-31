@@ -282,14 +282,14 @@ class MultiplexerTest
       {String servicePath: 'multiplexerTest/v1/',
       streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
       streamy.TransactionStrategy txStrategy: null,
-      Tracer tracer: const streamy.NoopTracer()}) :
+      streamy.Tracer tracer: const streamy.NoopTracer()}) :
           super(typeRegistry, servicePath),
           this._txStrategy = txStrategy,
           this._tracer = tracer;
   Stream send(streamy.Request request) =>
       requestHandler.handle(request, _tracer.trace(request));
   MultiplexerTestTransaction beginTransaction() =>
-      new MultiplexerTestTransaction(typeRegistry, servicePath, _tracer,
+      new MultiplexerTestTransaction(typeRegistry, servicePath,
           _txStrategy.beginTransaction());
 }
 

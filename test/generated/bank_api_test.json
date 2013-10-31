@@ -1,0 +1,109 @@
+{
+  "name": "Bank",
+  "servicePath": "bank/v1/",
+  "schemas": {
+    "Address": {
+        "id": "Address",
+        "type": "object",
+        "address_line": {
+          "type": "string",
+          "description": "Street address."
+        },
+        "city": {
+          "type": "string",
+          "description": "City."
+        }
+    },
+    "Branch": {
+      "id": "Branch",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key.",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "description": "Branch name."
+        },
+        "location": {
+          "$ref": "Address"
+        }
+      }
+    },
+    "Account": {
+      "id": "Account",
+      "type": "object",
+      "properties": {
+        "account_number": {
+          "type": "string",
+          "description": "Account number.",
+          "format": "int64"
+        },
+        "branch_id": {
+          "type": "integer",
+          "description": "Branch managing the account.",
+          "format": "int64"
+        },
+        "account_type": {
+          "type": "string",
+          "description": "Account type: CHECKING or SAVINGS"
+        },
+        "currency_type": {
+          "type": "string",
+          "description": "Currency code: USD or CDN"
+        },
+        "balance": {
+          "type": "string",
+          "description": "Balance on the account.",
+          "format": "int64"
+        }
+      }
+    },
+    "Customer": {
+      "id": "Customer",
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "description": "Customer's account numbers.",
+          "items": {
+            "type": "string",
+            "description": "Account number.",
+            "format": "int64"
+          }
+        },
+        "name": {
+          "type": "string",
+          "description": "Customer's full name."
+        }
+      }
+    }
+  },
+  "resources": {
+    "branches": {
+      "methods": {
+        "get": {
+          "id": "bank.branches.get",
+          "path": "branches/{branchId}",
+          "response": {
+            "$ref": "Branch"
+          },
+          "httpMethod": "GET",
+          "description": "Retrieves branch information",
+          "parameters": {
+            "branchId": {
+              "type": "string",
+              "description": "Primary key of a branch",
+              "format": "int64",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["branchId"]
+        }
+      }
+    }
+  }
+}
