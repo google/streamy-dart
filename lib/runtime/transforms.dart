@@ -220,7 +220,25 @@ _runZonedWithOnDone(fn, onDone, trace) {
   // Initial count is 1 due to running 'fn'. This makes it work out
   // nicely if 'fn' itself throws an Exception.
   var asyncCount = 1;
-  runZonedExperimental(() {
+
+  var zoneSpec = new ZoneSpecification(
+    scheduleMicrotask: (Zone _, ZoneDelegate parent, Zone zone, f()) {
+      asyncCount++;
+      parent.scheduleMicrotask(zone, () {
+        trace.record(new UserCallbackAsyncEnterEvent());
+        try {
+          f();
+        } finally {
+          trace.record(new UserCallbackAsyncExitEvent());
+          asyncCount--;
+          if (asyncCount == 0) {
+            onDone();
+          }
+        }
+      });
+    });
+
+  runZoned(() {
     try {
       fn();
     } finally {
@@ -229,19 +247,5 @@ _runZonedWithOnDone(fn, onDone, trace) {
         onDone();
       }
     }
-  }, onRunAsync: (callback) {
-    asyncCount++;
-    runAsync(() {
-      trace.record(new UserCallbackAsyncEnterEvent());
-      try {
-        callback();
-      } finally {
-        trace.record(new UserCallbackAsyncExitEvent());
-        asyncCount--;
-        if (asyncCount == 0) {
-          onDone();
-        }
-      }
-    });
-  });
+  }, zoneSpecification: zoneSpec);
 }
