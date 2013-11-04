@@ -134,6 +134,7 @@ class Branch extends streamy.EntityWrapper {
     var len;
     var result = new Branch.wrapMap(json);
     var fields = result.fieldNames.toList();
+    result.id = (result['id'] != null) ? fixnum.Int64.parseInt(result['id']) : null;
     fields.remove('id');
     fields.remove('name');
     result.location = new Address.fromJson(result['location']);
@@ -146,6 +147,9 @@ class Branch extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
+    if (map.containsKey('id')) {
+      map['id'] = map['id'].toString();
+    }
 ;
     return map;
   }
@@ -388,10 +392,36 @@ class BranchesGetRequest extends streamy.Request {
       new Branch.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }
 
+/// Inserts a branch
+class BranchesInsertRequest extends streamy.Request {
+  static final List<String> KNOWN_PARAMETERS = [
+  ];
+  String get apiType => 'BranchesInsertRequest';
+  Branch get payload => streamy.internalGetPayload(this);
+  String get httpMethod => 'POST';
+  String get pathFormat => 'branches';
+  bool get hasPayload => true;
+  BranchesInsertRequest(Bank root, Branch payloadEntity) : super(root, payloadEntity) {
+  }
+  List<String> get pathParameters => const [];
+  List<String> get queryParameters => const [];
+  Stream<streamy.Response> _sendDirect() => this.root.send(this);
+  Stream<streamy.Response> sendRaw() =>
+      _sendDirect();
+  Stream send() =>
+      _sendDirect().map((response) => response.entity);
+  StreamSubscription listen(void onData(event)) =>
+      _sendDirect().map((response) => response.entity).listen(onData);
+  BranchesInsertRequest clone() => streamy.internalCloneFrom(new BranchesInsertRequest(root, payload.clone()), this);
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
+      new streamy.EmptyEntity();
+}
+
 class BranchesResource {
   final Bank _root;
   static final List<String> KNOWN_METHODS = [
     'get',
+    'insert',
   ];
   String get apiType => 'BranchesResource';
   BranchesResource(this._root);
@@ -402,6 +432,12 @@ class BranchesResource {
     if (branchId != null) {
       request.branchId = branchId;
     }
+    return request;
+  }
+
+  /// Inserts a branch
+  BranchesInsertRequest insert(Branch payload) {
+    var request = new BranchesInsertRequest(_root, payload);
     return request;
   }
 }
