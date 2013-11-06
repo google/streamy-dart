@@ -3,7 +3,7 @@ part of streamy.runtime;
 /// Public interface of Streamy entities.
 abstract class Entity {
 
-  Entity.base();
+  const Entity.base();
 
   /// Create a new [RawEntity].
   factory Entity() => new RawEntity();
@@ -20,7 +20,7 @@ abstract class Entity {
   /// Deep freeze (ha!) this entity to no longer allow changes.
   void _freeze();
 
-  GlobalView get global => new EmptyGlobalView();
+  GlobalView get global => new GlobalView.empty();
 
   /// Create a deep copy of this entity.
   Entity clone();

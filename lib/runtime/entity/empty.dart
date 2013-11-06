@@ -3,7 +3,11 @@ part of streamy.runtime;
 /// Represents an [Entity] that has no return body.
 class EmptyEntity extends Entity {
 
-  EmptyEntity() : super.base();
+  static const _singleton = const EmptyEntity._useFactoryInstead();
+
+  factory EmptyEntity() => _singleton;
+
+  const EmptyEntity._useFactoryInstead() : super.base();
 
   /// Local data associated with this entity instance.
   Map<String, dynamic> get local => null;
@@ -15,7 +19,7 @@ class EmptyEntity extends Entity {
   }
 
   /// Create a deep copy of this entity.
-  EmptyEntity clone() => new EmptyEntity()..streamy._mergeFrom(streamy);
+  EmptyEntity clone() => new EmptyEntity();
 
   /// Data field getter.
   dynamic operator[](String key) => null;

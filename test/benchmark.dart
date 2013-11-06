@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:json/json.dart' as json;
+import 'package:streamy/streamy.dart';
 import 'generated/benchmark_client.dart';
 
 const MAX = 10000000;
@@ -42,7 +43,7 @@ class DeserializationBenchmark extends BenchmarkBase {
   DeserializationBenchmark() : super("Deserialization");
 
   void run() {
-    var foo = new Foo.fromJsonString(js);
+    var foo = new Foo.fromJsonString(js, new NoopTrace());
   }
 
   void setup() {

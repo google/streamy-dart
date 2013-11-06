@@ -13,10 +13,12 @@ class ProxyClient extends RequestHandler {
 
   Stream<Response> handle(Request req, Trace trace) {
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
-    var payload = req.hasPayload ? stringify(req.payload) : null;
-    var headers = const {
-      _CONTENT_TYPE: 'application/json; charset=utf-8',
-    };
+    var payload = null;
+    var headers = {};
+    if (req.hasPayload) {
+      payload = stringify(req.payload);
+      headers[_CONTENT_TYPE] = 'application/json; charset=utf-8';
+    }
     var cancelCompleter = new Completer();
     var httpReq = new StreamyHttpRequest(url, req.httpMethod, headers,
         req.local, cancelCompleter.future, payload: payload);

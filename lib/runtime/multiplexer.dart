@@ -279,19 +279,3 @@ class MultiplexerRpcCancelEvent implements TraceEvent {
 
   String toString() => 'streamy.multiplexer.rpc.cancel';
 }
-
-
-/// A [RequestHandler] which wraps [Multiplexer] and adds a few
-/// utility methods to delegate to it.
-abstract class BaseMultiplexedRequestHandler extends RequestHandler {
-
-  final Multiplexer delegate;
-
-  BaseMultiplexedRequestHandler(this.delegate);
-
-  /// Retrieve an entity from cache only, if present.
-  Future<Entity> getFromCache(Request request) {
-    request.local['noRpcAge'] = Multiplexer.AGE_CACHE_LOOKUP_ONCE;
-    return delegate.handle(request).pipe(new ZeroOrOneConsumer());
-  }
-}

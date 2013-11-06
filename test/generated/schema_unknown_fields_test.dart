@@ -4,11 +4,11 @@ import 'dart:mirrors';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'schema_unknown_fields_client.dart';
+import '../utils.dart';
 
 main() {
   var reg = new TypeRegistry({
-    // TODO(yjbanov): Use Foo.KIND as key when Dart allows it
-    "type#foo": Foo.entityFactory,
+    Foo.KIND: Foo.entityFactory,
   });
 
   group('Entity', () {
@@ -39,7 +39,7 @@ main() {
           }
           ''', const NoopTrace(), typeRegistry: reg);
       var foo = bar['foo'];
-      expect(foo, new isInstanceOf<Foo>());
+      expect(foo.runtimeType, Foo);
       expect(foo.baz, equals('buzz'));
     });
     test('deserializes an unknown list of elements of known type', () {
@@ -59,7 +59,7 @@ main() {
           }
           ''', const NoopTrace(), typeRegistry: reg);
       var foos = bar['foos'];
-      expect(foos, new isInstanceOf<List>());
+      expect(foos, new isAssignableTo<List>());
       expect(foos.length, equals(2));
       expect(foos[0].baz, equals('buzz1'));
       expect(foos[1].baz, equals('buzz2'));
@@ -80,10 +80,10 @@ main() {
           }
           ''', const NoopTrace(), typeRegistry: reg);
       var unknown = bar['unknown'];
-      expect(unknown, new isInstanceOf<Entity>());
+      expect(unknown.runtimeType, RawEntity);
       expect(unknown['car'], equals('tesla'));
       var foo = unknown['foo'];
-      expect(foo, new isInstanceOf<Foo>());
+      expect(foo.runtimeType, Foo);
       expect(foo.baz, equals('buzz'));
     });
   });
