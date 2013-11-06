@@ -161,6 +161,8 @@ _patch(v) {
     });
     return c;
   } else if (v is List) {
+    // PATCH semantics dictate that arrays are replaced and not merged. Hence,
+    // the array contents need to be clones, not patches.
     return new ObservableList.from(v.map((value) => _clone(value)));
   } else {
     return v;
