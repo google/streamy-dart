@@ -19,7 +19,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
+          "type": "string",
           "description": "Primary key.",
           "format": "int64"
         },
@@ -102,6 +102,17 @@
             }
           },
           "parameterOrder": ["branchId"]
+        },
+        "insert": {
+          "id": "bank.branches.insert",
+          "path": "branches",
+          "request": {
+            "$ref": "Branch"
+          },
+          "httpMethod": "POST",
+          "description": "Inserts a branch",
+          "parameters": {
+          }
         }
       }
     }

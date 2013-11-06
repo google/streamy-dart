@@ -228,7 +228,11 @@ deserialize(value, TypeRegistry reg) => _deserialize(value, reg);
 /// A sentinel value which indicates that an RPC returned an error.
 class _ErrorEntity implements Entity {
 
+  final apiType = '_ErrorEntity';
+
   const _ErrorEntity();
+
+  GlobalView get global => new GlobalView.empty();
 
   operator[](key) => throw "Not implemented";
   operator[]=(key, value) {

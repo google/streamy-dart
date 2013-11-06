@@ -39,17 +39,29 @@ class GlobalRegistration {
   }
 }
 
-/// A view of globals as they relate to a specific [Entity]. Implements observability based on
-/// dependencies of the globals involved.
-class GlobalView extends ChangeNotifier {
+/// A view of globals as they relate to a specific [Entity]. Implements
+/// observability based on dependencies of the globals involved.
+abstract class GlobalView extends Observable {
+  /// A real global view backed by a map of registered globals.
+  factory GlobalView(EntityWrapper entity,
+      Map<String, GlobalRegistration> globals) =>
+          new _GlobalViewImpl(entity, globals);
 
-  Entity _entity;
+  /// A global view that doesn't have any globals.
+  factory GlobalView.empty() => new _EmptyGlobalView();
+
+  operator[](String key);
+}
+
+class _GlobalViewImpl extends ChangeNotifier implements GlobalView {
+
+  EntityWrapper _entity;
   Map<String, GlobalRegistration> _globals;
   var _changeController;
   var _changesSub;
   var _depSubs = [];
 
-  GlobalView(this._entity, this._globals);
+  _GlobalViewImpl(this._entity, this._globals);
 
   Stream<List<ChangeRecord>> get changes {
     if (_changeController == null) {
@@ -79,7 +91,8 @@ class GlobalView extends ChangeNotifier {
         reg.dependencies.forEach((dep) {
           var stream;
           if (dep is String) {
-            stream =_entity.changes.where((changes) => changes.map((change) => change.key).contains(dep));
+            stream = _entity.changes.where(
+                (changes) => changes.map((change) => change.key).contains(dep));
           } else if (dep is GlobalStreamDepFn) {
               stream = dep();
           } else if (dep is GlobalStreamEntityDepFn) {
@@ -104,20 +117,32 @@ class GlobalView extends ChangeNotifier {
 }
 
 /// A [GlobalView] for an [Entity] that does not have globals.
-class EmptyGlobalView extends ChangeNotifier implements GlobalView {
+class _EmptyGlobalView implements GlobalView {
 
-  static EmptyGlobalView _singleton;
+  static const _singleton = const _EmptyGlobalView._useFactoryInstead();
 
-  factory EmptyGlobalView() {
-    if (_singleton == null) {
-      _singleton = new EmptyGlobalView._private();
-    }
-    return _singleton;
-  }
+  factory _EmptyGlobalView() => _singleton;
 
-  EmptyGlobalView._private();
+  const _EmptyGlobalView._useFactoryInstead();
 
   bool containsKey(String key) => false;
   operator[](String key) => null;
   _entityChanged() {}
+
+  Stream<List<ChangeRecord>> get changes {
+    var c = new StreamController();
+    c.close();
+    return c.stream;
+  }
+
+  bool deliverChanges() {
+  }
+
+  bool get hasObservers => false;
+
+  void notifyChange(ChangeRecord record) {
+  }
+
+  notifyPropertyChange(Symbol field, Object oldValue, Object newValue) {
+  }
 }

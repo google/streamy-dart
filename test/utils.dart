@@ -4,6 +4,33 @@ library streamy.test.utils;
 import 'dart:async';
 import 'package:unittest/unittest.dart';
 
+/// A safer [isInstanceOf].
+class isAssignableTo<T> extends Matcher {
+
+  String _name;
+  final _delegate = new isInstanceOf<T>();
+
+  isAssignableTo([name = 'specified type']) {
+    _name = name;
+    try {
+      expect(new Object(), isNot(_delegate));
+    } on TestFailure catch(f) {
+      throw new ArgumentError(
+          'Seems like an unsupported type was passed to '
+          'isAssignableTo. Three known possibilities:\n'
+          ' - You are trying to check Object/dynamic\n'
+          ' - The type does not exist\n'
+          ' - The type exists but you forgot to import it');
+    }
+  }
+
+  Description describe(Description description) =>
+      description.add('assignable to ${_name}');
+
+  bool matches(item, Map matchState) =>
+      _delegate.matches(item, matchState);
+}
+
 List<Function> _asyncQueue = [];
 List _asyncErrors = [];
 bool _wrappedAsync = false;

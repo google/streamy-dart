@@ -70,5 +70,5 @@ class StreamTracer implements Tracer {
     return trace;
   }
 
-  Stream<TraceRequest> get requests => _controller.stream;
+  Stream<TracedRequest> get requests => _controller.stream;
 }
