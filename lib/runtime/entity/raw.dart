@@ -24,12 +24,22 @@ class RawEntity extends Entity implements Map, Observable {
   /// Actual fields of the Apiary entity.
   ObservableMap _data;
 
+  var _originalMap;
+
+  Map get _original {
+    if (_originalMap == null) {
+      _originalMap = {};
+    }
+    return _originalMap;
+  }
+
   int get length => _data.length;
 
   void _freeze() {
     _frozen = true;
     _local = null;
     _freezeHelper(_data);
+    _originalMap = _data;
   }
 
   ObservableMap<String, dynamic> _local;
@@ -47,10 +57,24 @@ class RawEntity extends Entity implements Map, Observable {
 
   /// Copy this entity (but not local data).
   RawEntity clone() => new RawEntity().._cloneFrom(this);
+  /// Create a patch version of this entity.
+  RawEntity patch() => new RawEntity().._patchFrom(this);
 
   /// Merge fields from an input map.
   _cloneFrom(RawEntity input) {
     _data = _clone(input._data);
+    _originalMap = input._original;
+  }
+
+  /// Merge changed fields from an input entity.
+  _patchFrom(RawEntity input) {
+    input._data.forEach((key, value) {
+      var vNew = input._data[key];
+      var vOld = input._original[key];
+      if (!_patchCheckEqual(vOld, vNew)) {
+        _data[key] = _patch(vNew);
+      }
+    });
   }
 
   /// Data field getter.

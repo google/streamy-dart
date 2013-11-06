@@ -151,6 +151,34 @@ _clone(v) {
   }
 }
 
+_patch(v) {
+  if (v is Entity) {
+    return v.patch();
+  } else if (v is Map) {
+    ObservableMap c = new ObservableMap();
+    v.forEach((k, v) {
+      c[k] = _patch(v);
+    });
+    return c;
+  } else if (v is List) {
+    return new ObservableList.from(v.map((value) => _clone(value)));
+  } else {
+    return v;
+  }
+}
+
+_patchCheckEqual(a, b) {
+  if (a is List) {
+    if (b is! List || b.length != a.length) {
+      return false;
+    }
+    return zip([a, b]).every((values) => _patchCheckEqual(values[0], values[1]));
+  } else if (a is Entity) {
+    return (b is Entity) && Entity.deepEquals(a, b);
+  }
+  return a == b;
+}
+
 /**
  * Adds unknown properties from the ramaining map entries after all known
  * properties have been deserialized. [remainderJson] contains the remaining
@@ -212,6 +240,7 @@ class _ErrorEntity implements Entity {
   }
   toJson() => throw "Not implemented";
   clone() => throw "Not implemented";
+  patch() => throw "Not implemented";
   @deprecated  // defined here solely to conform to the interface
   contains(key) => throw "Not implemented";
   containsKey(key) => throw "Not implemented";
@@ -230,3 +259,5 @@ const _INTERNAL_ERROR = const Response(null, Source.ERROR, 0);
 /// Walk a map-like structure through a list of keys, beginning with an initial value.
 _walk(initial, pieces) => pieces.fold(initial,
       (current, keyPiece) => current != null ? current[keyPiece] : null);
+
+freezeForTest(entity) => entity._freeze();

@@ -145,8 +145,15 @@ class Emitter {
         'hasQueryParameters': methodInfo.queryParameters.isNotEmpty && false,
         'queryParameters': methodInfo.queryParameters,
         'docs': docLines(method.description),
+        'patch': false
       };
       methods.add(methodData);
+      if (method.name == 'update') {
+        var patchData = new Map.from(methodData)
+          ..['name'] = 'patch'
+          ..['patch'] = true;
+        methods.add(patchData);
+      }
     });
     var resourceData = {
       'topLevelClassName': _topLevelClassName,
@@ -175,6 +182,7 @@ class Emitter {
       'sendParams': sendParams,
       'hasSendParams': sendParams.isNotEmpty,
       'docs': docLines(method.description),
+      'patchable': method.name == 'update'
     };
 
     if (methodInfo.hasResponse) {

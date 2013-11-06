@@ -302,4 +302,52 @@ main() {
       exDep.add(foo.id);
     });
   });
+  solo_group('patch()', () {
+    test('works like clone() for a new basic entity', () {
+      var e = new Foo()
+        ..id = 1;
+      var p = e.patch();
+      expect(p.id, 1);
+      expect(p, new isInstanceOf<Foo>());
+      p.id = 2;
+      expect(e.id, 1);
+    });
+    test('only copies changed fields for a basic entity', () {
+      var e = new Foo()
+        ..id = 1
+        ..bar = 'this changes'
+        ..quux = [1.1, 1.2];
+      streamy.freezeForTest(e);
+      var c = e.clone();
+      c.bar = 'this has changed';
+      var p = c.patch();
+      expect(p.bar, 'this has changed');
+      expect(p.id, isNull);
+      expect(p.quux, isNull);
+      c.quux.add(1.3);
+      expect(p.quux, isNull);
+      expect(c.patch().quux, [1.1, 1.2, 1.3]);
+    });
+    test('handles nested entities', () {
+      var foo1 = new Foo()
+        ..id = 1
+        ..bar = 'this changes';
+      var foo2 = new Foo()
+        ..id = 2
+        ..bar = 'this will be deleted';
+      var foo3 = new Foo()
+        ..id = 3
+        ..bar = 'this does not change';
+      var bar = new Bar()
+        ..primary = foo1
+        ..foos = [foo2, foo3];
+      streamy.freezeForTest(bar);
+      var barC = bar.clone();
+      barC.primary.bar = 'changed!';
+      barC.foos[0].remove('bar');
+      var barP = barC.patch();
+      expect(stringify(barP),
+          '{"foos":[{"id":2},{"bar":"this does not change","id":3}],"primary":{"bar":"changed!"}}');
+    });
+  });
 }

@@ -146,6 +146,7 @@ typedef dynamic BarGlobalFn(Bar entity);
 class Bar extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
+    'primary',
     'foos',
   ]);
   String get apiType => 'Bar';
@@ -168,6 +169,13 @@ class Bar extends streamy.EntityWrapper {
   Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned), globals: _globals);
   Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+
+  /// The primary foo.
+  Foo get primary => this['primary'];
+  set primary(Foo value) {
+    this['primary'] = value;
+  }
+  Foo removePrimary() => this.remove('primary');
 
   /// A bunch of foos.
   List<Foo> get foos => this['foos'];
@@ -195,6 +203,8 @@ class Bar extends streamy.EntityWrapper {
     var len;
     var result = new Bar.wrapMap(json);
     var fields = result.fieldNames.toList();
+    result.primary = new Foo.fromJson(result['primary']);
+    fields.remove('primary');
     list = result['foos'];
     if (list != null) {
       len = list.length;

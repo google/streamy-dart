@@ -25,6 +25,9 @@ abstract class Entity {
   /// Create a deep copy of this entity.
   Entity clone();
 
+  /// Create a version of this entity which only contains its changes.
+  Entity patch();
+
   /// Access entity data by field name.
   dynamic operator[](String key);
 

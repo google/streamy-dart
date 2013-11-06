@@ -10,13 +10,17 @@ class {{name}} extends streamy.Request {
 
   {{#payload}}{{payloadType}} get payload => streamy.internalGetPayload(this);{{/payload}}
 
-  String get httpMethod => '{{httpMethod}}';
+  {{#patchable}}
+  final patch;
+  {{/patchable}}
+
+  String get httpMethod => {{#patchable}}patch ? 'PATCH' : {{/patchable}}'{{httpMethod}}';
 
   String get pathFormat => '{{path}}';
 
   bool get hasPayload => {{#payload}}true{{/payload}}{{^payload}}false{{/payload}};
 
-  {{name}}({{topLevelClassName}} root{{#payload}}, {{payloadType}} payloadEntity{{/payload}}) : super(root{{#payload}}, payloadEntity{{/payload}}) {
+  {{name}}({{topLevelClassName}} root{{#payload}}, {{payloadType}} payloadEntity{{/payload}}{{#patchable}}, {bool this.patch: false}{{/patchable}}) : super(root{{#payload}}, payloadEntity{{/payload}}) {
 {{#parameters}}{{#repeated}}    {{varName}} = new {{type}}();
 {{/repeated}}{{/parameters}}
   }
