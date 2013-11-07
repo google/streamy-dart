@@ -21,11 +21,12 @@ main() {
           }
           ''', const NoopTrace());
       // Known field
-      expect(reflectClass(Foo).getters.containsKey(new Symbol('baz')), isTrue);
+      MethodMirror method(Type t, String symName) =>
+          reflectClass(t).declarations[new Symbol(symName)] as MethodMirror;
+      expect(method(Foo, 'baz').isGetter, isTrue);
       expect(foo.baz, equals('buzz'));
       // Unknown field
-      expect(reflectClass(Foo).members.containsKey(new Symbol('hello')),
-          isFalse);
+      expect(method(Foo, 'hello'), isNull);
       expect(foo['hello'], equals('world'));
     });
     test('deserializes an unknown field of known type', () {

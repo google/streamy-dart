@@ -20,7 +20,7 @@ import 'runtime/transforms_test.dart' as runtime_transforms_test;
 import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 import 'runtime/proxy_test.dart' as runtime_proxy_test;
 
-main() {
+main(List<String> args) {
   ensureCheckedMode();
   addendum_test.main();
   method_get_test.main();
@@ -32,7 +32,7 @@ main() {
   http_test.main();
   batching_test.main();
   streamy_test.main();
-  generator_emitter_test.main();
+  generator_emitter_test.main(args);
   runtime_multiplexer_test.main();
   runtime_branching_test.main();
   runtime_error_test.main();

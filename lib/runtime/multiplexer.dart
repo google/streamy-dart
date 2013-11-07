@@ -228,9 +228,9 @@ class Multiplexer extends RequestHandler {
 
     response.entity._freeze();
 
-
     // Publish this new entity on every channel.
-    _activeIndex[request].forEach((act) => runAsync(() => act.submit(response)));
+    _activeIndex[request].forEach((act) =>
+        scheduleMicrotask(() => act.submit(response)));
 
     // Commit to cache. It's expected that the cache will clone, serialize, or otherwise
     // copy the entity to avoid modifications.
