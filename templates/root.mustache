@@ -4,7 +4,7 @@ abstract class {{topLevelClassName}}ResourcesMixin {
   {{type}} _{{name}};
   {{type}} get {{name}} {
     if (_{{name}} == null) {
-      _{{name}} = new {{type}}(this);
+      _{{name}} = new {{type}}(this as streamy.Root);
     }
     return _{{name}};
   }

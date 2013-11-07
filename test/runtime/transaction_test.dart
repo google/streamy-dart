@@ -1,6 +1,7 @@
 library streamy.runtime.transaction.test;
 
 import 'dart:async';
+import 'package:fixnum/fixnum.dart';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
@@ -36,6 +37,28 @@ main() {
       tx.commit();
       expect(tximpl.committed, isTrue);
     });
+
+    test('should pass end-to-end test', () {
+      var tx = root.beginTransaction();
+      TestTxn tximpl = txStrategy.lastTransaction;
+      expect(tximpl.requests, hasLength(0));
+      var req = tx.branches.insert(new Branch()..id = new Int64(123));
+      var resp = new Response(null, 'RPC', 0);
+      fakeResponse[req] = resp;
+
+      Response actual;
+      req.sendRaw().listen((r) { actual = r; });
+
+      // Before we commit we expect requests to be accumulated
+      expect(tximpl.requests, hasLength(1));
+      expect(tximpl.requests[0], same(req));
+
+      // After we commit the requests should be flushed and response received
+      tx.commit();
+      expect(tximpl.requests, hasLength(0));
+      expect(actual, isNotNull);
+      expect(actual, same(resp));
+    });
   });
 }
 
@@ -46,15 +69,27 @@ class TestTxnStrategy implements TransactionStrategy {
   }
 }
 
+final fakeResponse = new Expando<Response>();
+final committer = new Expando<Function>();
+
 class TestTxn implements Transaction {
   bool committed = false;
   List<Request> requests = [];
 
   Future commit() {
+    for (var request in requests) {
+      committer[request]();
+    }
+    requests = [];
     committed = true;
   }
 
   Stream send(Request request) {
     requests.add(request);
+    var response = new StreamController(sync: true);
+    committer[request] = () {
+      response.add(fakeResponse[request]);
+    };
+    return response.stream;
   }
 }
