@@ -16,7 +16,7 @@ abstract class EntityWrapper extends Entity implements Observable {
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
   /// subclass given a cloned (or patched) instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone,
+  EntityWrapper.wrap(this._delegate, this._cloneFn,
       {Map<String, GlobalRegistration> globals:
           const <String, GlobalRegistration>{} })
             : super.base(), _globals = globals;
