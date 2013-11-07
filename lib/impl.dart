@@ -39,7 +39,7 @@ class SimpleRequestHandler extends RequestHandler {
     _http.send(req).then((StreamyHttpResponse resp) {
       ctrl.add(new Response(
           request.responseDeserializer(resp.body, trace),
-          'RPC',
+          Source.RPC,
           new DateTime.now().millisecondsSinceEpoch));
     }, onError: ctrl.addError);
     return ctrl.stream;
