@@ -95,7 +95,7 @@ class FoosGetRequest extends streamy.Request {
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
-  FoosGetRequest(MultiplexerTest root) : super(root) {
+  FoosGetRequest(streamy.Root root) : super(root) {
   }
   List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
@@ -129,7 +129,7 @@ class FoosUpdateRequest extends streamy.Request {
   String get httpMethod => patch ? 'PATCH' : 'PUT';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => true;
-  FoosUpdateRequest(MultiplexerTest root, Foo payloadEntity, {bool this.patch: false}) : super(root, payloadEntity) {
+  FoosUpdateRequest(streamy.Root root, Foo payloadEntity, {bool this.patch: false}) : super(root, payloadEntity) {
   }
   List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
@@ -161,7 +161,7 @@ class FoosDeleteRequest extends streamy.Request {
   String get httpMethod => 'DELETE';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
-  FoosDeleteRequest(MultiplexerTest root) : super(root) {
+  FoosDeleteRequest(streamy.Root root) : super(root) {
   }
   List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
@@ -193,7 +193,7 @@ class FoosCancelRequest extends streamy.Request {
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/cancel/{id}';
   bool get hasPayload => false;
-  FoosCancelRequest(MultiplexerTest root) : super(root) {
+  FoosCancelRequest(streamy.Root root) : super(root) {
   }
   List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
@@ -217,7 +217,7 @@ class FoosCancelRequest extends streamy.Request {
 }
 
 class FoosResource {
-  final MultiplexerTest _root;
+  final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
     'get',
     'update',
@@ -272,7 +272,7 @@ abstract class MultiplexerTestResourcesMixin {
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
-      _foos = new FoosResource(this);
+      _foos = new FoosResource(this as streamy.Root);
     }
     return _foos;
   }

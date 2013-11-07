@@ -12,7 +12,7 @@ abstract class StreamyHttpService {
 /// Translation of a [Request] into HTTP parts.
 class StreamyHttpRequest {
   /// Complete request URL.
-  final String url;
+  String url;
 
   /// HTTP method
   final String method;
@@ -58,8 +58,20 @@ class StreamyHttpRequest {
       List<StreamyHttpRequest> requests, {Random random}) {
     if (random == null) random = _DEFAULT_RANDOM;
     var boundary = _generateBoundary(random);
-    var body = '--$boundary\r\n' +
-        requests.map((r) => r.toString()).join('--$boundary\r\n');
+    var partPrefix =
+        '--$boundary\r\n' +
+        'Content-Type: application/http\r\n' +
+        'Content-Transfer-Encoding: binary\r\n\r\n';
+    var body =
+        partPrefix +
+        requests.map((r) {
+          if (r.payload != null && !r.headers.containsKey('content-length')) {
+            r.headers['content-length'] =
+                _measureContentLength(r.payload).toString();
+          }
+          return r.toString();
+        }).join(partPrefix) +
+        '--$boundary--\r\n';
     return new StreamyHttpRequest(url, method, headers, null, onCancel,
         payload: body)
       ..headers['content-type'] = 'multipart/mixed; boundary=$boundary';
@@ -101,26 +113,37 @@ class StreamyHttpResponse {
   }
 
   static StreamyHttpResponse parse(String response) {
-    var body = '';
-    var i = response.indexOf('\r\n\r\n');
-    if (i != -1) {
-      body = response.substring(i + 4);
-      response = response.substring(0, i);
-    }
     var lines = response.split('\r\n');
-    var first = lines.first;
-    var headers = lines.skip(1);
-    var headerData = <String, String>{};
-    var code = int.parse(first.split(' ')[0]);
-    headers.forEach((line) {
-      var i = line.indexOf(':');
-      if (i == -1) {
-        return;
+    int i = 0;
+
+    if (!lines[i].startsWith('HTTP/1.1 ')) {
+      while(lines[i] != '') {
+        // Skip preamble headers
+        i++;
       }
-      var name = line.substring(0, i).toLowerCase();
-      var value = line.substring(i + 1).trim();
+
+      // Skip padding between preample headers and status line
+      i++;
+    }
+
+    var statusLine = lines[i++];
+    var code = int.parse(statusLine.split(' ')[1]);
+
+    var headerData = <String, String>{};
+    String headerLine;
+    int colonIndex;
+    while((colonIndex = (headerLine = lines[i]).indexOf(':')) != -1) {
+      var name = headerLine.substring(0, colonIndex).toLowerCase();
+      var value = headerLine.substring(colonIndex + 1).trim();
       headerData[name] = value;
-    });
+      i++;
+    };
+
+    // Skip padding between headers and body
+    i++;
+
+    // The remainder is the body
+    String body = lines.sublist(i).join('\r\n');
     if (headerData.containsKey('content-length')) {
       body = _trimBody(body, int.parse(headerData['content-length']));
     }
@@ -130,7 +153,7 @@ class StreamyHttpResponse {
   List<StreamyHttpResponse> splitMultipart() {
     var cType = headers['content-type'];
     if (!cType.startsWith('multipart/mixed;')) {
-      throw new StateError('Not a mulipart content type: $cType');
+      throw new StateError('Not a multipart content type: $cType');
     }
     var boundary = cType.substring(cType.indexOf('=') + 1);
     return body.split('--$boundary\r\n').skip(1).map(parse).toList();
@@ -150,3 +173,6 @@ String _trimBody(String body, int byteLength) {
 String _generateBoundary(Random random) =>
     new String.fromCharCodes(new List<int>.generate(50,
         (_) => 65 + random.nextInt(26)));
+
+int _measureContentLength(String payload) =>
+    _UTF8.encoder.convert(payload).length;

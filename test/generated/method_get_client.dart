@@ -95,7 +95,7 @@ class FoosGetRequest extends streamy.Request {
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{fooId}';
   bool get hasPayload => false;
-  FoosGetRequest(MethodGetTest root) : super(root) {
+  FoosGetRequest(streamy.Root root) : super(root) {
   }
   List<String> get pathParameters => const ['fooId',];
   List<String> get queryParameters => const [];
@@ -119,7 +119,7 @@ class FoosGetRequest extends streamy.Request {
 }
 
 class FoosResource {
-  final MethodGetTest _root;
+  final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
     'get',
   ];
@@ -140,7 +140,7 @@ abstract class MethodGetTestResourcesMixin {
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
-      _foos = new FoosResource(this);
+      _foos = new FoosResource(this as streamy.Root);
     }
     return _foos;
   }

@@ -3,7 +3,7 @@ part of streamy.runtime;
 class _ActiveStream {
 
   /// The request that this stream transmits.
-  final Request request;
+  final Request requestKey;
 
   /// [Completer] for the [closed] [Future], which indicates when this stream
   /// no longer has subscribers.
@@ -21,7 +21,7 @@ class _ActiveStream {
   /// A [Future] that completes when this stream loses its subscriber(s).
   Future get closed => _closeCompleter.future;
 
-  _ActiveStream(this.request) {
+  _ActiveStream(this.requestKey) {
     _sink = new StreamController<Response>(onCancel: _closeCompleter.complete);
   }
 
@@ -77,9 +77,9 @@ class Multiplexer extends RequestHandler {
   Multiplexer(this._delegate, {Cache cache: null})
       : this._cache = cache == null ? new AsyncMapCache() : cache;
 
-  _newActiveStream(request) {
+  _newActiveStream(requestKey) {
     // Create a new stream for this request.
-    var active = new _ActiveStream(request);
+    var active = new _ActiveStream(requestKey);
     active.closed.whenComplete(() => _removeActive(active));
 
     return active;
@@ -188,21 +188,21 @@ class Multiplexer extends RequestHandler {
   Stream handle(Request originalRequest, Trace trace) {
     // Make a copy of the request for use in the multiplexer, since it's not
     // immutable.
-    var request = originalRequest.clone();
+    var requestKey = originalRequest.clone();
 
     if (originalRequest.local.containsKey('noRpcAge')) {
-      if (!request.isCachable) {
+      if (!originalRequest.isCachable) {
         throw new ArgumentError("Cannot specify noRpcAge parameter on a non-cachable request.");
       }
-      return _handleAgeQuery(request, originalRequest.local['noRpcAge'], trace);
+      return _handleAgeQuery(originalRequest, originalRequest.local['noRpcAge'], trace);
     }
 
-    var active = _newActiveStream(request);
+    var active = _newActiveStream(requestKey);
 
     // Only cachable requests need to be handled by the multiplexer (right now).
-    if (request.isCachable) {
+    if (originalRequest.isCachable) {
       // Make cache request (always).
-      _cache.get(request)
+      _cache.get(requestKey)
         .catchError(active.sendError)
         .then((cached) {
           if (cached != null) {
@@ -215,7 +215,7 @@ class Multiplexer extends RequestHandler {
         });
     }
 
-    _sendRpc(request, active, trace);
+    _sendRpc(originalRequest, active, trace);
 
     return active.stream;
   }
@@ -240,10 +240,10 @@ class Multiplexer extends RequestHandler {
   }
 
   _removeActive(_ActiveStream stream) {
-    var request = stream.request;
-    _activeIndex.remove(request, stream);
-    if (!_activeIndex.containsKey(request) && _inFlightRequests.containsKey(request)) {
-      _inFlightRequests[request].cancel();
+    var requestKey = stream.requestKey;
+    _activeIndex.remove(requestKey, stream);
+    if (!_activeIndex.containsKey(requestKey) && _inFlightRequests.containsKey(requestKey)) {
+      _inFlightRequests[requestKey].cancel();
     }
   }
 }

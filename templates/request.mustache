@@ -20,7 +20,7 @@ class {{name}} extends streamy.Request {
 
   bool get hasPayload => {{#payload}}true{{/payload}}{{^payload}}false{{/payload}};
 
-  {{name}}({{topLevelClassName}} root{{#payload}}, {{payloadType}} payloadEntity{{/payload}}{{#patchable}}, {bool this.patch: false}{{/patchable}}) : super(root{{#payload}}, payloadEntity{{/payload}}) {
+  {{name}}(streamy.Root root{{#payload}}, {{payloadType}} payloadEntity{{/payload}}{{#patchable}}, {bool this.patch: false}{{/patchable}}) : super(root{{#payload}}, payloadEntity{{/payload}}) {
 {{#parameters}}{{#repeated}}    {{varName}} = new {{type}}();
 {{/repeated}}{{/parameters}}
   }
