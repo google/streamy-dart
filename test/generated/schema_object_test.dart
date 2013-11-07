@@ -302,7 +302,7 @@ main() {
       exDep.add(foo.id);
     });
   });
-  solo_group('patch()', () {
+  group('patch()', () {
     test('works like clone() for a new basic entity', () {
       var e = new Foo()
         ..id = 1;
