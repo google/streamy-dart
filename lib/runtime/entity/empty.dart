@@ -21,6 +21,9 @@ class EmptyEntity extends Entity {
   /// Create a deep copy of this entity.
   EmptyEntity clone() => new EmptyEntity();
 
+  /// Create a version of this entity which only contains its changes.
+  EmptyEntity patch() => new EmptyEntity();
+
   /// Data field getter.
   dynamic operator[](String key) => null;
 
