@@ -1,4 +1,7 @@
-// Implementations based on in-browser [HttpRequest]
+// Implementations based on in-browser [HttpRequest]. Classes defined here can
+// only be used in applications that run inside a web-browser. They don't work
+// outside the web-browser. For out-of-browser implementations, check out
+// impl_server.dart.
 library streamy.html_impl;
 
 import 'dart:html';
@@ -46,6 +49,9 @@ class HtmlHttpService implements StreamyHttpService {
   }
 }
 
+/// A [SimpleRequestHandler] specialized for use in applications that run
+/// inside a web-browser.
 class HtmlRequestHandler extends SimpleRequestHandler {
-  HtmlRequestHandler() : super(const HtmlHttpService());
+  HtmlRequestHandler([String apiServerAddress]) :
+    super(const HtmlHttpService(), apiServerAddress: apiServerAddress);
 }

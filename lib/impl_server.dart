@@ -1,6 +1,6 @@
 // Implementations for out-of-browser applications, such as command-line apps
-// and servers.
-library streamy.html_impl;
+// and servers. For in-browser applications use impl_html.dart.
+library streamy.server_impl;
 
 import 'dart:async';
 import 'dart:convert';
@@ -45,6 +45,9 @@ class ServerHttpService implements StreamyHttpService {
     });
 }
 
+/// A [SimpleRequestHandler] specialized for use in server-side or command-line
+/// applications.
 class ServerRequestHandler extends SimpleRequestHandler {
-  ServerRequestHandler() : super(new ServerHttpService());
+  ServerRequestHandler([String apiServerAddress]) :
+    super(new ServerHttpService(), apiServerAddress: apiServerAddress);
 }
