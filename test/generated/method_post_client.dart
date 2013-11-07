@@ -97,7 +97,7 @@ class FoosUpdateRequest extends streamy.Request {
   String get httpMethod => patch ? 'PATCH' : 'POST';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => true;
-  FoosUpdateRequest(MethodPostTest root, Foo payloadEntity, {bool this.patch: false}) : super(root, payloadEntity) {
+  FoosUpdateRequest(streamy.Root root, Foo payloadEntity, {bool this.patch: false}) : super(root, payloadEntity) {
   }
   List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
@@ -121,7 +121,7 @@ class FoosUpdateRequest extends streamy.Request {
 }
 
 class FoosResource {
-  final MethodPostTest _root;
+  final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
     'update',
     'patch',
@@ -146,7 +146,7 @@ abstract class MethodPostTestResourcesMixin {
   FoosResource _foos;
   FoosResource get foos {
     if (_foos == null) {
-      _foos = new FoosResource(this);
+      _foos = new FoosResource(this as streamy.Root);
     }
     return _foos;
   }

@@ -369,7 +369,7 @@ class BranchesGetRequest extends streamy.Request {
   String get httpMethod => 'GET';
   String get pathFormat => 'branches/{branchId}';
   bool get hasPayload => false;
-  BranchesGetRequest(Bank root) : super(root) {
+  BranchesGetRequest(streamy.Root root) : super(root) {
   }
   List<String> get pathParameters => const ['branchId',];
   List<String> get queryParameters => const [];
@@ -401,7 +401,7 @@ class BranchesInsertRequest extends streamy.Request {
   String get httpMethod => 'POST';
   String get pathFormat => 'branches';
   bool get hasPayload => true;
-  BranchesInsertRequest(Bank root, Branch payloadEntity) : super(root, payloadEntity) {
+  BranchesInsertRequest(streamy.Root root, Branch payloadEntity) : super(root, payloadEntity) {
   }
   List<String> get pathParameters => const [];
   List<String> get queryParameters => const [];
@@ -418,7 +418,7 @@ class BranchesInsertRequest extends streamy.Request {
 }
 
 class BranchesResource {
-  final Bank _root;
+  final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
     'get',
     'insert',
@@ -446,7 +446,7 @@ abstract class BankResourcesMixin {
   BranchesResource _branches;
   BranchesResource get branches {
     if (_branches == null) {
-      _branches = new BranchesResource(this);
+      _branches = new BranchesResource(this as streamy.Root);
     }
     return _branches;
   }
