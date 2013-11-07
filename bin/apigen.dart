@@ -5,8 +5,8 @@ import 'package:json/json.dart';
 import 'package:streamy/generator.dart';
 
 /// Generates an API client from a Google API discovery file.
-main() {
-  ApigenOptions options = parseArgs();
+main(List<String> args) {
+  ApigenOptions options = parseArgs(args);
   var discoveryFile = new io.File(options.discoveryFile);
   discoveryFile.readAsString(encoding: convert.UTF8).then((String json) {
     var discovery = new Discovery.fromJsonString(json);
@@ -22,7 +22,7 @@ main() {
   });
 }
 
-ApigenOptions parseArgs() {
+ApigenOptions parseArgs(List<String> arguments) {
   var argp = new ArgParser()
     ..addOption(
         'discovery_file',
@@ -39,7 +39,7 @@ ApigenOptions parseArgs() {
     ..addOption(
         'templates_dir',
         help: 'Directory containing code templates.');
-  var args = argp.parse(new io.Options().arguments);
+  var args = argp.parse(arguments);
   var options = new ApigenOptions(
       args['discovery_file'],
       args['client_file'],

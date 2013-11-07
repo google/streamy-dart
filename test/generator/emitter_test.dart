@@ -4,7 +4,7 @@ import 'package:streamy/generator.dart';
 import 'package:unittest/unittest.dart';
 import '../project.dart';
 
-main() {
+main(List<String> args) {
   var discovery = new Discovery.fromJsonString(
 """
 {
@@ -52,7 +52,7 @@ main() {
 }
 """);
   var clientCode = new Emitter(new DefaultTemplateProvider(
-      "$projectRootDir/templates")).generate("docstestapi", discovery);
+      "${projectRootDir(args)}/templates")).generate("docstestapi", discovery);
   group('Emitter', () {
     test('should emit docs for root class', () {
       expectContains(clientCode,
