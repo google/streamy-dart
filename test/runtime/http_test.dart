@@ -4,7 +4,9 @@ import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 
 var SIMPLE_RESPONSE = [
-    '200 OK',
+    'Content-Type: application/http',
+    '',
+    'HTTP/1.1 200 OK',
     'Host: google.com',
     'Content-Type: text/plain; charset=utf-8',
     'Content-Length: 12',
@@ -13,7 +15,9 @@ var SIMPLE_RESPONSE = [
     ''
   ].join('\r\n');
 var SIMPLE_RESPONSE_2 = [
-    '200 OK',
+    'Content-Type: application/http',
+    '',
+    'HTTP/1.1 200 OK',
     'Host: api.google.com',
     'Content-Type: text/html; charset=utf-8',
     'Content-Length: 11',
@@ -22,7 +26,9 @@ var SIMPLE_RESPONSE_2 = [
     ''
   ].join('\r\n');
 var SIMPLE_RESPONSE_3 = [
-    '201 Created',
+    'Content-Type: application/http',
+    '',
+    'HTTP/1.1 201 Created',
     'Host: client6.google.com',
     'Content-Type: application/json; charset=utf-8',
     'Content-Length: 10',
@@ -31,7 +37,7 @@ var SIMPLE_RESPONSE_3 = [
     ''
   ].join('\r\n');
 var MULTIPART_RESPONSE = [
-    '200 OK',
+    'HTTP/1.1 200 OK',
     'Host: google.com',
     'Content-Type: multipart/mixed; boundary=ABCDEFG',
     '',
@@ -72,15 +78,20 @@ accept-encoding: utf-8
       var cType = mpReq.headers['content-type'];
       var boundary = cType.split('=')[1];
       expect(cType.startsWith('multipart/mixed; boundary='), isTrue);
-      expect(mpReq.headers['content-length'], equals('470'));
       expect(mpReq.headers['host'], equals('multipart.google.com'));
       expect(mpReq.payload, equals(
 '''--$boundary
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
 GET /test/url HTTP/1.1
 host: google.com
 accept-encoding: utf-8
 
 --$boundary
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
 POST /test/another/url HTTP/1.1
 host: api.google.com
 content-type: text/plain; charset=utf-8
@@ -88,12 +99,16 @@ content-length: 12
 
 Hello world!
 --$boundary
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
 POST /a/third/url HTTP/1.1
 host: google.com
 accept-encoding: utf-8
 content-length: 14
 
 Goodbye world!
+--$boundary--
 '''.replaceAll('\n', '\r\n')));
     });
   });
