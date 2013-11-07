@@ -7,7 +7,7 @@ abstract class EntityWrapper extends Entity implements Observable {
   final Entity _delegate;
 
   /// A function which clones the subclass of this [EntityWrapper].
-  final EntityWrapperCloneFn _clone;
+  final EntityWrapperCloneFn _cloneFn;
 
   final Map<String, GlobalRegistration> _globals;
 
@@ -15,8 +15,8 @@ abstract class EntityWrapper extends Entity implements Observable {
 
   /// Constructor which takes the wrapped [Entity] and an [EntityWrapperCloneFn]
   /// from the subclass. This clone function returns a new instance of the
-  /// subclass given a cloned instance of the wrapped [Entity].
-  EntityWrapper.wrap(this._delegate, this._clone,
+  /// subclass given a cloned (or patched) instance of the wrapped [Entity].
+  EntityWrapper.wrap(this._delegate, this._cloneFn,
       {Map<String, GlobalRegistration> globals:
           const <String, GlobalRegistration>{} })
             : super.base(), _globals = globals;
@@ -44,7 +44,12 @@ abstract class EntityWrapper extends Entity implements Observable {
   /// Subclasses should override [clone] to return an instance of the
   /// appropriate type. Note: failure to override [clone] when extending
   /// a subclass of [EntityWrapper] can result in broken behavior.
-  Entity clone() => _clone(_delegate.clone());
+  Entity clone() => _cloneFn(_delegate.clone());
+
+  /// Subclasses should override [patch] to return an instance of the
+  /// appropriate type. Note: failure to override [patch] when extending
+  /// a subclass of [EntityWrapper] can result in broken behavior.
+  Entity patch() => _cloneFn(_delegate.patch());
 
   bool get isFrozen => _delegate.isFrozen;
 

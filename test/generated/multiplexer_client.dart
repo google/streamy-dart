@@ -125,10 +125,11 @@ class FoosUpdateRequest extends streamy.Request {
   ];
   String get apiType => 'FoosUpdateRequest';
   Foo get payload => streamy.internalGetPayload(this);
-  String get httpMethod => 'PUT';
+  final patch;
+  String get httpMethod => patch ? 'PATCH' : 'PUT';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => true;
-  FoosUpdateRequest(streamy.Root root, Foo payloadEntity) : super(root, payloadEntity) {
+  FoosUpdateRequest(streamy.Root root, Foo payloadEntity, {bool this.patch: false}) : super(root, payloadEntity) {
   }
   List<String> get pathParameters => const ['id',];
   List<String> get queryParameters => const [];
@@ -220,6 +221,7 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = [
     'get',
     'update',
+    'patch',
     'delete',
     'cancel',
   ];
@@ -238,6 +240,12 @@ class FoosResource {
   /// Updates a foo
   FoosUpdateRequest update(Foo payload) {
     var request = new FoosUpdateRequest(_root, payload);
+    return request;
+  }
+
+  /// Updates a foo
+  FoosUpdateRequest patch(Foo payload) {
+    var request = new FoosUpdateRequest(_root, payload.patch(), patch: true);
     return request;
   }
 

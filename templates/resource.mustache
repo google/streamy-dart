@@ -16,7 +16,7 @@ class {{capName}}Resource {
 {{/docs}}
   {{reqType}} {{name}}({{#payload}}{{payloadType}} payload{{/payload}}{{^payload}}{{#pathParameters}}{{argType}} {{name}}{{^last}}, {{/last}}{{/pathParameters}}{{/payload}}{{#hasQueryParameters}}{{#hasPathParametersOrPayload}},{{/hasPathParametersOrPayload}}
       { {{#queryParameters}}{{argType}} {{name}}{{^last}}, {{/last}}{{/queryParameters}} } {{/hasQueryParameters}}) {
-    var request = new {{reqType}}(_root{{#payload}}, payload{{/payload}});{{#hasQueryParameters}}{{#queryParameters}}
+    var request = new {{reqType}}(_root{{#payload}}, payload{{#patch}}.patch(){{/patch}}{{/payload}}{{#patch}}, patch: true{{/patch}});{{#hasQueryParameters}}{{#queryParameters}}
     if ({{name}} != null) {
       {{^repeated}}request.{{name}} = {{name}};{{/repeated}}
       {{#repeated}}request.{{name}}.addAll({{name}});{{/repeated}}

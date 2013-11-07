@@ -42,6 +42,10 @@
       "id": "Bar",
       "type": "object",
       "properties": {
+        "primary": {
+          "$ref": "Foo",
+          "description": "The primary foo."
+        },
         "foos": {
           "type": "array",
           "description": "A bunch of foos.",
