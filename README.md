@@ -1,12 +1,25 @@
-# Streamy
+# Streamy for Dart (experimental)
 
 Streamy is a feature-rich RPC/API framework for applications written using [Dart programming language](http://dartlang.org). It relies on [Google API Discovery](https://developers.google.com/discovery/) file format for API description. Streamy also provides out-of-the-box JSON-over-REST protocol.
 
-Using Streamy your application can:
+## Using Streamy your application can:
 
 * Access many Google APIs, such as Google Calendar API
 * Talk to your own APIs built using [Google Cloud Endpoints](https://developers.google.com/appengine/docs/java/endpoints/)
 * Talk to your own APIs hosted on your own servers and described using Google Discovery format
+
+## Features
+
+* Rich Entity/Request/Resource objects: mutable, immutable, observable with Map-like interface
+* Fully customizable (in fact, fully replaceable) request handling pipeline
+  - Caching
+  - Request deduplication
+  - API proxy
+  - One-shot and keep-alive
+  - Tracing
+  - Out-of-the-box JSON-over-REST implementation
+  - Transactional API
+  - Request batching
 
 ## 5-Minute Tutorial
 
@@ -47,19 +60,21 @@ The apigen.dart program provided by Streamy reads the discovery file (```urlshor
 
 ### Use it
 
-Let's create ```main.dart``` that contains this code:
+Let's create an entry point for our program, called ```main.dart```, which contains the following code:
 
-    import 'urlshortener.dart';
-    import 'package:streamy/impl_server.dart';
-    
-    main(List<String> args) {
-      var requestHandler = new ServerRequestHandler();
-      var api = new Urlshortener(requestHandler);
-      api.url.insert(new Url()..longUrl = args[0])
-        .send().listen((Url response) {
-          print('Shortened to ${response.id}');
-        });
-    }
+```dart
+import 'urlshortener.dart';
+import 'package:streamy/impl_server.dart';
+
+main(List<String> args) {
+  var requestHandler = new ServerRequestHandler();
+  var api = new Urlshortener(requestHandler);
+  api.url.insert(new Url()..longUrl = args[0])
+    .send().listen((Url response) {
+      print('Shortened to ${response.id}');
+    });
+}
+```
 
 We are done. Let's run the program:
 
