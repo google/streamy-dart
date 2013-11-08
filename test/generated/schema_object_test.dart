@@ -108,7 +108,7 @@ main() {
         expect(changes, hasLength(7));
 
         var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.field, const Symbol('length'));
+        expect(r0.name, const Symbol('length'));
 
         var r1 = changes[1] as MapChangeRecord;
         expect(r1.key, 'id');
@@ -121,7 +121,7 @@ main() {
         expect(r2.isRemove, isFalse);
 
         var r3 = changes[3] as PropertyChangeRecord;
-        expect(r3.field, const Symbol('length'));
+        expect(r3.name, const Symbol('length'));
 
         var r4 = changes[4] as MapChangeRecord;
         expect(r4.key, 'bar');
@@ -134,7 +134,7 @@ main() {
         expect(r5.isRemove, isTrue);
 
         var r6 = changes[6] as PropertyChangeRecord;
-        expect(r6.field, const Symbol('length'));
+        expect(r6.name, const Symbol('length'));
       }, count: 1));
       foo.id = 1;
       foo.id = 2;
@@ -151,7 +151,7 @@ main() {
         expect(changes, hasLength(2));
 
         var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.field, const Symbol('length'));
+        expect(r0.name, const Symbol('length'));
 
         var r1 = changes[1] as MapChangeRecord;
         expect(r1.key, 'id');
@@ -173,7 +173,7 @@ main() {
         expect(changes, hasLength(5));
 
         var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.field, const Symbol('length'));
+        expect(r0.name, const Symbol('length'));
 
         var r1 = changes[1] as MapChangeRecord;
         expect(r1.key, 'hello');
@@ -191,7 +191,7 @@ main() {
         expect(r3.isRemove, isTrue);
 
         var r4 = changes[4] as PropertyChangeRecord;
-        expect(r4.field, const Symbol('length'));
+        expect(r4.name, const Symbol('length'));
       }, count: 1));
 
       // Fire changes
@@ -348,6 +348,23 @@ main() {
       var barP = barC.patch();
       expect(stringify(barP),
           '{"foos":[{"id":2},{"bar":"this does not change","id":3}],"primary":{"bar":"changed!"}}');
+    });
+  });
+  group('Bad characters', () {
+    test('should not appear in entity classes', () {
+      new clean_some_entity_();
+    });
+    test('should not appear in GlobalFn classes', () {
+      clean_some_entity_.addGlobal('test',
+          (clean_some_entity_ e) => null);
+    });
+    test('should not appear in entity properties', () {
+      new clean_some_entity_()
+        ..clean_badly_named_property____________ = new fixnum.Int64(123);
+    });
+    test('should not appear in resources and methods names', () {
+      new SchemaObjectTest(null)
+        .clean_some_resource_.clean_some_method_(null, null);
     });
   });
 }

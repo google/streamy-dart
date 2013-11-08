@@ -54,6 +54,41 @@
           }
         }
       }
+    },
+    "-some-entity-": {
+      "id": "-some-entity-",
+      "type": "object",
+      "properties": {
+        "%badly#named property~!@#$%^&*()?": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    }
+  },
+  "resources": {
+    "-some-resource-": {
+      "methods": {
+        "-some-method-": {
+          "id": "service.foos.get",
+          "path": "foos/{fooId}",
+          "response": {
+            "$ref": "-some-entity-"
+          },
+          "httpMethod": "GET",
+          "parameters": {
+            "-path param-": {
+              "type": "integer",
+              "location": "path"
+            },
+            "-query param-": {
+              "type": "integer",
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["-path param-"]
+        }
+      }
     }
   }
 }

@@ -12,56 +12,56 @@ import 'package:observe/observe.dart' as obs;
 /// Gets a foo
 class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'barId',
-    'fooId',
-    'param1',
-    'param2',
-    'param3',
+    r'barId',
+    r'fooId',
+    r'param1',
+    r'param2',
+    r'param3',
   ];
-  String get apiType => 'FoosGetRequest';
+  String get apiType => r'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{barId}/{fooId}';
   bool get hasPayload => false;
   FoosGetRequest(streamy.Root root) : super(root) {
     param3 = new List<String>();
   }
-  List<String> get pathParameters => const ['barId','fooId',];
-  List<String> get queryParameters => const ['param1','param2','param3',];
+  List<String> get pathParameters => const [r'barId',r'fooId',];
+  List<String> get queryParameters => const [r'param1',r'param2',r'param3',];
 
   /// Primary key of bar
-  String get barId => parameters['barId'];
+  String get barId => parameters[r'barId'];
   set barId(String value) {
-    parameters['barId'] = value;
+    parameters[r'barId'] = value;
   }
-  String removeBarId() => parameters.remove('barId');
+  String removeBarId() => parameters.remove(r'barId');
 
   /// Primary key of foo
-  int get fooId => parameters['fooId'];
+  int get fooId => parameters[r'fooId'];
   set fooId(int value) {
-    parameters['fooId'] = value;
+    parameters[r'fooId'] = value;
   }
-  int removeFooId() => parameters.remove('fooId');
+  int removeFooId() => parameters.remove(r'fooId');
 
   /// A parameter
-  bool get param1 => parameters['param1'];
+  bool get param1 => parameters[r'param1'];
   set param1(bool value) {
-    parameters['param1'] = value;
+    parameters[r'param1'] = value;
   }
-  bool removeParam1() => parameters.remove('param1');
+  bool removeParam1() => parameters.remove(r'param1');
 
   /// Another parameter
-  bool get param2 => parameters['param2'];
+  bool get param2 => parameters[r'param2'];
   set param2(bool value) {
-    parameters['param2'] = value;
+    parameters[r'param2'] = value;
   }
-  bool removeParam2() => parameters.remove('param2');
+  bool removeParam2() => parameters.remove(r'param2');
 
   /// A repeated parameter
-  List<String> get param3 => parameters['param3'];
+  List<String> get param3 => parameters[r'param3'];
   set param3(List<String> value) {
-    parameters['param3'] = value;
+    parameters[r'param3'] = value;
   }
-  List<String> removeParam3() => parameters.remove('param3');
+  List<String> removeParam3() => parameters.remove(r'param3');
   Stream<streamy.Response> _sendDirect() => this.root.send(this);
   Stream<streamy.Response> sendRaw() =>
       _sendDirect();
@@ -77,9 +77,9 @@ class FoosGetRequest extends streamy.Request {
 class FoosResource {
   final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
-    'get',
+    r'get',
   ];
-  String get apiType => 'FoosResource';
+  String get apiType => r'FoosResource';
   FoosResource(this._root);
 
   /// Gets a foo
@@ -108,7 +108,7 @@ abstract class MethodParamsTestResourcesMixin {
 class MethodParamsTest
     extends streamy.Root
     with MethodParamsTestResourcesMixin {
-  String get apiType => 'MethodParamsTest';
+  String get apiType => r'MethodParamsTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -133,7 +133,7 @@ class MethodParamsTest
 class MethodParamsTestTransaction
     extends streamy.TransactionRoot
     with MethodParamsTestResourcesMixin {
-  String get apiType => 'MethodParamsTestTransaction';
+  String get apiType => r'MethodParamsTestTransaction';
   MethodParamsTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

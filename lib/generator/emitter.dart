@@ -57,10 +57,10 @@ class Emitter {
     }
 
     var types = [];
-    discovery.schemas.forEach((String name, TypeDescriptor schema) {
+    discovery.schemas.forEach((String id, TypeDescriptor schema) {
       if (schema.kind != null) {
         types.add({
-          'name': name,
+          'name': id,
           'kind': schema.kind,
         });
       }
@@ -72,8 +72,8 @@ class Emitter {
       'source_of_templates': _templateProvider.sourceOfTemplates,
     });
 
-    discovery.schemas.forEach((String name, TypeDescriptor type) {
-      processType(name, type);
+    discovery.schemas.forEach((String id, TypeDescriptor type) {
+      processType(id, type);
     });
 
     var sendParams = [];
@@ -134,7 +134,7 @@ class Emitter {
     resource.methods.forEach((Method method) {
       MethodInfo methodInfo = processMethod(resource, method, sendParams);
       var methodData = {
-        'name': method.name,
+        'name': methodInfo.apiName,
         'reqType': methodInfo.requestTypeName,
         'payload': methodInfo.payloadData,
         'parameters': methodInfo.parameters,
@@ -155,11 +155,10 @@ class Emitter {
         methods.add(patchData);
       }
     });
+    var identifierName = cleanseForIdentifierName(resource.name);
     var resourceData = {
-      'topLevelClassName': _topLevelClassName,
-      'type': '${capitalize(resource.name)}Resource',
-      'name': resource.name,
-      'capName': capitalize(resource.name),
+      'name': identifierName,
+      'type': '${capitalize(identifierName)}Resource',
       'methods': methods,
     };
     _render(_resourceTmpl, resourceData);
@@ -209,26 +208,28 @@ class Emitter {
       case STRING_TYPE:
         return new ProcessTypeResult.basic(type.type.dartType, type.format);
       case REF_TYPE:
-        // TODO: is ref == class name?
         return new ProcessTypeResult.object(type.ref);
       case ARRAY_TYPE:
         ProcessTypeResult elemTypeResult = processType(name, type.items);
         return new ProcessTypeResult.list(elemTypeResult);
       case OBJECT_TYPE:
-        return new ProcessTypeResult.object(processObjectType(name, type));
+        processObjectType(name, type);
+        return new ProcessTypeResult.object(name);
     }
     throw new ApigenException('Unsupported type ${type.type}');
   }
 
-  String processObjectType(String name, TypeDescriptor type) {
+  void processObjectType(String name, TypeDescriptor type) {
     var properties = <Map>[];
     type.properties.forEach((String propertyName, TypeDescriptor propertyType) {
-      String capName = capitalize(propertyName);
+      String identifierName = cleanseForIdentifierName(propertyName);
+      String capName = capitalize(identifierName);
       ProcessTypeResult proctr =
           processType('${name}_${capName}', propertyType);
       var propertyData = {
         'type': proctr.typeName,
         'name': propertyName,
+        'identifier_name': identifierName,
         'capName': capName,
         'mustSerialize': [],
         'hasParseExpr': [],
@@ -252,23 +253,21 @@ class Emitter {
     // TODO(yjbanov): support additionalProperties
 
     _render(_objectTmpl, {
-      'name': name,
+      'name': cleanseForIdentifierName(name),
       'properties': properties,
       'docs': docLines(type.description),
       'hasKind': type.kind != null,
       'kind': type.kind,
     });
-
-    return name;
   }
 }
 
 class ProcessTypeResult {
-  String typeName;
-  bool isBasic;
-  bool isList;
-  String elemTypeName;
-  String parseExpr;
+  final String typeName;
+  final bool isBasic;
+  final bool isList;
+  final String elemTypeName;
+  final String parseExpr;
 
   ProcessTypeResult._private(
       this.typeName,
@@ -301,8 +300,10 @@ class ProcessTypeResult {
         typeName, true, false, null, parseExpr);
   }
 
-  factory ProcessTypeResult.object(String typeName) {
-    return new ProcessTypeResult._private(typeName, false, false, null, null);
+  factory ProcessTypeResult.object(String rawName) {
+    var identifierName = cleanseForIdentifierName(rawName);
+    return new ProcessTypeResult._private(identifierName, false, false, null,
+        null);
   }
 
   factory ProcessTypeResult.list(ProcessTypeResult elemTypeResult) {
@@ -315,6 +316,7 @@ class ProcessTypeResult {
 }
 
 class MethodInfo {
+  String apiName;
   String requestTypeName;
   bool hasResponse;
   String responseTypeName;
@@ -326,8 +328,9 @@ class MethodInfo {
   List<Map> queryParameters = [];
 
   MethodInfo(Emitter gen, Resource resource, Method method) {
-    var typeNamePrefix =
-        '${capitalize(resource.name)}${capitalize(method.name)}';
+    this.apiName = cleanseForIdentifierName(method.name);
+    var typeNamePrefix = cleanseForIdentifierName(
+        '${capitalize(resource.name)}${capitalize(method.name)}');
     this.hasPayload = method.request != null;
     if (hasPayload) {
       this.payloadTypeName = gen.processType(
@@ -335,7 +338,7 @@ class MethodInfo {
           method.request).typeName;
     }
 
-    this.requestTypeName = '${typeNamePrefix}Request';
+    this.requestTypeName = cleanseForIdentifierName('${typeNamePrefix}Request');
 
     this.hasResponse = method.response != null;
     if (hasResponse) {
@@ -344,7 +347,7 @@ class MethodInfo {
 
     method.parameters.forEach((String paramName, Parameter param) {
       TypeDescriptor paramType = param.type;
-      var paramVarName = paramName.replaceAll('\.', '_');
+      var paramVarName = cleanseForIdentifierName(paramName);
       String paramTypeName =
           gen.processType('${method.name}_${paramVarName}', paramType).typeName;
       var paramArgTypeName = paramTypeName;
@@ -389,4 +392,14 @@ class MethodInfo {
     }
     return [];
   }
+}
+
+final NON_IDENTIFIER_CHAR_MATCHER = new RegExp(r'[^a-zA-Z\d]');
+
+String cleanseForIdentifierName(String name) {
+  var cleanName = name.replaceAll(NON_IDENTIFIER_CHAR_MATCHER, '_');
+  if (cleanName.startsWith('_')) {
+    cleanName = 'clean${cleanName}';
+  }
+  return cleanName;
 }

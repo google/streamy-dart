@@ -15,14 +15,14 @@ typedef dynamic FooGlobalFn(Foo entity);
 class Foo extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'id',
-    'bar',
-    'baz',
-    'qux',
-    'quux',
-    'corge',
+    r'id',
+    r'bar',
+    r'baz',
+    r'qux',
+    r'quux',
+    r'corge',
   ]);
-  String get apiType => 'Foo';
+  String get apiType => r'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -44,52 +44,52 @@ class Foo extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Primary key.
-  int get id => this['id'];
+  int get id => this[r'id'];
   set id(int value) {
-    this['id'] = value;
+    this[r'id'] = value;
   }
-  int removeId() => this.remove('id');
+  int removeId() => this.remove(r'id');
 
   /// Foo's favorite bar.
-  Bar get bar => this['bar'];
+  Bar get bar => this[r'bar'];
   set bar(Bar value) {
-    this['bar'] = value;
+    this[r'bar'] = value;
   }
-  Bar removeBar() => this.remove('bar');
+  Bar removeBar() => this.remove(r'bar');
 
   /// It's spelled buzz.
-  int get baz => this['baz'];
+  int get baz => this[r'baz'];
   set baz(int value) {
-    this['baz'] = value;
+    this[r'baz'] = value;
   }
-  int removeBaz() => this.remove('baz');
+  int removeBaz() => this.remove(r'baz');
 
   /// Not what it seems.
-  fixnum.Int64 get qux => this['qux'];
+  fixnum.Int64 get qux => this[r'qux'];
   set qux(fixnum.Int64 value) {
-    this['qux'] = value;
+    this[r'qux'] = value;
   }
-  fixnum.Int64 removeQux() => this.remove('qux');
+  fixnum.Int64 removeQux() => this.remove(r'qux');
 
   /// The plural of qux
-  List<double> get quux => this['quux'];
+  List<double> get quux => this[r'quux'];
   set quux(List<double> value) {
     if (value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
-    this['quux'] = value;
+    this[r'quux'] = value;
   }
-  List<double> removeQuux() => this.remove('quux');
+  List<double> removeQuux() => this.remove(r'quux');
 
   /// A double field that's serialized as a number.
-  List<int> get corge => this['corge'];
+  List<int> get corge => this[r'corge'];
   set corge(List<int> value) {
     if (value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
-    this['corge'] = value;
+    this[r'corge'] = value;
   }
-  List<int> removeCorge() => this.remove('corge');
+  List<int> removeCorge() => this.remove(r'corge');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -107,25 +107,25 @@ class Foo extends streamy.EntityWrapper {
     var len;
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
-    fields.remove('id');
-    result.bar = new Bar.fromJson(result['bar']);
-    fields.remove('bar');
-    fields.remove('baz');
-    result.qux = (result['qux'] != null) ? fixnum.Int64.parseInt(result['qux']) : null;
-    fields.remove('qux');
-    list = result['quux'];
+    fields.remove(r'id');
+    result.bar = new Bar.fromJson(result[r'bar']);
+    fields.remove(r'bar');
+    fields.remove(r'baz');
+    result.qux = (result[r'qux'] != null) ? fixnum.Int64.parseInt(result[r'qux']) : null;
+    fields.remove(r'qux');
+    list = result[r'quux'];
     if (list != null) {
-      list = result['quux'];
+      list = result[r'quux'];
       len = list.length;
       for (var i = 0; i < len; i++) {
         list[i] = double.parse(list[i]);
       }
     }
-    fields.remove('quux');
-    list = result['corge'];
+    fields.remove(r'quux');
+    list = result[r'corge'];
     if (list != null) {
     }
-    fields.remove('corge');
+    fields.remove(r'corge');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -134,11 +134,11 @@ class Foo extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-    if (map.containsKey('qux')) {
-      map['qux'] = map['qux'].toString();
+    if (map.containsKey(r'qux')) {
+      map[r'qux'] = map[r'qux'].toString();
     }
-    if (map.containsKey('quux')) {
-      map['quux'] = streamy.nullSafeMapToList(map['quux'], (o) => o.toString());
+    if (map.containsKey(r'quux')) {
+      map[r'quux'] = streamy.nullSafeMapToList(map[r'quux'], (o) => o.toString());
     }
 ;
     return map;
@@ -153,9 +153,9 @@ typedef dynamic BarGlobalFn(Bar entity);
 class Bar extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'foos',
+    r'foos',
   ]);
-  String get apiType => 'Bar';
+  String get apiType => r'Bar';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BarGlobalFn computeFn,
@@ -177,14 +177,14 @@ class Bar extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// A bunch of foos.
-  List<Foo> get foos => this['foos'];
+  List<Foo> get foos => this[r'foos'];
   set foos(List<Foo> value) {
     if (value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
-    this['foos'] = value;
+    this[r'foos'] = value;
   }
-  List<Foo> removeFoos() => this.remove('foos');
+  List<Foo> removeFoos() => this.remove(r'foos');
   factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -202,14 +202,14 @@ class Bar extends streamy.EntityWrapper {
     var len;
     var result = new Bar.wrapMap(json);
     var fields = result.fieldNames.toList();
-    list = result['foos'];
+    list = result[r'foos'];
     if (list != null) {
       len = list.length;
       for (var i = 0; i < len; i++) {
         list[i] = new Foo.fromJson(list[i]);
       }
     }
-    fields.remove('foos');
+    fields.remove(r'foos');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -231,7 +231,7 @@ abstract class SchemaObjectTestResourcesMixin {
 class SchemaObjectTest
     extends streamy.Root
     with SchemaObjectTestResourcesMixin {
-  String get apiType => 'SchemaObjectTest';
+  String get apiType => r'SchemaObjectTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -256,7 +256,7 @@ class SchemaObjectTest
 class SchemaObjectTestTransaction
     extends streamy.TransactionRoot
     with SchemaObjectTestResourcesMixin {
-  String get apiType => 'SchemaObjectTestTransaction';
+  String get apiType => r'SchemaObjectTestTransaction';
   SchemaObjectTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

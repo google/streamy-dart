@@ -16,7 +16,7 @@ class Address extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
-  String get apiType => 'Address';
+  String get apiType => r'Address';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, AddressGlobalFn computeFn,
@@ -74,11 +74,11 @@ typedef dynamic BranchGlobalFn(Branch entity);
 class Branch extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'id',
-    'name',
-    'location',
+    r'id',
+    r'name',
+    r'location',
   ]);
-  String get apiType => 'Branch';
+  String get apiType => r'Branch';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BranchGlobalFn computeFn,
@@ -100,23 +100,23 @@ class Branch extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Primary key.
-  fixnum.Int64 get id => this['id'];
+  fixnum.Int64 get id => this[r'id'];
   set id(fixnum.Int64 value) {
-    this['id'] = value;
+    this[r'id'] = value;
   }
-  fixnum.Int64 removeId() => this.remove('id');
+  fixnum.Int64 removeId() => this.remove(r'id');
 
   /// Branch name.
-  String get name => this['name'];
+  String get name => this[r'name'];
   set name(String value) {
-    this['name'] = value;
+    this[r'name'] = value;
   }
-  String removeName() => this.remove('name');
-  Address get location => this['location'];
+  String removeName() => this.remove(r'name');
+  Address get location => this[r'location'];
   set location(Address value) {
-    this['location'] = value;
+    this[r'location'] = value;
   }
-  Address removeLocation() => this.remove('location');
+  Address removeLocation() => this.remove(r'location');
   factory Branch.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Branch.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -134,11 +134,11 @@ class Branch extends streamy.EntityWrapper {
     var len;
     var result = new Branch.wrapMap(json);
     var fields = result.fieldNames.toList();
-    result.id = (result['id'] != null) ? fixnum.Int64.parseInt(result['id']) : null;
-    fields.remove('id');
-    fields.remove('name');
-    result.location = new Address.fromJson(result['location']);
-    fields.remove('location');
+    result.id = (result[r'id'] != null) ? fixnum.Int64.parseInt(result[r'id']) : null;
+    fields.remove(r'id');
+    fields.remove(r'name');
+    result.location = new Address.fromJson(result[r'location']);
+    fields.remove(r'location');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -147,8 +147,8 @@ class Branch extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-    if (map.containsKey('id')) {
-      map['id'] = map['id'].toString();
+    if (map.containsKey(r'id')) {
+      map[r'id'] = map[r'id'].toString();
     }
 ;
     return map;
@@ -163,13 +163,13 @@ typedef dynamic AccountGlobalFn(Account entity);
 class Account extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'account_number',
-    'branch_id',
-    'account_type',
-    'currency_type',
-    'balance',
+    r'account_number',
+    r'branch_id',
+    r'account_type',
+    r'currency_type',
+    r'balance',
   ]);
-  String get apiType => 'Account';
+  String get apiType => r'Account';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, AccountGlobalFn computeFn,
@@ -191,39 +191,39 @@ class Account extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Account number.
-  fixnum.Int64 get account_number => this['account_number'];
+  fixnum.Int64 get account_number => this[r'account_number'];
   set account_number(fixnum.Int64 value) {
-    this['account_number'] = value;
+    this[r'account_number'] = value;
   }
-  fixnum.Int64 removeAccount_number() => this.remove('account_number');
+  fixnum.Int64 removeAccount_number() => this.remove(r'account_number');
 
   /// Branch managing the account.
-  fixnum.Int64 get branch_id => this['branch_id'];
+  fixnum.Int64 get branch_id => this[r'branch_id'];
   set branch_id(fixnum.Int64 value) {
-    this['branch_id'] = value;
+    this[r'branch_id'] = value;
   }
-  fixnum.Int64 removeBranch_id() => this.remove('branch_id');
+  fixnum.Int64 removeBranch_id() => this.remove(r'branch_id');
 
   /// Account type: CHECKING or SAVINGS
-  String get account_type => this['account_type'];
+  String get account_type => this[r'account_type'];
   set account_type(String value) {
-    this['account_type'] = value;
+    this[r'account_type'] = value;
   }
-  String removeAccount_type() => this.remove('account_type');
+  String removeAccount_type() => this.remove(r'account_type');
 
   /// Currency code: USD or CDN
-  String get currency_type => this['currency_type'];
+  String get currency_type => this[r'currency_type'];
   set currency_type(String value) {
-    this['currency_type'] = value;
+    this[r'currency_type'] = value;
   }
-  String removeCurrency_type() => this.remove('currency_type');
+  String removeCurrency_type() => this.remove(r'currency_type');
 
   /// Balance on the account.
-  fixnum.Int64 get balance => this['balance'];
+  fixnum.Int64 get balance => this[r'balance'];
   set balance(fixnum.Int64 value) {
-    this['balance'] = value;
+    this[r'balance'] = value;
   }
-  fixnum.Int64 removeBalance() => this.remove('balance');
+  fixnum.Int64 removeBalance() => this.remove(r'balance');
   factory Account.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Account.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -241,13 +241,13 @@ class Account extends streamy.EntityWrapper {
     var len;
     var result = new Account.wrapMap(json);
     var fields = result.fieldNames.toList();
-    result.account_number = (result['account_number'] != null) ? fixnum.Int64.parseInt(result['account_number']) : null;
-    fields.remove('account_number');
-    fields.remove('branch_id');
-    fields.remove('account_type');
-    fields.remove('currency_type');
-    result.balance = (result['balance'] != null) ? fixnum.Int64.parseInt(result['balance']) : null;
-    fields.remove('balance');
+    result.account_number = (result[r'account_number'] != null) ? fixnum.Int64.parseInt(result[r'account_number']) : null;
+    fields.remove(r'account_number');
+    fields.remove(r'branch_id');
+    fields.remove(r'account_type');
+    fields.remove(r'currency_type');
+    result.balance = (result[r'balance'] != null) ? fixnum.Int64.parseInt(result[r'balance']) : null;
+    fields.remove(r'balance');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -256,11 +256,11 @@ class Account extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-    if (map.containsKey('account_number')) {
-      map['account_number'] = map['account_number'].toString();
+    if (map.containsKey(r'account_number')) {
+      map[r'account_number'] = map[r'account_number'].toString();
     }
-    if (map.containsKey('balance')) {
-      map['balance'] = map['balance'].toString();
+    if (map.containsKey(r'balance')) {
+      map[r'balance'] = map[r'balance'].toString();
     }
 ;
     return map;
@@ -275,10 +275,10 @@ typedef dynamic CustomerGlobalFn(Customer entity);
 class Customer extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'accounts',
-    'name',
+    r'accounts',
+    r'name',
   ]);
-  String get apiType => 'Customer';
+  String get apiType => r'Customer';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, CustomerGlobalFn computeFn,
@@ -300,21 +300,21 @@ class Customer extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Customer's account numbers.
-  List<fixnum.Int64> get accounts => this['accounts'];
+  List<fixnum.Int64> get accounts => this[r'accounts'];
   set accounts(List<fixnum.Int64> value) {
     if (value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
-    this['accounts'] = value;
+    this[r'accounts'] = value;
   }
-  List<fixnum.Int64> removeAccounts() => this.remove('accounts');
+  List<fixnum.Int64> removeAccounts() => this.remove(r'accounts');
 
   /// Customer's full name.
-  String get name => this['name'];
+  String get name => this[r'name'];
   set name(String value) {
-    this['name'] = value;
+    this[r'name'] = value;
   }
-  String removeName() => this.remove('name');
+  String removeName() => this.remove(r'name');
   factory Customer.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Customer.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -332,16 +332,16 @@ class Customer extends streamy.EntityWrapper {
     var len;
     var result = new Customer.wrapMap(json);
     var fields = result.fieldNames.toList();
-    list = result['accounts'];
+    list = result[r'accounts'];
     if (list != null) {
-      list = result['accounts'];
+      list = result[r'accounts'];
       len = list.length;
       for (var i = 0; i < len; i++) {
         list[i] = fixnum.Int64.parseInt(list[i]);
       }
     }
-    fields.remove('accounts');
-    fields.remove('name');
+    fields.remove(r'accounts');
+    fields.remove(r'name');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -350,8 +350,8 @@ class Customer extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-    if (map.containsKey('accounts')) {
-      map['accounts'] = streamy.nullSafeMapToList(map['accounts'], (o) => o.toString());
+    if (map.containsKey(r'accounts')) {
+      map[r'accounts'] = streamy.nullSafeMapToList(map[r'accounts'], (o) => o.toString());
     }
 ;
     return map;
@@ -363,23 +363,23 @@ class Customer extends streamy.EntityWrapper {
 /// Retrieves branch information
 class BranchesGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'branchId',
+    r'branchId',
   ];
-  String get apiType => 'BranchesGetRequest';
+  String get apiType => r'BranchesGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'branches/{branchId}';
   bool get hasPayload => false;
   BranchesGetRequest(streamy.Root root) : super(root) {
   }
-  List<String> get pathParameters => const ['branchId',];
+  List<String> get pathParameters => const [r'branchId',];
   List<String> get queryParameters => const [];
 
   /// Primary key of a branch
-  fixnum.Int64 get branchId => parameters['branchId'];
+  fixnum.Int64 get branchId => parameters[r'branchId'];
   set branchId(fixnum.Int64 value) {
-    parameters['branchId'] = value;
+    parameters[r'branchId'] = value;
   }
-  fixnum.Int64 removeBranchId() => parameters.remove('branchId');
+  fixnum.Int64 removeBranchId() => parameters.remove(r'branchId');
   Stream<streamy.Response<Branch>> _sendDirect() => this.root.send(this);
   Stream<streamy.Response<Branch>> sendRaw() =>
       _sendDirect();
@@ -396,7 +396,7 @@ class BranchesGetRequest extends streamy.Request {
 class BranchesInsertRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
   ];
-  String get apiType => 'BranchesInsertRequest';
+  String get apiType => r'BranchesInsertRequest';
   Branch get payload => streamy.internalGetPayload(this);
   String get httpMethod => 'POST';
   String get pathFormat => 'branches';
@@ -420,10 +420,10 @@ class BranchesInsertRequest extends streamy.Request {
 class BranchesResource {
   final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
-    'get',
-    'insert',
+    r'get',
+    r'insert',
   ];
-  String get apiType => 'BranchesResource';
+  String get apiType => r'BranchesResource';
   BranchesResource(this._root);
 
   /// Retrieves branch information
@@ -455,7 +455,7 @@ abstract class BankResourcesMixin {
 class Bank
     extends streamy.Root
     with BankResourcesMixin {
-  String get apiType => 'Bank';
+  String get apiType => r'Bank';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -480,7 +480,7 @@ class Bank
 class BankTransaction
     extends streamy.TransactionRoot
     with BankResourcesMixin {
-  String get apiType => 'BankTransaction';
+  String get apiType => r'BankTransaction';
   BankTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

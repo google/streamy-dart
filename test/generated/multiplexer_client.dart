@@ -15,10 +15,10 @@ typedef dynamic FooGlobalFn(Foo entity);
 class Foo extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'id',
-    'bar',
+    r'id',
+    r'bar',
   ]);
-  String get apiType => 'Foo';
+  String get apiType => r'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -40,18 +40,18 @@ class Foo extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Primary key.
-  int get id => this['id'];
+  int get id => this[r'id'];
   set id(int value) {
-    this['id'] = value;
+    this[r'id'] = value;
   }
-  int removeId() => this.remove('id');
+  int removeId() => this.remove(r'id');
 
   /// Foo's favorite bar.
-  String get bar => this['bar'];
+  String get bar => this[r'bar'];
   set bar(String value) {
-    this['bar'] = value;
+    this[r'bar'] = value;
   }
-  String removeBar() => this.remove('bar');
+  String removeBar() => this.remove(r'bar');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -69,8 +69,8 @@ class Foo extends streamy.EntityWrapper {
     var len;
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
-    fields.remove('id');
-    fields.remove('bar');
+    fields.remove(r'id');
+    fields.remove(r'bar');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -89,23 +89,23 @@ class Foo extends streamy.EntityWrapper {
 /// Gets a foo
 class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'id',
+    r'id',
   ];
-  String get apiType => 'FoosGetRequest';
+  String get apiType => r'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
   FoosGetRequest(streamy.Root root) : super(root) {
   }
-  List<String> get pathParameters => const ['id',];
+  List<String> get pathParameters => const [r'id',];
   List<String> get queryParameters => const [];
 
   /// Primary key of foo
-  int get id => parameters['id'];
+  int get id => parameters[r'id'];
   set id(int value) {
-    parameters['id'] = value;
+    parameters[r'id'] = value;
   }
-  int removeId() => parameters.remove('id');
+  int removeId() => parameters.remove(r'id');
   Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
   Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
@@ -121,9 +121,9 @@ class FoosGetRequest extends streamy.Request {
 /// Updates a foo
 class FoosUpdateRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'id',
+    r'id',
   ];
-  String get apiType => 'FoosUpdateRequest';
+  String get apiType => r'FoosUpdateRequest';
   Foo get payload => streamy.internalGetPayload(this);
   final patch;
   String get httpMethod => patch ? 'PATCH' : 'PUT';
@@ -131,15 +131,15 @@ class FoosUpdateRequest extends streamy.Request {
   bool get hasPayload => true;
   FoosUpdateRequest(streamy.Root root, Foo payloadEntity, {bool this.patch: false}) : super(root, payloadEntity) {
   }
-  List<String> get pathParameters => const ['id',];
+  List<String> get pathParameters => const [r'id',];
   List<String> get queryParameters => const [];
 
   /// Primary key of foo
-  int get id => parameters['id'];
+  int get id => parameters[r'id'];
   set id(int value) {
-    parameters['id'] = value;
+    parameters[r'id'] = value;
   }
-  int removeId() => parameters.remove('id');
+  int removeId() => parameters.remove(r'id');
   Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
   Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
@@ -155,23 +155,23 @@ class FoosUpdateRequest extends streamy.Request {
 /// Deletes a foo
 class FoosDeleteRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'id',
+    r'id',
   ];
-  String get apiType => 'FoosDeleteRequest';
+  String get apiType => r'FoosDeleteRequest';
   String get httpMethod => 'DELETE';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
   FoosDeleteRequest(streamy.Root root) : super(root) {
   }
-  List<String> get pathParameters => const ['id',];
+  List<String> get pathParameters => const [r'id',];
   List<String> get queryParameters => const [];
 
   /// Primary key of foo
-  int get id => parameters['id'];
+  int get id => parameters[r'id'];
   set id(int value) {
-    parameters['id'] = value;
+    parameters[r'id'] = value;
   }
-  int removeId() => parameters.remove('id');
+  int removeId() => parameters.remove(r'id');
   Stream<streamy.Response> _sendDirect() => this.root.send(this);
   Stream<streamy.Response> sendRaw() =>
       _sendDirect();
@@ -187,23 +187,23 @@ class FoosDeleteRequest extends streamy.Request {
 /// A method to test request cancellation
 class FoosCancelRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'id',
+    r'id',
   ];
-  String get apiType => 'FoosCancelRequest';
+  String get apiType => r'FoosCancelRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/cancel/{id}';
   bool get hasPayload => false;
   FoosCancelRequest(streamy.Root root) : super(root) {
   }
-  List<String> get pathParameters => const ['id',];
+  List<String> get pathParameters => const [r'id',];
   List<String> get queryParameters => const [];
 
   /// Primary key of foo
-  int get id => parameters['id'];
+  int get id => parameters[r'id'];
   set id(int value) {
-    parameters['id'] = value;
+    parameters[r'id'] = value;
   }
-  int removeId() => parameters.remove('id');
+  int removeId() => parameters.remove(r'id');
   Stream<streamy.Response> _sendDirect() => this.root.send(this);
   Stream<streamy.Response> sendRaw() =>
       _sendDirect();
@@ -219,13 +219,13 @@ class FoosCancelRequest extends streamy.Request {
 class FoosResource {
   final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
-    'get',
-    'update',
-    'patch',
-    'delete',
-    'cancel',
+    r'get',
+    r'update',
+    r'patch',
+    r'delete',
+    r'cancel',
   ];
-  String get apiType => 'FoosResource';
+  String get apiType => r'FoosResource';
   FoosResource(this._root);
 
   /// Gets a foo
@@ -281,7 +281,7 @@ abstract class MultiplexerTestResourcesMixin {
 class MultiplexerTest
     extends streamy.Root
     with MultiplexerTestResourcesMixin {
-  String get apiType => 'MultiplexerTest';
+  String get apiType => r'MultiplexerTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -306,7 +306,7 @@ class MultiplexerTest
 class MultiplexerTestTransaction
     extends streamy.TransactionRoot
     with MultiplexerTestResourcesMixin {
-  String get apiType => 'MultiplexerTestTransaction';
+  String get apiType => r'MultiplexerTestTransaction';
   MultiplexerTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,
