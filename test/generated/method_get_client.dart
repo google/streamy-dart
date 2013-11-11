@@ -15,10 +15,10 @@ typedef dynamic FooGlobalFn(Foo entity);
 class Foo extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'id',
-    'bar',
+    r'id',
+    r'bar',
   ]);
-  String get apiType => 'Foo';
+  String get apiType => r'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -40,18 +40,18 @@ class Foo extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Primary key.
-  int get id => this['id'];
+  int get id => this[r'id'];
   set id(int value) {
-    this['id'] = value;
+    this[r'id'] = value;
   }
-  int removeId() => this.remove('id');
+  int removeId() => this.remove(r'id');
 
   /// Foo's favorite bar.
-  String get bar => this['bar'];
+  String get bar => this[r'bar'];
   set bar(String value) {
-    this['bar'] = value;
+    this[r'bar'] = value;
   }
-  String removeBar() => this.remove('bar');
+  String removeBar() => this.remove(r'bar');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -69,8 +69,8 @@ class Foo extends streamy.EntityWrapper {
     var len;
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
-    fields.remove('id');
-    fields.remove('bar');
+    fields.remove(r'id');
+    fields.remove(r'bar');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -89,23 +89,23 @@ class Foo extends streamy.EntityWrapper {
 /// Gets a foo
 class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-    'fooId',
+    r'fooId',
   ];
-  String get apiType => 'FoosGetRequest';
+  String get apiType => r'FoosGetRequest';
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{fooId}';
   bool get hasPayload => false;
   FoosGetRequest(streamy.Root root) : super(root) {
   }
-  List<String> get pathParameters => const ['fooId',];
+  List<String> get pathParameters => const [r'fooId',];
   List<String> get queryParameters => const [];
 
   /// Primary key of foo
-  int get fooId => parameters['fooId'];
+  int get fooId => parameters[r'fooId'];
   set fooId(int value) {
-    parameters['fooId'] = value;
+    parameters[r'fooId'] = value;
   }
-  int removeFooId() => parameters.remove('fooId');
+  int removeFooId() => parameters.remove(r'fooId');
   Stream<streamy.Response<Foo>> _sendDirect() => this.root.send(this);
   Stream<streamy.Response<Foo>> sendRaw() =>
       _sendDirect();
@@ -121,9 +121,9 @@ class FoosGetRequest extends streamy.Request {
 class FoosResource {
   final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
-    'get',
+    r'get',
   ];
-  String get apiType => 'FoosResource';
+  String get apiType => r'FoosResource';
   FoosResource(this._root);
 
   /// Gets a foo
@@ -149,7 +149,7 @@ abstract class MethodGetTestResourcesMixin {
 class MethodGetTest
     extends streamy.Root
     with MethodGetTestResourcesMixin {
-  String get apiType => 'MethodGetTest';
+  String get apiType => r'MethodGetTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -174,7 +174,7 @@ class MethodGetTest
 class MethodGetTestTransaction
     extends streamy.TransactionRoot
     with MethodGetTestResourcesMixin {
-  String get apiType => 'MethodGetTestTransaction';
+  String get apiType => r'MethodGetTestTransaction';
   MethodGetTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

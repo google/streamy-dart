@@ -15,10 +15,10 @@ typedef dynamic FooGlobalFn(Foo entity);
 class Foo extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-    'baz',
+    r'baz',
   ]);
   static final String KIND = """type#foo""";
-  String get apiType => 'Foo';
+  String get apiType => r'Foo';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -40,11 +40,11 @@ class Foo extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
 
   /// Foo's favorite baz.
-  String get baz => this['baz'];
+  String get baz => this[r'baz'];
   set baz(String value) {
-    this['baz'] = value;
+    this[r'baz'] = value;
   }
-  String removeBaz() => this.remove('baz');
+  String removeBaz() => this.remove(r'baz');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -62,7 +62,7 @@ class Foo extends streamy.EntityWrapper {
     var len;
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
-    fields.remove('baz');
+    fields.remove(r'baz');
 ;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
@@ -86,7 +86,7 @@ class Bar extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
   static final String KIND = """type#bar""";
-  String get apiType => 'Bar';
+  String get apiType => r'Bar';
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BarGlobalFn computeFn,
@@ -144,7 +144,7 @@ abstract class SchemaUnknownFieldsTestResourcesMixin {
 class SchemaUnknownFieldsTest
     extends streamy.Root
     with SchemaUnknownFieldsTestResourcesMixin {
-  String get apiType => 'SchemaUnknownFieldsTest';
+  String get apiType => r'SchemaUnknownFieldsTest';
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -169,7 +169,7 @@ class SchemaUnknownFieldsTest
 class SchemaUnknownFieldsTestTransaction
     extends streamy.TransactionRoot
     with SchemaUnknownFieldsTestResourcesMixin {
-  String get apiType => 'SchemaUnknownFieldsTestTransaction';
+  String get apiType => r'SchemaUnknownFieldsTestTransaction';
   SchemaUnknownFieldsTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

@@ -3,10 +3,10 @@
 {{/docs}}
 class {{name}} extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
-{{#parameters}}    '{{name}}',
+{{#parameters}}    r'{{name}}',
 {{/parameters}}  ];
 
-  String get apiType => '{{name}}';
+  String get apiType => r'{{name}}';
 
   {{#payload}}{{payloadType}} get payload => streamy.internalGetPayload(this);{{/payload}}
 
@@ -25,18 +25,18 @@ class {{name}} extends streamy.Request {
 {{/repeated}}{{/parameters}}
   }
 
-  List<String> get pathParameters => const [{{#path_parameters}}'{{name}}',{{/path_parameters}}];
-  List<String> get queryParameters => const [{{#query_parameters}}'{{name}}',{{/query_parameters}}];
+  List<String> get pathParameters => const [{{#path_parameters}}r'{{name}}',{{/path_parameters}}];
+  List<String> get queryParameters => const [{{#query_parameters}}r'{{name}}',{{/query_parameters}}];
 
 {{#parameters}}
 {{#docs}}  /// {{.}}
 {{/docs}}
-  {{type}} get {{varName}} => parameters['{{name}}'];
+  {{type}} get {{varName}} => parameters[r'{{name}}'];
 
   set {{varName}}({{type}} value) {
-    parameters['{{name}}'] = value;
+    parameters[r'{{name}}'] = value;
   }
-  {{type}} remove{{capVarName}}() => parameters.remove('{{name}}');
+  {{type}} remove{{capVarName}}() => parameters.remove(r'{{name}}');
 {{/parameters}}
 
   Stream<streamy.Response{{#hasResponse}}<{{responseType}}>{{/hasResponse}}> _sendDirect() => this.root.send(this);
@@ -48,7 +48,7 @@ class {{name}} extends streamy.Request {
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}
-    this.local['{{name}}'] = {{name}};
+    this.local[r'{{name}}'] = {{name}};
 {{/sendParams}}
     return _sendDirect();
   }
@@ -61,7 +61,7 @@ class {{name}} extends streamy.Request {
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}
-    this.local['{{name}}'] = {{name}};
+    this.local[r'{{name}}'] = {{name}};
 {{/sendParams}}
     return _sendDirect().map((response) => response.entity);
   }{{/hasSendParams}}
@@ -72,7 +72,7 @@ class {{name}} extends streamy.Request {
 {{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
 {{/sendParams}}
 {{#sendParams}}
-    this.local['{{name}}'] = {{name}};
+    this.local[r'{{name}}'] = {{name}};
 {{/sendParams}}
     return _sendDirect().map((response) => response.entity).listen(onData);
   }{{/hasSendParams}}
