@@ -47,6 +47,9 @@ class _StreamTrace implements Trace {
   _StreamTrace(this.traceOverPredicate);
 
   void record(TraceEvent event) {
+    if (_controller.isClosed) {
+      return;
+    }
     _controller.add(event);
     if (traceOverPredicate(event)) {
       _controller.close();
