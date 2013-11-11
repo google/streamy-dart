@@ -1,5 +1,7 @@
 # Streamy for Dart (experimental)
 
+[![Build Status](https://drone.io/github.com/google/streamy-dart/status.png)](https://drone.io/github.com/google/streamy-dart/latest)
+
 Streamy is a feature-rich RPC/API framework for applications written using [Dart programming language](http://dartlang.org). It relies on [Google API Discovery](https://developers.google.com/discovery/) file format for API description. Streamy also provides out-of-the-box JSON-over-REST protocol.
 
 ## Using Streamy your application can:
