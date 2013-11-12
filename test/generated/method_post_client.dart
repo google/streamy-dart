@@ -124,7 +124,6 @@ class FoosResource {
   final streamy.Root _root;
   static final List<String> KNOWN_METHODS = [
     r'update',
-    r'patch',
   ];
   String get apiType => r'FoosResource';
   FoosResource(this._root);
@@ -132,12 +131,6 @@ class FoosResource {
   /// Updates a foo
   FoosUpdateRequest update(Foo payload) {
     var request = new FoosUpdateRequest(_root, payload);
-    return request;
-  }
-
-  /// Updates a foo
-  FoosUpdateRequest patch(Foo payload) {
-    var request = new FoosUpdateRequest(_root, payload.patch(), patch: true);
     return request;
   }
 }

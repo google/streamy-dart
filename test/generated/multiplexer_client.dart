@@ -221,7 +221,6 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = [
     r'get',
     r'update',
-    r'patch',
     r'delete',
     r'cancel',
   ];
@@ -240,12 +239,6 @@ class FoosResource {
   /// Updates a foo
   FoosUpdateRequest update(Foo payload) {
     var request = new FoosUpdateRequest(_root, payload);
-    return request;
-  }
-
-  /// Updates a foo
-  FoosUpdateRequest patch(Foo payload) {
-    var request = new FoosUpdateRequest(_root, payload.patch(), patch: true);
     return request;
   }
 
