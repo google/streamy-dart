@@ -145,15 +145,9 @@ class Emitter {
         'hasQueryParameters': methodInfo.queryParameters.isNotEmpty && false,
         'queryParameters': methodInfo.queryParameters,
         'docs': docLines(method.description),
-        'patch': false
+        'patch': method.httpMethod == HTTP_PATCH
       };
       methods.add(methodData);
-      if (method.name == 'update') {
-        var patchData = new Map.from(methodData)
-          ..['name'] = 'patch'
-          ..['patch'] = true;
-        methods.add(patchData);
-      }
     });
     var identifierName = cleanseForIdentifierName(resource.name);
     var resourceData = {
