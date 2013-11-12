@@ -1,17 +1,21 @@
-// Implementation of [ProxyClient] based on in-browser [HttpRequest]
-library streamy.html_http_proxy;
+// Implementations based on in-browser [HttpRequest]. Classes defined here can
+// only be used in applications that run inside a web-browser. They don't work
+// outside the web-browser. For out-of-browser implementations, check out
+// impl_server.dart.
+library streamy.html_impl;
 
 import 'dart:html';
 import 'dart:async';
 
 import "package:streamy/streamy.dart";
+import "impl.dart";
 
 /**
  * A plain HTTP service that sends HTTP requests via [HttpRequest].
  */
-class DartHtmlHttpService implements StreamyHttpService {
+class HtmlHttpService implements StreamyHttpService {
 
-  const DartHtmlHttpService();
+  const HtmlHttpService();
 
   Future<StreamyHttpResponse> send(StreamyHttpRequest request) {
     var req = new HttpRequest();
@@ -37,10 +41,17 @@ class DartHtmlHttpService implements StreamyHttpService {
       if (responseType != null) {
         bodyType = responseType.split(';')[0];
       }
-      c.complete(new StreamyHttpResponse(req.status, req.responseText,
-          bodyType));
+      c.complete(new StreamyHttpResponse(req.status, req.responseHeaders,
+          req.responseText));
     });
     req.onError.first.then(c.completeError);
     return c.future;
   }
+}
+
+/// A [SimpleRequestHandler] specialized for use in applications that run
+/// inside a web-browser.
+class HtmlRequestHandler extends SimpleRequestHandler {
+  HtmlRequestHandler([String apiServerAddress]) :
+    super(const HtmlHttpService(), apiServerAddress: apiServerAddress);
 }
