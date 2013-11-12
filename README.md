@@ -80,7 +80,7 @@ main(List<String> args) {
 
 We are done. Let's run the program:
 
-    > dart main.dart
+    > dart main.dart http://www.google.com
 
 This should print something like:
 
