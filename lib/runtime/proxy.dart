@@ -33,7 +33,7 @@ class ProxyClient extends RequestHandler {
     });
 
     waitForHttpResponse.then((StreamyHttpResponse resp) {
-      if (resp.statusCode != 200 && resp.statusCode != 204) {
+      if (resp.statusCode < 200 || resp.statusCode >= 300) {
         Map jsonError = null;
         List errors = null;
         // If the bodyType is not available, optimistically try parsing it as
@@ -53,7 +53,7 @@ class ProxyClient extends RequestHandler {
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
       var responsePayload = null;
-      if (resp.statusCode == 200) {
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
         responsePayload = req.responseDeserializer(resp.body, trace);
       }
       return new Response(responsePayload, Source.RPC,
