@@ -38,7 +38,7 @@ class ProxyClient extends RequestHandler {
         List errors = null;
         // If the bodyType is not available, optimistically try parsing it as
         // JSON.
-        if (resp.headers.containsKey(_CONTENT_TYPE) == null ||
+        if (!resp.headers.containsKey(_CONTENT_TYPE) ||
             resp.headers[_CONTENT_TYPE].startsWith('application/json')) {
           try {
             jsonError = parse(resp.body);
