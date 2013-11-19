@@ -104,7 +104,7 @@ The above two lines instantiate a ```Urlshortener``` API client backed by ```Ser
 
       api.url.insert(new Url()..longUrl = args[0])
 
-This is an example of how you create an API request. Streamy API generator generates a fully type-annotated root API class (```Urlshortener```), resources (```url```), resource methods (```insert```), entity classes (```Url```) as well as getters/setters for properties on the entities (```longUrl``1), so you can use auto-completion in your IDE and rely on compiler warnings to tell you about issues in your usage of the API.
+This is an example of how you create an API request. Streamy API generator generates a fully type-annotated root API class (```Urlshortener```), resources (```url```), resource methods (```insert```), entity classes (```Url```) as well as getters/setters for properties on the entities (```longUrl```), so you can use auto-completion in your IDE and rely on compiler warnings to tell you about issues in your usage of the API.
 
         .send().listen((Url response) {
           print('Shortened to ${response.id}');
