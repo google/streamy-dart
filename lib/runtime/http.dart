@@ -43,12 +43,6 @@ class StreamyHttpRequest {
         cleanHeaders[name.toLowerCase()] = value;
       });
     }
-    if (payload != null && !cleanHeaders.containsKey('content-length')) {
-      // Determine content length based on Utf8 encoded body.
-      cleanHeaders['content-length'] =
-          _UTF8.encoder.convert(payload).length.toString();
-    }
-
     return new StreamyHttpRequest._private(url, method, cleanHeaders, local,
         onCancel, payload);
   }
