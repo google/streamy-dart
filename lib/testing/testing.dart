@@ -40,6 +40,8 @@ class _TestRequestHandler extends RequestHandler {
     _index++;
     if (resp is _TestValuesResponse) {
       return new Stream.fromIterable(resp.values);
+    } else if (resp is _TestStreamResponse) {
+      return resp.stream;
     } else if (resp is _TestErrorResponse) {
       return new Stream.fromFuture(new Future.error(resp.error));
     } else if (resp is _TestRpcErrorResponse) {
@@ -56,6 +58,11 @@ abstract class _TestResponse {
 class _TestValuesResponse extends _TestResponse {
   final values;
   _TestValuesResponse(this.values);
+}
+
+class _TestStreamResponse extends _TestResponse {
+  final stream;
+  _TestStreamResponse(this.stream);
 }
 
 class _TestErrorResponse extends _TestResponse {
@@ -79,6 +86,10 @@ class TestRequestHandlerBuilder {
     for (int i = 0; i < times; i++) {
       _handler._responses.add(new _TestValuesResponse([value]));
     }
+  }
+
+  void stream(stream) {
+    _handler._responses.add(new _TestStreamResponse(stream));
   }
 
   void values(values) {

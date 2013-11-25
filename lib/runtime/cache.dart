@@ -160,20 +160,21 @@ class CachingRequestHandler extends RequestHandler {
         return sink.stream;
       });
     } else {
-      // Make a normal (parallel) cache request.
-      var sink = _delegateRequest(request, trace);
+      // Make a normal (parallel) cache request. The cache request is fired
+      // first to put it ahead of an instantaneous backend in the event loop.
+      var sink;
       cache.get(request).then((cachedEntity) {
         if (cachedEntity != null) {
           sink.add(_toCachedResponse(cachedEntity));
         }
       });
+      sink = _delegateRequest(request, trace);
       return sink.stream;
     }
   }
 
-  _toCachedResponse(entity, {authority: Authority.SECONDARY}) => new Response(
-      cachedEntity.entity, Source.CACHE, cachedEntity.ts,
-      authority: authority);
+  _toCachedResponse(cached, {authority: Authority.SECONDARY}) => new Response(
+      cached.entity, Source.CACHE, cached.ts, authority: authority);
 
   StreamController<Response> _delegateRequest(Request request, Trace trace) {
     var sub;
@@ -182,8 +183,8 @@ class CachingRequestHandler extends RequestHandler {
       .handle(request, trace)
       .listen((response) {
         // Intercept the request and cache it.
-        cache.set(request.clone(),
-            new CachedEntity(response.entity, response.ts);)
+        cache.set(request.cacheKey(),
+            new CachedEntity(response.entity, response.ts));
         sink.add(response);
       })
       ..onError(sink.addError)
