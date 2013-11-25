@@ -48,17 +48,22 @@ class DeduplicatingRequestHandler extends RequestHandler {
     // the sink from the list of sinks, and cancels the delegated request if
     // this was the last listener.
     void onCancel() {
+      var beforeData =
+          _sinkMap.containsKey(request) && _sinkMap[request] == sinks;
       sinks.remove(sink);
       if (sinks.isEmpty) {
         // Need to clean up [_sinkMap] and [_subMap]. They could be currently
         // deduping another instance of the same [request], though, so make
         // sure the [sinks] [Set] in [_sinkMap] is the same before removing
         // the [request] from both.
-        if (_sinkMap.containsKey(request) && _sinkMap[request] == sinks) {
+        if (beforeData) {
           _sinkMap.remove(request);
           _subMap.remove(request);
         }
         sub.cancel();
+      }
+      if (beforeData) {
+        trace.record(new CancelBeforeDataEvent());
       }
     }
 
@@ -73,6 +78,7 @@ class DeduplicatingRequestHandler extends RequestHandler {
       // Add a new sink to the deduplicated request.
       sink = new StreamController<Response>(onCancel: onCancel);
       sinks.add(sink);
+      trace.record(new RpcDeduplicatedEvent());
     } else {
       // A backend request needs to occur. Create a new set of sinks.
       sink = new StreamController<Response>(onCancel: onCancel);
@@ -114,4 +120,20 @@ class DeduplicatingRequestHandler extends RequestHandler {
     }
     return sink.stream;
   }
+}
+
+class RpcDeduplicatedEvent implements TraceEvent {
+  factory RpcDeduplicatedEvent() => const RpcDeduplicatedEvent._private();
+
+  const RpcDeduplicatedEvent._private();
+
+  String toString() => 'streamy.dedup.rpc.dedup';
+}
+
+class CancelBeforeDataEvent implements TraceEvent {
+  factory CancelBeforeDataEvent() => const CancelBeforeDataEvent._private();
+
+  const CancelBeforeDataEvent._private();
+
+  String toString() => 'streamy.dedup.cancelBeforeData';
 }

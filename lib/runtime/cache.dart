@@ -141,9 +141,11 @@ class CachingRequestHandler extends RequestHandler {
       return cache.get(request).then((cachedEntity) {
         if (response == null) {
           request.local['streamy.foundInCache'] = false;
+          trace.record(new CacheMissEvent());
           // Delegate via [_delegateRequest] to cache the response.
           return _delegateRequest(request, trace).stream;
         }
+        trace.record(new CacheHitEvent());
         request.local['streamy.foundInCache'] = true;
 
         // Check the age of the entity against the noRpcAge parameter value.
@@ -197,4 +199,22 @@ class CachingRequestHandler extends RequestHandler {
     delegate.handle(request, trace).listen(bridge.add)
       ..onError(bridge.addError)
       ..onDone(bridge.close);
+}
+
+
+
+class CacheHitEvent implements TraceEvent {
+  factory CacheHitEvent() => const CacheHitEvent._private();
+
+  const CacheHitEvent._private();
+
+  String toString() => 'streamy.cache.hit';
+}
+
+class CacheMissEvent implements TraceEvent {
+  factory CacheMissEvent() => const CacheMissEvent._private();
+
+  const CacheMissEvent._private();
+
+  String toString() => 'streamy.cache.miss';
 }

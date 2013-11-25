@@ -2,6 +2,7 @@ part of streamy.runtime;
 
 class ActiveRequest {
   final sink;
+  final trace;
   Stream<Response> get stream => sink.stream;
   var seenPrimary = false;
 
@@ -62,36 +63,4 @@ class MultiplexingRequestHandler extends RequestHandler {
     map.add(key, active);
     return active.stream;
   }
-}
-
-class MultiplexerCacheHitEvent implements TraceEvent {
-  factory MultiplexerCacheHitEvent() => const MultiplexerCacheHitEvent._private();
-
-  const MultiplexerCacheHitEvent._private();
-
-  String toString() => 'streamy.multiplexer.cache.hit';
-}
-
-class MultiplexerCacheMissEvent implements TraceEvent {
-  factory MultiplexerCacheMissEvent() => const MultiplexerCacheMissEvent._private();
-
-  const MultiplexerCacheMissEvent._private();
-
-  String toString() => 'streamy.multiplexer.cache.miss';
-}
-
-class MultiplexerRpcSendEvent implements TraceEvent {
-  factory MultiplexerRpcSendEvent() => const MultiplexerRpcSendEvent._private();
-
-  const MultiplexerRpcSendEvent._private();
-
-  String toString() => 'streamy.multiplexer.rpc.send';
-}
-
-class MultiplexerRpcCancelEvent implements TraceEvent {
-  factory MultiplexerRpcCancelEvent() => const MultiplexerRpcCancelEvent._private();
-
-  const MultiplexerRpcCancelEvent._private();
-
-  String toString() => 'streamy.multiplexer.rpc.cancel';
 }
