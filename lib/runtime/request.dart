@@ -184,6 +184,8 @@ abstract class Request {
 
   Request clone();
 
+  Request cacheKey() => local.putIfAbsent('streamy.cacheKey', clone);
+
   _cloneFrom(Request other) => other.parameters.forEach((k, v) {
     if (v is List) {
       parameters[k] = new List.from(v);

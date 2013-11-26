@@ -1,5 +1,7 @@
 library streamy.runtime.multiplexer.test;
 
+import 'dart:async';
+
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
@@ -11,81 +13,108 @@ main() {
           testRequestHandler()
             ..rpcError(404)
         ).build();
-      var subject = new Multiplexer(testHandler);
-      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.catchError(expectAsync1((err) {
-        expect(err, new isInstanceOf<StreamyRpcException>());
-        expect(err.httpStatus, 404);
+      var subject = new MultiplexingRequestHandler(testHandler);
+      subject
+        .handle(TEST_GET_REQUEST, const NoopTrace())
+        .first
+        .catchError(expectAsync1((err) {
+          expect(err, new isInstanceOf<StreamyRpcException>());
+          expect(err.httpStatus, 404);
+        }));
+    });
+    test('sends new value across request bounds', () {
+      var r1 = new RawEntity()
+        ..['key'] = 'alpha';
+      var r2 = new RawEntity()
+        ..['key'] = 'beta';
+      var testHandler = (
+          testRequestHandler()
+            ..value(new Response(r1, Source.RPC, 0))
+            ..value(new Response(r2, Source.RPC, 1))
+        ).build();
+      var subject = new MultiplexingRequestHandler(testHandler);
+      var stream = subject
+          .handle(TEST_GET_REQUEST, const NoopTrace())
+          .map((e) => e.entity)
+          .asBroadcastStream();
+      stream.first.then(expectAsync1((e) {
+        expect(e['key'], 'alpha');
+        subject
+          .handle(TEST_GET_REQUEST, const NoopTrace())
+          .map((e) => e.entity)
+          .first
+          .then(expectAsync1((e) {
+            expect(e['key'], 'beta');
+          }));
+      }, count: 1));
+      stream.skip(1).first.then(expectAsync1((e) {
+        expect(e['key'], 'beta');
+      }, count: 1));
+    });
+    test('properly forwards a cancellation', () {
+      // Expect onCancel to be called.
+      var sink = new StreamController(onCancel: expectAsync0(() {}, count: 1));
+      var testHandler = (testRequestHandler()..stream(sink.stream)).build();
+      var subject = new MultiplexingRequestHandler(testHandler);
+      subject
+          .handle(TEST_GET_REQUEST, const NoopTrace())
+          .listen(expectAsync1((_) {}, count: 0))
+          .cancel();
+    });
+    test('demotes primary responses to secondary before first response', () {
+      var s1 = new StreamController<Response>();
+      var s2 = new StreamController<Response>();
+      var testHandler = (
+          testRequestHandler()
+            ..stream(s1.stream)
+            ..stream(s2.stream)
+        ).build();
+      var subject = new MultiplexingRequestHandler(testHandler);
+
+      // First stream used to assert test conditions.
+      var stream = subject
+        .handle(TEST_GET_REQUEST, const NoopTrace())
+        .asBroadcastStream();
+
+      // Crossover response from [s2] considered SECONDARY.
+      stream.first.then(expectAsync1((r) {
+        expect(r.authority, Authority.SECONDARY);
+        expect(r.entity['key'], 'bar');
+        s1.add(new Response(new RawEntity()..['key'] = 'foo', Source.RPC, 0));
       }));
-    });
-    test('returns rpc entity on age query on cache miss', () {
-      var resp = new Response(new RawEntity()..['foo'] = 'rpc', Source.RPC, 0);
-      Request req = new TestRequest('GET');
-      req.local['noRpcAge'] = 5000;  // 5 seconds
 
-      var testHandler = (testRequestHandler()..value(resp)).build();
+      // Primary response from [s1] considered PRIMARY.
+      stream.skip(1).first.then(expectAsync1((r) {
+        expect(r.authority, Authority.PRIMARY);
+        expect(r.entity['key'], 'foo');
+        s2.add(new Response(new RawEntity()..['key'] = 'baz', Source.RPC, 0));
+      }));
 
-      var subject = new Multiplexer(testHandler);
-      subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
-        expect(actual.entity['foo'], 'rpc');
-        expect(actual.source, Source.RPC);
-        expect(actual.authority, Authority.PRIMARY);
-      }, count: 1));
-    });
-    test('returns cached then rpc entity on age query on stale cache', () {
-      var cachedResp = new Response(new RawEntity()..['foo'] = 'cached', Source.CACHE,
-          new DateTime.now().subtract(new Duration(seconds: 10)).millisecondsSinceEpoch);
-      Request cachedReq = new TestRequest('GET');
+      // Crossover response from [s2] now considered PRIMARY.
+      stream.skip(2).first.then(expectAsync1((r) {
+        expect(r.authority, Authority.PRIMARY);
+        expect(r.entity['key'], 'baz');
+      }));
 
-      Request req = new TestRequest('GET');
-      // 5-second tolerance to make the cached response is too old
-      req.local['noRpcAge'] = 5000;
+      // Second request used to trigger test conditions (and verify that
+      // the response is still considered PRIMARY.
+      var second = subject
+        .handle(TEST_GET_REQUEST, const NoopTrace())
+        .asBroadcastStream();
 
-      var rpcResp = new Response(new RawEntity()..['foo'] = 'rpc', Source.RPC,
-          new DateTime.now().millisecondsSinceEpoch);
-      var testHandler = (testRequestHandler()..value(rpcResp)).build();
+      // Needed to ensure this listener stays active in the
+      // [MultiplexingRequestHandler] so values sent to it will be echoed
+      // in [stream].
+      second.drain();
+      second
+        .first
+        .then(expectAsync1((r) {
+          expect(r.authority, Authority.PRIMARY);
+          expect(r.entity['key'], 'bar');
+        }));
 
-      var cache = new AsyncMapCache();
-      var subject = new Multiplexer(testHandler, cache: cache);
-
-      int count = 1;
-      cache.set(cachedReq, new CachedEntity(cachedResp.entity, cachedResp.ts))
-        .then(expectAsync1((_) {
-          subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
-            if (count == 1) {
-              expect(actual.entity['foo'], 'cached');
-              expect(actual.source, Source.CACHE);
-              expect(actual.authority, Authority.SECONDARY);
-            } else if (count == 2) {
-              expect(actual.entity['foo'], 'rpc');
-              expect(actual.source, Source.RPC);
-              expect(actual.authority, Authority.PRIMARY);
-            } else {
-              fail('Did not expect to reach this line');
-            }
-            count++;
-          }, count: 2));
-      }, count: 1));
-    });
-    test('returns cached entity only on age query on fresh cache', () {
-      var cachedResp = new CachedEntity(new RawEntity()..['foo'] = 'cached',
-          new DateTime.now().subtract(new Duration(seconds: 5)).millisecondsSinceEpoch);
-      Request cachedReq = new TestRequest('GET');
-
-      Request req = new TestRequest('GET');
-      // 10-second tolerance to make the cached response is too old
-      req.local['noRpcAge'] = 10000;
-
-      var testHandler = testRequestHandler().build();
-      var cache = new AsyncMapCache();
-      var subject = new Multiplexer(testHandler, cache: cache);
-
-      cache.set(cachedReq, cachedResp).then(expectAsync1((_) {
-        subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
-          expect(actual.entity['foo'], 'cached');
-          expect(actual.source, Source.CACHE);
-          expect(actual.authority, Authority.PRIMARY);
-        }, count: 1));
-      }, count: 1));
+        s2.add(new Response(new RawEntity()..['key'] = 'bar', Source.RPC, 0,
+            authority: Authority.PRIMARY));
     });
   });
 }

@@ -7,6 +7,8 @@ class Response<T> {
   final int ts;
 
   const Response(this.entity, this.source, this.ts, {this.authority: Authority.PRIMARY});
+
+  toString() => 'streamy.Response(from $source with $authority at $ts: ${entity.runtimeType})';
 }
 
 abstract class Source {
