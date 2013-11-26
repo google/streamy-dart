@@ -1,13 +1,14 @@
 part of streamy.runtime;
 
 class ActiveRequest {
-  final sink;
+  final StreamController<Response> sink;
   final trace;
-  Stream<Response> get stream => sink.stream;
-  var seenPrimary = false;
+  bool seenPrimary = false;
 
   ActiveRequest({onCancel})
       : sink = new StreamController<Response>(onCancel: onCancel);
+
+  StreamController<Response> get stream => sink.stream;
 
   void addPrimary(Response response) {
     sink.add(response);
@@ -29,7 +30,16 @@ class ActiveRequest {
   }
 }
 
-/// The multiplexer holds client streams open.
+/// Holds all cachable [Stream]s open after the delegated request completes.
+/// When a future [Request] is made which matches an open request, the
+/// [Response] is sent on that stream as well. Thus, clients that hold [Stream]s
+/// open after receiving the initial [Response] can be informed of future
+/// updates or changes.
+///
+/// It is possible that [Response]s from other [Request]s can arrive prior to
+/// the primary [Response] for the original [Request]. If this happens, any
+/// responses with PRIMARY authority delivered to other active [Stream]s will be
+/// downgraded to SECONDARY authority, until the primary response is received.
 class MultiplexingRequestHandler extends RequestHandler {
 
   final RequestHandler delegate;
