@@ -61,5 +61,60 @@ main() {
           .listen(expectAsync1((_) {}, count: 0))
           .cancel();
     });
+    test('demotes primary responses to secondary before first response', () {
+      var s1 = new StreamController<Response>();
+      var s2 = new StreamController<Response>();
+      var testHandler = (
+          testRequestHandler()
+            ..stream(s1.stream)
+            ..stream(s2.stream)
+        ).build();
+      var subject = new MultiplexingRequestHandler(testHandler);
+
+      // First stream used to assert test conditions.
+      var stream = subject
+        .handle(TEST_GET_REQUEST, const NoopTrace())
+        .asBroadcastStream();
+
+      // Crossover response from [s2] considered SECONDARY.
+      stream.first.then(expectAsync1((r) {
+        expect(r.authority, Authority.SECONDARY);
+        expect(r.entity['key'], 'bar');
+        s1.add(new Response(new RawEntity()..['key'] = 'foo', Source.RPC, 0));
+      }));
+
+      // Primary response from [s1] considered PRIMARY.
+      stream.skip(1).first.then(expectAsync1((r) {
+        expect(r.authority, Authority.PRIMARY);
+        expect(r.entity['key'], 'foo');
+        s2.add(new Response(new RawEntity()..['key'] = 'baz', Source.RPC, 0));
+      }));
+
+      // Crossover response from [s2] now considered PRIMARY.
+      stream.skip(2).first.then(expectAsync1((r) {
+        expect(r.authority, Authority.PRIMARY);
+        expect(r.entity['key'], 'baz');
+      }));
+
+      // Second request used to trigger test conditions (and verify that
+      // the response is still considered PRIMARY.
+      var second = subject
+        .handle(TEST_GET_REQUEST, const NoopTrace())
+        .asBroadcastStream();
+
+      // Needed to ensure this listener stays active in the
+      // [MultiplexingRequestHandler] so values sent to it will be echoed
+      // in [stream].
+      second.drain();
+      second
+        .first
+        .then(expectAsync1((r) {
+          expect(r.authority, Authority.PRIMARY);
+          expect(r.entity['key'], 'bar');
+        }));
+
+        s2.add(new Response(new RawEntity()..['key'] = 'bar', Source.RPC, 0,
+            authority: Authority.PRIMARY));
+    });
   });
 }

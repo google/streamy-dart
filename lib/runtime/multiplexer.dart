@@ -21,11 +21,11 @@ class ActiveRequest {
   /// primary response yet.
   void addSecondary(Response response) {
     var authority = response.authority;
-    if (!seenPrimary && authority == response.PRIMARY) {
+    if (!seenPrimary && authority == Authority.PRIMARY) {
       authority = Authority.SECONDARY;
     }
     sink.add(new Response(response.entity, response.source, response.ts,
-        authority: response.authority));
+        authority: authority));
   }
 }
 
