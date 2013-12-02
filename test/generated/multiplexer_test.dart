@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'multiplexer_client.dart';
+import 'multiplexer_client_requests.dart';
+import 'multiplexer_client_objects.dart';
 
 main() {
   group('multiplexer', () {

@@ -7,6 +7,7 @@ import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
 import 'schema_object_client.dart';
+import 'schema_object_client_objects.dart';
 
 main() {
   group('SchemaObjectTest', () {
@@ -352,19 +353,19 @@ main() {
   });
   group('Bad characters', () {
     test('should not appear in entity classes', () {
-      new clean_some_entity_();
+      new $some_entity_();
     });
     test('should not appear in GlobalFn classes', () {
-      clean_some_entity_.addGlobal('test',
-          (clean_some_entity_ e) => null);
+      $some_entity_.addGlobal('test',
+          ($some_entity_ e) => null);
     });
     test('should not appear in entity properties', () {
-      new clean_some_entity_()
-        ..clean_badly_named_property____________ = new fixnum.Int64(123);
+      new $some_entity_()
+        ..$badly_named_property____$_______ = new fixnum.Int64(123);
     });
     test('should not appear in resources and methods names', () {
       new SchemaObjectTest(null)
-        .clean_some_resource_.clean_some_method_(null, null);
+        .$some_resource_.$some_method_(null, null);
     });
   });
 }

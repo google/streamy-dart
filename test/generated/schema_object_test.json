@@ -55,6 +55,32 @@
         }
       }
     },
+    "Context": {
+     "id": "Context",
+     "type": "object",
+     "properties": {
+      "facets": {
+       "type": "array",
+       "items": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "anchor": {
+           "type": "string"
+          },
+          "label": {
+           "type": "string"
+          },
+          "label_with_op": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
     "-some-entity-": {
       "id": "-some-entity-",
       "type": "object",

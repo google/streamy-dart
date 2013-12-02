@@ -6,6 +6,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import '../generated/bank_api_client.dart';
+import '../generated/bank_api_client_objects.dart';
 import '../utils.dart';
 
 main() {

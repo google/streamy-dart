@@ -8,18 +8,36 @@ import 'package:streamy/generator.dart';
 main(List<String> args) {
   ApigenOptions options = parseArgs(args);
   var discoveryFile = new io.File(options.discoveryFile);
-  discoveryFile.readAsString(encoding: convert.UTF8).then((String json) {
-    var discovery = new Discovery.fromJsonString(json);
-    var clientFile = new io.File(options.clientFile);
-    var addendumData = {};
-    if (options.addendumFile != null) {
-      var addendumFile = new io.File(options.addendumFile);
-      addendumData = parse(addendumFile.readAsStringSync());
-    }
-    String code = new Emitter(new DefaultTemplateProvider(options.templatesDir))
-        .generate(options.libraryName, discovery, addendumData: addendumData);
-    clientFile.writeAsString(code, encoding: convert.UTF8);
-  });
+  var json = discoveryFile.readAsStringSync(encoding: convert.UTF8);
+  var discovery = new Discovery.fromJsonString(json);
+  var clientFile = new io.File(options.clientFile);
+  var basePath = clientFile.path.substring(0, clientFile.path.length - 5);
+  var addendumData = {};
+  if (options.addendumFile != null) {
+    var addendumFile = new io.File(options.addendumFile);
+    addendumData = parse(addendumFile.readAsStringSync());
+  }
+
+  var rootOut = clientFile.openWrite();
+  var resourceOut = new io.File('${basePath}_resources.dart').openWrite();
+  var requestOut = new io.File('${basePath}_requests.dart').openWrite();
+  var objectOut = new io.File('${basePath}_objects.dart').openWrite();
+
+  var templateProvider = new DefaultTemplateProvider(options.templatesDir);
+
+  emitCode(new EmitterConfig(
+      discovery,
+      new DefaultTemplateProvider.defaultInstance(),
+      rootOut,
+      resourceOut,
+      requestOut,
+      objectOut,
+      addendumData: addendumData));
+
+  rootOut.flush();
+  resourceOut.flush();
+  requestOut.flush();
+  objectOut.flush();
 }
 
 ApigenOptions parseArgs(List<String> arguments) {
@@ -31,9 +49,6 @@ ApigenOptions parseArgs(List<String> arguments) {
         'client_file',
         help: 'Path to the output file for generated client API code.')
     ..addOption(
-        'library_name',
-        help: 'The name of the library name for generated client API code.')
-    ..addOption(
         'addendum_file',
         help:'The name, if any, of the Streamy addendum to the discovery file.')
     ..addOption(
@@ -43,7 +58,6 @@ ApigenOptions parseArgs(List<String> arguments) {
   var options = new ApigenOptions(
       args['discovery_file'],
       args['client_file'],
-      args['library_name'],
       args['addendum_file'],
       args['templates_dir']
   );
@@ -62,9 +76,6 @@ bool validateOptions(ApigenOptions options) {
   if (isBlank(options.clientFile)) {
     errors.add('client_file option is required');
   }
-  if (isBlank(options.libraryName)) {
-    errors.add('library_name option is required');
-  }
   if (errors.length > 0) {
     print(errors);
     return false;
@@ -82,16 +93,14 @@ class ApigenOptions {
   String discoveryFile;
   /// Path to the output file containing client API code.
   String clientFile;
-  /// The name of the library name for generated client API code.
-  String libraryName;
   /// Optional path to the addendum file which contains extensions to the
   /// discovery document.
   String addendumFile;
   /// Directory containing code templates.
   String templatesDir;
 
-  ApigenOptions(this.discoveryFile, this.clientFile, this.libraryName,
-      this.addendumFile, String templatesDir) {
+  ApigenOptions(this.discoveryFile, this.clientFile, this.addendumFile,
+      String templatesDir) {
     this.templatesDir = (templatesDir != null) ? templatesDir : 'templates';
   }
 }

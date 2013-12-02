@@ -5,6 +5,7 @@ import 'package:json/json.dart';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 import 'method_get_client.dart';
+import 'method_get_client_objects.dart';
 
 main() {
   group('MethodGetTest', () {

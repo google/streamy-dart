@@ -1,138 +1,164 @@
 part of streamy.generator;
 
-/// Turns the first letter in a string to a capital letter.
-String capitalize(String str) {
-  if (str == null || str.length == 0) {
-    return str;
-  }
-  return str[0].toUpperCase() + str.substring(1);
+void emitCode(EmitterConfig config) {
+  new _Emitter(config).generate();
 }
 
-/// Breaks up a [String] into list of lines.
-List<String> docLines(String s) =>
-    s != null ? s.split('\n') : <String>[];
+/// Configuration for the [Emitter].
+abstract class EmitterConfig {
+  Discovery get discovery;
+  /// Provides code templates.
+  TemplateProvider get templateProvider;
+  StringSink get rootCodeSink;
+  StringSink get resourceCodeSink;
+  StringSink get requestCodeSink;
+  StringSink get objectCodeSink;
+  Map get addendumData;
+
+  factory EmitterConfig(
+      Discovery discovery,
+      TemplateProvider templateProvider,
+      StringSink rootCodeSink,
+      StringSink resourceCodeSink,
+      StringSink requestCodeSink,
+      StringSink objectCodeSink,
+      {Map addendumData: const {}}) =>
+          new _DefaultEmitterConfig(
+              discovery,
+              templateProvider,
+              rootCodeSink,
+              resourceCodeSink,
+              requestCodeSink,
+              objectCodeSink,
+              addendumData);
+}
+
+class _DefaultEmitterConfig implements EmitterConfig {
+  final Discovery discovery;
+  final TemplateProvider templateProvider;
+  final StringSink rootCodeSink;
+  final StringSink resourceCodeSink;
+  final StringSink requestCodeSink;
+  final StringSink objectCodeSink;
+  final Map addendumData;
+
+  _DefaultEmitterConfig(
+      this.discovery,
+      this.templateProvider,
+      this.rootCodeSink,
+      this.resourceCodeSink,
+      this.requestCodeSink,
+      this.objectCodeSink,
+      this.addendumData);
+}
 
 /// Provides templates for the generator.
 abstract class TemplateProvider {
-  /// A string embedded in the generated client code to tell people what
-  /// templates were used to generate the client. Usually, this is a file
-  /// path to the templates.
-  String get sourceOfTemplates;
   /// Returns the text of a template given template name.
   String operator[](String templateName);
 }
 
-/// Stateful but reusable code emitter.
-class Emitter {
-  mus.Template _clientHeaderTmpl;
-  mus.Template _rootTmpl;
-  mus.Template _objectTmpl;
-  mus.Template _resourceTmpl;
-  mus.Template _requestTmpl;
+class _Emitter {
+  _InternalTemplate _clientHeader;
+  _InternalTemplate _root;
+  _InternalTemplate _object;
+  _InternalTemplate _objectFileHeader;
+  _InternalTemplate _resource;
+  _InternalTemplate _resourceFileHeader;
+  _InternalTemplate _request;
+  _InternalTemplate _requestFileHeader;
 
-  final TemplateProvider _templateProvider;
-  StringBuffer _out;
+  final EmitterConfig _conf;
   String _discoveryName;
   String _topLevelClassName;
+  String _libName;
+  String _codeInfoString;
+  List _sendParams;
 
-  Emitter(this._templateProvider) {
-    this._clientHeaderTmpl = _loadTemplate('client_header');
-    this._rootTmpl = _loadTemplate('root');
-    this._objectTmpl = _loadTemplate('object');
-    this._resourceTmpl = _loadTemplate('resource');
-    this._requestTmpl = _loadTemplate('request');
-  }
+  _Emitter(this._conf) {
+    _InternalTemplate _tmpl(String codeTemplateName, StringSink codeSink) =>
+        new _InternalTemplate(
+            mus.parse(_conf.templateProvider[codeTemplateName]), codeSink);
 
-  mus.Template _loadTemplate(String templateName) {
-    return mus.parse(_templateProvider[templateName]);
-  }
+    _clientHeader = _tmpl('client_header', _conf.rootCodeSink);
+    _root = _tmpl('root', _conf.rootCodeSink);
+    _object = _tmpl('object', _conf.objectCodeSink);
+    _objectFileHeader = _tmpl('object_file_header', _conf.objectCodeSink);
+    _resource = _tmpl('resource', _conf.resourceCodeSink);
+    _resourceFileHeader = _tmpl('resource_file_header', _conf.resourceCodeSink);
+    _request = _tmpl('request', _conf.requestCodeSink);
+    _requestFileHeader = _tmpl('request_file_header', _conf.requestCodeSink);
 
-  /// Generates API client code and returns it as a string.
-  String generate(String libName, Discovery discovery, {Map addendumData: const {}}) {
-    this._out = new StringBuffer();
-    this._discoveryName = capitalize(discovery.name);
-    this._topLevelClassName = this._discoveryName;
-    if (addendumData.containsKey('topLevelClassName')) {
-      this._topLevelClassName = addendumData['topLevelClassName'];
+    _discoveryName = _capitalize(_conf.discovery.name);
+    _topLevelClassName = _makeClassName(_discoveryName);
+    if (_conf.addendumData.containsKey('topLevelClassName')) {
+      _topLevelClassName = _conf.addendumData['topLevelClassName'];
     }
 
-    var types = [];
-    discovery.schemas.forEach((String id, TypeDescriptor schema) {
-      if (schema.kind != null) {
-        types.add({
-          'name': id,
-          'kind': schema.kind,
-        });
-      }
-    });
+    _libName = _conf.addendumData.containsKey('lib_name')
+        ? _conf.addendumData['lib_name']
+        : _topLevelClassName.toLowerCase();
 
-    _render(_clientHeaderTmpl, {
-      'types': types,
-      'api_library': libName,
-      'source_of_templates': _templateProvider.sourceOfTemplates,
-    });
+    _codeInfoString = _conf.addendumData['code_info_string'];
 
-    discovery.schemas.forEach((String id, TypeDescriptor type) {
-      processType(id, type);
-    });
-
-    var sendParams = [];
-    if (addendumData.containsKey('sendParams')) {
-      addendumData['sendParams'].forEach((key, value) {
+    _sendParams = [];
+    if (_conf.addendumData.containsKey('sendParams')) {
+      _conf.addendumData['sendParams'].forEach((key, value) {
         value['name'] = key;
         value['last'] = false;
         if (value['type'] == 'String') {
           value['default'] = '\'${value['default']}\'';
         }
-        sendParams.add(value);
+        _sendParams.add(value);
       });
-      sendParams[sendParams.length - 1]['last'] = true;
+      _sendParams[_sendParams.length - 1]['last'] = true;
     }
+  }
+
+  /// Generates API client code and returns it as a string.
+  void generate() {
+    getImport(name) => _addendum.containsKey('${name}_import')
+        ? _addendum['${name}_import']
+        : '${_libName}_${name}.dart';
+
+    var headerData = {
+      'api_library': _libName,
+      'code_info_string': _codeInfoString,
+      'resources_package': getImport('resources'),
+      'requests_package': getImport('requests'),
+      'objects_package': getImport('objects'),
+    };
+
+    _clientHeader.render(headerData);
+    _resourceFileHeader.render(headerData);
+    _requestFileHeader.render(headerData);
+    _objectFileHeader.render(headerData);
+
+    _conf.discovery.schemas.forEach((String id, TypeDescriptor type) {
+      processType(id, type);
+    });
 
     List<Map> resourceFields = new List.from(
-        discovery.resources.map((Resource resource) {
-          return processResource(resource, sendParams);
+        _conf.discovery.resources.map((Resource resource) {
+          return processResource(resource);
         }));
 
-    _render(_rootTmpl, {
+    _root.render({
       'discoveryName': _discoveryName,
       'topLevelClassName': _topLevelClassName,
       'resources': resourceFields,
-      'servicePath': discovery.servicePath,
-      'docs': docLines(discovery.description),
+      'servicePath': _conf.discovery.servicePath,
+      'docs': _docLines(_conf.discovery.description),
     });
-    return _out.toString();
   }
 
-  _render(mus.Template template, Map data) {
-    String code = template.renderString(data, htmlEscapeValues: false);
-    List<String> lines = code.split('\n');
-    StringBuffer clean = new StringBuffer();
-    String previousLine = '';
-    for (String line in lines) {
-      String trim = line.trim();
-      bool isClassDeclaration = trim.startsWith('class') ||
-          trim.startsWith('abstract class');
-      bool isComment = trim.startsWith('///');
-      if (trim.length > 0) {
-        bool previousLineIsComment = previousLine.trim().startsWith('///');
-        if (isClassDeclaration || isComment) {
-          if (!previousLineIsComment) {
-            clean.writeln();
-          }
-        }
-        clean.writeln(line);
-      }
-      previousLine = line;
-    }
-    _out.write(clean.toString());
-  }
+  Map get _addendum => _conf.addendumData;
 
-  Map processResource(Resource resource, List sendParams) {
+  Map processResource(Resource resource) {
     // TODO(yjbanov): support sub-resources
     List<Map> methods = [];
     resource.methods.forEach((Method method) {
-      MethodInfo methodInfo = processMethod(resource, method, sendParams);
+      MethodInfo methodInfo = processMethod(resource, method);
       var methodData = {
         'name': methodInfo.apiName,
         'reqType': methodInfo.requestTypeName,
@@ -144,22 +170,22 @@ class Emitter {
         // TODO(arick): Remove "&& false" once dart2js no longer crashes with lots of named parameters.
         'hasQueryParameters': methodInfo.queryParameters.isNotEmpty && false,
         'queryParameters': methodInfo.queryParameters,
-        'docs': docLines(method.description),
+        'docs': _docLines(method.description),
         'patch': method.httpMethod == HTTP_PATCH
       };
       methods.add(methodData);
     });
-    var identifierName = cleanseForIdentifierName(resource.name);
+    var resourceClassName = _makeClassName('${resource.name}Resource');
     var resourceData = {
-      'name': identifierName,
-      'type': '${capitalize(identifierName)}Resource',
+      'name': _makePropertyName(resource.name),
+      'type': resourceClassName,
       'methods': methods,
     };
-    _render(_resourceTmpl, resourceData);
+    _resource.render(resourceData);
     return resourceData;
   }
 
-  MethodInfo processMethod(Resource resource, Method method, List sendParams) {
+  MethodInfo processMethod(Resource resource, Method method) {
     MethodInfo methodInfo = new MethodInfo(this, resource, method);
 
     var requestData = {
@@ -172,9 +198,9 @@ class Emitter {
       'path_parameters': methodInfo.pathParameters,
       'query_parameters': methodInfo.queryParameters,
       'hasResponse': [],
-      'sendParams': sendParams,
-      'hasSendParams': sendParams.isNotEmpty,
-      'docs': docLines(method.description),
+      'sendParams': _sendParams,
+      'hasSendParams': _sendParams.isNotEmpty,
+      'docs': _docLines(method.description),
       'patchable': method.name == 'update'
     };
 
@@ -186,7 +212,7 @@ class Emitter {
     }
 
     // Render the request object type
-    _render(_requestTmpl, requestData);
+    _request.render(requestData);
     return methodInfo;
   }
 
@@ -202,33 +228,36 @@ class Emitter {
       case STRING_TYPE:
         return new ProcessTypeResult.basic(type.type.dartType, type.format);
       case REF_TYPE:
-        return new ProcessTypeResult.object(type.ref);
+        return new ProcessTypeResult.object(
+            _makeClassName(type.ref));
       case ARRAY_TYPE:
         ProcessTypeResult elemTypeResult = processType(name, type.items);
         return new ProcessTypeResult.list(elemTypeResult);
       case OBJECT_TYPE:
-        processObjectType(name, type);
-        return new ProcessTypeResult.object(name);
+        var className = _makeClassName(name);
+        processObjectType(className, type);
+        return new ProcessTypeResult.object(className);
     }
     throw new ApigenException('Unsupported type ${type.type}');
   }
 
-  void processObjectType(String name, TypeDescriptor type) {
+  void processObjectType(String className, TypeDescriptor type) {
     var properties = <Map>[];
     type.properties.forEach((String propertyName, TypeDescriptor propertyType) {
-      String identifierName = cleanseForIdentifierName(propertyName);
-      String capName = capitalize(identifierName);
+      String fieldName = _makePropertyName(propertyName);
+      String removerName = _makeRemoverName(fieldName);
+      String classNameSuffix = _makeClassName(propertyName);
       ProcessTypeResult proctr =
-          processType('${name}_${capName}', propertyType);
+          processType('${className}_${classNameSuffix}', propertyType);
       var propertyData = {
         'type': proctr.typeName,
-        'name': propertyName,
-        'identifier_name': identifierName,
-        'capName': capName,
+        'raw_name': propertyName,
+        'field_name': fieldName,
+        'remover_name': removerName,
         'mustSerialize': [],
         'hasParseExpr': [],
         'list': [],
-        'docs': docLines(propertyType.description),
+        'docs': _docLines(propertyType.description),
       };
       if (proctr.parseExpr != null) {
         propertyData['hasParseExpr'] = ['true'];
@@ -246,13 +275,59 @@ class Emitter {
 
     // TODO(yjbanov): support additionalProperties
 
-    _render(_objectTmpl, {
-      'name': cleanseForIdentifierName(name),
+    _object.render({
+      'name': className,
       'properties': properties,
-      'docs': docLines(type.description),
+      'docs': _docLines(type.description),
       'hasKind': type.kind != null,
       'kind': type.kind,
     });
+  }
+
+  String _makePropertyName(String name) {
+    name = _fixIllegalChars(name);
+    if (_ILLEGAL_PROPERTY_NAMES.contains(name)) {
+      name = '\$${name}';
+    }
+    return name;
+  }
+
+  String _makeMethodName(String name) {
+    name = _fixIllegalChars(name);
+    if (_ILLEGAL_METHOD_NAMES.contains(name)) {
+      name = '\$${name}';
+    }
+    return name;
+  }
+
+  String _makeRemoverName(String name) {
+    name = _capitalize(_fixIllegalChars(name));
+    return 'remove${name}';
+  }
+
+  String _makeClassName(String name) {
+    name = _capitalize(_fixIllegalChars(name));
+    if (_ILLEGAL_CLASS_NAMES.contains(name)) {
+      name = '\$${name}';
+    }
+    return name;
+  }
+
+  String _fixIllegalChars(String name) {
+    if (name.length == 0) {
+      throw new StateError('Empty property, schema, resource or method name');
+    }
+
+    // Replace bad starting character with dollar sign (it has to be public)
+    if(!name.startsWith(IDENTIFIER_START)) {
+      name = '\$${name.substring(1)}';
+    };
+
+    // Replace bad characters in the middle with underscore
+    name = name.replaceAll(NON_IDENTIFIER_CHAR_MATCHER, '_');
+    if (name.startsWith('_')) {
+      name = 'clean${name}';
+    }return name;
   }
 }
 
@@ -294,9 +369,8 @@ class ProcessTypeResult {
         typeName, true, false, null, parseExpr);
   }
 
-  factory ProcessTypeResult.object(String rawName) {
-    var identifierName = cleanseForIdentifierName(rawName);
-    return new ProcessTypeResult._private(identifierName, false, false, null,
+  factory ProcessTypeResult.object(String className) {
+    return new ProcessTypeResult._private(className, false, false, null,
         null);
   }
 
@@ -321,18 +395,18 @@ class MethodInfo {
   List<Map> pathParameters = [];
   List<Map> queryParameters = [];
 
-  MethodInfo(Emitter gen, Resource resource, Method method) {
-    this.apiName = cleanseForIdentifierName(method.name);
-    var typeNamePrefix = cleanseForIdentifierName(
-        '${capitalize(resource.name)}${capitalize(method.name)}');
+  MethodInfo(_Emitter gen, Resource resource, Method method) {
+    this.apiName = gen._makeMethodName(method.name);
+    var typeNamePrefix =
+        '${_capitalize(resource.name)}${_capitalize(method.name)}';
     this.hasPayload = method.request != null;
     if (hasPayload) {
       this.payloadTypeName = gen.processType(
-          '${typeNamePrefix}Payload',
+          gen._makeClassName('${typeNamePrefix}Payload'),
           method.request).typeName;
     }
 
-    this.requestTypeName = cleanseForIdentifierName('${typeNamePrefix}Request');
+    this.requestTypeName = gen._makeClassName('${typeNamePrefix}Request');
 
     this.hasResponse = method.response != null;
     if (hasResponse) {
@@ -341,7 +415,7 @@ class MethodInfo {
 
     method.parameters.forEach((String paramName, Parameter param) {
       TypeDescriptor paramType = param.type;
-      var paramVarName = cleanseForIdentifierName(paramName);
+      var paramVarName = gen._makePropertyName(paramName);
       String paramTypeName =
           gen.processType('${method.name}_${paramVarName}', paramType).typeName;
       var paramArgTypeName = paramTypeName;
@@ -355,8 +429,8 @@ class MethodInfo {
         'name': paramName,
         'varName': paramVarName,
         'repeated': param.repeated,
-        'capVarName': capitalize(paramVarName),
-        'docs': docLines(paramType.description),
+        'removerName': gen._makeRemoverName(paramVarName),
+        'docs': _docLines(paramType.description),
         'last': false,
       };
       parameters.add(parameter);
@@ -388,12 +462,201 @@ class MethodInfo {
   }
 }
 
-final NON_IDENTIFIER_CHAR_MATCHER = new RegExp(r'[^a-zA-Z\d]');
-
-String cleanseForIdentifierName(String name) {
-  var cleanName = name.replaceAll(NON_IDENTIFIER_CHAR_MATCHER, '_');
-  if (cleanName.startsWith('_')) {
-    cleanName = 'clean${cleanName}';
+/// Turns the first letter in a string to a capital letter.
+String _capitalize(String str) {
+  if (str == null || str.length == 0) {
+    return str;
   }
-  return cleanName;
+  return str[0].toUpperCase() + str.substring(1);
+}
+
+/// Breaks up a [String] into list of lines.
+List<String> _docLines(String s) =>
+    s != null ? s.split('\n') : <String>[];
+
+/// Characters allowed as starting identifier characters. Note the absence of
+/// underscore. This is because generated identifiers have to be public.
+final IDENTIFIER_START = new RegExp(r'[a-zA-Z\$]');
+final NON_IDENTIFIER_CHAR_MATCHER = new RegExp(r'[^a-zA-Z\d\$_]');
+
+/// Disallowed property names.
+const _ILLEGAL_PROPERTY_NAMES = const [
+  // Streamy reserved symbols
+  'parameters',
+  'global',
+  'clone',
+  'patch',
+  'isFrozen',
+  'containsKey',
+  'fieldNames',
+  'remove',
+  'toJson',
+  'local',
+  'streamyType',
+  'changes',
+  'deliverChanges',
+  'notifyChange',
+  'notifyPropertyChange',
+  'hasObservers',
+  'apiType',
+
+  // Dart keywords
+  'continue',
+  'extends',
+  'throw',
+  'default',
+  'rethrow',
+  'true',
+  'assert',
+  'do',
+  'false',
+  'in',
+  'return',
+  'try',
+  'break',
+  'final',
+  'is',
+  'case',
+  'else',
+  'finally',
+  'var',
+  'catch',
+  'enum',
+  'for',
+  'new',
+  'super',
+  'void',
+  'class',
+  'null',
+  'switch',
+  'while',
+  'const',
+  'if',
+  'this',
+  'with',
+];
+
+/// Disallowed method names.
+const _ILLEGAL_METHOD_NAMES = const [
+  'abstract',
+  'continue',
+  'extends',
+  'throw',
+  'default',
+  'factory',
+  'rethrow',
+  'true',
+  'assert',
+  'do',
+  'false',
+  'in',
+  'return',
+  'try',
+  'break',
+  'final',
+  'is',
+  'case',
+  'else',
+  'finally',
+  'static',
+  'var',
+  'catch',
+  'enum',
+  'for',
+  'new',
+  'super',
+  'void',
+  'class',
+  'null',
+  'switch',
+  'while',
+  'const',
+  'external',
+  'if',
+  'this',
+  'with',
+];
+
+/// Disallowed class names (e.g. they are from dart:core).
+const _ILLEGAL_CLASS_NAMES = const [
+  'BidirectionalIterator',
+  'Comparable',
+  'Comparator',
+  'DateTime',
+  'Deprecated',
+  'Duration',
+  'Expando',
+  'Function',
+  'Invocation',
+  'Iterable',
+  'Iterator',
+  'List',
+  'Map',
+  'Match',
+  'Null',
+  'Object',
+  'Pattern',
+  'RegExp',
+  'RuneIterator',
+  'Runes',
+  'Set',
+  'StackTrace',
+  'Stopwatch',
+  'String',
+  'StringBuffer',
+  'StringSink',
+  'Symbol',
+  'Type',
+  'Uri',
+  'AbstractClassInstantiationError',
+  'ArgumentError',
+  'AssertionError',
+  'CastError',
+  'ConcurrentModificationError',
+  'CyclicInitializationError',
+  'Error',
+  'Exception',
+  'FallThroughError',
+  'FormatException',
+  'IntegerDivisionByZeroException',
+  'NoSuchMethodError',
+  'NullThrownError',
+  'OutOfMemoryError',
+  'RangeError',
+  'StackOverflowError',
+  'StateError',
+  'TypeError',
+  'UnimplementedError',
+  'UnsupportedError',
+];
+
+class _InternalTemplate {
+  final mus.Template _template;
+  final StringSink _codeSink;
+
+  _InternalTemplate(this._template, this._codeSink);
+
+  render(Map data) {
+    String code = _template.renderString(data, htmlEscapeValues: false);
+    List<String> lines = code.split('\n');
+    StringBuffer clean = new StringBuffer();
+    String previousLine = '';
+    for (String line in lines) {
+      String trim = line.trim();
+      bool isClassDeclaration = trim.startsWith('class') ||
+          trim.startsWith('abstract class');
+      bool isComment = trim.startsWith('///');
+      if (trim.length > 0) {
+        bool previousLineIsComment = previousLine.trim().startsWith('///');
+        if (isClassDeclaration || isComment) {
+          if (!previousLineIsComment) {
+            clean.writeln();
+          }
+        }
+        clean.writeln(line);
+      }
+      previousLine = line;
+    }
+    _codeSink.write(clean.toString());
+  }
 }

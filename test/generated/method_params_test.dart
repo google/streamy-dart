@@ -1,7 +1,7 @@
 library streamy.generated.method_params.test;
 
 import 'package:unittest/unittest.dart';
-import 'method_params_client.dart';
+import 'method_params_client_requests.dart';
 
 main() {
   group('MethodParamsTest', () {

@@ -2,18 +2,6 @@
   "name": "Bank",
   "servicePath": "bank/v1/",
   "schemas": {
-    "Address": {
-        "id": "Address",
-        "type": "object",
-        "address_line": {
-          "type": "string",
-          "description": "Street address."
-        },
-        "city": {
-          "type": "string",
-          "description": "City."
-        }
-    },
     "Branch": {
       "id": "Branch",
       "type": "object",
@@ -31,6 +19,18 @@
           "$ref": "Address"
         }
       }
+    },
+    "Address": {
+        "id": "Address",
+        "type": "object",
+        "address_line": {
+          "type": "string",
+          "description": "Street address."
+        },
+        "city": {
+          "type": "string",
+          "description": "City."
+        }
     },
     "Account": {
       "id": "Account",

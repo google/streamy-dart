@@ -5,6 +5,7 @@ import 'package:json/json.dart';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 import 'addendum_client.dart';
+import 'addendum_client_objects.dart';
 
 main() {
   group('Addendum', () {
