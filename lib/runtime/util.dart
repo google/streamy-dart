@@ -56,3 +56,47 @@ class ZeroOrOneConsumer<Entity> extends StreamConsumer<Entity> {
 
   Future<Entity> close() => new Future.value(null);
 }
+
+/// Provides efficient repeated access to a nested field in an [Entity]
+/// structure. Efficiency is provided in two main ways: by front-loading the
+/// path parsing, and by memoizing lookups so repeated accesses on the same
+/// object are fast. This is especially useful for speeding up [Comparator]s,
+/// so a useful [FastComparator] abstraction is provided for that purpose.
+class FastFieldAccessor<S extends Entity, T> {
+
+  final List<String> _pieces;
+  final Expando<T> _cache = new Expando<T>();
+
+  FastFieldAccessor(String path) : _pieces = path.split('.');
+
+  T operator[](S entity) {
+    var memoized = _cache[entity];
+    if (memoized != null) {
+      return memoized;
+    }
+    var current = entity;
+    var i = 0;
+    while (current != null && i < _pieces.length) {
+      current = current[_pieces[i++]];
+    }
+    if (current != null) {
+      _cache[entity] = current;
+    }
+    return current;
+  }
+}
+
+/// A [Comparator] that uses a [FastFieldAccessor] to speed up comparisons based
+/// on nested fields in an [Entity].
+class FastComparator<S extends Entity, T> {
+
+  final FastFieldAccessor<S, T> accessor;
+  final Comparator<T> comparator;
+
+  FastComparator(String field) : this.withComparator(field, Comparable.compare);
+
+  FastComparator.withComparator(String field, this.comparator) :
+      accessor = new FastFieldAccessor<S, T>(field);
+
+  int call(S a, S b) => comparator(accessor[a], accessor[b]);
+}
