@@ -149,8 +149,46 @@ main() {
       asyncExpect(onlyResponse.then((e) => e.source), 'CACHE');
     });
   });
+  group('FastComparator', () {
+    test('sorts by nested fields properly', () {
+      var data = [3, 1, 2, 5, 4]
+        .map((e) => new RawEntity()..['inner'] = e)
+        .map((e) => new RawEntity()..['middle'] = e)
+        .map((e) => new RawEntity()..['outer'] = e)
+        .toList();
+      data.sort(new FastComparator('outer.middle.inner'));
+      expect(data.map((e) => e['outer.middle.inner']), [1, 2, 3, 4, 5]);
+    });
+    test('minimizes field accesses', () {
+      var data = [3, 1, 2, 5, 4]
+        .map((e) => new AccessCounter('inner', e))
+        .map((e) => new RawEntity()..['middle'] = e)
+        .map((e) => new RawEntity()..['outer'] = e)
+        .toList();
+      data.sort(new FastComparator('outer.middle.inner'));
+      expect(data.map((e) => e['outer.middle.accessCount']), [1, 1, 1, 1, 1]);
+    });
+  });
 }
 
 asyncExpect(Future future, matcher) => future.then(expectAsync1((v) {
   expect(v, matcher);
 }));
+
+class AccessCounter {
+  final String key;
+  final int value;
+  int accessCount = 0;
+
+  AccessCounter(this.key, this.value);
+
+  operator[](String key) {
+    if (key == this.key) {
+      accessCount++;
+      return value;
+    } else if (key == 'accessCount') {
+      return accessCount;
+    }
+    return null;
+  }
+}
