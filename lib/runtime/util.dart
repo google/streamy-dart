@@ -56,3 +56,27 @@ class ZeroOrOneConsumer<Entity> extends StreamConsumer<Entity> {
 
   Future<Entity> close() => new Future.value(null);
 }
+
+class FastFieldAccessor<T> {
+
+  final List<String> _pieces;
+  final Expando<T> _cache = new Expando<T>();
+
+  FastFieldAccessor(String path) : _pieces = path.split('.');
+
+  T operator[](Entity entity) {
+    var memoized = _cache[entity];
+    if (cache != null) {
+      return cache;
+    }
+    var current = entity;
+    var i = 0;
+    while (current != null && i < _pieces.length) {
+      current = current[_pieces[i++]];
+    }
+    if (current != null) {
+      _cache[entity] = current;
+    }
+    return current;
+  }
+}
