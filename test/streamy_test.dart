@@ -152,18 +152,19 @@ main() {
   group('FastComparator', () {
     test('sorts by nested fields properly', () {
       var data = [3, 1, 2, 5, 4]
-        .map((e) => new RawEntity()..['inner'] = e)
-        .map((e) => new RawEntity()..['middle'] = e)
-        .map((e) => new RawEntity()..['outer'] = e)
+        .map((v) => new RawEntity()
+          ..['outer'] = (new RawEntity()
+            ..['middle'] = (new RawEntity()
+              ..['inner'] = v)))
         .toList();
       data.sort(new FastComparator('outer.middle.inner'));
       expect(data.map((e) => e['outer.middle.inner']), [1, 2, 3, 4, 5]);
     });
     test('minimizes field accesses', () {
       var data = [3, 1, 2, 5, 4]
-        .map((e) => new AccessCounter('inner', e))
-        .map((e) => new RawEntity()..['middle'] = e)
-        .map((e) => new RawEntity()..['outer'] = e)
+        .map((v) => new RawEntity()
+          ..['outer'] = (new RawEntity()
+            ..['middle'] = new AccessCounter('inner', v)))
         .toList();
       data.sort(new FastComparator('outer.middle.inner'));
       expect(data.map((e) => e['outer.middle.accessCount']), [1, 1, 1, 1, 1]);
