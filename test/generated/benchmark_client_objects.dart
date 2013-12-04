@@ -107,25 +107,14 @@ class Foo extends streamy.EntityWrapper {
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
     fields.remove(r'id');
-    result.bar = new Bar.fromJson(result[r'bar']);
+    result[r'bar'] = ((v) => new Bar.fromJson(v))(result[r'bar']);
     fields.remove(r'bar');
     fields.remove(r'baz');
-    result.qux = (result[r'qux'] != null) ? fixnum.Int64.parseInt(result[r'qux']) : null;
+    result[r'qux'] = streamy.atoi64(result[r'qux']);
     fields.remove(r'qux');
-    list = result[r'quux'];
-    if (list != null) {
-      list = result[r'quux'];
-      len = list.length;
-      for (var i = 0; i < len; i++) {
-        list[i] = double.parse(list[i]);
-      }
-    }
+    result[r'quux'] = streamy.mapInline(streamy.atod)(result[r'quux']);
     fields.remove(r'quux');
-    list = result[r'corge'];
-    if (list != null) {
-    }
     fields.remove(r'corge');
-;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }
@@ -134,10 +123,10 @@ class Foo extends streamy.EntityWrapper {
   Map toJson() {
     Map map = super.toJson();
     if (map.containsKey(r'qux')) {
-      map[r'qux'] = map[r'qux'].toString();
+      map[r'qux'] = streamy.str(map[r'qux']);
     }
     if (map.containsKey(r'quux')) {
-      map[r'quux'] = streamy.nullSafeMapToList(map[r'quux'], (o) => o.toString());
+      map[r'quux'] = streamy.mapCopy(streamy.str)(map[r'quux']);
     }
 ;
     return map;
@@ -201,15 +190,8 @@ class Bar extends streamy.EntityWrapper {
     var len;
     var result = new Bar.wrapMap(json);
     var fields = result.fieldNames.toList();
-    list = result[r'foos'];
-    if (list != null) {
-      len = list.length;
-      for (var i = 0; i < len; i++) {
-        list[i] = new Foo.fromJson(list[i]);
-      }
-    }
+    result[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(result[r'foos']);
     fields.remove(r'foos');
-;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }

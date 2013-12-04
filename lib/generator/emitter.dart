@@ -256,6 +256,7 @@ class _Emitter {
         'remover_name': removerName,
         'mustSerialize': [],
         'hasParseExpr': [],
+        'hasToJsonExpr': [],
         'list': [],
         'docs': _docLines(propertyType.description),
       };
@@ -263,12 +264,12 @@ class _Emitter {
         propertyData['hasParseExpr'] = ['true'];
         propertyData['parseExpr'] = proctr.parseExpr;
       }
-      if (!proctr.isBasic) {
-        propertyData['mustSerialize'] = ['true'];
-      }
       if (proctr.isList) {
         propertyData['list'] = ['true'];
-        propertyData['listType'] = proctr.elemTypeName;
+      }
+      if (proctr.toJsonExpr != null) {
+        propertyData['hasToJsonExpr'] = ['true'];
+        propertyData['toJsonExpr'] = proctr.toJsonExpr;
       }
       properties.add(propertyData);
     });
@@ -333,53 +334,63 @@ class _Emitter {
 
 class ProcessTypeResult {
   final String typeName;
-  final bool isBasic;
-  final bool isList;
-  final String elemTypeName;
   final String parseExpr;
+  final String toJsonExpr;
+  final bool isList;
 
   ProcessTypeResult._private(
       this.typeName,
-      this.isBasic,
-      this.isList,
-      this.elemTypeName,
-      this.parseExpr);
+      this.parseExpr,
+      this.toJsonExpr,
+      {this.isList: false});
 
   factory ProcessTypeResult.basic(String typeName, String format) {
     String parseExpr;
+    String toJsonExpr;
     switch (format) {
       case 'int64':
         if (typeName == 'String') {
-          parseExpr = 'fixnum.Int64.parseInt';
+          parseExpr = 'streamy.atoi64';
+          toJsonExpr = 'streamy.str';
         } else if (typeName == 'num') {
-          parseExpr = '(v) => new fixnum.Int64(v)';
+          parseExpr = 'streamy.itoi64';
+          toJsonExpr = 'streamy.str';
         }
         typeName = 'fixnum.Int64';
         break;
       case 'double':
         if (typeName == 'String') {
-          parseExpr = 'double.parse';
+          parseExpr = 'streamy.atod';
+          toJsonExpr = 'streamy.str';
         }
         typeName = 'double';
         break;
       default:
         // Do nothing.
     }
-    return new ProcessTypeResult._private(
-        typeName, true, false, null, parseExpr);
+    return new ProcessTypeResult._private(typeName, parseExpr, toJsonExpr);
   }
 
   factory ProcessTypeResult.object(String className) {
-    return new ProcessTypeResult._private(className, false, false, null,
-        null);
+    String parseExpr = '''((v) => new ${className}.fromJson(v))''';
+    return new ProcessTypeResult._private(className, parseExpr, null);
   }
 
   factory ProcessTypeResult.list(ProcessTypeResult elemTypeResult) {
-    bool isBasic = elemTypeResult.isBasic;
+    String elemParseExpr = elemTypeResult.parseExpr;
+    String elemToJsonExpr = elemTypeResult.toJsonExpr;
     String elemTypeName = elemTypeResult.typeName;
     String typeName = 'List<${elemTypeName}>';
-    return new ProcessTypeResult._private(
-        typeName, isBasic, true, elemTypeName, elemTypeResult.parseExpr);
+    String parseExpr = null;
+    if (elemParseExpr != null) {
+      parseExpr = 'streamy.mapInline(${elemParseExpr})';
+    }
+    String toJsonExpr = null;
+    if (elemToJsonExpr != null) {
+      toJsonExpr = 'streamy.mapCopy(${elemToJsonExpr})';
+    }
+    return new ProcessTypeResult._private(typeName, parseExpr, toJsonExpr,
+        isList: true);
   }
 }
 

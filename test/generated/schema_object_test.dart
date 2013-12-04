@@ -8,6 +8,7 @@ import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
 import 'schema_object_client.dart';
 import 'schema_object_client_objects.dart';
+import '../utils.dart';
 
 main() {
   group('SchemaObjectTest', () {
@@ -366,6 +367,45 @@ main() {
     test('should not appear in resources and methods names', () {
       new SchemaObjectTest(null)
         .$some_resource_.$some_method_(null, null);
+    });
+  });
+  group('Array of arrays', () {
+    test('should deserilize correctly', () {
+      var subject = new Context.fromJsonString(
+'''
+{
+  "facets": [
+    [{"anchor": "a"}, {"anchor": "b"}],
+    [],
+    null,
+    [null]
+  ]
+}
+''', null);
+      expect(subject.facets, hasLength(4));
+      expect(subject.facets[0], hasLength(2));
+      subject.facets[0].forEach((f) {
+        expect(f, new isAssignableTo<Context_Facets>());
+      });
+      expect(subject.facets[0][0].anchor, 'a');
+      expect(subject.facets[1], hasLength(0));
+      expect(subject.facets[2], isNull);
+      expect(subject.facets[3], hasLength(1));
+      expect(subject.facets[3][0], isNull);
+    });
+    test('should serialize correctly', () {
+      var subject = new Context()
+        ..facets = [
+          [
+            new Context_Facets()..anchor = 'a',
+            new Context_Facets()..anchor = 'b',
+          ],
+          [],
+          null,
+          [null],
+        ];
+      expect(stringify(subject.toJson()),
+          '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });
 }

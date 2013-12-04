@@ -71,36 +71,11 @@ class {{name}} extends streamy.EntityWrapper {
     var result = new {{name}}.wrapMap(json);
     var fields = result.fieldNames.toList();
 {{#properties}}
-{{#list}}
-    list = result[r'{{raw_name}}'];
-    if (list != null) {
-{{#mustSerialize}}
-      len = list.length;
-      for (var i = 0; i < len; i++) {
-        list[i] = new {{listType}}.fromJson(list[i]);
-      }
-{{/mustSerialize}}
-{{^mustSerialize}}
-{{#hasParseExpr}}
-      list = result[r'{{raw_name}}'];
-      len = list.length;
-      for (var i = 0; i < len; i++) {
-        list[i] = {{parseExpr}}(list[i]);
-      }
-{{/hasParseExpr}}
-{{/mustSerialize}}
-    }
-{{/list}}
-{{^list}}
-{{#mustSerialize}}
-    result.{{field_name}} = new {{type}}.fromJson(result[r'{{raw_name}}']);
-{{/mustSerialize}}
-{{^mustSerialize}}
-    {{#hasParseExpr}}result.{{field_name}} = (result[r'{{raw_name}}'] != null) ? {{parseExpr}}(result[r'{{raw_name}}']) : null;{{/hasParseExpr}}
-{{/mustSerialize}}
-{{/list}}
+  {{#hasParseExpr}}
+    result[r'{{raw_name}}'] = {{parseExpr}}(result[r'{{raw_name}}']);
+  {{/hasParseExpr}}
     fields.remove(r'{{raw_name}}');
-{{/properties}};
+{{/properties}}
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }
@@ -110,11 +85,11 @@ class {{name}} extends streamy.EntityWrapper {
   Map toJson() {
     Map map = super.toJson();
 {{#properties}}
-{{#hasParseExpr}}
+  {{#hasToJsonExpr}}
     if (map.containsKey(r'{{raw_name}}')) {
-      map[r'{{raw_name}}'] = {{#list}}streamy.nullSafeMapToList(map[r'{{raw_name}}'], (o) => o.toString()){{/list}}{{^list}}map[r'{{raw_name}}'].toString(){{/list}};
+      map[r'{{raw_name}}'] = {{toJsonExpr}}(map[r'{{raw_name}}']);
     }
-{{/hasParseExpr}}
+  {{/hasToJsonExpr}}
 {{/properties}};
     return map;
   }

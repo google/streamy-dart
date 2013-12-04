@@ -62,7 +62,6 @@ class Foo extends streamy.EntityWrapper {
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
     fields.remove(r'baz');
-;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }
@@ -122,7 +121,6 @@ class Bar extends streamy.EntityWrapper {
     var len;
     var result = new Bar.wrapMap(json);
     var fields = result.fieldNames.toList();
-;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }

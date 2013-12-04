@@ -68,12 +68,6 @@
          "properties": {
           "anchor": {
            "type": "string"
-          },
-          "label": {
-           "type": "string"
-          },
-          "label_with_op": {
-           "type": "string"
           }
          }
         }

@@ -70,7 +70,6 @@ class Foo extends streamy.EntityWrapper {
     var fields = result.fieldNames.toList();
     fields.remove(r'id');
     fields.remove(r'bar');
-;
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }

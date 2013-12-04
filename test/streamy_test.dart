@@ -1,6 +1,7 @@
 library streamy.streamy.test;
 
 import 'dart:async';
+import 'package:fixnum/fixnum.dart';
 import 'package:observe/observe.dart';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
@@ -168,6 +169,70 @@ main() {
         .toList();
       data.sort(new FastComparator('outer.middle.inner'));
       expect(data.map((e) => e['outer.middle.accessCount']), [1, 1, 1, 1, 1]);
+    });
+  });
+  group('mapInline', () {
+    test('should apply a function to each element', () {
+      var l = [1, 2, 3];
+      var r = mapInline(str)(l);
+      expect(r, same(l));
+      expect(l[0], '1');
+      expect(l[1], '2');
+      expect(l[2], '3');
+    });
+    test('should leave null list as null', () {
+      expect(mapInline(null)(null), isNull);
+    });
+  });
+  group('mapCopy', () {
+    test('should apply a function to each element '
+         'and leave the original list intact', () {
+      var l = [1, 2, 3];
+      var r = mapCopy(str)(l);
+      expect(r, isNot(same(l)));
+
+      expect(r[0], '1');
+      expect(r[1], '2');
+      expect(r[2], '3');
+
+      expect(l[0], 1);
+      expect(l[1], 2);
+      expect(l[2], 3);
+    });
+    test('should leave null list as null', () {
+      expect(mapCopy(null)(null), isNull);
+    });
+  });
+  group('atoi64', () {
+    test('should convert String to Int64', () {
+      expect(atoi64('123'), new Int64(123));
+    });
+    test('should leave null as null', () {
+      expect(atoi64(null), isNull);
+    });
+  });
+  group('itoi64', () {
+    test('should convert int to Int64', () {
+      expect(itoi64(123), new Int64(123));
+    });
+    test('should leave null as null', () {
+      expect(itoi64(null), isNull);
+    });
+  });
+  group('atod', () {
+    test('should convert String to double', () {
+      expect(atod('123'), 123.0);
+    });
+    test('should leave null as null', () {
+      expect(atod(null), isNull);
+    });
+  });
+  group('str', () {
+    test('should convert objects to strings', () {
+      expect(str(123), '123');
+    });
+    test('should leave null as null', () {
+      expect(str(null), isNull);
     });
   });
 }
