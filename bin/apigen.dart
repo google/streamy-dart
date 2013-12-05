@@ -34,10 +34,10 @@ main(List<String> args) {
       objectOut,
       addendumData: addendumData));
 
-  rootOut.flush();
-  resourceOut.flush();
-  requestOut.flush();
-  objectOut.flush();
+  rootOut.close();
+  resourceOut.close();
+  requestOut.close();
+  objectOut.close();
 }
 
 ApigenOptions parseArgs(List<String> arguments) {

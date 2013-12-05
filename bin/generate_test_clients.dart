@@ -47,9 +47,9 @@ main() {
         requestOut,
         objectOut,
         addendumData: addendumData));
-    rootOut.flush();
-    resourceOut.flush();
-    requestOut.flush();
-    objectOut.flush();
+    rootOut.close();
+    resourceOut.close();
+    requestOut.close();
+    objectOut.close();
   });
 }
