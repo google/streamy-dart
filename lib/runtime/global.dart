@@ -41,7 +41,7 @@ class GlobalRegistration {
 
 /// A view of globals as they relate to a specific [Entity]. Implements
 /// observability based on dependencies of the globals involved.
-abstract class GlobalView extends Observable {
+abstract class GlobalView extends Observable implements Map {
   /// A real global view backed by a map of registered globals.
   factory GlobalView(EntityWrapper entity,
       Map<String, GlobalRegistration> globals) =>
@@ -50,10 +50,11 @@ abstract class GlobalView extends Observable {
   /// A global view that doesn't have any globals.
   factory GlobalView.empty() => new _EmptyGlobalView();
 
+  bool containsKey(String key);
   operator[](String key);
 }
 
-class _GlobalViewImpl extends ChangeNotifier implements GlobalView {
+class _GlobalViewImpl extends ChangeNotifier implements GlobalView, Map {
 
   EntityWrapper _entity;
   Map<String, GlobalRegistration> _globals;
@@ -135,14 +136,11 @@ class _EmptyGlobalView implements GlobalView {
     return c.stream;
   }
 
-  bool deliverChanges() {
-  }
+  bool deliverChanges() {}
 
   bool get hasObservers => false;
 
-  void notifyChange(ChangeRecord record) {
-  }
+  void notifyChange(ChangeRecord record) {}
 
-  notifyPropertyChange(Symbol field, Object oldValue, Object newValue) {
-  }
+  notifyPropertyChange(Symbol field, Object oldValue, Object newValue) {}
 }
