@@ -133,13 +133,13 @@ class _GlobalViewImpl extends ChangeNotifier with _FakeMap implements GlobalView
 }
 
 /// A [GlobalView] for an [Entity] that does not have globals.
-class _EmptyGlobalView extends GlobalView {
+class _EmptyGlobalView extends Object with _FakeMap implements GlobalView {
 
-  static const _singleton = const _EmptyGlobalView._useFactoryInstead();
+  static final _singleton = new _EmptyGlobalView._useFactoryInstead();
 
   factory _EmptyGlobalView() => _singleton;
 
-  const _EmptyGlobalView._useFactoryInstead();
+  _EmptyGlobalView._useFactoryInstead();
 
   bool containsKey(String key) => false;
   operator[](String key) => null;
