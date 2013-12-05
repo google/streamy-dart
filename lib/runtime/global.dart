@@ -39,9 +39,24 @@ class GlobalRegistration {
   }
 }
 
+abstract class _FakeMap {
+  get isEmpty => throw "Not implemented";
+  get isNotEmpty => throw "Not implemented";
+  get keys => throw "Not implemented";
+  get values => throw "Not implemented";
+  get length => throw "Not implemented";
+  operator[]=(_a, _b) => throw "Not implemented";
+  addAll(_) => throw "Not implemented";
+  clear() => throw "Not implemented";
+  containsValue(_) => throw "Not implemented";
+  forEach(_) => throw "Not implemented";
+  putIfAbsent(_a, _b) => throw "Not implemented";
+  remove(_) => throw "Not implemented";
+}
+
 /// A view of globals as they relate to a specific [Entity]. Implements
 /// observability based on dependencies of the globals involved.
-abstract class GlobalView extends Observable implements Map {
+abstract class GlobalView extends Observable with _FakeMap implements Map {
   /// A real global view backed by a map of registered globals.
   factory GlobalView(EntityWrapper entity,
       Map<String, GlobalRegistration> globals) =>
@@ -54,7 +69,7 @@ abstract class GlobalView extends Observable implements Map {
   operator[](String key);
 }
 
-class _GlobalViewImpl extends ChangeNotifier implements GlobalView, Map {
+class _GlobalViewImpl extends ChangeNotifier with _FakeMap implements GlobalView {
 
   EntityWrapper _entity;
   Map<String, GlobalRegistration> _globals;
@@ -118,7 +133,7 @@ class _GlobalViewImpl extends ChangeNotifier implements GlobalView, Map {
 }
 
 /// A [GlobalView] for an [Entity] that does not have globals.
-class _EmptyGlobalView implements GlobalView {
+class _EmptyGlobalView extends GlobalView {
 
   static const _singleton = const _EmptyGlobalView._useFactoryInstead();
 
