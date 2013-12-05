@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'method_post_client.dart';
+import 'method_post_client_objects.dart';
 
 main() {
   group('MethodPostTest', () {

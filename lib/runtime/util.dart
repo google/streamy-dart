@@ -100,3 +100,28 @@ class FastComparator<S extends Entity, T> {
 
   int call(S a, S b) => comparator(accessor[a], accessor[b]);
 }
+
+/// Applies [fn] to each element and replaces the element with the result.
+mapInline(fn(e)) => (List l) {
+  if (l == null) return null;
+  for (int i = 0; i < l.length; i++) {
+    l[i] = fn(l[i]);
+  }
+  return l;
+};
+
+/// Static and null-safe version of [Iterable.map]. Does not alter the passed
+/// list. Creates a separate copy instead.
+mapCopy(fn(e)) => (List l) {
+  if (l == null) return null;
+  return l.map(fn).toList();
+};
+
+/// Parses [String] to [Int64]. Null-safe.
+Int64 atoi64(String v) => v != null ? Int64.parseInt(v) : null;
+/// Converts [int] to [Int64]. Null-safe.
+Int64 itoi64(int v) => v != null ? new Int64(v) : null;
+/// Parses [String] to [double]. Null-safe.
+double atod(String v) => v != null ? double.parse(v) : null;
+/// Calls [Object.toString] on the passed argument. Null-safe.
+String str(v) => v != null ? v.toString() : null;

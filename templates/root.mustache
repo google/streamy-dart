@@ -1,10 +1,10 @@
 
 abstract class {{topLevelClassName}}ResourcesMixin {
 {{#resources}}
-  {{type}} _{{name}};
-  {{type}} get {{name}} {
+  res.{{type}} _{{name}};
+  res.{{type}} get {{name}} {
     if (_{{name}} == null) {
-      _{{name}} = new {{type}}(this as streamy.Root);
+      _{{name}} = new res.{{type}}(this as streamy.Root);
     }
     return _{{name}};
   }

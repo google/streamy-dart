@@ -14,9 +14,9 @@ class {{type}} {
 {{#methods}}
 {{#docs}}  /// {{.}}
 {{/docs}}
-  {{reqType}} {{name}}({{#payload}}{{payloadType}} payload{{/payload}}{{^payload}}{{#pathParameters}}{{argType}} {{varName}}{{^last}}, {{/last}}{{/pathParameters}}{{/payload}}{{#hasQueryParameters}}{{#hasPathParametersOrPayload}},{{/hasPathParametersOrPayload}}
+  req.{{reqType}} {{name}}({{#payload}}obj.{{payloadType}} payload{{/payload}}{{^payload}}{{#pathParameters}}{{argType}} {{varName}}{{^last}}, {{/last}}{{/pathParameters}}{{/payload}}{{#hasQueryParameters}}{{#hasPathParametersOrPayload}},{{/hasPathParametersOrPayload}}
       { {{#queryParameters}}{{argType}} {{varName}}{{^last}}, {{/last}}{{/queryParameters}} } {{/hasQueryParameters}}) {
-    var request = new {{reqType}}(_root{{#payload}}, payload{{#patch}}.patch(){{/patch}}{{/payload}}{{#patch}}, patch: true{{/patch}});
+    var request = new req.{{reqType}}(_root{{#payload}}, payload{{/payload}});
 {{#hasQueryParameters}}{{#queryParameters}}
     if ({{varName}} != null) {
       {{^repeated}}request.{{varName}} = {{varName}};{{/repeated}}

@@ -7,6 +7,8 @@ import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
 import 'schema_object_client.dart';
+import 'schema_object_client_objects.dart';
+import '../utils.dart';
 
 main() {
   group('SchemaObjectTest', () {
@@ -352,19 +354,58 @@ main() {
   });
   group('Bad characters', () {
     test('should not appear in entity classes', () {
-      new clean_some_entity_();
+      new $some_entity_();
     });
     test('should not appear in GlobalFn classes', () {
-      clean_some_entity_.addGlobal('test',
-          (clean_some_entity_ e) => null);
+      $some_entity_.addGlobal('test',
+          ($some_entity_ e) => null);
     });
     test('should not appear in entity properties', () {
-      new clean_some_entity_()
-        ..clean_badly_named_property____________ = new fixnum.Int64(123);
+      new $some_entity_()
+        ..$badly_named_property____$_______ = new fixnum.Int64(123);
     });
     test('should not appear in resources and methods names', () {
       new SchemaObjectTest(null)
-        .clean_some_resource_.clean_some_method_(null, null);
+        .$some_resource_.$some_method_(null, null);
+    });
+  });
+  group('Array of arrays', () {
+    test('should deserilize correctly', () {
+      var subject = new Context.fromJsonString(
+'''
+{
+  "facets": [
+    [{"anchor": "a"}, {"anchor": "b"}],
+    [],
+    null,
+    [null]
+  ]
+}
+''', null);
+      expect(subject.facets, hasLength(4));
+      expect(subject.facets[0], hasLength(2));
+      subject.facets[0].forEach((f) {
+        expect(f, new isAssignableTo<Context_Facets>());
+      });
+      expect(subject.facets[0][0].anchor, 'a');
+      expect(subject.facets[1], hasLength(0));
+      expect(subject.facets[2], isNull);
+      expect(subject.facets[3], hasLength(1));
+      expect(subject.facets[3][0], isNull);
+    });
+    test('should serialize correctly', () {
+      var subject = new Context()
+        ..facets = [
+          [
+            new Context_Facets()..anchor = 'a',
+            new Context_Facets()..anchor = 'b',
+          ],
+          [],
+          null,
+          [null],
+        ];
+      expect(stringify(subject.toJson()),
+          '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });
 }

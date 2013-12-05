@@ -8,7 +8,7 @@ class {{name}} extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
 
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
-{{#properties}}    r'{{name}}',
+{{#properties}}    r'{{raw_name}}',
 {{/properties}}  ]);
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
 
@@ -39,16 +39,16 @@ class {{name}} extends streamy.EntityWrapper {
 {{#properties}}
 {{#docs}}  /// {{.}}
 {{/docs}}
-  {{type}} get {{identifier_name}} => this[r'{{name}}'];
-  set {{identifier_name}}({{type}} value) {
+  {{type}} get {{field_name}} => this[r'{{raw_name}}'];
+  set {{field_name}}({{type}} value) {
 {{#list}}
     if (value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
 {{/list}}
-    this[r'{{name}}'] = value;
+    this[r'{{raw_name}}'] = value;
   }
-  {{type}} remove{{capName}}() => this.remove(r'{{name}}');
+  {{type}} {{remover_name}}() => this.remove(r'{{raw_name}}');
 {{/properties}}
 
   factory {{name}}.fromJsonString(String strJson, streamy.Trace trace,
@@ -71,36 +71,11 @@ class {{name}} extends streamy.EntityWrapper {
     var result = new {{name}}.wrapMap(json);
     var fields = result.fieldNames.toList();
 {{#properties}}
-{{#list}}
-    list = result[r'{{name}}'];
-    if (list != null) {
-{{#mustSerialize}}
-      len = list.length;
-      for (var i = 0; i < len; i++) {
-        list[i] = new {{listType}}.fromJson(list[i]);
-      }
-{{/mustSerialize}}
-{{^mustSerialize}}
-{{#hasParseExpr}}
-      list = result[r'{{name}}'];
-      len = list.length;
-      for (var i = 0; i < len; i++) {
-        list[i] = {{parseExpr}}(list[i]);
-      }
-{{/hasParseExpr}}
-{{/mustSerialize}}
-    }
-{{/list}}
-{{^list}}
-{{#mustSerialize}}
-    result.{{identifier_name}} = new {{type}}.fromJson(result[r'{{name}}']);
-{{/mustSerialize}}
-{{^mustSerialize}}
-    {{#hasParseExpr}}result.{{identifier_name}} = (result[r'{{name}}'] != null) ? {{parseExpr}}(result[r'{{name}}']) : null;{{/hasParseExpr}}
-{{/mustSerialize}}
-{{/list}}
-    fields.remove(r'{{name}}');
-{{/properties}};
+  {{#hasParseExpr}}
+    result[r'{{raw_name}}'] = {{parseExpr}}(result[r'{{raw_name}}']);
+  {{/hasParseExpr}}
+    fields.remove(r'{{raw_name}}');
+{{/properties}}
     for (var i = 0; i < fields.length; i++) {
       result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
     }
@@ -110,11 +85,11 @@ class {{name}} extends streamy.EntityWrapper {
   Map toJson() {
     Map map = super.toJson();
 {{#properties}}
-{{#hasParseExpr}}
-    if (map.containsKey(r'{{name}}')) {
-      map[r'{{name}}'] = {{#list}}streamy.nullSafeMapToList(map[r'{{name}}'], (o) => o.toString()){{/list}}{{^list}}map[r'{{name}}'].toString(){{/list}};
+  {{#hasToJsonExpr}}
+    if (map.containsKey(r'{{raw_name}}')) {
+      map[r'{{raw_name}}'] = {{toJsonExpr}}(map[r'{{raw_name}}']);
     }
-{{/hasParseExpr}}
+  {{/hasToJsonExpr}}
 {{/properties}};
     return map;
   }

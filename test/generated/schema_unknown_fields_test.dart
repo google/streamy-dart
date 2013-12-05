@@ -3,7 +3,7 @@ library streamy.generated.schema_unknown_fields.test;
 import 'dart:mirrors';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
-import 'schema_unknown_fields_client.dart';
+import 'schema_unknown_fields_client_objects.dart';
 import '../utils.dart';
 
 main() {
