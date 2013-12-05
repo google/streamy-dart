@@ -99,7 +99,11 @@ class _Emitter {
         ? _conf.addendumData['lib_name']
         : _topLevelClassName.toLowerCase();
 
-    _codeInfoString = _conf.addendumData['code_info_string'];
+    if (_conf.addendumData.containsKey('code_info_string')) {
+      _codeInfoString = _conf.addendumData['code_info_string'];
+    } else {
+      _codeInfoString = '';
+    }
 
     _sendParams = [];
     if (_conf.addendumData.containsKey('sendParams')) {
