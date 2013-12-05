@@ -132,6 +132,7 @@ class Foo extends streamy.EntityWrapper {
     return map;
   }
   Foo clone() => super.clone();
+  Foo patch() => super.patch();
   Type get streamyType => Foo;
 }
 
@@ -203,5 +204,6 @@ class Bar extends streamy.EntityWrapper {
     return map;
   }
   Bar clone() => super.clone();
+  Bar patch() => super.patch();
   Type get streamyType => Bar;
 }

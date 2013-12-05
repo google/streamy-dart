@@ -93,6 +93,7 @@ class Branch extends streamy.EntityWrapper {
     return map;
   }
   Branch clone() => super.clone();
+  Branch patch() => super.patch();
   Type get streamyType => Branch;
 }
 
@@ -151,6 +152,7 @@ class Address extends streamy.EntityWrapper {
     return map;
   }
   Address clone() => super.clone();
+  Address patch() => super.patch();
   Type get streamyType => Address;
 }
 
@@ -262,6 +264,7 @@ class Account extends streamy.EntityWrapper {
     return map;
   }
   Account clone() => super.clone();
+  Account patch() => super.patch();
   Type get streamyType => Account;
 }
 
@@ -345,5 +348,6 @@ class Customer extends streamy.EntityWrapper {
     return map;
   }
   Customer clone() => super.clone();
+  Customer patch() => super.patch();
   Type get streamyType => Customer;
 }

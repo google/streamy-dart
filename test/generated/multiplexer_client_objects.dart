@@ -81,5 +81,6 @@ class Foo extends streamy.EntityWrapper {
     return map;
   }
   Foo clone() => super.clone();
+  Foo patch() => super.patch();
   Type get streamyType => Foo;
 }

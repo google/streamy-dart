@@ -128,6 +128,7 @@ class Foo extends streamy.EntityWrapper {
     return map;
   }
   Foo clone() => super.clone();
+  Foo patch() => super.patch();
   Type get streamyType => Foo;
 }
 
@@ -209,6 +210,7 @@ class Bar extends streamy.EntityWrapper {
     return map;
   }
   Bar clone() => super.clone();
+  Bar patch() => super.patch();
   Type get streamyType => Bar;
 }
 
@@ -274,6 +276,7 @@ class Context_Facets extends streamy.EntityWrapper {
     return map;
   }
   Context_Facets clone() => super.clone();
+  Context_Facets patch() => super.patch();
   Type get streamyType => Context_Facets;
 }
 
@@ -343,6 +346,7 @@ class Context extends streamy.EntityWrapper {
     return map;
   }
   Context clone() => super.clone();
+  Context patch() => super.patch();
   Type get streamyType => Context;
 }
 
@@ -412,5 +416,6 @@ class $some_entity_ extends streamy.EntityWrapper {
     return map;
   }
   $some_entity_ clone() => super.clone();
+  $some_entity_ patch() => super.patch();
   Type get streamyType => $some_entity_;
 }
