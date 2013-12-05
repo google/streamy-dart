@@ -104,6 +104,13 @@ main() {
       bar.foos[0].baz = 42;
       expect(streamy.Entity.deepEquals(bar, bar2), equals(false));
     });
+    test('clone() on a generated EntityWrapper does not double wrap', () {
+      var bar = new Bar();
+      var bar2 = bar.clone();
+      expect(bar2, new isInstanceOf<Bar>());
+      expect(streamy.entityWrapperGetDelegateForTest(bar2),
+          new isInstanceOf<streamy.RawEntity>());
+    });
     test('objects are observable', () {
       var foo = new Foo();
       foo.changes.listen(expectAsync1((List<ChangeRecord> changes) {
