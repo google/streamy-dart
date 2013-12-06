@@ -263,7 +263,17 @@ class _ErrorEntity implements Entity {
 const _INTERNAL_ERROR = const Response(null, Source.ERROR, 0);
 
 /// Walk a map-like structure through a list of keys, beginning with an initial value.
-_walk(initial, pieces) => pieces.fold(initial,
-      (current, keyPiece) => current != null ? current[keyPiece] : null);
+_walk(initial, List<String> pieces) {
+  int len = pieces.length;
+  var current = initial;
+  for (int i = 0; i < len; i++) {
+    if (current == null) {
+      return null;
+    }
+    String piece = pieces[i];
+    current = current[piece];
+  }
+  return current;
+}
 
 freezeForTest(entity) => entity._freeze();
