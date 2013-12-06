@@ -24,3 +24,4 @@ dev_dependencies:
   path: any
   unittest: any
   benchmark_harness: ">=0.8.7"
+  intl: any
