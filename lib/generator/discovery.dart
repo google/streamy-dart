@@ -14,9 +14,17 @@ class Discovery {
   final String description;
   /// Service path
   final String servicePath;
+  /// Links to documentation web-site
+  final String documentationLink;
 
-  Discovery(this.schemas, this.resources, this.name, this.version,
-      this.description, this.servicePath);
+  Discovery(
+      this.schemas,
+      this.resources,
+      this.name,
+      this.version,
+      this.description,
+      this.servicePath,
+      this.documentationLink);
 
   factory Discovery.fromJsonString(String jsonString) {
     Map jsDiscovery = json.parse(jsonString);
@@ -26,7 +34,8 @@ class Discovery {
       jsDiscovery['name'],
       jsDiscovery.containsKey('version') ? jsDiscovery['version'] : 'v1',
       jsDiscovery['description'],
-      jsDiscovery['servicePath']
+      jsDiscovery['servicePath'],
+      jsDiscovery['documentationLink']
     );
   }
 }
