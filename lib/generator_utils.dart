@@ -5,6 +5,7 @@ import 'dart:io' as io;
 import 'package:json/json.dart';
 import 'package:streamy/generator.dart';
 import 'dart:convert' as convert;
+import 'package:mustache/mustache.dart' as mus;
 
 /// Generates a Streamy API client library for a given [discoveryFile] in the
 /// pub package format.
@@ -57,27 +58,16 @@ Future generateStreamyClientLibrary(
     path: ${localStreamyLocation}''';
   }
 
-  pubspecFile.writeAsString(
-'''name: ${discovery.name}_${discovery.version}
-version: ${libVersion}
-description: >
-  API client library for ${discovery.name} for use with Streamy RPC framework.
-authors:
-- Streamy
-homepage: ${homepage}
-environment:
-  sdk: '>=1.0.0'
-dependencies:
-  browser: any
-  args: ">=0.9.0"
-  meta: ">=0.8.8"
-  fixnum: ">=0.9.0"
-  json: ">=0.9.0"
-  observe: ">=0.9.1"
-  streamy: ${streamyVersion}
-  quiver: ">=0.14.0"
-'''
-  );
+  mus.Template pubspecTemplate = mus.parse(templateProvider['pubspec']);
+  var pubspecData = {
+    'package_name': '${discovery.name}_${discovery.version}',
+    'version': libVersion,
+    'discovery_name': discovery.name,
+    'homepage': homepage,
+    'streamy_version': streamyVersion,
+  };
+  pubspecFile.writeAsStringSync(
+      pubspecTemplate.renderString(pubspecData, htmlEscapeValues: false));
 
   return Future.wait([
     rootOut.close(),

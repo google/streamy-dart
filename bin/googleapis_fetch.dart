@@ -10,6 +10,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:args/args.dart';
 import 'package:quiver/strings.dart';
+import 'package:quiver/async.dart';
 
 var http = new HttpClient();
 
@@ -42,8 +43,8 @@ main(List<String> args) {
       Map json = JSON.decoder.convert(discovery);
       List apis = json['items'];
       var apiNames = new Set();
-      void fetchApi(int i) {
-        Map api = apis[i];
+
+      Future fetchApi(Map api) {
         String url = api['discoveryRestUrl'];
         String name = api['name'];
         String version = api['version'];
@@ -51,21 +52,18 @@ main(List<String> args) {
         print('Fetching ${name}:${version} from ${url}');
         apiNames.add(name);
 
-        getUrlAsString(url).then((d) {
+        return getUrlAsString(url).then((d) {
           var discoveryFile =
               new File('${outputDir.path}/${name}_${version}.json');
           discoveryFile.writeAsStringSync(d);
-          if (i + 1 < apis.length) {
-            fetchApi(i + 1);
-          } else {
-            print('------------------------------------');
-            print('Fetched ${apis.length} versions of API discovery documents');
-            print('From ${apiNames.length} unique APIs.');
-          }
         });
       }
 
-      fetchApi(0);
+      forEachAsync(apis, fetchApi).then((_) {
+        print('------------------------------------');
+        print('Fetched ${apis.length} versions of API discovery documents');
+        print('From ${apiNames.length} unique APIs.');
+      });
     });
 }
 
