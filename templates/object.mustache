@@ -68,17 +68,17 @@ class {{name}} extends streamy.EntityWrapper {
     return new {{name}}.wrapMap(json);
   }
 
+{{#needsToJson}}
   Map toJson() {
-    Map map = super.toJson();
+    Map json = super.toJson();
 {{#properties}}
   {{#hasToJsonExpr}}
-    if (map.containsKey(r'{{raw_name}}')) {
-      map[r'{{raw_name}}'] = {{toJsonExpr}}(map[r'{{raw_name}}']);
-    }
+    streamy.serialize(json, r'{{raw_name}}', {{toJsonExpr}});
   {{/hasToJsonExpr}}
 {{/properties}}
-    return map;
+    return json;
   }
+{{/needsToJson}}
 
   {{name}} clone() => super.clone();
   {{name}} patch() => super.patch();

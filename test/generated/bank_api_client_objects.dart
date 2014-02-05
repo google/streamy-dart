@@ -68,11 +68,9 @@ class Branch extends streamy.EntityWrapper {
     return new Branch.wrapMap(json);
   }
   Map toJson() {
-    Map map = super.toJson();
-    if (map.containsKey(r'id')) {
-      map[r'id'] = streamy.str(map[r'id']);
-    }
-    return map;
+    Map json = super.toJson();
+    streamy.serialize(json, r'id', streamy.str);
+    return json;
   }
   Branch clone() => super.clone();
   Branch patch() => super.patch();
@@ -114,10 +112,6 @@ class Address extends streamy.EntityWrapper {
     }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Address.wrapMap(json);
-  }
-  Map toJson() {
-    Map map = super.toJson();
-    return map;
   }
   Address clone() => super.clone();
   Address patch() => super.patch();
@@ -203,14 +197,10 @@ class Account extends streamy.EntityWrapper {
     return new Account.wrapMap(json);
   }
   Map toJson() {
-    Map map = super.toJson();
-    if (map.containsKey(r'account_number')) {
-      map[r'account_number'] = streamy.str(map[r'account_number']);
-    }
-    if (map.containsKey(r'balance')) {
-      map[r'balance'] = streamy.str(map[r'balance']);
-    }
-    return map;
+    Map json = super.toJson();
+    streamy.serialize(json, r'account_number', streamy.str);
+    streamy.serialize(json, r'balance', streamy.str);
+    return json;
   }
   Account clone() => super.clone();
   Account patch() => super.patch();
@@ -274,11 +264,9 @@ class Customer extends streamy.EntityWrapper {
     return new Customer.wrapMap(json);
   }
   Map toJson() {
-    Map map = super.toJson();
-    if (map.containsKey(r'accounts')) {
-      map[r'accounts'] = streamy.mapCopy(streamy.str)(map[r'accounts']);
-    }
-    return map;
+    Map json = super.toJson();
+    streamy.serialize(json, r'accounts', streamy.mapCopy(streamy.str));
+    return json;
   }
   Customer clone() => super.clone();
   Customer patch() => super.patch();

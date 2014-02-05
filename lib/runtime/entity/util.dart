@@ -232,12 +232,18 @@ _deserialize(dynamic value, TypeRegistry reg) {
 
 deserialize(value, TypeRegistry reg) => _deserialize(value, reg);
 
-void deserializeUnknown(Map map, Set<String> known, TypeRegistry reg) {
-  map.forEach((String key, value) {
+void deserializeUnknown(Map json, Set<String> known, TypeRegistry reg) {
+  json.forEach((String key, value) {
     if (!known.contains(key)) {
-      map[key] = _deserialize(map[key], reg);
+      json[key] = _deserialize(json[key], reg);
     }
   });
+}
+
+void serialize(Map json, String key, Function map) {
+  if (json.containsKey(key)) {
+    json[key] = map(json[key]);
+  }
 }
 
 /// A sentinel value which indicates that an RPC returned an error.

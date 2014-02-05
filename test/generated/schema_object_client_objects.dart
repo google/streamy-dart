@@ -97,14 +97,10 @@ class Foo extends streamy.EntityWrapper {
     return new Foo.wrapMap(json);
   }
   Map toJson() {
-    Map map = super.toJson();
-    if (map.containsKey(r'qux')) {
-      map[r'qux'] = streamy.str(map[r'qux']);
-    }
-    if (map.containsKey(r'quux')) {
-      map[r'quux'] = streamy.mapCopy(streamy.str)(map[r'quux']);
-    }
-    return map;
+    Map json = super.toJson();
+    streamy.serialize(json, r'qux', streamy.str);
+    streamy.serialize(json, r'quux', streamy.mapCopy(streamy.str));
+    return json;
   }
   Foo clone() => super.clone();
   Foo patch() => super.patch();
@@ -168,10 +164,6 @@ class Bar extends streamy.EntityWrapper {
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Bar.wrapMap(json);
   }
-  Map toJson() {
-    Map map = super.toJson();
-    return map;
-  }
   Bar clone() => super.clone();
   Bar patch() => super.patch();
   Type get streamyType => Bar;
@@ -218,10 +210,6 @@ class Context_Facets extends streamy.EntityWrapper {
     }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Context_Facets.wrapMap(json);
-  }
-  Map toJson() {
-    Map map = super.toJson();
-    return map;
   }
   Context_Facets clone() => super.clone();
   Context_Facets patch() => super.patch();
@@ -274,10 +262,6 @@ class Context extends streamy.EntityWrapper {
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Context.wrapMap(json);
   }
-  Map toJson() {
-    Map map = super.toJson();
-    return map;
-  }
   Context clone() => super.clone();
   Context patch() => super.patch();
   Type get streamyType => Context;
@@ -327,11 +311,9 @@ class $some_entity_ extends streamy.EntityWrapper {
     return new $some_entity_.wrapMap(json);
   }
   Map toJson() {
-    Map map = super.toJson();
-    if (map.containsKey(r'%badly#named property~!@#$%^&*()?')) {
-      map[r'%badly#named property~!@#$%^&*()?'] = streamy.str(map[r'%badly#named property~!@#$%^&*()?']);
-    }
-    return map;
+    Map json = super.toJson();
+    streamy.serialize(json, r'%badly#named property~!@#$%^&*()?', streamy.str);
+    return json;
   }
   $some_entity_ clone() => super.clone();
   $some_entity_ patch() => super.patch();

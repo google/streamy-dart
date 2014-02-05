@@ -107,14 +107,10 @@ class Foo extends streamy.EntityWrapper {
     return new Foo.wrapMap(json);
   }
   Map toJson() {
-    Map map = super.toJson();
-    if (map.containsKey(r'qux')) {
-      map[r'qux'] = streamy.str(map[r'qux']);
-    }
-    if (map.containsKey(r'quux')) {
-      map[r'quux'] = streamy.mapCopy(streamy.str)(map[r'quux']);
-    }
-    return map;
+    Map json = super.toJson();
+    streamy.serialize(json, r'qux', streamy.str);
+    streamy.serialize(json, r'quux', streamy.mapCopy(streamy.str));
+    return json;
   }
   Foo clone() => super.clone();
   Foo patch() => super.patch();
@@ -175,10 +171,6 @@ class Bar extends streamy.EntityWrapper {
     json[r'foo'] = ((v) => new Foo.fromJson(v))(json[r'foo']);
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Bar.wrapMap(json);
-  }
-  Map toJson() {
-    Map map = super.toJson();
-    return map;
   }
   Bar clone() => super.clone();
   Bar patch() => super.patch();

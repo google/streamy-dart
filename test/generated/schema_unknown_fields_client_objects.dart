@@ -52,10 +52,6 @@ class Foo extends streamy.EntityWrapper {
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Foo.wrapMap(json);
   }
-  Map toJson() {
-    Map map = super.toJson();
-    return map;
-  }
   Foo clone() => super.clone();
   Foo patch() => super.patch();
   Type get streamyType => Foo;
@@ -97,10 +93,6 @@ class Bar extends streamy.EntityWrapper {
     }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Bar.wrapMap(json);
-  }
-  Map toJson() {
-    Map map = super.toJson();
-    return map;
   }
   Bar clone() => super.clone();
   Bar patch() => super.patch();
