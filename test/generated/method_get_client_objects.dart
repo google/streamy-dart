@@ -25,10 +25,9 @@ class Foo extends streamy.EntityWrapper {
       if (dependencies != null) {
         throw new ArgumentError('Memoized function should not have dependencies.');
       }
-      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
-    } else {
-      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+      computeFn = streamy.memoizeGlobalFn(computeFn);
     }
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
   }
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
   Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);

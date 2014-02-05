@@ -26,10 +26,9 @@ class Branch extends streamy.EntityWrapper {
       if (dependencies != null) {
         throw new ArgumentError('Memoized function should not have dependencies.');
       }
-      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
-    } else {
-      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+      computeFn = streamy.memoizeGlobalFn(computeFn);
     }
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
   }
   Branch() : super.wrap(new streamy.RawEntity(), (cloned) => new Branch._wrap(cloned), globals: _globals);
   Branch.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Branch._wrap(cloned), globals: _globals);
@@ -102,10 +101,9 @@ class Address extends streamy.EntityWrapper {
       if (dependencies != null) {
         throw new ArgumentError('Memoized function should not have dependencies.');
       }
-      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
-    } else {
-      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+      computeFn = streamy.memoizeGlobalFn(computeFn);
     }
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
   }
   Address() : super.wrap(new streamy.RawEntity(), (cloned) => new Address._wrap(cloned), globals: _globals);
   Address.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Address._wrap(cloned), globals: _globals);
@@ -159,10 +157,9 @@ class Account extends streamy.EntityWrapper {
       if (dependencies != null) {
         throw new ArgumentError('Memoized function should not have dependencies.');
       }
-      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
-    } else {
-      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+      computeFn = streamy.memoizeGlobalFn(computeFn);
     }
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
   }
   Account() : super.wrap(new streamy.RawEntity(), (cloned) => new Account._wrap(cloned), globals: _globals);
   Account.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Account._wrap(cloned), globals: _globals);
@@ -256,10 +253,9 @@ class Customer extends streamy.EntityWrapper {
       if (dependencies != null) {
         throw new ArgumentError('Memoized function should not have dependencies.');
       }
-      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
-    } else {
-      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+      computeFn = streamy.memoizeGlobalFn(computeFn);
     }
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
   }
   Customer() : super.wrap(new streamy.RawEntity(), (cloned) => new Customer._wrap(cloned), globals: _globals);
   Customer.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Customer._wrap(cloned), globals: _globals);
