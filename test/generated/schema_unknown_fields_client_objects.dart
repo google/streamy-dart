@@ -5,7 +5,6 @@
 library schemaunknownfieldstest.objects;
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
-import 'package:quiver/collection.dart' as collect;
 import 'package:observe/observe.dart' as obs;
 
 /// An EntityGlobalFn for Foo entities.
@@ -43,7 +42,7 @@ class Foo extends streamy.EntityWrapper {
   set baz(String value) {
     this[r'baz'] = value;
   }
-  String removeBaz() => this.remove(r'baz');
+  String removeBaz() => remove(r'baz');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -57,8 +56,6 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var list;
-    var len;
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
     fields.remove(r'baz');
@@ -69,7 +66,6 @@ class Foo extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-;
     return map;
   }
   Foo clone() => super.clone();
@@ -118,8 +114,6 @@ class Bar extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var list;
-    var len;
     var result = new Bar.wrapMap(json);
     var fields = result.fieldNames.toList();
     for (var i = 0; i < fields.length; i++) {
@@ -129,7 +123,6 @@ class Bar extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-;
     return map;
   }
   Bar clone() => super.clone();

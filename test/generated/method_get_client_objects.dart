@@ -5,7 +5,6 @@
 library methodgettest.objects;
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
-import 'package:quiver/collection.dart' as collect;
 import 'package:observe/observe.dart' as obs;
 
 /// An EntityGlobalFn for Foo entities.
@@ -43,14 +42,14 @@ class Foo extends streamy.EntityWrapper {
   set id(int value) {
     this[r'id'] = value;
   }
-  int removeId() => this.remove(r'id');
+  int removeId() => remove(r'id');
 
   /// Foo's favorite bar.
   String get bar => this[r'bar'];
   set bar(String value) {
     this[r'bar'] = value;
   }
-  String removeBar() => this.remove(r'bar');
+  String removeBar() => remove(r'bar');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -64,8 +63,6 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var list;
-    var len;
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
     fields.remove(r'id');
@@ -77,7 +74,6 @@ class Foo extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-;
     return map;
   }
   Foo clone() => super.clone();

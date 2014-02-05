@@ -48,7 +48,7 @@ class {{name}} extends streamy.EntityWrapper {
 {{/list}}
     this[r'{{raw_name}}'] = value;
   }
-  {{type}} {{remover_name}}() => this.remove(r'{{raw_name}}');
+  {{type}} {{remover_name}}() => remove(r'{{raw_name}}');
 {{/properties}}
 
   factory {{name}}.fromJsonString(String strJson, streamy.Trace trace,
@@ -66,8 +66,6 @@ class {{name}} extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var list;
-    var len;
     var result = new {{name}}.wrapMap(json);
     var fields = result.fieldNames.toList();
 {{#properties}}
@@ -90,7 +88,7 @@ class {{name}} extends streamy.EntityWrapper {
       map[r'{{raw_name}}'] = {{toJsonExpr}}(map[r'{{raw_name}}']);
     }
   {{/hasToJsonExpr}}
-{{/properties}};
+{{/properties}}
     return map;
   }
 

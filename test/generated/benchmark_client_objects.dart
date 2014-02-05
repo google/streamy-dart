@@ -5,7 +5,6 @@
 library schemaobjecttest.objects;
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/streamy.dart' as streamy;
-import 'package:quiver/collection.dart' as collect;
 import 'package:observe/observe.dart' as obs;
 
 /// An EntityGlobalFn for Foo entities.
@@ -48,33 +47,33 @@ class Foo extends streamy.EntityWrapper {
   set id(int value) {
     this[r'id'] = value;
   }
-  int removeId() => this.remove(r'id');
+  int removeId() => remove(r'id');
 
   /// Foo's favorite bar.
   Bar get bar => this[r'bar'];
   set bar(Bar value) {
     this[r'bar'] = value;
   }
-  Bar removeBar() => this.remove(r'bar');
+  Bar removeBar() => remove(r'bar');
 
   /// It's spelled buzz.
   int get baz => this[r'baz'];
   set baz(int value) {
     this[r'baz'] = value;
   }
-  int removeBaz() => this.remove(r'baz');
+  int removeBaz() => remove(r'baz');
   String get cruft => this[r'cruft'];
   set cruft(String value) {
     this[r'cruft'] = value;
   }
-  String removeCruft() => this.remove(r'cruft');
+  String removeCruft() => remove(r'cruft');
 
   /// Not what it seems.
   fixnum.Int64 get qux => this[r'qux'];
   set qux(fixnum.Int64 value) {
     this[r'qux'] = value;
   }
-  fixnum.Int64 removeQux() => this.remove(r'qux');
+  fixnum.Int64 removeQux() => remove(r'qux');
 
   /// The plural of qux
   List<double> get quux => this[r'quux'];
@@ -84,7 +83,7 @@ class Foo extends streamy.EntityWrapper {
     }
     this[r'quux'] = value;
   }
-  List<double> removeQuux() => this.remove(r'quux');
+  List<double> removeQuux() => remove(r'quux');
 
   /// A double field that's serialized as a number.
   List<int> get corge => this[r'corge'];
@@ -94,7 +93,7 @@ class Foo extends streamy.EntityWrapper {
     }
     this[r'corge'] = value;
   }
-  List<int> removeCorge() => this.remove(r'corge');
+  List<int> removeCorge() => remove(r'corge');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -108,8 +107,6 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var list;
-    var len;
     var result = new Foo.wrapMap(json);
     var fields = result.fieldNames.toList();
     fields.remove(r'id');
@@ -135,7 +132,6 @@ class Foo extends streamy.EntityWrapper {
     if (map.containsKey(r'quux')) {
       map[r'quux'] = streamy.mapCopy(streamy.str)(map[r'quux']);
     }
-;
     return map;
   }
   Foo clone() => super.clone();
@@ -181,12 +177,12 @@ class Bar extends streamy.EntityWrapper {
     }
     this[r'foos'] = value;
   }
-  List<Foo> removeFoos() => this.remove(r'foos');
+  List<Foo> removeFoos() => remove(r'foos');
   Foo get foo => this[r'foo'];
   set foo(Foo value) {
     this[r'foo'] = value;
   }
-  Foo removeFoo() => this.remove(r'foo');
+  Foo removeFoo() => remove(r'foo');
   factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -200,8 +196,6 @@ class Bar extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var list;
-    var len;
     var result = new Bar.wrapMap(json);
     var fields = result.fieldNames.toList();
     result[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(result[r'foos']);
@@ -215,7 +209,6 @@ class Bar extends streamy.EntityWrapper {
   }
   Map toJson() {
     Map map = super.toJson();
-;
     return map;
   }
   Bar clone() => super.clone();
