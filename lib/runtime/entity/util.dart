@@ -47,6 +47,7 @@ class _ObservableImmutableListView implements ObservableList {
   void clear() => _throw();
   bool contains(element) => _delegate.contains(element);
   bool deliverChanges() => _delegate.deliverChanges();
+  bool deliverListChanges() => _delegate.deliverListChanges();
   elementAt(int index) => _delegate.elementAt(index);
   bool every(bool test(element)) => _delegate.every(test);
   Iterable expand(Iterable f(element)) => _delegate.expand(f);
@@ -61,6 +62,7 @@ class _ObservableImmutableListView implements ObservableList {
   String join([String separator = '']) => _delegate.join(separator);
   int lastIndexOf(Object element, [int startIndex]) => _delegate.lastIndexOf(element, startIndex);
   lastWhere(bool test(element), {Object orElse()}) => _delegate.lastWhere(test, orElse: orElse);
+  Stream<List<ListChangeRecord>> get listChanges => _delegate.listChanges;
   Iterable map(f(element)) => _delegate.map(f);
   void notifyChange(_) => _throw();
   void notifyPropertyChange(_a, _b, _c) => _throw();
@@ -86,6 +88,9 @@ class _ObservableImmutableListView implements ObservableList {
   Set toSet() => _delegate.toSet();
   String toString() => _delegate.toString();
   Iterable where(test(element)) => _delegate.where(test);
+
+  void observed() {}
+  void unobserved() {}
 
   _throw() => throw new UnsupportedError('List is immutable.');
 }
