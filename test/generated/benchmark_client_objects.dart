@@ -107,22 +107,11 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Foo.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    fields.remove(r'id');
-    result[r'bar'] = ((v) => new Bar.fromJson(v))(result[r'bar']);
-    fields.remove(r'bar');
-    fields.remove(r'baz');
-    fields.remove(r'cruft');
-    result[r'qux'] = streamy.atoi64(result[r'qux']);
-    fields.remove(r'qux');
-    result[r'quux'] = streamy.mapInline(streamy.atod)(result[r'quux']);
-    fields.remove(r'quux');
-    fields.remove(r'corge');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'bar'] = ((v) => new Bar.fromJson(v))(json[r'bar']);
+    json[r'qux'] = streamy.atoi64(json[r'qux']);
+    json[r'quux'] = streamy.mapInline(streamy.atod)(json[r'quux']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Foo.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -196,16 +185,10 @@ class Bar extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Bar.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    result[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(result[r'foos']);
-    fields.remove(r'foos');
-    result[r'foo'] = ((v) => new Foo.fromJson(v))(result[r'foo']);
-    fields.remove(r'foo');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(json[r'foos']);
+    json[r'foo'] = ((v) => new Foo.fromJson(v))(json[r'foo']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Bar.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();

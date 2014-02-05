@@ -69,17 +69,10 @@ class Branch extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Branch.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    result[r'id'] = streamy.atoi64(result[r'id']);
-    fields.remove(r'id');
-    fields.remove(r'name');
-    result[r'location'] = ((v) => new Address.fromJson(v))(result[r'location']);
-    fields.remove(r'location');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'id'] = streamy.atoi64(json[r'id']);
+    json[r'location'] = ((v) => new Address.fromJson(v))(json[r'location']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Branch.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -133,12 +126,8 @@ class Address extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Address.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Address.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -229,19 +218,10 @@ class Account extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Account.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    result[r'account_number'] = streamy.atoi64(result[r'account_number']);
-    fields.remove(r'account_number');
-    fields.remove(r'branch_id');
-    fields.remove(r'account_type');
-    fields.remove(r'currency_type');
-    result[r'balance'] = streamy.atoi64(result[r'balance']);
-    fields.remove(r'balance');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'account_number'] = streamy.atoi64(json[r'account_number']);
+    json[r'balance'] = streamy.atoi64(json[r'balance']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Account.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -317,15 +297,9 @@ class Customer extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Customer.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    result[r'accounts'] = streamy.mapInline(streamy.atoi64)(result[r'accounts']);
-    fields.remove(r'accounts');
-    fields.remove(r'name');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'accounts'] = streamy.mapInline(streamy.atoi64)(json[r'accounts']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Customer.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();

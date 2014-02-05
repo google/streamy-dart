@@ -227,6 +227,14 @@ _deserialize(dynamic value, TypeRegistry reg) {
 
 deserialize(value, TypeRegistry reg) => _deserialize(value, reg);
 
+void deserializeUnknown(Map map, Set<String> known, TypeRegistry reg) {
+  map.forEach((String key, value) {
+    if (!known.contains(key)) {
+      map[key] = _deserialize(map[key], reg);
+    }
+  });
+}
+
 /// A sentinel value which indicates that an RPC returned an error.
 class _ErrorEntity implements Entity {
 

@@ -63,14 +63,8 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Foo.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    fields.remove(r'id');
-    fields.remove(r'bar');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Foo.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();

@@ -98,20 +98,10 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Foo.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    fields.remove(r'id');
-    fields.remove(r'bar');
-    fields.remove(r'baz');
-    result[r'qux'] = streamy.atoi64(result[r'qux']);
-    fields.remove(r'qux');
-    result[r'quux'] = streamy.mapInline(streamy.atod)(result[r'quux']);
-    fields.remove(r'quux');
-    fields.remove(r'corge');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'qux'] = streamy.atoi64(json[r'qux']);
+    json[r'quux'] = streamy.mapInline(streamy.atod)(json[r'quux']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Foo.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -187,16 +177,10 @@ class Bar extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Bar.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    result[r'primary'] = ((v) => new Foo.fromJson(v))(result[r'primary']);
-    fields.remove(r'primary');
-    result[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(result[r'foos']);
-    fields.remove(r'foos');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'primary'] = ((v) => new Foo.fromJson(v))(json[r'primary']);
+    json[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(json[r'foos']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Bar.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -253,13 +237,8 @@ class Context_Facets extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Context_Facets.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    fields.remove(r'anchor');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Context_Facets.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -319,14 +298,9 @@ class Context extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new Context.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    result[r'facets'] = streamy.mapInline(streamy.mapInline(((v) => new Context_Facets.fromJson(v))))(result[r'facets']);
-    fields.remove(r'facets');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'facets'] = streamy.mapInline(streamy.mapInline(((v) => new Context_Facets.fromJson(v))))(json[r'facets']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new Context.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
@@ -383,14 +357,9 @@ class $some_entity_ extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var result = new $some_entity_.wrapMap(json);
-    var fields = result.fieldNames.toList();
-    result[r'%badly#named property~!@#$%^&*()?'] = streamy.atoi64(result[r'%badly#named property~!@#$%^&*()?']);
-    fields.remove(r'%badly#named property~!@#$%^&*()?');
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    json[r'%badly#named property~!@#$%^&*()?'] = streamy.atoi64(json[r'%badly#named property~!@#$%^&*()?']);
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new $some_entity_.wrapMap(json);
   }
   Map toJson() {
     Map map = super.toJson();
