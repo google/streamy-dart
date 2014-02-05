@@ -21,13 +21,7 @@ class Foo extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    if (memoize) {
-      if (dependencies != null) {
-        throw new ArgumentError('Memoized function should not have dependencies.');
-      }
-      computeFn = streamy.memoizeGlobalFn(computeFn);
-    }
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
   }
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
   Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);

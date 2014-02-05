@@ -25,13 +25,7 @@ class Foo extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    if (memoize) {
-      if (dependencies != null) {
-        throw new ArgumentError('Memoized function should not have dependencies.');
-      }
-      computeFn = streamy.memoizeGlobalFn(computeFn);
-    }
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
   }
   Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
   Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);
@@ -131,13 +125,7 @@ class Bar extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BarGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    if (memoize) {
-      if (dependencies != null) {
-        throw new ArgumentError('Memoized function should not have dependencies.');
-      }
-      computeFn = streamy.memoizeGlobalFn(computeFn);
-    }
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
   }
   Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned), globals: _globals);
   Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Bar._wrap(cloned), globals: _globals);
@@ -202,13 +190,7 @@ class Context_Facets extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, Context_FacetsGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    if (memoize) {
-      if (dependencies != null) {
-        throw new ArgumentError('Memoized function should not have dependencies.');
-      }
-      computeFn = streamy.memoizeGlobalFn(computeFn);
-    }
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
   }
   Context_Facets() : super.wrap(new streamy.RawEntity(), (cloned) => new Context_Facets._wrap(cloned), globals: _globals);
   Context_Facets.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Context_Facets._wrap(cloned), globals: _globals);
@@ -259,13 +241,7 @@ class Context extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, ContextGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    if (memoize) {
-      if (dependencies != null) {
-        throw new ArgumentError('Memoized function should not have dependencies.');
-      }
-      computeFn = streamy.memoizeGlobalFn(computeFn);
-    }
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
   }
   Context() : super.wrap(new streamy.RawEntity(), (cloned) => new Context._wrap(cloned), globals: _globals);
   Context.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Context._wrap(cloned), globals: _globals);
@@ -320,13 +296,7 @@ class $some_entity_ extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, $some_entity_GlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    if (memoize) {
-      if (dependencies != null) {
-        throw new ArgumentError('Memoized function should not have dependencies.');
-      }
-      computeFn = streamy.memoizeGlobalFn(computeFn);
-    }
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
   }
   $some_entity_() : super.wrap(new streamy.RawEntity(), (cloned) => new $some_entity_._wrap(cloned), globals: _globals);
   $some_entity_.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new $some_entity_._wrap(cloned), globals: _globals);
