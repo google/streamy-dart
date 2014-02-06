@@ -247,6 +247,7 @@ class _Emitter {
 
   void processObjectType(String className, TypeDescriptor type) {
     var properties = <Map>[];
+    bool needsToJson = false;
     type.properties.forEach((String propertyName, TypeDescriptor propertyType) {
       String fieldName = _makePropertyName(propertyName);
       String removerName = _makeRemoverName(fieldName);
@@ -272,6 +273,7 @@ class _Emitter {
         propertyData['list'] = ['true'];
       }
       if (proctr.toJsonExpr != null) {
+        needsToJson = true;
         propertyData['hasToJsonExpr'] = ['true'];
         propertyData['toJsonExpr'] = proctr.toJsonExpr;
       }
@@ -286,6 +288,7 @@ class _Emitter {
       'docs': _docLines(type.description),
       'hasKind': type.kind != null,
       'kind': type.kind,
+      'needsToJson': needsToJson,
     });
   }
 

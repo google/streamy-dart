@@ -1,5 +1,6 @@
 part of streamy.testing;
 
+@proxy
 class DynamicEntity extends RawEntity {
 
   DynamicEntity() : super();

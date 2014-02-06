@@ -17,14 +17,7 @@ class {{name}} extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, {{name}}GlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    if (memoize) {
-      if (dependencies != null) {
-        throw new ArgumentError('Memoized function should not have dependencies.');
-      }
-      _globals[name] = new streamy.GlobalRegistration(streamy.memoizeGlobalFn(computeFn));
-    } else {
-      _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies);
-    }
+    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
   }
 
   {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned), globals: _globals);
@@ -48,7 +41,7 @@ class {{name}} extends streamy.EntityWrapper {
 {{/list}}
     this[r'{{raw_name}}'] = value;
   }
-  {{type}} {{remover_name}}() => this.remove(r'{{raw_name}}');
+  {{type}} {{remover_name}}() => remove(r'{{raw_name}}');
 {{/properties}}
 
   factory {{name}}.fromJsonString(String strJson, streamy.Trace trace,
@@ -66,33 +59,26 @@ class {{name}} extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    var list;
-    var len;
-    var result = new {{name}}.wrapMap(json);
-    var fields = result.fieldNames.toList();
 {{#properties}}
   {{#hasParseExpr}}
-    result[r'{{raw_name}}'] = {{parseExpr}}(result[r'{{raw_name}}']);
+    json[r'{{raw_name}}'] = {{parseExpr}}(json[r'{{raw_name}}']);
   {{/hasParseExpr}}
-    fields.remove(r'{{raw_name}}');
 {{/properties}}
-    for (var i = 0; i < fields.length; i++) {
-      result[fields[i]] = streamy.deserialize(result[fields[i]], typeRegistry);
-    }
-    return result;
+    streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
+    return new {{name}}.wrapMap(json);
   }
 
+{{#needsToJson}}
   Map toJson() {
-    Map map = super.toJson();
+    Map json = super.toJson();
 {{#properties}}
   {{#hasToJsonExpr}}
-    if (map.containsKey(r'{{raw_name}}')) {
-      map[r'{{raw_name}}'] = {{toJsonExpr}}(map[r'{{raw_name}}']);
-    }
+    streamy.serialize(json, r'{{raw_name}}', {{toJsonExpr}});
   {{/hasToJsonExpr}}
-{{/properties}};
-    return map;
+{{/properties}}
+    return json;
   }
+{{/needsToJson}}
 
   {{name}} clone() => super.clone();
   {{name}} patch() => super.patch();

@@ -8,8 +8,8 @@ typedef Stream GlobalStreamDepFn();
 typedef Stream GlobalStreamEntityDepFn(entity);
 
 /// Memoize an [EntityGlobalFn] so it only runs once per entity. This is done using an [Expando]
-// to ensure GC safety.
-EntityGlobalFn memoizeGlobalFn(EntityGlobalFn fn) {
+/// to ensure GC safety.
+EntityGlobalFn _memoizeGlobalFn(EntityGlobalFn fn) {
   var expando = new Expando(fn.toString());
   return (entity) {
     var value = expando[entity];
@@ -24,14 +24,20 @@ EntityGlobalFn memoizeGlobalFn(EntityGlobalFn fn) {
 class GlobalRegistration {
   final EntityGlobalFn fn;
   final List dependencies;
+  GlobalRegistration._internal(this.fn, this.dependencies);
 
-  GlobalRegistration(this.fn, [this.dependencies = null]) {
+  factory GlobalRegistration(EntityGlobalFn fn, List dependencies, bool memoize) {
     if (dependencies != null) {
+      if (memoize) {
+        throw new ArgumentError('Memoized function should not have dependencies.');
+      }
       dependencies.forEach(_validateDep);
     }
+    if (memoize) fn = _memoizeGlobalFn(fn);
+    return new GlobalRegistration._internal(fn, dependencies);
   }
 
-  _validateDep(dep) {
+  static void _validateDep(dep) {
     if (dep is String || dep is GlobalStreamDepFn || dep is GlobalStreamEntityDepFn || dep is Stream) {
       return;
     }
