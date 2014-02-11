@@ -133,12 +133,18 @@ class RawEntity extends Entity implements Map, Observable {
   }
 
   /// Turn this entity into a Map for JSON serialization.
+  ///
+  /// IMPORTANT: Because [RawEntity] implements the [Map] interface this method
+  /// is ignored by `package:json` and `dart:convert`. It is only here to
+  /// implement the [Entity] interface. If you need to serialize a [RawEntity]
+  /// and you want the result to be compliant with Streamy serialization (e.g.
+  /// stable key order) you must call this method explicitly and use the
+  /// resulting [Map].
   Map toJson() {
     var jsonMap = new Map();
     // Sort keys before adding to the output map, to ensure equivalent entities
     // produce equivalent json.
     var keys = (_data.keys.toList()..sort())
-        .where((k) => _data[k] != null)
         .forEach((k) {
           jsonMap[k] = _data[k];
         });
