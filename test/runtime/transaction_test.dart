@@ -83,6 +83,7 @@ class TestTxn implements Transaction {
     }
     requests = [];
     committed = true;
+    return null;
   }
 
   Stream send(Request request) {

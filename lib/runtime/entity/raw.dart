@@ -144,7 +144,7 @@ class RawEntity extends Entity implements Map, Observable {
     var jsonMap = new Map();
     // Sort keys before adding to the output map, to ensure equivalent entities
     // produce equivalent json.
-    var keys = (_data.keys.toList()..sort())
+    (_data.keys.toList()..sort())
         .forEach((k) {
           jsonMap[k] = _data[k];
         });

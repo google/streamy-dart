@@ -157,7 +157,7 @@ class _EmptyGlobalView extends Object with _FakeMap implements GlobalView {
     return c.stream;
   }
 
-  bool deliverChanges() {}
+  bool deliverChanges() => false;
 
   bool get hasObservers => false;
 

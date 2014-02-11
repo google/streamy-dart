@@ -26,7 +26,7 @@ main() {
       var req = new StreamyHttpRequest('/test', 'GET', {'a': 'b'}, {}, null);
       var resp = new StreamyHttpResponse(200, {}, 'hello');
       testHttpService.expect(req, resp);
-      subject.send(req).then(expectAsync1((r) {
+      subject.send(req).then(expectAsync((r) {
         expect(r, resp);
       }, count: 1));
       testHttpService.flush();
@@ -41,8 +41,8 @@ main() {
       var resp = new StreamyHttpResponse(200, {}, '');
       testHttpService.expect(reqProceed, resp);
 
-      subject.send(reqCancel).then(expectAsync1((_) {}, count: 0));
-      subject.send(reqProceed).then(expectAsync1((_) {}, count: 1));
+      subject.send(reqCancel).then(expectAsync((_) {}, count: 0));
+      subject.send(reqProceed).then(expectAsync((_) {}, count: 1));
 
       // Cancel batch
       canceller.complete(null);
@@ -80,10 +80,10 @@ main() {
 
       testHttpService.expect(batchReq, batchResp);
 
-      subject.send(req1).then(expectAsync1((r) {
+      subject.send(req1).then(expectAsync((r) {
         expect(r.body, 'response1\r\n');
       }, count: 1));
-      subject.send(req2).then(expectAsync1((r) {
+      subject.send(req2).then(expectAsync((r) {
         expect(r.body, 'response2');
       }, count: 1));
       testHttpService.flush();
@@ -98,8 +98,8 @@ main() {
       var batchReq = new StreamyHttpRequest.multipart(
           '/batch', 'POST', {}, null, [req1, req2], random: testRandom);
 
-      subject.send(req1).then(expectAsync1((_) {}, count: 0));
-      subject.send(req2).then(expectAsync1((_) {}, count: 0));
+      subject.send(req1).then(expectAsync((_) {}, count: 0));
+      subject.send(req2).then(expectAsync((_) {}, count: 0));
 
       // Cancel batch
       canceller.complete(null);
