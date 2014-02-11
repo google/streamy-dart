@@ -160,7 +160,7 @@ String _trimBody(String body, int byteLength) {
   if (bytes.length <= byteLength) {
     return body;
   }
-  bytes.length = byteLength;
+  bytes = bytes.sublist(0, byteLength);
   return _UTF8.decoder.convert(bytes);
 }
 
