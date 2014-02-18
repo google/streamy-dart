@@ -88,6 +88,9 @@ abstract class Request {
 
   /// Request parameters.
   final Map<String, dynamic> parameters = {};
+  
+  /// Other parameters.
+  final Map<String, dynamic> localParameters = {};
 
   /// Payload, if any.
   final Entity _payload;
@@ -179,6 +182,22 @@ abstract class Request {
         }
       }
     }
+    localParameters.forEach((qp, v) {
+      write(v) {
+        buf
+          ..write(firstQueryParam ? '?' : '&')
+          ..write(qp)
+          ..write('=')
+          ..write(Uri.encodeQueryComponent(v.toString()));
+        firstQueryParam = false;
+      }
+      if (v is List) {
+        // Sort the list of parameters to ensure a canonical path.
+        (v.toList()..sort()).forEach(write);
+      } else {
+        write(v);
+      }
+    });
     return buf.toString();
   }
 
