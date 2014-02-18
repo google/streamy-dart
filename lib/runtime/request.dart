@@ -163,39 +163,31 @@ abstract class Request {
     }
     buf.write(pathFormat.substring(pos));
     bool firstQueryParam = true;
+    write(qp, v) {
+      buf
+        ..write(firstQueryParam ? '?' : '&')
+        ..write(qp)
+        ..write('=')
+        ..write(Uri.encodeQueryComponent(v.toString()));
+      firstQueryParam = false;
+    }
     // queryParameters is ordered.
     for (String qp in queryParameters) {
       if (parameters.containsKey(qp)) {
-        write(v) {
-          buf
-            ..write(firstQueryParam ? '?' : '&')
-            ..write(qp)
-            ..write('=')
-            ..write(Uri.encodeQueryComponent(v.toString()));
-          firstQueryParam = false;
-        }
         if (parameters[qp] is List) {
           // Sort the list of parameters to ensure a canonical path.
-          (parameters[qp].toList()..sort()).forEach(write);
+          (parameters[qp].toList()..sort()).forEach((v) => write(qp, v));
         } else {
-          write(parameters[qp]);
+          write(qp, parameters[qp]);
         }
       }
     }
     localParameters.forEach((qp, v) {
-      write(v) {
-        buf
-          ..write(firstQueryParam ? '?' : '&')
-          ..write(qp)
-          ..write('=')
-          ..write(Uri.encodeQueryComponent(v.toString()));
-        firstQueryParam = false;
-      }
       if (v is List) {
         // Sort the list of parameters to ensure a canonical path.
-        (v.toList()..sort()).forEach(write);
+        (v.toList()..sort()).forEach((e) => write(qp, e));
       } else {
-        write(v);
+        write(qp, v);
       }
     });
     return buf.toString();
