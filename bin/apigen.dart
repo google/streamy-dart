@@ -19,7 +19,8 @@ main(List<String> args) {
       addendumFile: addendumFile,
       templatesDir: templatesDir,
       libVersion: libVersion,
-      localStreamyLocation: localStreamyLocation);
+      localStreamyLocation: localStreamyLocation,
+      fileName: clientFileName);
 }
 
 void parseArgs(List<String> arguments) {
