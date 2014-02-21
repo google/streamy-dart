@@ -29,7 +29,7 @@ void parseArgs(List<String> arguments) {
     ..addOption(
       'client-file-name',
       abbr: 'c',
-      help = 'Prefix for the .dart files generated.',
+      help: 'Prefix for the .dart files generated.',
       callback: (String value) {
         if (isBlank(value)) {
           errors.add('--client-file-name is required');
