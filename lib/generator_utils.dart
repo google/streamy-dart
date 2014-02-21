@@ -14,6 +14,7 @@ Future generateStreamyClientLibrary(
     io.Directory outputDir,
     {io.File addendumFile,
     io.Directory templatesDir,
+    String fileName,
     String libVersion: '0.0.0',
     String localStreamyLocation}) {
   var json = discoveryFile.readAsStringSync(encoding: convert.UTF8);
@@ -22,11 +23,11 @@ Future generateStreamyClientLibrary(
   if (addendumFile != null) {
     addendumData = parse(addendumFile.readAsStringSync());
   }
+  if (fileName == null) {
+    fileName = discovery.name;
+  }
 
-  var libDir = new io.Directory('${outputDir.path}/lib');
-  libDir.createSync();
-
-  var basePath = '${libDir.path}/${discovery.name}';
+  var basePath = '${outputDir.path}/$fileName';
   var rootOut = new io.File('${basePath}.dart').openWrite();
   var resourceOut = new io.File('${basePath}_resources.dart').openWrite();
   var requestOut = new io.File('${basePath}_requests.dart').openWrite();

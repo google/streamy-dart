@@ -8,6 +8,7 @@ io.File discoveryFile;
 io.Directory outputDir;
 io.File addendumFile;
 io.Directory templatesDir;
+String clientFileName;
 String libVersion;
 String localStreamyLocation;
 
@@ -18,12 +19,24 @@ main(List<String> args) {
       addendumFile: addendumFile,
       templatesDir: templatesDir,
       libVersion: libVersion,
-      localStreamyLocation: localStreamyLocation);
+      localStreamyLocation: localStreamyLocation,
+      fileName: clientFileName);
 }
 
 void parseArgs(List<String> arguments) {
   var errors = <String>[];
   var argp = new ArgParser()
+    ..addOption(
+      'client-file-name',
+      abbr: 'c',
+      help = 'Prefix for the .dart files generated.',
+      callback: (String value) {
+        if (isBlank(value)) {
+          errors.add('--client-file-name is required');
+          return;
+        }
+        clientFileName = value;
+      })
     ..addOption(
         'discovery-file',
         abbr: 'd',
