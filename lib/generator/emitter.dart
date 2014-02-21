@@ -14,6 +14,7 @@ abstract class EmitterConfig {
   StringSink get requestCodeSink;
   StringSink get objectCodeSink;
   Map get addendumData;
+  String get fileName;
 
   factory EmitterConfig(
       Discovery discovery,
@@ -22,7 +23,7 @@ abstract class EmitterConfig {
       StringSink resourceCodeSink,
       StringSink requestCodeSink,
       StringSink objectCodeSink,
-      {Map addendumData: const {}}) =>
+      {Map addendumData: const {}, String fileName}) =>
           new _DefaultEmitterConfig(
               discovery,
               templateProvider,
@@ -30,7 +31,8 @@ abstract class EmitterConfig {
               resourceCodeSink,
               requestCodeSink,
               objectCodeSink,
-              addendumData);
+              addendumData,
+              fileName);
 }
 
 class _DefaultEmitterConfig implements EmitterConfig {
@@ -41,6 +43,7 @@ class _DefaultEmitterConfig implements EmitterConfig {
   final StringSink requestCodeSink;
   final StringSink objectCodeSink;
   final Map addendumData;
+  final String fileName;
 
   _DefaultEmitterConfig(
       this.discovery,
@@ -49,7 +52,8 @@ class _DefaultEmitterConfig implements EmitterConfig {
       this.resourceCodeSink,
       this.requestCodeSink,
       this.objectCodeSink,
-      this.addendumData);
+      this.addendumData,
+      this.fileName);
 }
 
 /// Provides templates for the generator.
@@ -121,9 +125,13 @@ class _Emitter {
 
   /// Generates API client code and returns it as a string.
   void generate() {
+    var fileName = _libName;
+    if (_conf.fileName != null) {
+      fileName = _conf.fileName;
+    }
     getImport(name) => _addendum.containsKey('${name}_import')
         ? _addendum['${name}_import']
-        : '${_libName}_${name}.dart';
+        : '${fileName}_${name}.dart';
 
     var headerData = {
       'api_library': _libName,
