@@ -12,7 +12,7 @@ main() {
             ..rpcError(404)
         ).build();
       var subject = new Multiplexer(testHandler);
-      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.catchError(expectAsync((err) {
+      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.catchError(expectAsync1((err) {
         expect(err, new isInstanceOf<StreamyRpcException>());
         expect(err.httpStatus, 404);
       }));
@@ -25,7 +25,7 @@ main() {
       var testHandler = (testRequestHandler()..value(resp)).build();
 
       var subject = new Multiplexer(testHandler);
-      subject.handle(req, const NoopTrace()).listen(expectAsync((actual) {
+      subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
         expect(actual.entity['foo'], 'rpc');
         expect(actual.source, Source.RPC);
         expect(actual.authority, Authority.PRIMARY);
@@ -49,8 +49,8 @@ main() {
 
       int count = 1;
       cache.set(cachedReq, new CachedEntity(cachedResp.entity, cachedResp.ts))
-        .then(expectAsync((_) {
-          subject.handle(req, const NoopTrace()).listen(expectAsync((actual) {
+        .then(expectAsync1((_) {
+          subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
             if (count == 1) {
               expect(actual.entity['foo'], 'cached');
               expect(actual.source, Source.CACHE);
@@ -79,8 +79,8 @@ main() {
       var cache = new AsyncMapCache();
       var subject = new Multiplexer(testHandler, cache: cache);
 
-      cache.set(cachedReq, cachedResp).then(expectAsync((_) {
-        subject.handle(req, const NoopTrace()).listen(expectAsync((actual) {
+      cache.set(cachedReq, cachedResp).then(expectAsync1((_) {
+        subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
           expect(actual.entity['foo'], 'cached');
           expect(actual.source, Source.CACHE);
           expect(actual.authority, Authority.PRIMARY);
