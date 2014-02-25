@@ -45,4 +45,13 @@ main() {
       expect(new MethodGetTest(null).foos.get(1).apiType, 'FoosGetRequest');
     });
   });
+  group('Serialization', () {
+    test('to/from json', () {
+      var f = new Foo()
+        ..id = 1;
+      var f2 = new Foo.fromJson(f.toJson(), copy: true);
+      expect(f2.containsKey('bar'), isFalse);
+      expect(f2.containsKey('baz'), isFalse);
+    });
+  });
 }

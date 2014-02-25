@@ -62,8 +62,12 @@ class Branch extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'id'] = streamy.atoi64(json[r'id']);
-    json[r'location'] = ((v) => new Address.fromJson(v))(json[r'location']);
+    if (json.containsKey(r'id')) {
+      json[r'id'] = streamy.atoi64(json[r'id']);
+    }
+    if (json.containsKey(r'location')) {
+      json[r'location'] = ((v) => new Address.fromJson(v))(json[r'location']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Branch.wrapMap(json);
   }
@@ -191,8 +195,12 @@ class Account extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'account_number'] = streamy.atoi64(json[r'account_number']);
-    json[r'balance'] = streamy.atoi64(json[r'balance']);
+    if (json.containsKey(r'account_number')) {
+      json[r'account_number'] = streamy.atoi64(json[r'account_number']);
+    }
+    if (json.containsKey(r'balance')) {
+      json[r'balance'] = streamy.atoi64(json[r'balance']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Account.wrapMap(json);
   }
@@ -259,7 +267,9 @@ class Customer extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'accounts'] = streamy.mapInline(streamy.atoi64)(json[r'accounts']);
+    if (json.containsKey(r'accounts')) {
+      json[r'accounts'] = streamy.mapInline(streamy.atoi64)(json[r'accounts']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Customer.wrapMap(json);
   }
