@@ -65,7 +65,7 @@ class Foo extends streamy.EntityWrapper {
   /// The plural of qux
   List<double> get quux => this[r'quux'];
   set quux(List<double> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'quux'] = value;
@@ -91,8 +91,12 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'qux'] = streamy.atoi64(json[r'qux']);
-    json[r'quux'] = streamy.mapInline(streamy.atod)(json[r'quux']);
+    if (json.containsKey(r'qux')) {
+      json[r'qux'] = streamy.atoi64(json[r'qux']);
+    }
+    if (json.containsKey(r'quux')) {
+      json[r'quux'] = streamy.mapInline(streamy.atod)(json[r'quux']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Foo.wrapMap(json);
   }
@@ -140,7 +144,7 @@ class Bar extends streamy.EntityWrapper {
   /// A bunch of foos.
   List<Foo> get foos => this[r'foos'];
   set foos(List<Foo> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'foos'] = value;
@@ -159,8 +163,12 @@ class Bar extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'primary'] = ((v) => new Foo.fromJson(v))(json[r'primary']);
-    json[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(json[r'foos']);
+    if (json.containsKey(r'primary')) {
+      json[r'primary'] = ((v) => new Foo.fromJson(v))(json[r'primary']);
+    }
+    if (json.containsKey(r'foos')) {
+      json[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(json[r'foos']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Bar.wrapMap(json);
   }
@@ -239,7 +247,7 @@ class Context extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
   List<List<Context_Facets>> get facets => this[r'facets'];
   set facets(List<List<Context_Facets>> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'facets'] = value;
@@ -258,7 +266,9 @@ class Context extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'facets'] = streamy.mapInline(streamy.mapInline(((v) => new Context_Facets.fromJson(v))))(json[r'facets']);
+    if (json.containsKey(r'facets')) {
+      json[r'facets'] = streamy.mapInline(streamy.mapInline(((v) => new Context_Facets.fromJson(v))))(json[r'facets']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Context.wrapMap(json);
   }
@@ -306,7 +316,9 @@ class $some_entity_ extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'%badly#named property~!@#$%^&*()?'] = streamy.atoi64(json[r'%badly#named property~!@#$%^&*()?']);
+    if (json.containsKey(r'%badly#named property~!@#$%^&*()?')) {
+      json[r'%badly#named property~!@#$%^&*()?'] = streamy.atoi64(json[r'%badly#named property~!@#$%^&*()?']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new $some_entity_.wrapMap(json);
   }

@@ -15,6 +15,7 @@ class Foo extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'id',
     r'bar',
+    r'baz',
   ]);
   String get apiType => r'Foo';
 
@@ -43,6 +44,11 @@ class Foo extends streamy.EntityWrapper {
     this[r'bar'] = value;
   }
   String removeBar() => remove(r'bar');
+  fixnum.Int64 get baz => this[r'baz'];
+  set baz(fixnum.Int64 value) {
+    this[r'baz'] = value;
+  }
+  fixnum.Int64 removeBaz() => remove(r'baz');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -56,8 +62,16 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
+    if (json.containsKey(r'baz')) {
+      json[r'baz'] = streamy.atoi64(json[r'baz']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Foo.wrapMap(json);
+  }
+  Map toJson() {
+    Map json = super.toJson();
+    streamy.serialize(json, r'baz', streamy.str);
+    return json;
   }
   Foo clone() => super.clone();
   Foo patch() => super.patch();

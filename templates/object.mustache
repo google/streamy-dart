@@ -35,7 +35,7 @@ class {{name}} extends streamy.EntityWrapper {
   {{type}} get {{field_name}} => this[r'{{raw_name}}'];
   set {{field_name}}({{type}} value) {
 {{#list}}
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
 {{/list}}
@@ -61,7 +61,9 @@ class {{name}} extends streamy.EntityWrapper {
     }
 {{#properties}}
   {{#hasParseExpr}}
-    json[r'{{raw_name}}'] = {{parseExpr}}(json[r'{{raw_name}}']);
+    if (json.containsKey(r'{{raw_name}}')) {
+      json[r'{{raw_name}}'] = {{parseExpr}}(json[r'{{raw_name}}']);
+    }
   {{/hasParseExpr}}
 {{/properties}}
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);

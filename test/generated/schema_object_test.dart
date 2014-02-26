@@ -229,6 +229,11 @@ main() {
       expect(bar.foos, same(list),
           reason: 'Expected same instance of list');
     });
+    test('null assignment to a list works', () {
+      var bar = new Bar();
+      bar.foos = null;
+      expect(bar.foos, isNull, reason: 'Expected null list.');
+    });
   });
   group('.global', () {
     var foo;
