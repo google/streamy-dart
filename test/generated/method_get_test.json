@@ -13,6 +13,10 @@
         "bar": {
           "type": "string",
           "description": "Foo's favorite bar."
+        },
+        "baz": {
+          "type": "string",
+          "format": "int64"
         }
       }
     }

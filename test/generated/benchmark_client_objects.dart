@@ -71,7 +71,7 @@ class Foo extends streamy.EntityWrapper {
   /// The plural of qux
   List<double> get quux => this[r'quux'];
   set quux(List<double> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'quux'] = value;
@@ -81,7 +81,7 @@ class Foo extends streamy.EntityWrapper {
   /// A double field that's serialized as a number.
   List<int> get corge => this[r'corge'];
   set corge(List<int> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'corge'] = value;
@@ -100,9 +100,15 @@ class Foo extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'bar'] = ((v) => new Bar.fromJson(v))(json[r'bar']);
-    json[r'qux'] = streamy.atoi64(json[r'qux']);
-    json[r'quux'] = streamy.mapInline(streamy.atod)(json[r'quux']);
+    if (json.containsKey(r'bar')) {
+      json[r'bar'] = ((v) => new Bar.fromJson(v))(json[r'bar']);
+    }
+    if (json.containsKey(r'qux')) {
+      json[r'qux'] = streamy.atoi64(json[r'qux']);
+    }
+    if (json.containsKey(r'quux')) {
+      json[r'quux'] = streamy.mapInline(streamy.atod)(json[r'quux']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Foo.wrapMap(json);
   }
@@ -143,7 +149,7 @@ class Bar extends streamy.EntityWrapper {
   /// A bunch of foos.
   List<Foo> get foos => this[r'foos'];
   set foos(List<Foo> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'foos'] = value;
@@ -167,8 +173,12 @@ class Bar extends streamy.EntityWrapper {
     if (copy) {
       json = new obs.ObservableMap.from(json);
     }
-    json[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(json[r'foos']);
-    json[r'foo'] = ((v) => new Foo.fromJson(v))(json[r'foo']);
+    if (json.containsKey(r'foos')) {
+      json[r'foos'] = streamy.mapInline(((v) => new Foo.fromJson(v)))(json[r'foos']);
+    }
+    if (json.containsKey(r'foo')) {
+      json[r'foo'] = ((v) => new Foo.fromJson(v))(json[r'foo']);
+    }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Bar.wrapMap(json);
   }
