@@ -71,7 +71,7 @@ class Foo extends streamy.EntityWrapper {
   /// The plural of qux
   List<double> get quux => this[r'quux'];
   set quux(List<double> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'quux'] = value;
@@ -81,7 +81,7 @@ class Foo extends streamy.EntityWrapper {
   /// A double field that's serialized as a number.
   List<int> get corge => this[r'corge'];
   set corge(List<int> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'corge'] = value;
@@ -149,7 +149,7 @@ class Bar extends streamy.EntityWrapper {
   /// A bunch of foos.
   List<Foo> get foos => this[r'foos'];
   set foos(List<Foo> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'foos'] = value;

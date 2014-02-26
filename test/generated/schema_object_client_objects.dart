@@ -65,7 +65,7 @@ class Foo extends streamy.EntityWrapper {
   /// The plural of qux
   List<double> get quux => this[r'quux'];
   set quux(List<double> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'quux'] = value;
@@ -144,7 +144,7 @@ class Bar extends streamy.EntityWrapper {
   /// A bunch of foos.
   List<Foo> get foos => this[r'foos'];
   set foos(List<Foo> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'foos'] = value;
@@ -247,7 +247,7 @@ class Context extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
   List<List<Context_Facets>> get facets => this[r'facets'];
   set facets(List<List<Context_Facets>> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'facets'] = value;

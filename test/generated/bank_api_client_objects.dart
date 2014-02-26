@@ -241,7 +241,7 @@ class Customer extends streamy.EntityWrapper {
   /// Customer's account numbers.
   List<fixnum.Int64> get accounts => this[r'accounts'];
   set accounts(List<fixnum.Int64> value) {
-    if (value is! obs.ObservableList) {
+    if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
     this[r'accounts'] = value;
