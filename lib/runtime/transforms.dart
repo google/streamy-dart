@@ -38,7 +38,8 @@ class MutableTransformer extends EventTransformer {
 
   void handleData(Response response, EventSink<Response> sink, Trace trace) {
     if (response.entity.isFrozen) {
-      sink.add(new Response(response.entity.clone(), response.source, response.ts));
+      sink.add(new Response(response.entity.clone(), response.source, response.ts,
+          authority: response.authority));
     } else {
       sink.add(response);
     }
