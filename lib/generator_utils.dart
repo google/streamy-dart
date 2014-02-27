@@ -44,7 +44,7 @@ Future generateStreamyClientLibrary(
       resourceOut,
       requestOut,
       objectOut,
-      addendumData: addendumData
+      addendumData: addendumData,
       fileName: fileName));
 
   var pubspecFile = new io.File('${outputDir.path}/pubspec.yaml');
