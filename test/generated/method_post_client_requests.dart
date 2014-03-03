@@ -13,7 +13,8 @@ class FoosUpdateRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     r'id',
   ];
-  String get apiType => r'FoosUpdateRequest';
+  static final API_TYPE = r'FoosUpdateRequest';
+  String get apiType => API_TYPE;
   obj.Foo get payload => streamy.internalGetPayload(this);
   final patch;
   String get httpMethod => patch ? 'PATCH' : 'POST';

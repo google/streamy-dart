@@ -16,7 +16,8 @@ class Foo extends streamy.EntityWrapper {
     r'baz',
   ]);
   static final String KIND = """type#foo""";
-  String get apiType => r'Foo';
+  static final API_TYPE = r'Foo';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -65,7 +66,8 @@ class Bar extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
   static final String KIND = """type#bar""";
-  String get apiType => r'Bar';
+  static final API_TYPE = r'Bar';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BarGlobalFn computeFn,

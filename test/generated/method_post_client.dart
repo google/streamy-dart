@@ -20,7 +20,8 @@ abstract class MethodPostTestResourcesMixin {
 class MethodPostTest
     extends streamy.Root
     with MethodPostTestResourcesMixin {
-  String get apiType => r'MethodPostTest';
+  static final API_TYPE = r'MethodPostTest';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -45,7 +46,8 @@ class MethodPostTest
 class MethodPostTestTransaction
     extends streamy.TransactionRoot
     with MethodPostTestResourcesMixin {
-  String get apiType => r'MethodPostTestTransaction';
+  static final API_TYPE = r'MethodPostTestTransaction';
+  String get apiType => API_TYPE;
   MethodPostTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

@@ -6,7 +6,8 @@ class {{name}} extends streamy.Request {
 {{#parameters}}    r'{{name}}',
 {{/parameters}}  ];
 
-  String get apiType => r'{{name}}';
+  static final API_TYPE = r'{{name}}';
+  String get apiType => API_TYPE;
 
   {{#payload}}obj.{{payloadType}} get payload => streamy.internalGetPayload(this);{{/payload}}
 

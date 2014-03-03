@@ -13,7 +13,8 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = [
     r'get',
   ];
-  String get apiType => r'FoosResource';
+  static final API_TYPE = r'FoosResource';
+  String get apiType => API_TYPE;
   FoosResource(this._root);
 
   /// Gets a foo

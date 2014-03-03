@@ -20,7 +20,8 @@ abstract class BankResourcesMixin {
 class Bank
     extends streamy.Root
     with BankResourcesMixin {
-  String get apiType => r'Bank';
+  static final API_TYPE = r'Bank';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -45,7 +46,8 @@ class Bank
 class BankTransaction
     extends streamy.TransactionRoot
     with BankResourcesMixin {
-  String get apiType => r'BankTransaction';
+  static final API_TYPE = r'BankTransaction';
+  String get apiType => API_TYPE;
   BankTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

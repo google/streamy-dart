@@ -13,7 +13,8 @@ class $some_resource_Resource {
   static final List<String> KNOWN_METHODS = [
     r'$some_method_',
   ];
-  String get apiType => r'$some_resource_Resource';
+  static final API_TYPE = r'$some_resource_Resource';
+  String get apiType => API_TYPE;
   $some_resource_Resource(this._root);
   req.$some_resource__some_method_Request $some_method_(int $path_param_, int $query_param_) {
     var request = new req.$some_resource__some_method_Request(_root);

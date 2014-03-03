@@ -13,7 +13,8 @@ abstract class SchemaUnknownFieldsTestResourcesMixin {
 class SchemaUnknownFieldsTest
     extends streamy.Root
     with SchemaUnknownFieldsTestResourcesMixin {
-  String get apiType => r'SchemaUnknownFieldsTest';
+  static final API_TYPE = r'SchemaUnknownFieldsTest';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -38,7 +39,8 @@ class SchemaUnknownFieldsTest
 class SchemaUnknownFieldsTestTransaction
     extends streamy.TransactionRoot
     with SchemaUnknownFieldsTestResourcesMixin {
-  String get apiType => r'SchemaUnknownFieldsTestTransaction';
+  static final API_TYPE = r'SchemaUnknownFieldsTestTransaction';
+  String get apiType => API_TYPE;
   SchemaUnknownFieldsTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

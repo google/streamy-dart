@@ -16,7 +16,8 @@ class FoosResource {
     r'delete',
     r'cancel',
   ];
-  String get apiType => r'FoosResource';
+  static final API_TYPE = r'FoosResource';
+  String get apiType => API_TYPE;
   FoosResource(this._root);
 
   /// Gets a foo

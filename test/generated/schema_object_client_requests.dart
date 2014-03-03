@@ -13,7 +13,8 @@ class $some_resource__some_method_Request extends streamy.Request {
     r'-path param-',
     r'-query param-',
   ];
-  String get apiType => r'$some_resource__some_method_Request';
+  static final API_TYPE = r'$some_resource__some_method_Request';
+  String get apiType => API_TYPE;
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{fooId}';
   bool get hasPayload => false;

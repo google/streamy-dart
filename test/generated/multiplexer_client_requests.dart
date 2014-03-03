@@ -13,7 +13,8 @@ class FoosGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     r'id',
   ];
-  String get apiType => r'FoosGetRequest';
+  static final API_TYPE = r'FoosGetRequest';
+  String get apiType => API_TYPE;
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
@@ -45,7 +46,8 @@ class FoosUpdateRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     r'id',
   ];
-  String get apiType => r'FoosUpdateRequest';
+  static final API_TYPE = r'FoosUpdateRequest';
+  String get apiType => API_TYPE;
   obj.Foo get payload => streamy.internalGetPayload(this);
   final patch;
   String get httpMethod => patch ? 'PATCH' : 'PUT';
@@ -79,7 +81,8 @@ class FoosDeleteRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     r'id',
   ];
-  String get apiType => r'FoosDeleteRequest';
+  static final API_TYPE = r'FoosDeleteRequest';
+  String get apiType => API_TYPE;
   String get httpMethod => 'DELETE';
   String get pathFormat => 'foos/{id}';
   bool get hasPayload => false;
@@ -111,7 +114,8 @@ class FoosCancelRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     r'id',
   ];
-  String get apiType => r'FoosCancelRequest';
+  static final API_TYPE = r'FoosCancelRequest';
+  String get apiType => API_TYPE;
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/cancel/{id}';
   bool get hasPayload => false;

@@ -17,7 +17,8 @@ class Branch extends streamy.EntityWrapper {
     r'name',
     r'location',
   ]);
-  String get apiType => r'Branch';
+  static final API_TYPE = r'Branch';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BranchGlobalFn computeFn,
@@ -88,7 +89,8 @@ class Address extends streamy.EntityWrapper {
   static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
-  String get apiType => r'Address';
+  static final API_TYPE = r'Address';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, AddressGlobalFn computeFn,
@@ -134,7 +136,8 @@ class Account extends streamy.EntityWrapper {
     r'currency_type',
     r'balance',
   ]);
-  String get apiType => r'Account';
+  static final API_TYPE = r'Account';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, AccountGlobalFn computeFn,
@@ -224,7 +227,8 @@ class Customer extends streamy.EntityWrapper {
     r'accounts',
     r'name',
   ]);
-  String get apiType => r'Customer';
+  static final API_TYPE = r'Customer';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, CustomerGlobalFn computeFn,

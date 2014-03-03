@@ -7,7 +7,8 @@ class {{type}} {
 {{#methods}}    r'{{name}}',
 {{/methods}}  ];
 
-  String get apiType => r'{{type}}';
+  static final API_TYPE = r'{{type}}';
+  String get apiType => API_TYPE;
 
   {{type}}(this._root);
 

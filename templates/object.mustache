@@ -12,7 +12,8 @@ class {{name}} extends streamy.EntityWrapper {
 {{/properties}}  ]);
 {{#hasKind}}  static final String KIND = """{{kind}}""";{{/hasKind}}
 
-  String get apiType => r'{{name}}';
+  static final API_TYPE = r'{{name}}';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, {{name}}GlobalFn computeFn,

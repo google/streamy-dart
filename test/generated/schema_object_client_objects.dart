@@ -20,7 +20,8 @@ class Foo extends streamy.EntityWrapper {
     r'quux',
     r'corge',
   ]);
-  String get apiType => r'Foo';
+  static final API_TYPE = r'Foo';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
@@ -120,7 +121,8 @@ class Bar extends streamy.EntityWrapper {
     r'primary',
     r'foos',
   ]);
-  String get apiType => r'Bar';
+  static final API_TYPE = r'Bar';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BarGlobalFn computeFn,
@@ -185,7 +187,8 @@ class Context_Facets extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'anchor',
   ]);
-  String get apiType => r'Context_Facets';
+  static final API_TYPE = r'Context_Facets';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, Context_FacetsGlobalFn computeFn,
@@ -232,7 +235,8 @@ class Context extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'facets',
   ]);
-  String get apiType => r'Context';
+  static final API_TYPE = r'Context';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, ContextGlobalFn computeFn,
@@ -285,7 +289,8 @@ class $some_entity_ extends streamy.EntityWrapper {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'%badly#named property~!@#$%^&*()?',
   ]);
-  String get apiType => r'$some_entity_';
+  static final API_TYPE = r'$some_entity_';
+  String get apiType => API_TYPE;
 
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, $some_entity_GlobalFn computeFn,
