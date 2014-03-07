@@ -10,6 +10,7 @@ import 'generated/multiplexer_test.dart' as multiplexer_test;
 import 'generated/schema_object_test.dart' as schema_object_test;
 import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
 import 'generator/emitter_test.dart' as generator_emitter_test;
+import 'generator/transformer_test.dart' as generator_transformer_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/batching_test.dart' as batching_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
@@ -34,6 +35,7 @@ main(List<String> args) {
   batching_test.main();
   streamy_test.main();
   generator_emitter_test.main(args);
+  generator_transformer_test.main(args);
   runtime_multiplexer_test.main();
   runtime_branching_test.main();
   runtime_error_test.main();
