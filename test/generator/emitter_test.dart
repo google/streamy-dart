@@ -3,54 +3,10 @@ library streamy.generator.emitter.test;
 import 'package:streamy/generator.dart';
 import 'package:unittest/unittest.dart';
 import '../project.dart';
+import '../test_data.dart';
 
 main(List<String> args) {
-  var discovery = new Discovery.fromJsonString(
-"""
-{
-  "name": "DocsTest",
-  "description": "API definitions.\\nWith documentation",
-  "servicePath": "docsTest/v1/",
-  "schemas": {
-    "Foo": {
-      "id": "Foo",
-      "type": "object",
-      "description": "This is a foo.\\nEnough said.",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "description": "Primary key.\\nSometimes called ID."
-        }
-      }
-    }
-  },
-  "resources": {
-    "foos": {
-      "methods": {
-        "get": {
-          "id": "service.foos.get",
-          "path": "foos/{fooId}",
-          "name": "",
-          "response": {
-            "\$ref": "Foo"
-          },
-          "httpMethod": "GET",
-          "description": "Gets a foo.\\nReturns 404 on bad ID.",
-          "parameters": {
-            "fooId": {
-              "type": "integer",
-              "description": "Primary key of foo.\\nSecond line",
-              "required": true,
-              "location": "path"
-            }
-          },
-          "parameterOrder": ["fooId"]
-        }
-      }
-    }
-  }
-}
-""");
+  var discovery = new Discovery.fromJsonString(SAMPLE_DISCOVERY);
 
   var rootOut = new StringBuffer();
   var resourceOut = new StringBuffer();

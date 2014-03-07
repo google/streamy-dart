@@ -12,8 +12,6 @@
  * - streamy/generator/transformer
  * ```
  *
- * Place the discovery file in the `asset` folder of your project.
- *
  * Import the client like this:
  *
  * ```
