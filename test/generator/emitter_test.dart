@@ -58,7 +58,7 @@ main(List<String> args) {
   var objectOut = new StringBuffer();
   emitCode(new EmitterConfig(
       discovery,
-      new DefaultTemplateProvider('${projectRootDir(args)}/templates'),
+      new DefaultTemplateProvider('${projectRootDir(args)}/asset'),
       rootOut,
       resourceOut,
       requestOut,

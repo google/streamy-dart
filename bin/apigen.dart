@@ -98,7 +98,7 @@ void parseArgs(List<String> arguments) {
         'templates-dir',
         abbr: 't',
         help: 'Directory containing code templates.',
-        defaultsTo: 'templates',
+        defaultsTo: 'asset',
         callback: (String value) {
           templatesDir = new io.Directory(value);
           if (!templatesDir.existsSync()) {

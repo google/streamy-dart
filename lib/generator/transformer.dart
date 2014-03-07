@@ -23,8 +23,8 @@
 library streamy.transformer;
 
 import 'dart:async';
-import 'dart:io';
 import 'package:barback/barback.dart';
+import 'package:quiver/iterables.dart';
 import 'package:streamy/generator.dart';
 
 class StreamyTransformer extends Transformer
@@ -49,9 +49,11 @@ class StreamyTransformer extends Transformer
     }
 
     print('[streamy] Generating API client for ${discoveryAssetId}');
-    return discoveryAsset
-      .readAsString()
-      .then((json) => _generateClient(discoveryAssetId, json, transform));
+
+    return Future.wait(
+        [discoveryAsset.readAsString(), _loadTemplates(transform)])
+        .then((res) =>
+            _generateClient(discoveryAssetId, res[0], transform, res[1]));
   }
 
   @override
@@ -63,8 +65,10 @@ class StreamyTransformer extends Transformer
   }
 }
 
-Future _generateClient(AssetId discoveryAssetId, String discoveryJson,
-                       Transform transform) {
+Future _generateClient(AssetId discoveryAssetId,
+                       String discoveryJson,
+                       Transform transform,
+                       TemplateProvider templateProvider) {
   var coreName = _computeCoreName(discoveryAssetId);
   var discovery = new Discovery.fromJsonString(discoveryJson);
   var outAssets = _computeAssets(transform.primaryInput.id);
@@ -72,18 +76,6 @@ Future _generateClient(AssetId discoveryAssetId, String discoveryJson,
   var resourceOut = outAssets[1];
   var requestOut = outAssets[2];
   var objectOut = outAssets[3];
-  var templateDir = new Directory('asset/templates');
-
-  // TODO: can barback read templates directly from streamy package?
-  if (!templateDir.existsSync()) {
-    throw new StateError('Cannot find templates for Streamy code generator. '
-                         'The templates must be placed in asset/templates. '
-                         'Streamy proviles a default set of template files in '
-                         'https://github.com/google/streamy-dart/tree/master/templates. '
-                         'Actual error:\nDirectory not found ${templateDir.absolute}');
-  }
-  var templateProvider = new DefaultTemplateProvider(templateDir.path);
-
   var importBase = 'package:streamy/$coreName';
 
   emitCode(new EmitterConfig(
@@ -114,6 +106,44 @@ List<_OutAsset> _computeAssets(AssetId discoveryAssetId) {
     new _OutAsset(pkg, '${basePath}_requests.dart'),
     new _OutAsset(pkg, '${basePath}_objects.dart'),
   ];
+}
+
+Future<TemplateProvider> _loadTemplates(Transform transform) {
+  const templateNames = const [
+    'client_header',
+    'object',
+    'object_file_header',
+    'pubspec',
+    'request',
+    'request_file_header',
+    'resource',
+    'resource_file_header',
+    'root'
+  ];
+  var futures = templateNames.map((String templateName) {
+    var templateAssetId =
+        new AssetId('streamy', 'asset/${templateName}.mustache');
+    return transform.readInputAsString(templateAssetId);
+  }).toList(growable: false);
+  return Future.wait(futures).then((contents) {
+    var templates = {};
+    for (var nameContent in zip([templateNames, contents])) {
+      var templateName = nameContent[0];
+      var templateContent = nameContent[1];
+      templates[templateName] = templateContent;
+    }
+    return new _InMemoryTemplateProvider(templates);
+  });
+}
+
+class _InMemoryTemplateProvider implements TemplateProvider {
+  final Map<String, String> templates;
+
+  _InMemoryTemplateProvider(this.templates);
+
+  String get sourceOfTemplates => 'Streamy transformer';
+
+  String operator[](String templateName) => templates[templateName];
 }
 
 String _computeBasePath(AssetId discoveryAssetId) =>
