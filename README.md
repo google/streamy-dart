@@ -52,9 +52,9 @@ Find one for the API you want to access. Let's use Google URL shortener as examp
 ### Generate client library
 
     > dart bin/apigen.dart \
-        --discovery_file=urlshortener.json \
-        --client_file=urlshortener.dart \
-        --library_name=urlshortener
+        --discovery-file=urlshortener.json \
+        --client-file-name=urlshortener.dart \
+        --output-dir=urlshortener
 
 #### What just happened?
 
