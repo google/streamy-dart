@@ -53,7 +53,7 @@ Find one for the API you want to access. Let's use Google URL shortener as examp
 
     > dart bin/apigen.dart \
         --discovery-file=urlshortener.json \
-        --client-file-name=urlshortener.dart \
+        --client-file-name=urlshortener \
         --output-dir=urlshortener
 
 #### What just happened?
