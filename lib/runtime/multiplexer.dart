@@ -155,6 +155,7 @@ class Multiplexer extends RequestHandler {
           });
         _inFlightRequests[request] = new _InFlightRequest(pending, cancel);
       } else {
+        trace.record(new MultiplexerRpcDedupEvent());
         pending = _inFlightRequests[request].future;
       }
 
@@ -185,6 +186,7 @@ class Multiplexer extends RequestHandler {
     }
   }
 
+  @override
   Stream handle(Request originalRequest, Trace trace) {
     // Make a copy of the request for use in the multiplexer, since it's not
     // immutable.
@@ -270,6 +272,14 @@ class MultiplexerRpcSendEvent implements TraceEvent {
   const MultiplexerRpcSendEvent._private();
 
   String toString() => 'streamy.multiplexer.rpc.send';
+}
+
+class MultiplexerRpcDedupEvent implements TraceEvent {
+  factory MultiplexerRpcDedupEvent() => const MultiplexerRpcDedupEvent._private();
+
+  const MultiplexerRpcDedupEvent._private();
+
+  String toString() => 'streamy.multiplexer.rpc.dedup';
 }
 
 class MultiplexerRpcCancelEvent implements TraceEvent {
