@@ -20,7 +20,7 @@ class StreamyRpcException implements Exception {
   StreamyRpcException(this.httpStatus, this.request, this.response);
 
   @override
-  String toString() => response.toString();
+  String toString() => response == null ? "Instance of '${this.runtimeType}'" : response.toString();
 }
 
 typedef Future<bool> RetryStrategy(Request request, int retryNum, e);
