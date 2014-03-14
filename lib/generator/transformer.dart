@@ -21,6 +21,7 @@
 library streamy.transformer;
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:barback/barback.dart';
 import 'package:quiver/iterables.dart';
 import 'package:streamy/generator.dart';
@@ -46,12 +47,36 @@ class StreamyTransformer extends Transformer
       return new Future.value(null);
     }
 
-    print('[streamy] Generating API client for ${discoveryAssetId}');
-
-    return Future.wait(
-        [discoveryAsset.readAsString(), _loadTemplates(transform)])
-        .then((res) =>
-            _generateClient(discoveryAssetId, res[0], transform, res[1]));
+    var filebase = discoveryAssetId.path
+        .substring(0, discoveryAssetId.path.length - 9);
+    var addendumAssetId = new AssetId(
+        discoveryAssetId.package,
+        '${filebase}.addendum.json');
+    // TODO: Test that the transformer is called again when addendum appears on
+    //       and disappears from the FS. This might be fixed as part of
+    //       http://dartbug.com/17225.
+    return transform.getInput(addendumAssetId)
+      .catchError((e) {
+        // TODO: Uncomment when http://dartbug.com/17225 is fixed
+        //if (e is! AssetNotFoundException) throw e;
+        // Addendum not found.
+        return null;
+      })
+      .then((Asset addendumAsset) {
+        var addendumMsg = addendumAsset == null
+            ? ' without addendum'
+            : ' with addendum ${addendumAssetId}';
+        print('[streamy] Generating API client for ${discoveryAssetId}'
+              '${addendumMsg}');
+        return Future.wait([
+          discoveryAsset.readAsString(),
+          addendumAsset == null
+              ? new Future.value(null)
+              : addendumAsset.readAsString(),
+          _loadTemplates(transform),
+        ]).then((res) => _generateClient(discoveryAssetId, transform,
+            res[0], res[1], res[2]));
+      });
   }
 
   @override
@@ -64,11 +89,16 @@ class StreamyTransformer extends Transformer
 }
 
 Future _generateClient(AssetId discoveryAssetId,
-                       String discoveryJson,
                        Transform transform,
+                       String discoveryJson,
+                       String addendumJson,
                        TemplateProvider templateProvider) {
   var coreName = _computeCoreName(discoveryAssetId);
   var discovery = new Discovery.fromJsonString(discoveryJson);
+  var addendumData = const {};
+  if (addendumJson != null) {
+    addendumData = JSON.decode(addendumJson);
+  }
   var outAssets = _computeAssets(transform.primaryInput.id);
   var rootOut = outAssets[0];
   var resourceOut = outAssets[1];
@@ -83,8 +113,7 @@ Future _generateClient(AssetId discoveryAssetId,
       resourceOut.sink,
       requestOut.sink,
       objectOut.sink,
-      // TODO: add addendum when barback supports optional inputs: dartbug.com/17225
-      addendumData: {},
+      addendumData: addendumData,
       fileName: importBase));
 
   [rootOut, resourceOut, requestOut, objectOut].forEach((_OutAsset a) {
