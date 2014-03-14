@@ -37,18 +37,20 @@ main(List<String> args) {
             contains(new AssetId('test', expected.value)));
       });
     });
-    test('should emit outputs', () {
+
+    var expectedOutputs = enumerate([
+      'lib/urlshortener.dart',
+      'lib/urlshortener_objects.dart',
+      'lib/urlshortener_resources.dart',
+      'lib/urlshortener_requests.dart',
+    ]);
+
+    test('should emit outputs without addendum', () {
       var fakeDiscovery = new Asset.fromString(
           new AssetId('test', 'asset/urlshortener.api.json'),
           SAMPLE_DISCOVERY);
       var fake = new FakeTransform(fakeDiscovery, args);
       new StreamyTransformer.asPlugin().apply(fake).then(expectAsync1((_) {
-        var expectedOutputs = enumerate([
-          'lib/urlshortener.dart',
-          'lib/urlshortener_objects.dart',
-          'lib/urlshortener_resources.dart',
-          'lib/urlshortener_requests.dart',
-        ]);
 
         expect(fake.outputs, hasLength(expectedOutputs.length));
 
@@ -57,6 +59,52 @@ main(List<String> args) {
             expect(content, isNot(isEmpty));
           }));
         });
+
+        fake.outputs
+          .firstWhere((o) => o.id.path == 'lib/urlshortener.dart')
+          .readAsString().then(expectAsync1((content) {
+            expect(content, contains('class DocsTest'));
+          }));
+
+        expectedOutputs.forEach((expected) {
+          expect(fake.outputs.map((o) => o.id),
+              contains(new AssetId('test', expected.value)));
+        });
+      }));
+    });
+
+    test('should emit outputs with addendum', () {
+      var fakeDiscovery = new Asset.fromString(
+          new AssetId('test', 'asset/urlshortener.api.json'),
+          SAMPLE_DISCOVERY);
+      var fakeAddendum = new Asset.fromString(
+          new AssetId('test', 'asset/urlshortener.addendum.json'),
+'''{
+  "topLevelClassName": "RootClassWithAddendum",
+  "sendParams": {
+    "foo": {
+      "type": "String",
+      "default": "Bar"
+    }
+  }
+}''');
+      var fake = new FakeTransform(fakeDiscovery, args,
+          otherAssets: [fakeAddendum]);
+      new StreamyTransformer.asPlugin().apply(fake).then(expectAsync1((_) {
+
+        expect(fake.outputs, hasLength(expectedOutputs.length));
+
+        fake.outputs.forEach((Asset output) {
+          output.readAsString().then(expectAsync1((content) {
+            expect(content, isNot(isEmpty));
+          }));
+        });
+
+        fake.outputs
+          .firstWhere((o) => o.id.path == 'lib/urlshortener.dart')
+          .readAsString().then(expectAsync1((content) {
+            expect(content, contains('class RootClassWithAddendum'));
+          }));
 
         expectedOutputs.forEach((expected) {
           expect(fake.outputs.map((o) => o.id),
@@ -104,10 +152,18 @@ class FakeTransform implements Transform {
 
   var outputs = <Asset>[];
   final List<String> args;
+  Map<AssetId, Asset> assets;
 
   @override Asset primaryInput;
 
-  FakeTransform(this.primaryInput, this.args);
+  FakeTransform(this.primaryInput, this.args, {List<Asset> otherAssets}) {
+    assets = {};
+    if (otherAssets != null) {
+      otherAssets.forEach((a) {
+        assets[a.id] = a;
+      });
+    }
+  }
 
   @override
   void addOutput(Asset asset) {
@@ -116,7 +172,10 @@ class FakeTransform implements Transform {
 
   @override
   Future<Asset> getInput(AssetId id) {
-    return null;
+    if (assets.containsKey(id)) {
+      return new Future.value(assets[id]);
+    }
+    return new Future.error(new AssetNotFoundException(id));
   }
 
   @override
