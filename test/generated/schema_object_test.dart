@@ -104,46 +104,30 @@ main() {
       bar.foos[0].baz = 42;
       expect(streamy.Entity.deepEquals(bar, bar2), equals(false));
     });
-    test('clone() on a generated EntityWrapper does not double wrap', () {
-      var bar = new Bar();
-      var bar2 = bar.clone();
-      expect(bar2, new isInstanceOf<Bar>());
-      expect(streamy.entityWrapperGetDelegateForTest(bar2),
-          new isInstanceOf<streamy.RawEntity>());
-    });
     test('objects are observable', () {
       var foo = new Foo();
       foo.changes.listen(expectAsync1((List<ChangeRecord> changes) {
-        expect(changes, hasLength(7));
+        expect(changes, hasLength(4));
 
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
+        var r1 = changes[0] as MapChangeRecord;
         expect(r1.key, 'id');
         expect(r1.isInsert, isTrue);
         expect(r1.isRemove, isFalse);
 
-        var r2 = changes[2] as MapChangeRecord;
+        var r2 = changes[1] as MapChangeRecord;
         expect(r2.key, 'id');
         expect(r2.isInsert, isFalse);
         expect(r2.isRemove, isFalse);
 
-        var r3 = changes[3] as PropertyChangeRecord;
-        expect(r3.name, const Symbol('length'));
-
-        var r4 = changes[4] as MapChangeRecord;
+        var r4 = changes[2] as MapChangeRecord;
         expect(r4.key, 'bar');
         expect(r4.isInsert, isTrue);
         expect(r4.isRemove, isFalse);
 
-        var r5 = changes[5] as MapChangeRecord;
+        var r5 = changes[3] as MapChangeRecord;
         expect(r5.key, 'id');
         expect(r5.isInsert, isFalse);
         expect(r5.isRemove, isTrue);
-
-        var r6 = changes[6] as PropertyChangeRecord;
-        expect(r6.name, const Symbol('length'));
       }, count: 1));
       foo.id = 1;
       foo.id = 2;
@@ -157,12 +141,9 @@ main() {
 
       // Expect foo to receive notifications
       foo.changes.listen(expectAsync1((List<ChangeRecord> changes) {
-        expect(changes, hasLength(2));
+        expect(changes, hasLength(1));
 
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
+        var r1 = changes[0] as MapChangeRecord;
         expect(r1.key, 'id');
         expect(r1.isInsert, isTrue);
         expect(r1.isRemove, isFalse);
@@ -273,9 +254,6 @@ main() {
     });
     test('Works via dot-property access', () {
       expect(foo['global.idStr'], equals('Id #1'));
-    });
-    test('Does not crash on RawEntity', () {
-      expect(new streamy.RawEntity().global['foo'], isNull);
     });
     test('Observation with no dependencies', () {
       foo.global.changes.listen(expectAsync1((_) {}, count: 0));

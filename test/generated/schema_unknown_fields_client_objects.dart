@@ -4,14 +4,14 @@
  */
 library schemaunknownfieldstest.objects;
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:streamy/base.dart' as base;
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:observe/observe.dart' as obs;
 
 /// An EntityGlobalFn for Foo entities.
 typedef dynamic FooGlobalFn(Foo entity);
 
-class Foo extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class Foo extends base.EntityBase {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'baz',
   ]);
@@ -21,14 +21,12 @@ class Foo extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register(Foo, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
-  Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  Foo() : this.wrapMap(<String, dynamic>{});
+  Foo.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
 
   /// Foo's favorite baz.
   String get baz => this[r'baz'];
@@ -47,12 +45,16 @@ class Foo extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Foo.wrapMap(json);
   }
-  Foo clone() => super.clone();
+  Map toJson() {
+    Map json = new Map.from(base.getMap(this));
+    return json;
+  }
+  Foo clone() => copyInto(new Foo());
   Foo patch() => super.patch();
   Type get streamyType => Foo;
 }
@@ -60,8 +62,7 @@ class Foo extends streamy.EntityWrapper {
 /// An EntityGlobalFn for Bar entities.
 typedef dynamic BarGlobalFn(Bar entity);
 
-class Bar extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class Bar extends base.EntityBase {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
   static final String KIND = """type#bar""";
@@ -70,14 +71,12 @@ class Bar extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BarGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register(Bar, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
-  Bar() : super.wrap(new streamy.RawEntity(), (cloned) => new Bar._wrap(cloned), globals: _globals);
-  Bar.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Bar._wrap(cloned), globals: _globals);
-  Bar.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Bar._wrap(cloned), globals: _globals);
-  Bar._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Bar._wrap(cloned), globals: _globals);
-  Bar.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  Bar() : this.wrapMap(<String, dynamic>{});
+  Bar.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
   factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -89,12 +88,16 @@ class Bar extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Bar.wrapMap(json);
   }
-  Bar clone() => super.clone();
+  Map toJson() {
+    Map json = new Map.from(base.getMap(this));
+    return json;
+  }
+  Bar clone() => copyInto(new Bar());
   Bar patch() => super.patch();
   Type get streamyType => Bar;
 }

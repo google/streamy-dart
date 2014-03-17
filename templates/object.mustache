@@ -4,8 +4,7 @@ typedef dynamic {{name}}GlobalFn({{name}} entity);
 
 {{#docs}}/// {{.}}
 {{/docs}}
-class {{name}} extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class {{name}} extends base.EntityBase {
 
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
 {{#properties}}    r'{{raw_name}}',
@@ -17,28 +16,25 @@ class {{name}} extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, {{name}}GlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register({{name}}, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
+  
+  {{name}}() : this.wrapMap(<String, dynamic>{});
 
-  {{name}}() : super.wrap(new streamy.RawEntity(), (cloned) => new {{name}}._wrap(cloned), globals: _globals);
-  {{name}}.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new {{name}}._wrap(cloned), globals: _globals);
-  {{name}}.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new {{name}}._wrap(cloned), globals: _globals);
-
-  {{name}}._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new {{name}}._wrap(cloned), globals: _globals);
-
-  {{name}}.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  {{name}}.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
 
 {{#properties}}
 {{#docs}}  /// {{.}}
 {{/docs}}
   {{type}} get {{field_name}} => this[r'{{raw_name}}'];
   set {{field_name}}({{type}} value) {
-{{#list}}
+{{#list}}/*
     if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
-{{/list}}
+*/{{/list}}
     this[r'{{raw_name}}'] = value;
   }
   {{type}} {{remover_name}}() => remove(r'{{raw_name}}');
@@ -57,7 +53,7 @@ class {{name}} extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
 {{#properties}}
   {{#hasParseExpr}}
@@ -70,9 +66,8 @@ class {{name}} extends streamy.EntityWrapper {
     return new {{name}}.wrapMap(json);
   }
 
-{{#needsToJson}}
   Map toJson() {
-    Map json = super.toJson();
+    Map json = new Map.from(base.getMap(this));
 {{#properties}}
   {{#hasToJsonExpr}}
     streamy.serialize(json, r'{{raw_name}}', {{toJsonExpr}});
@@ -80,9 +75,8 @@ class {{name}} extends streamy.EntityWrapper {
 {{/properties}}
     return json;
   }
-{{/needsToJson}}
 
-  {{name}} clone() => super.clone();
+  {{name}} clone() => copyInto(new {{name}}());
   {{name}} patch() => super.patch();
 
   Type get streamyType => {{name}};

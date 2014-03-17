@@ -3,62 +3,6 @@ part of streamy.runtime;
 /// Public interface of Streamy entities.
 abstract class Entity {
 
-  const Entity.base();
-
-  /// Create a new [RawEntity].
-  factory Entity() => new RawEntity();
-
-  /// Create a [RawEntity] from a [Map].
-  factory Entity.fromMap(Map data) => new RawEntity.fromMap(data);
-
-  /// Type name as defined in the API.
-  String get apiType => 'Entity';
-
-  /// Whether this entity is frozen (read only).
-  bool get isFrozen;
-
-  /// Deep freeze (ha!) this entity to no longer allow changes.
-  void _freeze();
-
-  GlobalView get global => new GlobalView.empty();
-
-  /// Create a deep copy of this entity.
-  Entity clone();
-
-  /// Create a version of this entity which only contains its changes.
-  Entity patch();
-
-  /// Access entity data by field name.
-  dynamic operator[](String key);
-
-  /// Mutate entity data by field name.
-  void operator[]=(String key, dynamic value);
-
-  /// Determine whether this entity has a given field.
-  bool containsKey(String key);
-
-  /// Deprecated contains() method. Use [containsKey] instead.
-  @deprecated
-  bool contains(String key) => containsKey(key);
-
-  /// List of all field names in this [Entity]. Note, that when fields are added
-  /// or removed from the [Entity] they are also added or removed from the
-  /// returned [Iterable]. If you need to preserve the list of fields, make
-  /// your own copy. This is consistent with [Map.keys].
-  List<String> get fieldNames;
-
-  /// Remove and return the value of a given field in this entity.
-  dynamic remove(String key);
-
-  /// Return a JSON representation of this entity.
-  Map toJson();
-
-  /// Local data associated with this entity instance.
-  Map<String, dynamic> get local;
-
-  /// Return the Streamy implementation type of this entity.
-  Type get streamyType;
-
   /// Check for deep equality of entities (slow).
   /// TODO(arick): figure out a way to clean this up a bit.
   static bool deepEquals(Entity first, Entity second) {
@@ -74,9 +18,9 @@ abstract class Entity {
     }
 
     // Loop through each field, checking equality of the values.
-    var fieldNames = first.fieldNames.toList(growable: false);
+    var fieldNames = first.keys.toList(growable: false);
     var len = fieldNames.length;
-    if (len != second.fieldNames.length) {
+    if (len != second.keys.length) {
       return false;
     }
     for (var i = 0; i < len; i++) {
@@ -113,7 +57,7 @@ abstract class Entity {
   static int deepHashCode(Entity entity) {
     // Running total, kept under MAX_HASHCODE.
     var running = 0;
-    var fieldNames = new List.from(entity.fieldNames)..sort();
+    var fieldNames = new List.from(entity.keys)..sort();
     var len = fieldNames.length;
     for (var i = 0; i < len; i++) {
       running = ((17 * running) + fieldNames[i].hashCode) % MAX_HASHCODE;

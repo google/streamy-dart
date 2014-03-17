@@ -4,18 +4,6 @@ part of streamy.runtime;
 /// accessing field values.
 class RawEntity extends Entity implements Map, Observable {
 
-  RawEntity() : super.base() {
-    _data = new ObservableMap();
-  }
-
-  RawEntity.fromMap(Map map) : super.base() {
-    _data = toObservable(map);
-  }
-
-  RawEntity.wrapMap(ObservableMap map) : super.base() {
-    _data = map;
-  }
-
   bool _frozen = false;
 
   // Has this entity been frozen yet?

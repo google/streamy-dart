@@ -4,14 +4,14 @@
  */
 library methodgettest.objects;
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:streamy/base.dart' as base;
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:observe/observe.dart' as obs;
 
 /// An EntityGlobalFn for Foo entities.
 typedef dynamic FooGlobalFn(Foo entity);
 
-class Foo extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class Foo extends base.EntityBase {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'id',
     r'bar',
@@ -22,14 +22,12 @@ class Foo extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, FooGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register(Foo, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
-  Foo() : super.wrap(new streamy.RawEntity(), (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Foo._wrap(cloned), globals: _globals);
-  Foo.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  Foo() : this.wrapMap(<String, dynamic>{});
+  Foo.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
 
   /// Primary key.
   int get id => this[r'id'];
@@ -60,7 +58,7 @@ class Foo extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
     if (json.containsKey(r'baz')) {
       json[r'baz'] = streamy.atoi64(json[r'baz']);
@@ -69,11 +67,11 @@ class Foo extends streamy.EntityWrapper {
     return new Foo.wrapMap(json);
   }
   Map toJson() {
-    Map json = super.toJson();
+    Map json = new Map.from(base.getMap(this));
     streamy.serialize(json, r'baz', streamy.str);
     return json;
   }
-  Foo clone() => super.clone();
+  Foo clone() => copyInto(new Foo());
   Foo patch() => super.patch();
   Type get streamyType => Foo;
 }

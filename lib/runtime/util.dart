@@ -7,6 +7,10 @@ const MAX_HASHCODE = 33554432;
 
 typedef void CancelFn();
 
+class Cloneable {
+  dynamic clone();
+}
+
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;
 

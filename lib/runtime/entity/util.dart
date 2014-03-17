@@ -8,7 +8,7 @@ const TypeRegistry EMPTY_REGISTRY = const _EmptyTypeRegistry();
 
 void _freezeHelper(object) {
   if (object is Entity) {
-    object._freeze();
+    object.freeze();
   } else if (object is Map) {
     object.forEach((key, value) {
       if (value is ObservableList) {
@@ -295,4 +295,4 @@ _walk(initial, List<String> pieces) {
   return current;
 }
 
-freezeForTest(entity) => entity._freeze();
+freezeForTest(entity) => entity.freeze();

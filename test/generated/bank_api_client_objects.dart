@@ -4,14 +4,14 @@
  */
 library bank.objects;
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:streamy/base.dart' as base;
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:observe/observe.dart' as obs;
 
 /// An EntityGlobalFn for Branch entities.
 typedef dynamic BranchGlobalFn(Branch entity);
 
-class Branch extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class Branch extends base.EntityBase {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'id',
     r'name',
@@ -22,14 +22,12 @@ class Branch extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, BranchGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register(Branch, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
-  Branch() : super.wrap(new streamy.RawEntity(), (cloned) => new Branch._wrap(cloned), globals: _globals);
-  Branch.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Branch._wrap(cloned), globals: _globals);
-  Branch.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Branch._wrap(cloned), globals: _globals);
-  Branch._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Branch._wrap(cloned), globals: _globals);
-  Branch.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  Branch() : this.wrapMap(<String, dynamic>{});
+  Branch.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
 
   /// Primary key.
   fixnum.Int64 get id => this[r'id'];
@@ -60,7 +58,7 @@ class Branch extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
     if (json.containsKey(r'id')) {
       json[r'id'] = streamy.atoi64(json[r'id']);
@@ -72,11 +70,11 @@ class Branch extends streamy.EntityWrapper {
     return new Branch.wrapMap(json);
   }
   Map toJson() {
-    Map json = super.toJson();
+    Map json = new Map.from(base.getMap(this));
     streamy.serialize(json, r'id', streamy.str);
     return json;
   }
-  Branch clone() => super.clone();
+  Branch clone() => copyInto(new Branch());
   Branch patch() => super.patch();
   Type get streamyType => Branch;
 }
@@ -84,8 +82,7 @@ class Branch extends streamy.EntityWrapper {
 /// An EntityGlobalFn for Address entities.
 typedef dynamic AddressGlobalFn(Address entity);
 
-class Address extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class Address extends base.EntityBase {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
   ]);
   String get apiType => r'Address';
@@ -93,14 +90,12 @@ class Address extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, AddressGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register(Address, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
-  Address() : super.wrap(new streamy.RawEntity(), (cloned) => new Address._wrap(cloned), globals: _globals);
-  Address.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Address._wrap(cloned), globals: _globals);
-  Address.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Address._wrap(cloned), globals: _globals);
-  Address._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Address._wrap(cloned), globals: _globals);
-  Address.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  Address() : this.wrapMap(<String, dynamic>{});
+  Address.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
   factory Address.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
           new Address.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
@@ -112,12 +107,16 @@ class Address extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
     streamy.deserializeUnknown(json, KNOWN_PROPERTIES, typeRegistry);
     return new Address.wrapMap(json);
   }
-  Address clone() => super.clone();
+  Map toJson() {
+    Map json = new Map.from(base.getMap(this));
+    return json;
+  }
+  Address clone() => copyInto(new Address());
   Address patch() => super.patch();
   Type get streamyType => Address;
 }
@@ -125,8 +124,7 @@ class Address extends streamy.EntityWrapper {
 /// An EntityGlobalFn for Account entities.
 typedef dynamic AccountGlobalFn(Account entity);
 
-class Account extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class Account extends base.EntityBase {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'account_number',
     r'branch_id',
@@ -139,14 +137,12 @@ class Account extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, AccountGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register(Account, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
-  Account() : super.wrap(new streamy.RawEntity(), (cloned) => new Account._wrap(cloned), globals: _globals);
-  Account.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Account._wrap(cloned), globals: _globals);
-  Account.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Account._wrap(cloned), globals: _globals);
-  Account._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Account._wrap(cloned), globals: _globals);
-  Account.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  Account() : this.wrapMap(<String, dynamic>{});
+  Account.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
 
   /// Account number.
   fixnum.Int64 get account_number => this[r'account_number'];
@@ -193,7 +189,7 @@ class Account extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
     if (json.containsKey(r'account_number')) {
       json[r'account_number'] = streamy.atoi64(json[r'account_number']);
@@ -205,12 +201,12 @@ class Account extends streamy.EntityWrapper {
     return new Account.wrapMap(json);
   }
   Map toJson() {
-    Map json = super.toJson();
+    Map json = new Map.from(base.getMap(this));
     streamy.serialize(json, r'account_number', streamy.str);
     streamy.serialize(json, r'balance', streamy.str);
     return json;
   }
-  Account clone() => super.clone();
+  Account clone() => copyInto(new Account());
   Account patch() => super.patch();
   Type get streamyType => Account;
 }
@@ -218,8 +214,7 @@ class Account extends streamy.EntityWrapper {
 /// An EntityGlobalFn for Customer entities.
 typedef dynamic CustomerGlobalFn(Customer entity);
 
-class Customer extends streamy.EntityWrapper {
-  static final Map<String, streamy.GlobalRegistration> _globals = <String, streamy.GlobalRegistration>{};
+class Customer extends base.EntityBase {
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
     r'accounts',
     r'name',
@@ -229,21 +224,21 @@ class Customer extends streamy.EntityWrapper {
   /// Add a global computed synthetic property to this entity type, optionally memoized.
   static void addGlobal(String name, CustomerGlobalFn computeFn,
       {bool memoize: false, List dependencies: null}) {
-    _globals[name] = new streamy.GlobalRegistration(computeFn, dependencies, memoize);
+    streamy.GlobalView.register(Customer, name, new streamy.GlobalRegistration(computeFn, dependencies, memoize));
   }
-  Customer() : super.wrap(new streamy.RawEntity(), (cloned) => new Customer._wrap(cloned), globals: _globals);
-  Customer.fromMap(Map map) : super.wrap(new streamy.RawEntity.fromMap(map), (cloned) => new Customer._wrap(cloned), globals: _globals);
-  Customer.wrapMap(obs.ObservableMap map) : super.wrap(new streamy.RawEntity.wrapMap(map), (cloned) => new Customer._wrap(cloned), globals: _globals);
-  Customer._wrap(streamy.Entity entity) : super.wrap(entity, (cloned) => new Customer._wrap(cloned), globals: _globals);
-  Customer.wrap(streamy.Entity entity, streamy.EntityWrapperCloneFn cloneWrapper) :
-      super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
+  Customer() : this.wrapMap(<String, dynamic>{});
+  Customer.wrapMap(Map map) {
+    base.setMap(this, map);
+  }
 
   /// Customer's account numbers.
   List<fixnum.Int64> get accounts => this[r'accounts'];
   set accounts(List<fixnum.Int64> value) {
+/*
     if (value != null && value is! obs.ObservableList) {
       value = new obs.ObservableList.from(value);
     }
+*/
     this[r'accounts'] = value;
   }
   List<fixnum.Int64> removeAccounts() => remove(r'accounts');
@@ -265,7 +260,7 @@ class Customer extends streamy.EntityWrapper {
       return null;
     }
     if (copy) {
-      json = new obs.ObservableMap.from(json);
+      json = new Map.from(json);
     }
     if (json.containsKey(r'accounts')) {
       json[r'accounts'] = streamy.mapInline(streamy.atoi64)(json[r'accounts']);
@@ -274,11 +269,11 @@ class Customer extends streamy.EntityWrapper {
     return new Customer.wrapMap(json);
   }
   Map toJson() {
-    Map json = super.toJson();
+    Map json = new Map.from(base.getMap(this));
     streamy.serialize(json, r'accounts', streamy.mapCopy(streamy.str));
     return json;
   }
-  Customer clone() => super.clone();
+  Customer clone() => copyInto(new Customer());
   Customer patch() => super.patch();
   Type get streamyType => Customer;
 }
