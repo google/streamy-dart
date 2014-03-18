@@ -5,21 +5,22 @@
  */
 library streamy.benchmarks;
 
-import 'package:streamy/base.dart' as base;
+import 'generated/schema_object_client_objects.dart';
 import 'package:benchmark_harness/benchmark_harness.dart';
 
 class SuperCall extends BenchmarkBase {
  
-  SuperCall() : super("super()");
-  var map = {'foo': 1, 'bar': 2, 'baz': 3};
+  SuperCall() : super("Test");
+  
   var count = 0;
   
-  get foo => this['foo'];
-  
-  operator[](String key) => map[key];
-  
   void run() {
-    count += foo;
+    var f = new Foo()
+      ..id = 7
+      ..bar = "hello world";
+  }
+  
+  void setup() {
   }
   
   void teardown() {
@@ -29,5 +30,4 @@ class SuperCall extends BenchmarkBase {
 
 main() {
   new SuperCall().report();
-  
 }
