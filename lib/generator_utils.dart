@@ -27,7 +27,9 @@ Future generateStreamyClientLibrary(
     fileName = discovery.name;
   }
 
-  var basePath = '${outputDir.path}/$fileName';
+  var libDirPath = '${outputDir.path}/lib';
+  new io.Directory(libDirPath).createSync(recursive: true);
+  var basePath = '${libDirPath}/$fileName';
   var rootOut = new io.File('${basePath}.dart').openWrite();
   var resourceOut = new io.File('${basePath}_resources.dart').openWrite();
   var requestOut = new io.File('${basePath}_requests.dart').openWrite();
