@@ -25,7 +25,14 @@ main(List<String> args) {
 
 void parseArgs(List<String> arguments) {
   var errors = <String>[];
-  var argp = new ArgParser()
+  var argp = new ArgParser();
+
+  printUsage() {
+    print(argp.getUsage());
+    io.exit(1);
+  }
+
+  argp
     ..addOption(
       'client-file-name',
       abbr: 'c',
@@ -110,13 +117,21 @@ void parseArgs(List<String> arguments) {
               'version will be used instead of pub version.',
         callback: (String value) {
           localStreamyLocation = value;
-        });
+        })
+    ..addFlag(
+        'help',
+        abbr: 'h',
+        help: 'display commandline help options',
+        negatable: false,
+        callback: (bool value) => value ? printUsage() : null
+        );
+
   argp.parse(arguments);
   if (errors.length > 0) {
-    errors.map((e) {
+    errors.forEach((e) {
+      // TODO: use logging for errors
       print('ERROR: $e');
     });
-    print(argp.getUsage());
-    io.exit(1);
+    printUsage();
   }
 }
