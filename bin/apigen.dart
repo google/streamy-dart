@@ -28,6 +28,9 @@ main(List<String> args) {
 }
 
 void parseArgs(List<String> arguments) {
+  final String locataionErrorMessage = 'both local-streamy-location and '
+      'remote-streamy-location simultaneously not supported';
+
   var errors = <String>[];
   var argp = new ArgParser();
 
@@ -121,8 +124,7 @@ void parseArgs(List<String> arguments) {
               'version will be used instead of pub version.',
         callback: (String value) {
           if (remoteStreamyLocation != null && !isBlank(value)) {
-            errors.add('cannot set local-streamy-location if '
-                       'remote-streamy-location is already set');
+            errors.add(locataionErrorMessage);
             return;
           }
           localStreamyLocation = value;
@@ -133,16 +135,14 @@ void parseArgs(List<String> arguments) {
         help: 'display commandline help options',
         negatable: false,
         callback: (bool value) => value ? printUsage() : null
-        );
-
+        )
     ..addOption(
         'remote-streamy-location',
         help: 'Remote to a git Streamy repository. If specified the remote '
               'version will be used instead of pub version.',
         callback: (String value) {
           if (localStreamyLocation != null && !isBlank(value)) {
-            errors.add('cannot set remote-streamy-location if '
-                       'local-streamy-location is already set');
+            errors.add(locataionErrorMessage);
             return;
           }
           remoteStreamyLocation = value;
