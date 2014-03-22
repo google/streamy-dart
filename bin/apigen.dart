@@ -134,8 +134,7 @@ void parseArgs(List<String> arguments) {
         abbr: 'h',
         help: 'display commandline help options',
         negatable: false,
-        callback: (bool value) => value ? printUsage() : null
-        )
+        callback: (bool value) => value ? printUsage() : null)
     ..addOption(
         'remote-streamy-location',
         help: 'Remote to a git Streamy repository. If specified the remote '
