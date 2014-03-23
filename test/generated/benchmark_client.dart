@@ -13,7 +13,8 @@ abstract class SchemaObjectTestResourcesMixin {
 class SchemaObjectTest
     extends streamy.Root
     with SchemaObjectTestResourcesMixin {
-  String get apiType => r'SchemaObjectTest';
+  static final API_TYPE = r'SchemaObjectTest';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -38,7 +39,8 @@ class SchemaObjectTest
 class SchemaObjectTestTransaction
     extends streamy.TransactionRoot
     with SchemaObjectTestResourcesMixin {
-  String get apiType => r'SchemaObjectTestTransaction';
+  static final API_TYPE = r'SchemaObjectTestTransaction';
+  String get apiType => API_TYPE;
   SchemaObjectTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

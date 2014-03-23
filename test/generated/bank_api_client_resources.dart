@@ -14,7 +14,8 @@ class BranchesResource {
     r'get',
     r'insert',
   ];
-  String get apiType => r'BranchesResource';
+  static final API_TYPE = r'BranchesResource';
+  String get apiType => API_TYPE;
   BranchesResource(this._root);
 
   /// Retrieves branch information

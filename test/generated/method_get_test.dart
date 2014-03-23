@@ -5,6 +5,8 @@ import 'package:json/json.dart';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 import 'method_get_client.dart';
+import 'method_get_client_requests.dart';
+import 'method_get_client_resources.dart';
 import 'method_get_client_objects.dart';
 
 main() {
@@ -36,12 +38,24 @@ main() {
   });
   group('apiType', () {
     test('of MethodGetTest', () {
+      expect(MethodGetTest.API_TYPE, 'MethodGetTest');
       expect(new MethodGetTest(null).apiType, 'MethodGetTest');
     });
+    test('of MethodGetTestTransaction', () {
+      expect(MethodGetTestTransaction.API_TYPE, 'MethodGetTestTransaction');
+      expect(new MethodGetTestTransaction(null, null, null).apiType,
+          'MethodGetTestTransaction');
+    });
     test('of Foo', () {
+      expect(Foo.API_TYPE, 'Foo');
       expect(new Foo().apiType, 'Foo');
     });
+    test('of FoosResource', () {
+      expect(FoosResource.API_TYPE, 'FoosResource');
+      expect(new MethodGetTest(null).foos.apiType, 'FoosResource');
+    });
     test('of FoosGetRequest', () {
+      expect(FoosGetRequest.API_TYPE, 'FoosGetRequest');
       expect(new MethodGetTest(null).foos.get(1).apiType, 'FoosGetRequest');
     });
   });

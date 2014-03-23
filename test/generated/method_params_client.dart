@@ -20,7 +20,8 @@ abstract class MethodParamsTestResourcesMixin {
 class MethodParamsTest
     extends streamy.Root
     with MethodParamsTestResourcesMixin {
-  String get apiType => r'MethodParamsTest';
+  static final API_TYPE = r'MethodParamsTest';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -45,7 +46,8 @@ class MethodParamsTest
 class MethodParamsTestTransaction
     extends streamy.TransactionRoot
     with MethodParamsTestResourcesMixin {
-  String get apiType => r'MethodParamsTestTransaction';
+  static final API_TYPE = r'MethodParamsTestTransaction';
+  String get apiType => API_TYPE;
   MethodParamsTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

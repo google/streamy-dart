@@ -13,7 +13,8 @@ class BranchesGetRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
     r'branchId',
   ];
-  String get apiType => r'BranchesGetRequest';
+  static final API_TYPE = r'BranchesGetRequest';
+  String get apiType => API_TYPE;
   String get httpMethod => 'GET';
   String get pathFormat => 'branches/{branchId}';
   bool get hasPayload => false;
@@ -44,7 +45,8 @@ class BranchesGetRequest extends streamy.Request {
 class BranchesInsertRequest extends streamy.Request {
   static final List<String> KNOWN_PARAMETERS = [
   ];
-  String get apiType => r'BranchesInsertRequest';
+  static final API_TYPE = r'BranchesInsertRequest';
+  String get apiType => API_TYPE;
   obj.Branch get payload => streamy.internalGetPayload(this);
   String get httpMethod => 'POST';
   String get pathFormat => 'branches';

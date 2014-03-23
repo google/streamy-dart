@@ -20,7 +20,8 @@ abstract class AddendumApiResourcesMixin {
 class AddendumApi
     extends streamy.Root
     with AddendumApiResourcesMixin {
-  String get apiType => r'AddendumTest';
+  static final API_TYPE = r'AddendumTest';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -45,7 +46,8 @@ class AddendumApi
 class AddendumApiTransaction
     extends streamy.TransactionRoot
     with AddendumApiResourcesMixin {
-  String get apiType => r'AddendumTestTransaction';
+  static final API_TYPE = r'AddendumTestTransaction';
+  String get apiType => API_TYPE;
   AddendumApiTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

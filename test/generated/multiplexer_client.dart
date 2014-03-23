@@ -20,7 +20,8 @@ abstract class MultiplexerTestResourcesMixin {
 class MultiplexerTest
     extends streamy.Root
     with MultiplexerTestResourcesMixin {
-  String get apiType => r'MultiplexerTest';
+  static final API_TYPE = r'MultiplexerTest';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -45,7 +46,8 @@ class MultiplexerTest
 class MultiplexerTestTransaction
     extends streamy.TransactionRoot
     with MultiplexerTestResourcesMixin {
-  String get apiType => r'MultiplexerTestTransaction';
+  static final API_TYPE = r'MultiplexerTestTransaction';
+  String get apiType => API_TYPE;
   MultiplexerTestTransaction(
       streamy.TypeRegistry typeRegistry,
       String servicePath,

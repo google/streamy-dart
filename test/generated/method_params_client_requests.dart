@@ -17,7 +17,8 @@ class FoosGetRequest extends streamy.Request {
     r'param2',
     r'param3',
   ];
-  String get apiType => r'FoosGetRequest';
+  static final API_TYPE = r'FoosGetRequest';
+  String get apiType => API_TYPE;
   String get httpMethod => 'GET';
   String get pathFormat => 'foos/{barId}/{fooId}';
   bool get hasPayload => false;
