@@ -16,7 +16,9 @@ Future generateStreamyClientLibrary(
     io.Directory templatesDir,
     String fileName,
     String libVersion: '0.0.0',
-    String localStreamyLocation}) {
+    String localStreamyLocation,
+    String remoteStreamyLocation,
+    String remoteBranch}) {
   var json = discoveryFile.readAsStringSync(encoding: convert.UTF8);
   var discovery = new Discovery.fromJsonString(json);
   var addendumData = {};
@@ -54,10 +56,18 @@ Future generateStreamyClientLibrary(
       : 'https://github.com/google/streamy-dart';
 
   var streamyVersion = '">=0.0.7"';
-  if (localStreamyLocation != null) {
+  if (localStreamyLocation != null && remoteStreamyLocation == null) {
     streamyVersion = '''
 
     path: ${localStreamyLocation}''';
+  }
+
+  if (remoteStreamyLocation != null && localStreamyLocation == null) {
+    streamyVersion = '''
+
+    git:
+      url: ${remoteStreamyLocation}
+      ref: ${remoteBranch}''';
   }
 
   mus.Template pubspecTemplate = mus.parse(templateProvider['pubspec']);

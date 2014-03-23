@@ -11,6 +11,8 @@ io.Directory templatesDir;
 String clientFileName;
 String libVersion;
 String localStreamyLocation;
+String remoteStreamyLocation;
+String remoteBranch;
 
 /// Generates an API client from a Google API discovery file.
 main(List<String> args) {
@@ -20,10 +22,15 @@ main(List<String> args) {
       templatesDir: templatesDir,
       libVersion: libVersion,
       localStreamyLocation: localStreamyLocation,
-      fileName: clientFileName);
+      fileName: clientFileName,
+      remoteStreamyLocation: remoteStreamyLocation,
+      remoteBranch: remoteBranch);
 }
 
 void parseArgs(List<String> arguments) {
+  final String locataionErrorMessage = 'both local-streamy-location and '
+      'remote-streamy-location simultaneously not supported';
+
   var errors = <String>[];
   var argp = new ArgParser();
 
@@ -116,6 +123,10 @@ void parseArgs(List<String> arguments) {
         help: 'Path to a local Streamy package. If specified the local '
               'version will be used instead of pub version.',
         callback: (String value) {
+          if (remoteStreamyLocation != null && !isBlank(value)) {
+            errors.add(locataionErrorMessage);
+            return;
+          }
           localStreamyLocation = value;
         })
     ..addFlag(
@@ -123,9 +134,25 @@ void parseArgs(List<String> arguments) {
         abbr: 'h',
         help: 'display commandline help options',
         negatable: false,
-        callback: (bool value) => value ? printUsage() : null
-        );
-
+        callback: (bool value) => value ? printUsage() : null)
+    ..addOption(
+        'remote-streamy-location',
+        help: 'Remote to a git Streamy repository. If specified the remote '
+              'version will be used instead of pub version.',
+        callback: (String value) {
+          if (localStreamyLocation != null && !isBlank(value)) {
+            errors.add(locataionErrorMessage);
+            return;
+          }
+          remoteStreamyLocation = value;
+        })
+    ..addOption(
+        'remote-branch',
+        defaultsTo: 'master',
+        help: 'Remote branch name to use',
+        callback: (String value) {
+          remoteBranch = value;
+        });
   argp.parse(arguments);
   if (errors.length > 0) {
     errors.forEach((e) {
