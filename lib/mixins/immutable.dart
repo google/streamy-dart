@@ -1,6 +1,8 @@
 library streamy.trait.immutable;
 
-class Immutability {
+import 'package:streamy/streamy.dart' as streamy;
+
+class Immutability implements streamy.Freezeable {
   
   bool _isFrozen = false;
   

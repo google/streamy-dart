@@ -49,7 +49,7 @@ class Observability implements observe.Observable {
         notifyChange(new observe.MapChangeRecord<String, dynamic>.insert(key, value));
       }
     }
-    if (value is List && value is! observe.ObservableList && value != null) {
+    if (value != null && value is List && value is! observe.ObservableList) {
       value = new observe.ObservableList.from(value);
     }
     super[key] = value;

@@ -2,7 +2,7 @@ library streamy.trait.base.map;
 
 import 'package:streamy/streamy.dart' as streamy;
 
-class MapBase implements streamy.Entity {
+class MapBase implements streamy.DynamicAccess {
   var _map;
   
   Iterable<String> get keys => _map.keys;
@@ -12,4 +12,9 @@ class MapBase implements streamy.Entity {
     _map[key] = value;
   }
   remove(String key) => _map.remove(key);
+}
+
+Map getMap(MapBase entity) => entity._map;
+void setMap(MapBase entity, map) {
+  entity._map = map;
 }

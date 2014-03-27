@@ -70,6 +70,7 @@ class _Emitter {
   _InternalTemplate _resource;
   _InternalTemplate _resourceFileHeader;
   _InternalTemplate _request;
+  _InternalTemplate _deserializer;
   _InternalTemplate _requestFileHeader;
 
   final EmitterConfig _conf;
@@ -91,6 +92,7 @@ class _Emitter {
     _resource = _tmpl('resource', _conf.resourceCodeSink);
     _resourceFileHeader = _tmpl('resource_file_header', _conf.resourceCodeSink);
     _request = _tmpl('request', _conf.requestCodeSink);
+    _deserializer = _tmpl('deserializer', _conf.requestCodeSink);
     _requestFileHeader = _tmpl('request_file_header', _conf.requestCodeSink);
 
     _discoveryName = _capitalize(_conf.discovery.name);
@@ -145,9 +147,11 @@ class _Emitter {
     _resourceFileHeader.render(headerData);
     _requestFileHeader.render(headerData);
     _objectFileHeader.render(headerData);
+    
+    var deserializeTypes = {};
 
     _conf.discovery.schemas.forEach((String id, TypeDescriptor type) {
-      processType(id, type);
+      processType(id, type, deserializeType);
     });
 
     List<Map> resourceFields = new List.from(
@@ -230,7 +234,7 @@ class _Emitter {
 
   /// Renders any object definitions declared by the type and returns the Dart
   /// name of the type.
-  ProcessTypeResult processType(String name, TypeDescriptor type) {
+  ProcessTypeResult processType(String name, TypeDescriptor type, Map deserializeTypes) {
     switch(type.type) {
       case ANY_TYPE:
       case BOOLEAN_TYPE:
@@ -243,25 +247,26 @@ class _Emitter {
         return new ProcessTypeResult.object(
             _makeClassName(type.ref));
       case ARRAY_TYPE:
-        ProcessTypeResult elemTypeResult = processType(name, type.items);
+        ProcessTypeResult elemTypeResult = processType(name, type.items, deserializeTypes);
         return new ProcessTypeResult.list(elemTypeResult);
       case OBJECT_TYPE:
         var className = _makeClassName(name);
-        processObjectType(className, type);
+        processObjectType(className, type, deserializeTypes);
         return new ProcessTypeResult.object(className);
     }
     throw new ApigenException('Unsupported type ${type.type}');
   }
 
-  void processObjectType(String className, TypeDescriptor type) {
+  void processObjectType(String className, TypeDescriptor type, Map deserializeTypes) {
     var properties = <Map>[];
     bool needsToJson = false;
+    var deserialize = {};
     type.properties.forEach((String propertyName, TypeDescriptor propertyType) {
       String fieldName = _makePropertyName(propertyName);
       String removerName = _makeRemoverName(fieldName);
       String classNameSuffix = _makeClassName(propertyName);
       ProcessTypeResult proctr =
-          processType('${className}_${classNameSuffix}', propertyType);
+          processType('${className}_${classNameSuffix}', propertyType, deserializeTypes);
       var propertyData = {
         'type': proctr.typeName,
         'raw_name': propertyName,
@@ -298,6 +303,8 @@ class _Emitter {
       'kind': type.kind,
       'needsToJson': needsToJson,
     });
+    
+    if (deserializeTypes)
   }
 
   String _makePropertyName(String name) {

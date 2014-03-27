@@ -6,6 +6,7 @@ typedef dynamic {{name}}GlobalFn({{name}} entity);
 {{/docs}}
 class {{name}} extends base.EntityBase {
 
+
   static final Set<String> KNOWN_PROPERTIES = new Set<String>.from([
 {{#properties}}    r'{{raw_name}}',
 {{/properties}}  ]);
@@ -30,11 +31,6 @@ class {{name}} extends base.EntityBase {
 {{/docs}}
   {{type}} get {{field_name}} => this[r'{{raw_name}}'];
   set {{field_name}}({{type}} value) {
-{{#list}}/*
-    if (value != null && value is! obs.ObservableList) {
-      value = new obs.ObservableList.from(value);
-    }
-*/{{/list}}
     this[r'{{raw_name}}'] = value;
   }
   {{type}} {{remover_name}}() => remove(r'{{raw_name}}');

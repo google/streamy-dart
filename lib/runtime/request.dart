@@ -78,7 +78,7 @@ class TransactionRoot extends Root {
 RegExp pathRegex = new RegExp(r'(\{[^\}]+\})');
 
 /// An HTTP request described by the API.
-abstract class Request {
+abstract class HttpRequest {
 
   /// Type name as defined in the API.
   String get apiType => 'Request';
@@ -93,7 +93,7 @@ abstract class Request {
   final Map<String, dynamic> localParameters = {};
 
   /// Payload, if any.
-  final Entity _payload;
+  final DynamicAccess _payload;
 
   /// These getters access general information about this type of request.
 

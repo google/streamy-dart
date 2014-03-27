@@ -6,12 +6,7 @@ class Global {
 
   var _global;
   
-  operator[](String key) {
-    if (key == "global") {
-      return global;
-    }
-    return super[key];
-  }
+  operator[](String key) => key == 'global' ? global : super[key];
   
   streamy.GlobalView get global {
     if (_global == null) {
