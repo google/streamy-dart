@@ -1,0 +1,9 @@
+name: transformer_test
+version: 0.0.1
+description: >
+  Tests Streamy transformers.
+dependencies:
+  streamy:
+    path: ../..
+transformers:
+- streamy

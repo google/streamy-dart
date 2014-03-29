@@ -11,3 +11,9 @@ dart -c bin/apigen.dart \
 (cd integration/apigen_test && \
   pub get && \
   dart -c bin/main.dart)
+
+# Run transformer test
+(cd integration/transformer_test && \
+  pub get && \
+  pub build bin && \
+  dart -c --package-root=build bin/main.dart)
