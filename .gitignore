@@ -7,3 +7,4 @@ dartsdk-linux-64.tar.gz
 .settings
 test/benchmark_html.dart.*
 .idea
+integration/bankapi

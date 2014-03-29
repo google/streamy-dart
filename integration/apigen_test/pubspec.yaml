@@ -1,0 +1,9 @@
+name: apigen_test
+version: 0.0.1
+description: >
+  Tests apigen.dart utility.
+dependencies:
+  streamy:
+    path: ../..
+  Bank_v1:
+    path: ../bankapi
