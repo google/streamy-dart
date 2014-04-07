@@ -33,19 +33,13 @@ class StreamyTransformer extends Transformer
     print('[streamy] StreamyTransformer initialized');
   }
 
-  // TODO: use extension '.api.json' when dartbug.com/17167 is fixed.
   @override
-  String get allowedExtensions => '.json';
+  String get allowedExtensions => '.api.json';
 
   @override
   Future apply(Transform transform) {
     var discoveryAsset = transform.primaryInput;
     var discoveryAssetId = discoveryAsset.id;
-
-    // TODO: remove when allowedExtensions is fixed
-    if (!discoveryAssetId.path.endsWith('.api.json')) {
-      return new Future.value(null);
-    }
 
     var filebase = discoveryAssetId.path
         .substring(0, discoveryAssetId.path.length - 9);
