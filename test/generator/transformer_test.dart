@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'package:barback/barback.dart';
 import 'package:quiver/iterables.dart';
-import 'package:streamy/generator/transformer.dart';
+import 'package:streamy/transformer.dart';
 import 'package:unittest/unittest.dart';
 import '../project.dart';
 import '../test_data.dart';

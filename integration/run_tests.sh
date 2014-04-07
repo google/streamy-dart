@@ -1,7 +1,9 @@
-#!/bin/bash -x
+#!/bin/bash -x -e
 
 # Run apigen test
+set +e
 mkdir integration/bankapi
+set -e
 dart -c bin/apigen.dart \
   --client-file-name=bankapi \
   --discovery-file=test/generated/bank_api_test.json \
@@ -15,5 +17,5 @@ dart -c bin/apigen.dart \
 # Run transformer test
 (cd integration/transformer_test && \
   pub get && \
-  pub build bin && \
-  dart -c --package-root=build bin/main.dart)
+  pub build --mode debug bin && \
+  dart -c --package-root=build/bin/packages bin/main.dart)

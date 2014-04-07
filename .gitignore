@@ -8,3 +8,5 @@ dartsdk-linux-64.tar.gz
 test/benchmark_html.dart.*
 .idea
 integration/bankapi
+integration/apigen_test/build
+integration/transformer_test/build

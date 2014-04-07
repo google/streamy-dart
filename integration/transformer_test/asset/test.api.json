@@ -1,0 +1,16 @@
+{
+  "name": "Test",
+  "servicePath": "test/v1/",
+  "schemas": {
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "bar": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    }
+  }
+}

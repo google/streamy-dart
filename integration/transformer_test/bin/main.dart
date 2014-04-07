@@ -1,7 +1,8 @@
-import 'package:Bank_v1/bankapi_objects.dart';
+import 'package:transformer_test/test_objects.dart';
+import 'package:fixnum/fixnum.dart';
 
 main() {
-  var branch = new Branch();
-  branch.name = 'San Francisco North';
-  print(branch.name);
+  var foo = new Foo();
+  foo.bar = new Int64(123);
+  print(foo.bar);
 }
