@@ -1,16 +1,14 @@
 part of streamy.generator;
 
-Api parse(Map discovery, Map addendum) {
+Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
-  var version = discovery['version'];
-  var url = discovery['rootUrl'];
-  var api = new Api(name, discovery['name'], version, url);
+  var api = new Api(full['name'], full['description'], discovery['name'], full['version'], full['rootUrl']);
 
-  if (discovery.containsKey('schemas')) {
-    discovery['schemas']
+  if (full.containsKey('schemas')) {
+    full['schemas']
       .keys
       .forEach((key) {
-        var schema = schemas[key];
+        var schema = full['schemas'][key];
         var type = new Schema(schema['id']);
         
         var props = {};
@@ -30,12 +28,28 @@ Api parse(Map discovery, Map addendum) {
       });
   }
   
-  if (discovery.containsKey('resources')) {
-    discovery['resources']
+  if (full.containsKey('resources')) {
+    full['resources']
       .keys
       .forEach((key) {
-        var resource = resources[key];
+        var resource = full['resources'][key];
         var type = new Resource(key);
+        if (resource.containsKey('methods')) {
+          var methods = resource['methods'];
+          methods.forEach((name, method) {
+            var payloadType = null;
+            var responseType = null;
+            if (method.containsKey('request')) {
+              payloadType = _parseType(method['request']);
+            }
+            if (method.containsKey('response')) {
+              responseType = _parseType(method['response']);
+            }
+            type.methods[name] = new Method(name, method['path'],
+                method['httpMethod'], payloadType, responseType);
+          });
+        }
+        api.resources[key] = type;
       });
   }
   return api;
@@ -63,7 +77,8 @@ TypeRef _parseType(Map type) {
               ref = const TypeRef.int64();
               break;
             case 'double':
-              ref = const TypeRef.int64();
+              ref = const TypeRef.double();
+              break;
             default:
           }
         }
@@ -97,7 +112,7 @@ Map _mergeMaps(Map a, Map b) {
       if (bVal == null || aVal == null) {
         out[key] = aVal;
       } else if (aVal is Map && bVal is Map) {
-        out[key] = _mergeMaps(aVal, bVal)
+        out[key] = _mergeMaps(aVal, bVal);
       } else {
         out[key] = bVal;
       }

@@ -1,5 +1,177 @@
 part of streamy.generator;
 
+const SPLIT_LEVEL_NONE = 1;
+const SPLIT_LEVEL_PARTS = 2;
+const SPLIT_LEVEL_LIBS = 3;
+
+class Emitter {
+  final int splitLevel;
+  final PathConfig pathConfig;
+  final TemplateLoader loader;
+  
+  Emitter(
+      this.splitLevel,
+      this.pathConfig,
+      this.loader);
+  
+  List<DartFile> process(Api api) {
+    var rootFile, rootPrefix;
+    var resourceFile, resourcePrefix;
+    var requestFile, requestPrefix;
+    var objectFile, objectPrefix;
+    var libPrefix = api.name;
+    if (api.version != null) {
+      libPrefix = "$libPrefix.${api.version}";
+    }
+    rootFile = new DartLibrary(libPrefix);
+    rootFile.imports['package:streamy/streamy.dart'] = 'streamy';
+    var out = [rootFile];
+    switch (splitLevel) {
+      case SPLIT_LEVEL_NONE:
+        resourceFile = rootFile;
+        requestFile = rootFile;
+        objectFile = rootFile;
+        break;
+      case SPLIT_LEVEL_PARTS:
+        resourceFile = new DartLibraryPart(rootFile.libraryName,
+            pathConfig.relativePath('resources.dart'));
+        requestFile = new DartLibraryPart(rootFile.libraryName,
+            pathConfig.relativePath('requests.dart'));
+        objectFile = new DartLibraryPart(rootFile.libraryName,
+            pathConfig.relativePath('objects.dart'));
+        rootFile.parts.addAll([resourceFile, requestFile, objectFile]);
+        out.addAll([resourceFile, requestFile, objectFile]);
+        break;
+      case SPLIT_LEVEL_LIBS:
+        resourceFile = new DartLibrary('$libPrefix.resources');
+        requestFile = new DartLibrary('$libPrefix.requests');
+        objectFile = new DartLibrary('$libPrefix.objects');
+        resourcePrefix = 'resources';
+        requestPrefix = 'requests';
+        objectPrefix = 'objects';
+        rootFile.imports
+          ..[pathConfig.importPath('resources.dart')] = 'resources'
+          ..[pathConfig.importPath('requests.dart')] = 'requests'
+          ..[pathConfig.importPath('objects.dart')] = 'objects';
+        resourceFile.imports['package:streamy/streamy.dart'] = 'streamy';
+        requestFile.imports['package:streamy/streamy.dart'] = 'streamy';
+        objectFile.imports['package:streamy/streamy.dart'] = 'streamy';
+        out.addAll([resourceFile, requestFile, objectFile]);
+        break;
+    }
+    
+    // Root class
+    rootFile.classes.add(processRoot(api, resourcePrefix));
+    
+    processResources(api, resourceFile, resourcePrefix, requestPrefix, objectPrefix);
+    return out;
+  }
+  
+  DartFile processRoot(Api api, String resourcePrefix) {
+    // Create the root API class.
+    var root = new DartClass(toProperIdentifier(api.name));
+    if (api.description != null) {
+      root.comments.addAll(splitStringAcrossLines(api.description));
+    }
+    
+    // Set up a _rh field for the implementation RequestHandler, and a
+    // constructor that sets it.
+    var rhType = streamyImport('RequestHandler');
+    root.fields.add(new DartSimpleField('_rh', rhType, isFinal: true));
+    var ctor = new DartConstructor(root.name, [
+      new DartParameter('_rh', rhType, isDirectAssignment: true)
+    ]);
+    root.methods.add(ctor);
+    
+    // Implement backing fields and lazy getters for each resource type.
+    var getterTemplate = loader.load('lazy_resource_getter');
+    api.resources.forEach((name, resource) {
+      // Backing field.
+      var fieldName = "_${resource.name}";
+      var type = new DartType(toProperIdentifier(resource.name), resourcePrefix, const []);
+      var field = new DartSimpleField(fieldName, type);
+      root.fields.add(field);
+      
+      // Lazy getter.
+      var getter = new DartComplexField.getterOnly(resource.name, type,
+          new DartTemplateBody(getterTemplate, {'field': fieldName, 'resource': type}));
+      root.fields.add(getter);
+    });
+    return root;
+  }
+
+  List<DartClass> processResources(Api api, String requestPrefix, String objectPrefix) =>
+    api
+      .resources
+      .map((resource) => processResource(resource, requestPrefix, objectPrefix))
+      .toList(growable: false);
+  
+  DartClass processResource(Resource resource, String requestPrefix, String objectPrefix) {
+    var name = toProperIdentifier(resource.name);
+    var clazz = new DartClass(toProperIdentifier(resource.name));
+    
+    // Set up a _rh field for the implementation RequestHandler, and a
+    // constructor that sets it.
+    var rhType = streamyImport('RequestHandler');
+    clazz.fields.add(new DartSimpleField('_rh', rhType, isFinal: true));
+    var ctor = new DartConstructor(clazz.name, [
+      new DartParameter('_rh', rhType, isDirectAssignment: true)
+    ]);
+    clazz.methods.add(ctor);
+    
+    resource.methods.forEach((_, method) {
+      var plist = [];
+      
+    });
+  }
+  
+  DartType streamyImport(String clazz) {
+    return new DartType(clazz, 'streamy', const []);
+  }
+}
+
+class PathConfig {
+  String relativePath(String partName);
+  String importPath(String libraryName);
+  
+  factory PathConfig.prefixed(String partPrefix, String importPrefix) {
+    return new _PrefixedPathConfig(partPrefix, importPrefix);
+  }
+}
+
+class _PrefixedPathConfig implements PathConfig {
+  final String partPrefix;
+  final String importPrefix;
+
+  _PrefixedPathConfig(this.partPrefix, this.importPrefix);
+
+  String relativePath(String partName) => "$partPrefix$partName";
+  String importPath(String libraryName) => "$importPrefix$libraryName";
+}
+
+class TemplateLoader {
+  
+  factory TemplateLoader.fromDirectory(String path) {
+    return new FileTemplateLoader(path);
+  }
+  
+  mustache.Template load(String name);
+}
+
+class FileTemplateLoader implements TemplateLoader {
+  final String path;
+  
+  FileTemplateLoader(this.path);
+  
+  mustache.Template load(String name) {
+    var f = new io.File("$path/$name.mustache");
+    if (!f.existsSync()) {
+      return null;
+    }
+    return mustache.parse(f.readAsStringSync());
+  }
+}
+
 void emitCode(EmitterConfig config) {
   new _Emitter(config).generate();
 }

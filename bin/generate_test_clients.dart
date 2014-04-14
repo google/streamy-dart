@@ -10,6 +10,7 @@ main() {
   allFiles
     .where((e) => e is File)
     .where((e) => e.path.endsWith('_test.json'))
+    .take(1)
     .forEach((FileSystemEntity e) {
     File testJsonFile = e;
     print('Processing: ${testJsonFile}');
@@ -29,10 +30,19 @@ main() {
     }
     
     var discoveryData = json.parse(discoveryJson);
-    var api = parse(discoveryData, addendumData);
+    var api = parseDiscovery(discoveryData, addendumData);
     
-    print(api);
+    var pc = new PathConfig.prefixed('lib/', 'package:api/');
+    var emitter = new Emitter(SPLIT_LEVEL_LIBS, pc, new TemplateLoader.fromDirectory('templates'));
+    emitter.process(api).forEach((file) {
+      print(file.render());
+    });
     return;
+    
+    
+    
+    
+    
     var x = new Discovery.fromJsonString(discoveryJson);
     
 
