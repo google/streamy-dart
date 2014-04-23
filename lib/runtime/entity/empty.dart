@@ -10,7 +10,7 @@ class EmptyEntity extends Entity {
   const EmptyEntity._useFactoryInstead() : super.base();
 
   /// Local data associated with this entity instance.
-  Map<String, dynamic> get local => null;
+  ObservableMap<String, dynamic> get local => null;
 
   bool get isFrozen => true;
 
