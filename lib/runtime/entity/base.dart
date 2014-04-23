@@ -54,7 +54,7 @@ abstract class Entity {
   Map toJson();
 
   /// Local data associated with this entity instance.
-  Map<String, dynamic> get local;
+  ObservableMap<String, dynamic> get local;
 
   /// Return the Streamy implementation type of this entity.
   Type get streamyType;
