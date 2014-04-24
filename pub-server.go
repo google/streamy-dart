@@ -37,10 +37,13 @@ func TarHandler(resp http.ResponseWriter, req *http.Request) {
     }
     h, err := tar.FileInfoHeader(info, "")
     if err != nil {
-      log.Fatalf("FIHError: %s", err)
+      log.Fatalf("FileInfoHeader Error: %s", err)
     }
     h.Name = path
-    tw.WriteHeader(h)
+    err = tw.WriteHeader(h)
+    if err != nil {
+      log.Fatalf("Tar WriteHeader Error: %s", err);
+    }
     if !info.Mode().IsRegular() {
       return nil
     }
@@ -48,6 +51,7 @@ func TarHandler(resp http.ResponseWriter, req *http.Request) {
     if err != nil {
       log.Fatalf("OpenError: %s", err)
     }
+    defer f.Close()
     _, err = io.Copy(tw, f)
     if err != nil {
       log.Fatalf("CopyError: %s", err)
