@@ -1,9 +1,22 @@
 part of streamy.generator;
 
-String toProperIdentifier(String identifier) => identifier
-  .split('_')
-  .map((piece) => piece.length > 1 ? (piece.substring(0, 1).toUpperCase() + piece.substring(1)) : piece.toUpperCase())
-  .join();
+String toProperIdentifier(String identifier, {firstLetter: true}) {
+  var first = !firstLetter;
+  return identifier
+    .split('_')
+    .map((piece) {
+      if (first) {
+        first = false;
+        return piece;
+      }
+      if (piece.length > 1) {
+        return piece.substring(0, 1).toUpperCase() + piece.substring(1);
+      } else {
+        return piece.toUpperCase();
+      }
+    })
+    .join();
+}
   
 List<String> splitStringAcrossLines(String src, [int maxLen = 80]) {
   var lines = [];

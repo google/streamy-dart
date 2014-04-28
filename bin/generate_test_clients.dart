@@ -33,7 +33,9 @@ main() {
     var api = parseDiscovery(discoveryData, addendumData);
     
     var pc = new PathConfig.prefixed('lib/', 'package:api/');
-    var emitter = new Emitter(SPLIT_LEVEL_LIBS, pc, new TemplateLoader.fromDirectory('templates'));
+    var hc = new HierarchyConfig.fixed(new DartType('Entity', 'base', const []));
+    var c = new Config(mapBackedFields: false);
+    var emitter = new Emitter(SPLIT_LEVEL_LIBS, pc, hc, c, new TemplateLoader.fromDirectory('templates'));
     emitter.process(api).forEach((file) {
       print(file.render());
     });

@@ -1,16 +1,7 @@
 library test;
 
-main() {
-  new Bar().method();
-}
+import 'package:streamy/generator.dart';
 
-class Foo {
-  
-  method() => print("Test");
-}
-
-class Bar extends Foo {
-  noSuchMethod(Invocation inv) {
-    print("Invoking ${inv.memberName}");
-  }
+void main() {
+  parseServices(['example_service.dart']);
 }

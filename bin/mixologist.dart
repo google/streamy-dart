@@ -8,7 +8,7 @@ main(List<String> args) {
   var libraryName;
   var className;
   var mixins;
-  var mixinDir;
+  var mixinDirs;
   
   var argp = new ArgParser()
     ..addOption('output-file',
@@ -29,12 +29,13 @@ main(List<String> args) {
         callback: (value) {
           className = value;
         })
-    ..addOption('mixin-dir',
+    ..addOption('mixin-dirs',
         abbr: 'i',
-        help: 'Path to the directory which contains the potential mixins',
+        help: 'Path to the directories which contains the potential mixins, ' +
+            'comma separated',
         defaultsTo: 'lib/mixins',
         callback: (value) {
-          mixinDir = value;
+          mixinDirs = value;
         })
     ..addOption('mixins',
         abbr: 'm',
@@ -43,13 +44,24 @@ main(List<String> args) {
           mixins = (value == null) ? null : value.split(',');
         });
   argp.parse(args);
-  if (outputFile == null || libraryName == null || className == null || mixinDir == null || mixins == null) {
+  if (outputFile == null || libraryName == null || className == null || mixinDirs == null || mixins == null) {
     print(argp.getUsage());
     return;
   }
+  var mixinMap = {};
+  mixinDirs
+    .split(',')
+    .map((path) => new Directory(path))
+    .expand((dir) => dir.listSync())
+    .where((entry) => entry is File)
+    .where((entry) => entry.path.endsWith('.dart'))
+    .forEach((entry) {
+      var name = entry.path.split('/').last;
+      name = name.substring(0, name.length - '.dart'.length);
+      mixinMap[name] = entry;
+    });
   Future.wait(mixins
-      .map((name) => "$mixinDir/$name.dart")
-      .map((path) => new File(path))
+      .map((name) => mixinMap[name])
       .map((file) => file.openRead())
       .map((stream) => stream.pipe(new mixologist.MixinReader())))
     .then((mixins) {

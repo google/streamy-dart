@@ -45,13 +45,44 @@ Api parseDiscovery(Map discovery, Map addendum) {
             if (method.containsKey('response')) {
               responseType = _parseType(method['response']);
             }
-            type.methods[name] = new Method(name, method['path'],
+            var m = new Method(name, new Path(method['path']),
                 method['httpMethod'], payloadType, responseType);
+            type.methods[name] = m;
+            if (method.containsKey('parameters')) {
+              method['parameters'].forEach((pname, param) {
+                m.parameters[pname] = _parseProperty(pname, param);
+              });
+            }
           });
         }
         api.resources[key] = type;
       });
   }
+  
+  if (full.containsKey('sendParams')) {
+    full['sendParams'].forEach((name, param) {
+      var type, defaultValue;
+      switch (param['type']) {
+        case 'String':
+          type = const TypeRef.string();
+          break;
+        case 'int':
+          type = const TypeRef.integer();
+          break;
+        case 'bool':
+          type = const TypeRef.boolean();
+          break;
+        default:
+          type = const TypeRef.any();
+          break;
+      }
+      if (param.containsKey('default')) {
+        defaultValue = param['default'];
+      }
+      api.streamy.sendParams.add(new SendParam(name, type, defaultValue));
+    });
+  }
+  
   return api;
 }
 
@@ -60,13 +91,17 @@ Field _parseProperty(String name, Map property) {
   if (property.containsKey('description')) {
     desc = property['description'];
   }
-  return new Field(desc, _parseType(property));
+  var location = '';
+  if (property.containsKey('location')) {
+    location = property['location'];
+  }
+  return new Field(name, desc, _parseType(property), location);
 }
 
 TypeRef _parseType(Map type) {
   var ref = const TypeRef.any();
   if (type.containsKey('\$ref')) {
-    ref = new TypeRef.schema('', type['\$ref']);
+    ref = new TypeRef.schema(type['\$ref']);
   } else if (type.containsKey('type')) {
     switch (type['type']) {
       case 'string':
@@ -116,6 +151,11 @@ Map _mergeMaps(Map a, Map b) {
       } else {
         out[key] = bVal;
       }
+    }
+  });
+  b.keys.forEach((key) {
+    if (!a.containsKey(key)) {
+      out[key] = b[key];
     }
   });
   return out;

@@ -1,6 +1,7 @@
 part of streamy.generator;
 
 class Api {
+  final StreamyConfig streamy = new StreamyConfig();
   final String name;
   final String description;
   final String urlName;
@@ -24,6 +25,7 @@ class Api {
 
 class Schema {
   final String name;
+  final List<TypeRef> mixins = []; 
   
   final Map<String, Field> properties = <String, Field>{};
   
@@ -34,6 +36,9 @@ class Schema {
       ..writeln("  Schema: $name:");
     properties.forEach((name, field) {
       sb.writeln("    $name: $field");
+    });
+    mixins.forEach((mixin) {
+      sb.writeln("    [mixin] ${mixin.className} from ${mixin.importFrom}");
     });
     return sb.toString();
   }
@@ -56,7 +61,7 @@ class Resource {
 
 class Method {
   final String name;
-  final String httpPath;
+  final Path httpPath;
   final String httpMethod;
   final TypeDef payloadType;
   final TypeDef responseType;
@@ -66,8 +71,8 @@ class Method {
   
   String toString() {
     var sb = new StringBuffer()
-        ..writeln("    Method: $name ($httpMethod @ $httpPath)")
-        ..writeln("      payload=$payloadType, response=$responseType");
+      ..writeln("    Method: $name ($httpMethod @ $httpPath)")
+      ..writeln("      payload=$payloadType, response=$responseType");
     parameters.forEach((name, field) {
       sb.writeln("      Param[$name]: $field");
     });
@@ -75,60 +80,93 @@ class Method {
   }
 }
 
-const PATH_REGEX = const Regexp(r'{([^}]+)}');
+final PATH_REGEX = new RegExp(r'{([^}]+)}');
 
 class Path {
-  final String fullPath;
+  final String path;
+  
+  Path(this.path);
   
   List<String> parameters() => PATH_REGEX
-    .allMatches(fullPath)
+    .allMatches(path)
     .map((match) => match.group(1))
     .toList(growable: false);
+  
+  String toString() => path;
 }
 
 class Field {
+  final String name;
   final String description;
   final TypeRef typeRef;
+  final String location;
   
-  Field(this.description, this.typeRef);
+  Field(this.name, this.description, this.typeRef, this.location);
   
-  String toString() => "type=$typeRef";
+  String toString() => "type=$typeRef, loc=$location";
 }
 
 class TypeRef {
-  final String dartType;
+  final String base;
   
-  TypeRef(this.dartType);
+  TypeRef(this.base);
   
-  const TypeRef.integer() : this('int');
-  const TypeRef.string() : this('String');
-  const TypeRef.any() : this('dynamic');
-  const TypeRef.number() : this('num');
-  const TypeRef.boolean() : this('bool');
+  const TypeRef.integer() : this('integer');
+  const TypeRef.string() : this('string');
+  const TypeRef.any() : this('any');
+  const TypeRef.number() : this('number');
+  const TypeRef.boolean() : this('boolean');
   const TypeRef.double() : this('double');
-  const TypeRef.int64() : this('fixnum.Int64');
+  const TypeRef.int64() : this('int64');
   factory TypeRef.list(TypeRef subType) => new ListTypeRef(subType);
-  factory TypeRef.schema(String importPrefix, String schemaClass)
-      => new SchemaTypeRef(importPrefix, schemaClass);
+  factory TypeRef.schema(String schemaClass) =>
+      new SchemaTypeRef(schemaClass);
+  factory TypeRef.external(String type, String importedFrom) =>
+      new ExternalTypeRef(type, importedFrom);
+  
       
-  String toString() => dartType;
+  String toString() => base;
+}
+
+class ExternalTypeRef implements TypeRef {
+  
+  String get base => 'external';
+  final String type;
+  final String importedFrom;
+  
+  ExternalTypeRef(this.type, this.importedFrom);
+  
+  String toString() => 'external($type, $importedFrom)';
 }
 
 class SchemaTypeRef implements TypeRef {
-  final String importPrefix;
+  String get base => 'schema';
   final String schemaClass;
-  String get dartType => "$importPrefix$schemaClass";
   
-  SchemaTypeRef(this.importPrefix, this.schemaClass);
+  SchemaTypeRef(this.schemaClass);
   
-  String toString() => dartType;
+  String toString() => 'schema($schemaClass)';
 }
 
 class ListTypeRef implements TypeRef {
   final TypeRef subType;
-  String get dartType => "List<${subType.dartType}>";
+  String get base => "list";
   
   ListTypeRef(this.subType);
   
-  String toString() => dartType;
+  String toString() => 'list($subType)';
+}
+
+class StreamyConfig {
+  // Send params.
+  List<SendParam> sendParams = [];
+  
+}
+
+class SendParam {
+  final String name;
+  final TypeRef typeRef;
+  final dynamic defaultValue;
+  
+  SendParam(this.name, this.typeRef, this.defaultValue);
 }

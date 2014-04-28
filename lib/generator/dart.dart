@@ -65,10 +65,14 @@ class DartType {
   final List<DartType> parameters;
   
   const DartType.none() : this('void', null, const []);
+  DartType.from(DartClass clazz) : this(clazz.name, null, const []);
   const DartType.dynamic() : this('dynamic', null, const []);
   const DartType.integer() : this('int', null, const []);
+  const DartType.boolean() : this('bool', null, const []);
+  const DartType.double() : this('double', null, const []);
   const DartType.string() : this('String', null, const []);
-  const DartType.list(DartType listOf) : this('List', null, const [listOf]);
+  DartType.list(DartType listOf) : this('List', null, [listOf]);
+  DartType.stream(DartType streamOf) : this('Stream', null, [streamOf]);
   const DartType.map(DartType keyType, DartType valueType) :
       this('Map', null, const [keyType, valueType]);
   const DartType(this.dartType, this.importNamespace, this.parameters);
@@ -81,10 +85,9 @@ class DartType {
     }
     out.write(dartType);
     if (parameters.isNotEmpty) {
-      out
-        ..write("<")
-        ..writeAll(parameters.map((p) => p.render()), ", ")
-        ..write(">");
+      out.write("<");
+      parameters.forEach((p) => p.render(out));
+      out.write(">");
     }
   }
   
@@ -155,27 +158,30 @@ class DartClass {
 class DartMethod {
   final String name;
   final List<String> comments;
-  final List<DartParameter> parameters;
+  final List<DartParameter> parameters = [];
+  final List<DartNamedParameter> namedParameters = [];
   final DartType returnType;
   final DartBody body;
 
-  DartMethod(this.name, this.parameters, this.returnType, this.body);
+  DartMethod(this.name, this.returnType, this.body);
   
   void render(StringBuffer out, int indent) {
     var id = strings.repeat('  ', indent);
-    comments.forEach((line) {
-      out
-        ..write(id)
-        ..write('/// ')
-        ..writeln(line);
-    });
+    if (comments != null && comments.isNotEmpty) {
+      comments.forEach((line) {
+        out
+          ..write(id)
+          ..write('/// ')
+          ..writeln(line);
+      });
+    }
     out.write(id);
     returnType.render(out);
     out
       ..write(' ')
       ..write(name)
       ..write('(');
-    if (parameters != null && parameters.isNotEmpty) {
+    if (parameters.isNotEmpty) {
       var first = true;
       parameters.forEach((p) {
         if (!first) {
@@ -184,21 +190,39 @@ class DartMethod {
         first = false;
         p.render(out);
       });
-      out.write(') ');
-      // One would think this would be indent + 1, but methods provide their own
-      // indentation.
-      body.render(out, indent);
+      if (namedParameters.isNotEmpty) {
+        if (!first) {
+          out.write(', ');
+        }
+        out.write('{');
+        first = true;
+        namedParameters.forEach((p) {
+          if (!first) {
+            out.write(', ');
+          }
+          first = false;
+          p.render(out);
+        });
+        out.write('}');
+      }
     }
+    out.write(') ');
+    // One would think this would be indent + 1, but methods provide their own
+    // indentation.
+    body.render(out, indent);
   }
 }
 
 class DartConstructor implements DartMethod {
   final String forClass;
   final String named;
-  final List<DartParameter> parameters;
+  final List<DartParameter> parameters = [];
+  final List<DartNamedParameter> namedParameters = [];
   final DartBody body;
   
-  DartConstructor(this.forClass, this.parameters, {this.named, this.body});
+  String get name => forClass;
+  
+  DartConstructor(this.forClass, {this.named, this.body});
   
   void render(StringBuffer out, int indent) {
     var spacing = strings.repeat('  ', indent);
@@ -211,7 +235,7 @@ class DartConstructor implements DartMethod {
         ..write(named);
     }
     out.write('(');
-    if (parameters != null && parameters.isNotEmpty) {
+    if (parameters.isNotEmpty) {
       var first = true;
       parameters.forEach((p) {
         if (!first) {
@@ -220,13 +244,28 @@ class DartConstructor implements DartMethod {
         first = false;
         p.render(out);
       });
-      out.write(')');
-      if (body != null) {
-        out.write(' ');
-        body.render(out, indent);
-      } else {
-        out.writeln(';');
+    }
+    if (namedParameters.isNotEmpty) {
+      if (!first) {
+        out.write(', ');
       }
+      out.write('{');
+      first = true;
+      namedParameters.forEach((p) {
+        if (!first) {
+          out.write(', ');
+        }
+        first = false;
+        p.render(out);
+      });
+      out.write('}');
+    }
+    out.write(')');
+    if (body != null) {
+      out.write(' ');
+      body.render(out, indent);
+    } else {
+      out.writeln(';');
     }
   }
 }
@@ -248,6 +287,22 @@ class DartParameter {
   }
 }
 
+class DartNamedParameter extends DartParameter {
+  final DartBody defaultValue;  
+  
+  DartNamedParameter(String name, DartType type, {DartBody this.defaultValue, bool isDirectAssignment: false})
+      : super(name, type, isDirectAssignment: isDirectAssignment);
+      
+  void render(StringBuffer out) {
+    super.render(out);
+    if (defaultValue != null) {
+      out.write(': ');
+      // TODO(Alex): Proper indentation.
+      defaultValue.render(out, 0, trailingNewline: false);
+    }
+  }
+}
+
 abstract class DartField {
   String get name;
   DartType get type;
@@ -258,11 +313,17 @@ class DartSimpleField implements DartField {
   final String name;
   final DartType type;
   final bool isFinal;
+  final bool isStatic;
+  final DartBody initializer;
   
-  DartSimpleField(this.name, this.type, {this.isFinal: false});
+  DartSimpleField(this.name, this.type,
+      {this.isFinal: false, this.isStatic: false, this.initializer});
   
   void render(StringBuffer out, int indent) {
     out.write(strings.repeat('  ', indent));
+    if (isStatic) {
+      out.write('static ');
+    }
     if (isFinal) {
       out.write('final ');
     }
@@ -273,6 +334,10 @@ class DartSimpleField implements DartField {
       out.write('var ');
     }
     out.write(name);
+    if (initializer != null) {
+      out.write(' = ');
+      initializer.render(out, indent, trailingNewline: false);
+    }
     out.writeln(';');
   }
 }
@@ -319,7 +384,7 @@ class DartTemplateBody implements DartBody {
   
   DartTemplateBody(this.template, this.data);
   
-  void render(StringBuffer out, int indent) {
+  void render(StringBuffer out, int indent, {trailingNewline: true}) {
     var id = strings.repeat('  ', indent);
     var first = true;
     template
@@ -328,11 +393,16 @@ class DartTemplateBody implements DartBody {
       .split('\n')
       .forEach((line) {
         if (!first) {
-          out.write(id);
+          out
+            ..writeln()
+            ..write(id);
         }
         first = false;
-        out.writeln(line);
+        out.write(line);
       });
+    if (trailingNewline) {
+      out.writeln();
+    }
   }
 }
 
@@ -341,7 +411,7 @@ class DartConstantBody implements DartBody {
   
   DartConstantBody(this.body);
   
-  void render(StringBuffer out, int indent) {
+  void render(StringBuffer out, int indent, {trailingNewline: true}) {
     var id = strings.repeat('  ', indent);
     var first = true;
     body
@@ -349,10 +419,15 @@ class DartConstantBody implements DartBody {
       .split('\n')
       .forEach((line) {
         if (!first) {
-          out.write(id);
+          out
+            ..writeln()
+            ..write(id);
         }
         first = false;
-        out.writeln(line);
+        out.write(line);
       });
+    if (trailingNewline) {
+      out.writeln();
+    }
   }
 }
