@@ -5,6 +5,8 @@ part of streamy.generator;
 class Config {
   
   final bool mapBackedFields;
+  final String backingMapGetter;
+  final String backingMapSetter;
   final bool cloneEntity;
   final bool removers;
   final bool knownMethods;
@@ -13,6 +15,8 @@ class Config {
   
   Config({
     this.mapBackedFields: true,
+    this.backingMapGetter: null,
+    this.backingMapSetter: null,
     this.cloneEntity: true,
     this.removers: true,
     this.knownMethods: true,

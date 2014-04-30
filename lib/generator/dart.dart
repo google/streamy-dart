@@ -73,8 +73,8 @@ class DartType {
   const DartType.string() : this('String', null, const []);
   DartType.list(DartType listOf) : this('List', null, [listOf]);
   DartType.stream(DartType streamOf) : this('Stream', null, [streamOf]);
-  const DartType.map(DartType keyType, DartType valueType) :
-      this('Map', null, const [keyType, valueType]);
+  DartType.map(DartType keyType, DartType valueType) :
+      this('Map', null, [keyType, valueType]);
   const DartType(this.dartType, this.importNamespace, this.parameters);
   
   void render(StringBuffer out) {
@@ -86,7 +86,14 @@ class DartType {
     out.write(dartType);
     if (parameters.isNotEmpty) {
       out.write("<");
-      parameters.forEach((p) => p.render(out));
+      var first = true;
+      parameters.forEach((p) {
+        if (!first) {
+          out.write(', ');
+        }
+        first = false;
+        p.render(out);
+      });
       out.write(">");
     }
   }
@@ -105,6 +112,7 @@ class DartClass {
   final List<DartType> interfaces;
   final List<DartField> fields = [];
   final List<DartMethod> methods = [];
+  final List<DartType> mixins = [];
   
   DartClass(this.name, {this.baseClass, this.interfaces});
   
@@ -127,8 +135,7 @@ class DartClass {
       out.write(' ');
     }
     if (interfaces != null && interfaces.isNotEmpty) {
-      out
-        ..write('implements ');
+      out.write('implements ');
       var first = true;
       interfaces.forEach((type) {
         if (!first) {
@@ -137,6 +144,19 @@ class DartClass {
         first = false;
         type.render(out);
       });
+      out.write(' ');
+    }
+    if (mixins.isNotEmpty) {
+      out.write('with ');
+      var first = true;
+      mixins.forEach((mixin) {
+        if (!first) {
+          out.write(', ');
+        }
+        first = false;
+        mixin.render(out);
+      });
+      out.write(' ');
     }
     out.writeln('{');
     if (fields != null && fields.isNotEmpty) {

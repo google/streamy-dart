@@ -7,6 +7,8 @@ class Api {
   final String urlName;
   final String version;
   final String rootUrl;
+  /// External imports.
+  final Map<String, String> imports = <String, String>{};
   
   final Map<String, Schema> types = <String, Schema>{};
   final Map<String, Resource> resources = <String, Resource>{};
@@ -25,7 +27,7 @@ class Api {
 
 class Schema {
   final String name;
-  final List<TypeRef> mixins = []; 
+  final List<TypeRef> mixins = [];
   
   final Map<String, Field> properties = <String, Field>{};
   

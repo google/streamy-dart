@@ -2,7 +2,8 @@ part of streamy.generator;
 
 Api parseServices(List<String> paths) {
   var api = new Api('example', '', '', '', '');
-  paths.forEach((path) => _parseServiceFile(api, path, analyzer.parseDartFile(path)));
+  var i = 1;
+  paths.forEach((path) => _parseServiceFile(api, path, analyzer.parseDartFile(path), i++));
   var pc = new PathConfig.prefixed('lib/', 'package:api/');
   var hc = new HierarchyConfig.fixed(new DartType('Entity', 'base', const []));
   var c = new Config(knownProperties: false);
@@ -13,17 +14,18 @@ Api parseServices(List<String> paths) {
   });
 }
 
-void _parseServiceFile(Api api, String importPath, analyzer.CompilationUnit cu) {
+void _parseServiceFile(Api api, String importPath, analyzer.CompilationUnit cu, int index) {
   var classes = cu
     .declarations
     .where((d) => d is analyzer.ClassDeclaration);
   
+  api.imports[importPath] = 'service_$index';
   classes
     .where(_isSchemaClass)
     .map((clazz) => clazz.name.name)
     .forEach((name) {
       var type = new Schema(name);
-      type.mixins.add(new TypeRef.external(name, importPath));
+      type.mixins.add(new TypeRef.external(name, 'service_$index'));
       api.types[name] = type;
     });
   

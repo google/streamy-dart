@@ -10,7 +10,7 @@ main() {
   allFiles
     .where((e) => e is File)
     .where((e) => e.path.endsWith('_test.json'))
-    .take(1)
+    //.take(1)
     .forEach((FileSystemEntity e) {
     File testJsonFile = e;
     print('Processing: ${testJsonFile}');
@@ -34,7 +34,7 @@ main() {
     
     var pc = new PathConfig.prefixed('lib/', 'package:api/');
     var hc = new HierarchyConfig.fixed(new DartType('Entity', 'base', const []));
-    var c = new Config(mapBackedFields: false);
+    var c = new Config(mapBackedFields: false, backingMapGetter: 'base.mapFor');
     var emitter = new Emitter(SPLIT_LEVEL_LIBS, pc, hc, c, new TemplateLoader.fromDirectory('templates'));
     emitter.process(api).forEach((file) {
       print(file.render());
