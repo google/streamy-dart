@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+set -e
 
 # Run unit tests
 dart -c test/all_tests.dart
