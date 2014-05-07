@@ -1,1 +1,4 @@
-: super(root);
+: super(root{{#hasPayload}}, payload{{/hasPayload}}){{#hasListParams}} {
+  parameters{{#listParams}}
+    ..[r'{{name}}'] = <{{type}}>[]{{/listParams}};
+}{{/hasListParams}}{{^hasListParams}};{{/hasListParams}}

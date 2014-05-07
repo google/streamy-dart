@@ -3,9 +3,16 @@ library streamy.streamy.test;
 import 'dart:async';
 import 'package:fixnum/fixnum.dart';
 import 'package:observe/observe.dart';
+import 'package:streamy/base.dart' as base;
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
+
+class RawEntity extends base.Entity {
+  RawEntity() {
+    base.setMap(this, {});
+  }
+}
 
 main() {
   group('DynamicEntity', () {

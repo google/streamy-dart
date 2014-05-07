@@ -1,41 +1,60 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library methodgettest.requests;
-import 'dart:async';
-import 'package:fixnum/fixnum.dart' as fixnum;
-import 'package:streamy/streamy.dart' as streamy;
-import 'method_get_client_objects.dart' as obj;
+library MethodGetTest.requests;
 
-/// Gets a foo
-class FoosGetRequest extends streamy.Request {
-  static final List<String> KNOWN_PARAMETERS = [
+import 'package:streamy/streamy.dart' as streamy;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'method_get_client_objects.dart' as objects;
+import 'method_get_client_dispatch.dart' as dispatch;
+import 'dart:async';
+import 'package:streamy/base.dart' as base;
+
+class FoosGetRequest extends streamy.HttpRequest {
+
+  static final List<String> KNOWN_PARAMETERS = const [
     r'fooId',
   ];
-  String get apiType => r'FoosGetRequest';
-  String get httpMethod => 'GET';
-  String get pathFormat => 'foos/{fooId}';
-  bool get hasPayload => false;
-  FoosGetRequest(streamy.Root root) : super(root) {
-  }
-  List<String> get pathParameters => const [r'fooId',];
-  List<String> get queryParameters => const [];
 
-  /// Primary key of foo
   int get fooId => parameters[r'fooId'];
-  set fooId(int value) {
+  void set fooId(int value) {
     parameters[r'fooId'] = value;
   }
+
+  String get apiType => r'FoosGetRequest';
+
+  bool get hasPayload => false;
+
+  String get httpMethod => r'GET';
+
+  String get pathFormat => r'foos/{fooId}';
+
+  List<String> get pathParameters => const [
+    r'fooId',
+  ];
+
+  List<String> get queryParameters => const [
+  ];
+
+  FoosGetRequest(streamy.Root root) : super(root);
+
   int removeFooId() => parameters.remove(r'fooId');
-  Stream<streamy.Response<obj.Foo>> _sendDirect() => this.root.send(this);
-  Stream<streamy.Response<obj.Foo>> sendRaw() =>
-      _sendDirect();
-  Stream<obj.Foo> send() =>
-      _sendDirect().map((response) => response.entity);
-  StreamSubscription<obj.Foo> listen(void onData(obj.Foo event)) =>
-      _sendDirect().map((response) => response.entity).listen(onData);
+
+  Stream<streamy.Response<objects.Foo>> _sendDirect() => root.send(this);
+
+  objects.Foo unmarshalResponse(dispatch.Marshaller marshaller, Map data) => marshaller.unmarshalFoo(data);
+
+  Stream<objects.Foo> send() {
+    return _sendDirect()
+      .map((response) => response.entity);
+  }
+
+  Stream<streamy.Response<objects.Foo>> sendRaw() {
+    return _sendDirect();
+  }
+
+  StreamSubscription<objects.Foo> listen() {
+    return _sendDirect()
+      .map((response) => response.entity)
+      .listen(onData);
+  }
+
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
-      new obj.Foo.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }

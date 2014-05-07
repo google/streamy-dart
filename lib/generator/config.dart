@@ -12,6 +12,7 @@ class Config {
   final bool knownMethods;
   final bool knownParameters;
   final bool knownProperties;
+  final Map<String, String> imports;
   
   Config({
     this.mapBackedFields: true,

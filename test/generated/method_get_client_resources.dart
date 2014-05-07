@@ -1,27 +1,23 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library methodgettest.resources;
-import 'package:fixnum/fixnum.dart' as fixnum;
+library MethodGetTest.resources;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'method_get_client_requests.dart' as req;
-import 'method_get_client_objects.dart' as obj;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'method_get_client_requests.dart' as requests;
+import 'method_get_client_objects.dart' as objects;
+import 'package:streamy/base.dart' as base;
 
 class FoosResource {
+
   final streamy.Root _root;
-  static final List<String> KNOWN_METHODS = [
+
+  static final List<String> KNOWN_METHODS = const [
     r'get',
   ];
-  String get apiType => r'FoosResource';
-  FoosResource(this._root);
 
-  /// Gets a foo
-  req.FoosGetRequest get(int fooId) {
-    var request = new req.FoosGetRequest(_root);
-    if (fooId != null) {
-      request.fooId = fooId;
-    }
-    return request;
-  }
+  String get apiType => r'FoosResource';
+
+  FoosResource(streamy.Root this._root);
+
+  requests.FoosGetRequest get(int fooId) => new requests.FoosGetRequest(_root)
+    ..parameters[r'fooId'] = fooId;
 }

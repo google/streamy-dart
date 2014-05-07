@@ -1,139 +1,212 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library multiplexertest.requests;
-import 'dart:async';
-import 'package:fixnum/fixnum.dart' as fixnum;
+library MultiplexerTest.requests;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'multiplexer_client_objects.dart' as obj;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'multiplexer_client_objects.dart' as objects;
+import 'multiplexer_client_dispatch.dart' as dispatch;
+import 'dart:async';
+import 'package:streamy/base.dart' as base;
 
-/// Gets a foo
-class FoosGetRequest extends streamy.Request {
-  static final List<String> KNOWN_PARAMETERS = [
+class FoosGetRequest extends streamy.HttpRequest {
+
+  static final List<String> KNOWN_PARAMETERS = const [
     r'id',
   ];
+
+  int get id => parameters[r'id'];
+  void set id(int value) {
+    parameters[r'id'] = value;
+  }
+
   String get apiType => r'FoosGetRequest';
-  String get httpMethod => 'GET';
-  String get pathFormat => 'foos/{id}';
-  bool get hasPayload => false;
-  FoosGetRequest(streamy.Root root) : super(root) {
-  }
-  List<String> get pathParameters => const [r'id',];
-  List<String> get queryParameters => const [];
 
-  /// Primary key of foo
-  int get id => parameters[r'id'];
-  set id(int value) {
-    parameters[r'id'] = value;
-  }
+  bool get hasPayload => false;
+
+  String get httpMethod => r'GET';
+
+  String get pathFormat => r'foos/{id}';
+
+  List<String> get pathParameters => const [
+    r'id',
+  ];
+
+  List<String> get queryParameters => const [
+  ];
+
+  FoosGetRequest(streamy.Root root) : super(root);
+
   int removeId() => parameters.remove(r'id');
-  Stream<streamy.Response<obj.Foo>> _sendDirect() => this.root.send(this);
-  Stream<streamy.Response<obj.Foo>> sendRaw() =>
-      _sendDirect();
-  Stream<obj.Foo> send() =>
-      _sendDirect().map((response) => response.entity);
-  StreamSubscription<obj.Foo> listen(void onData(obj.Foo event)) =>
-      _sendDirect().map((response) => response.entity).listen(onData);
+
+  Stream<streamy.Response<objects.Foo>> _sendDirect() => root.send(this);
+
+  objects.Foo unmarshalResponse(dispatch.Marshaller marshaller, Map data) => marshaller.unmarshalFoo(data);
+
+  Stream<objects.Foo> send() {
+    return _sendDirect()
+      .map((response) => response.entity);
+  }
+
+  Stream<streamy.Response<objects.Foo>> sendRaw() {
+    return _sendDirect();
+  }
+
+  StreamSubscription<objects.Foo> listen() {
+    return _sendDirect()
+      .map((response) => response.entity)
+      .listen(onData);
+  }
+
   FoosGetRequest clone() => streamy.internalCloneFrom(new FoosGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
-      new obj.Foo.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }
 
-/// Updates a foo
-class FoosUpdateRequest extends streamy.Request {
-  static final List<String> KNOWN_PARAMETERS = [
+class FoosUpdateRequest extends streamy.HttpRequest {
+
+  static final List<String> KNOWN_PARAMETERS = const [
     r'id',
   ];
+
+  int get id => parameters[r'id'];
+  void set id(int value) {
+    parameters[r'id'] = value;
+  }
+
   String get apiType => r'FoosUpdateRequest';
-  obj.Foo get payload => streamy.internalGetPayload(this);
-  final patch;
-  String get httpMethod => patch ? 'PATCH' : 'PUT';
-  String get pathFormat => 'foos/{id}';
+
   bool get hasPayload => true;
-  FoosUpdateRequest(streamy.Root root, obj.Foo payloadEntity, {bool this.patch: false}) : super(root, payloadEntity) {
-  }
-  List<String> get pathParameters => const [r'id',];
-  List<String> get queryParameters => const [];
 
-  /// Primary key of foo
-  int get id => parameters[r'id'];
-  set id(int value) {
-    parameters[r'id'] = value;
-  }
+  String get httpMethod => r'PUT';
+
+  String get pathFormat => r'foos/{id}';
+
+  List<String> get pathParameters => const [
+    r'id',
+  ];
+
+  List<String> get queryParameters => const [
+  ];
+
+  FoosUpdateRequest(streamy.Root root, objects.Foo payload) : super(root, payload);
+
   int removeId() => parameters.remove(r'id');
-  Stream<streamy.Response<obj.Foo>> _sendDirect() => this.root.send(this);
-  Stream<streamy.Response<obj.Foo>> sendRaw() =>
-      _sendDirect();
-  Stream<obj.Foo> send() =>
-      _sendDirect().map((response) => response.entity);
-  StreamSubscription<obj.Foo> listen(void onData(obj.Foo event)) =>
-      _sendDirect().map((response) => response.entity).listen(onData);
+
+  Stream<streamy.Response<objects.Foo>> _sendDirect() => root.send(this);
+
+  objects.Foo unmarshalResponse(dispatch.Marshaller marshaller, Map data) => marshaller.unmarshalFoo(data);
+
+  Stream<objects.Foo> send() {
+    return _sendDirect()
+      .map((response) => response.entity);
+  }
+
+  Stream<streamy.Response<objects.Foo>> sendRaw() {
+    return _sendDirect();
+  }
+
+  StreamSubscription<objects.Foo> listen() {
+    return _sendDirect()
+      .map((response) => response.entity)
+      .listen(onData);
+  }
+
   FoosUpdateRequest clone() => streamy.internalCloneFrom(new FoosUpdateRequest(root, payload.clone()), this);
-  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
-      new obj.Foo.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }
 
-/// Deletes a foo
-class FoosDeleteRequest extends streamy.Request {
-  static final List<String> KNOWN_PARAMETERS = [
+class FoosDeleteRequest extends streamy.HttpRequest {
+
+  static final List<String> KNOWN_PARAMETERS = const [
     r'id',
   ];
+
+  int get id => parameters[r'id'];
+  void set id(int value) {
+    parameters[r'id'] = value;
+  }
+
   String get apiType => r'FoosDeleteRequest';
-  String get httpMethod => 'DELETE';
-  String get pathFormat => 'foos/{id}';
+
   bool get hasPayload => false;
-  FoosDeleteRequest(streamy.Root root) : super(root) {
-  }
-  List<String> get pathParameters => const [r'id',];
-  List<String> get queryParameters => const [];
 
-  /// Primary key of foo
-  int get id => parameters[r'id'];
-  set id(int value) {
-    parameters[r'id'] = value;
-  }
-  int removeId() => parameters.remove(r'id');
-  Stream<streamy.Response> _sendDirect() => this.root.send(this);
-  Stream<streamy.Response> sendRaw() =>
-      _sendDirect();
-  Stream send() =>
-      _sendDirect().map((response) => response.entity);
-  StreamSubscription listen(void onData(event)) =>
-      _sendDirect().map((response) => response.entity).listen(onData);
-  FoosDeleteRequest clone() => streamy.internalCloneFrom(new FoosDeleteRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
-      new streamy.EmptyEntity();
-}
+  String get httpMethod => r'DELETE';
 
-/// A method to test request cancellation
-class FoosCancelRequest extends streamy.Request {
-  static final List<String> KNOWN_PARAMETERS = [
+  String get pathFormat => r'foos/{id}';
+
+  List<String> get pathParameters => const [
     r'id',
   ];
-  String get apiType => r'FoosCancelRequest';
-  String get httpMethod => 'GET';
-  String get pathFormat => 'foos/cancel/{id}';
-  bool get hasPayload => false;
-  FoosCancelRequest(streamy.Root root) : super(root) {
-  }
-  List<String> get pathParameters => const [r'id',];
-  List<String> get queryParameters => const [];
 
-  /// Primary key of foo
+  List<String> get queryParameters => const [
+  ];
+
+  FoosDeleteRequest(streamy.Root root) : super(root);
+
+  int removeId() => parameters.remove(r'id');
+
+  Stream<streamy.Response> _sendDirect() => root.send(this);
+
+  Stream send() {
+    return _sendDirect()
+      .map((response) => response.entity);
+  }
+
+  Stream<streamy.Response> sendRaw() {
+    return _sendDirect();
+  }
+
+  StreamSubscription listen() {
+    return _sendDirect()
+      .map((response) => response.entity)
+      .listen(onData);
+  }
+
+  FoosDeleteRequest clone() => streamy.internalCloneFrom(new FoosDeleteRequest(root), this);
+}
+
+class FoosCancelRequest extends streamy.HttpRequest {
+
+  static final List<String> KNOWN_PARAMETERS = const [
+    r'id',
+  ];
+
   int get id => parameters[r'id'];
-  set id(int value) {
+  void set id(int value) {
     parameters[r'id'] = value;
   }
+
+  String get apiType => r'FoosCancelRequest';
+
+  bool get hasPayload => false;
+
+  String get httpMethod => r'GET';
+
+  String get pathFormat => r'foos/cancel/{id}';
+
+  List<String> get pathParameters => const [
+    r'id',
+  ];
+
+  List<String> get queryParameters => const [
+  ];
+
+  FoosCancelRequest(streamy.Root root) : super(root);
+
   int removeId() => parameters.remove(r'id');
-  Stream<streamy.Response> _sendDirect() => this.root.send(this);
-  Stream<streamy.Response> sendRaw() =>
-      _sendDirect();
-  Stream send() =>
-      _sendDirect().map((response) => response.entity);
-  StreamSubscription listen(void onData(event)) =>
-      _sendDirect().map((response) => response.entity).listen(onData);
+
+  Stream<streamy.Response> _sendDirect() => root.send(this);
+
+  Stream send() {
+    return _sendDirect()
+      .map((response) => response.entity);
+  }
+
+  Stream<streamy.Response> sendRaw() {
+    return _sendDirect();
+  }
+
+  StreamSubscription listen() {
+    return _sendDirect()
+      .map((response) => response.entity)
+      .listen(onData);
+  }
+
   FoosCancelRequest clone() => streamy.internalCloneFrom(new FoosCancelRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
-      new streamy.EmptyEntity();
 }

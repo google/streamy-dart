@@ -60,6 +60,12 @@ main(List<String> args) {
       name = name.substring(0, name.length - '.dart'.length);
       mixinMap[name] = entry;
     });
+  var unknown = mixins
+    .where((name) => !mixinMap.containsKey(name));
+  if (unknown.isNotEmpty) {
+    print("Unknown mixins: ${unknown.join(', ')}");
+    return;
+  }
   Future.wait(mixins
       .map((name) => mixinMap[name])
       .map((file) => file.openRead())

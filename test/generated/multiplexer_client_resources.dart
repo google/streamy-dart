@@ -1,54 +1,34 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library multiplexertest.resources;
-import 'package:fixnum/fixnum.dart' as fixnum;
+library MultiplexerTest.resources;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'multiplexer_client_requests.dart' as req;
-import 'multiplexer_client_objects.dart' as obj;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'multiplexer_client_requests.dart' as requests;
+import 'multiplexer_client_objects.dart' as objects;
+import 'package:streamy/base.dart' as base;
 
 class FoosResource {
+
   final streamy.Root _root;
-  static final List<String> KNOWN_METHODS = [
+
+  static final List<String> KNOWN_METHODS = const [
     r'get',
     r'update',
     r'delete',
     r'cancel',
   ];
+
   String get apiType => r'FoosResource';
-  FoosResource(this._root);
 
-  /// Gets a foo
-  req.FoosGetRequest get(int id) {
-    var request = new req.FoosGetRequest(_root);
-    if (id != null) {
-      request.id = id;
-    }
-    return request;
-  }
+  FoosResource(streamy.Root this._root);
 
-  /// Updates a foo
-  req.FoosUpdateRequest update(obj.Foo payload) {
-    var request = new req.FoosUpdateRequest(_root, payload);
-    return request;
-  }
+  requests.FoosGetRequest get(int id) => new requests.FoosGetRequest(_root)
+    ..parameters[r'id'] = id;
 
-  /// Deletes a foo
-  req.FoosDeleteRequest delete(int id) {
-    var request = new req.FoosDeleteRequest(_root);
-    if (id != null) {
-      request.id = id;
-    }
-    return request;
-  }
+  requests.FoosUpdateRequest update(objects.Foo payload) => new requests.FoosUpdateRequest(_root, payload);
 
-  /// A method to test request cancellation
-  req.FoosCancelRequest cancel(int id) {
-    var request = new req.FoosCancelRequest(_root);
-    if (id != null) {
-      request.id = id;
-    }
-    return request;
-  }
+  requests.FoosDeleteRequest delete(int id) => new requests.FoosDeleteRequest(_root)
+    ..parameters[r'id'] = id;
+
+  requests.FoosCancelRequest cancel(int id) => new requests.FoosCancelRequest(_root)
+    ..parameters[r'id'] = id;
 }

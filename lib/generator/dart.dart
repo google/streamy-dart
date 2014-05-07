@@ -255,8 +255,8 @@ class DartConstructor implements DartMethod {
         ..write(named);
     }
     out.write('(');
+    var first = true;
     if (parameters.isNotEmpty) {
-      var first = true;
       parameters.forEach((p) {
         if (!first) {
           out.write(', ');

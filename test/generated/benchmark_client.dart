@@ -1,46 +1,28 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library schemaobjecttest;
-import 'dart:async';
+library SchemaObjectTest;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'benchmark_client_resources.dart' as res;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'dart:async';
+import 'benchmark_client_resources.dart' as resources;
+import 'package:streamy/base.dart' as base;
 
-abstract class SchemaObjectTestResourcesMixin {
+class SchemaObjectTestResourceMixin {
 }
 
-class SchemaObjectTest
-    extends streamy.Root
-    with SchemaObjectTestResourcesMixin {
-  String get apiType => r'SchemaObjectTest';
-  final streamy.TransactionStrategy _txStrategy;
+class SchemaObjectTest extends streamy.HttpRoot with SchemaObjectTestResourceMixin {
+
   final streamy.RequestHandler requestHandler;
-  final streamy.Tracer _tracer;
-  SchemaObjectTest(
-      this.requestHandler,
-      {String servicePath: 'schemaObjectTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
-      streamy.TransactionStrategy txStrategy: null,
-      streamy.Tracer tracer: const streamy.NoopTracer()}) :
-          super(typeRegistry, servicePath),
-          this._txStrategy = txStrategy,
-          this._tracer = tracer;
-  Stream send(streamy.Request request) =>
-      requestHandler.handle(request, _tracer.trace(request));
-  SchemaObjectTestTransaction beginTransaction() =>
-      new SchemaObjectTestTransaction(typeRegistry, servicePath,
-          _txStrategy.beginTransaction());
+
+  final streamy.TransactionStrategy txStrategy;
+
+  final streamy.Tracer tracer;
+
+  String get apiType => r'SchemaObjectTest';
+
+  SchemaObjectTest(streamy.RequestHandler this.requestHandler, {String servicePath: r'schemaObjectTest/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'schemaObjectTest/v1/');
+
+  Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }
 
-/// Provides the same API as [SchemaObjectTest] but runs all requests as
-/// part of the same transaction.
-class SchemaObjectTestTransaction
-    extends streamy.TransactionRoot
-    with SchemaObjectTestResourcesMixin {
-  String get apiType => r'SchemaObjectTestTransaction';
-  SchemaObjectTestTransaction(
-      streamy.TypeRegistry typeRegistry,
-      String servicePath,
-      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
+class SchemaObjectTestTransaction extends streamy.HttpTransactionRoot with SchemaObjectTestResourceMixin {
 }

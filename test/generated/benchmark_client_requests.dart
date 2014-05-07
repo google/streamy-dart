@@ -1,9 +1,8 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library schemaobjecttest.requests;
-import 'dart:async';
-import 'package:fixnum/fixnum.dart' as fixnum;
+library SchemaObjectTest.requests;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'benchmark_client_objects.dart' as obj;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'benchmark_client_objects.dart' as objects;
+import 'benchmark_client_dispatch.dart' as dispatch;
+import 'dart:async';
+import 'package:streamy/base.dart' as base;

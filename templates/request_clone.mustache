@@ -1,1 +1,1 @@
-=> streamy.internalCloneFrom(new {{type}}(root), this);
+=> streamy.internalCloneFrom(new {{type}}(root{{#hasPayload}}, payload.clone(){{/hasPayload}}), this);

@@ -1,53 +1,37 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library methodgettest;
-import 'dart:async';
-import 'package:streamy/streamy.dart' as streamy;
-import 'method_get_client_resources.dart' as res;
+library MethodGetTest;
 
-abstract class MethodGetTestResourcesMixin {
-  res.FoosResource _foos;
-  res.FoosResource get foos {
+import 'package:streamy/streamy.dart' as streamy;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'dart:async';
+import 'method_get_client_resources.dart' as resources;
+import 'package:streamy/base.dart' as base;
+
+class MethodGetTestResourceMixin {
+
+  resources.FoosResource _foos;
+
+  resources.FoosResource get foos {
     if (_foos == null) {
-      _foos = new res.FoosResource(this as streamy.Root);
+      _foos = new resources.FoosResource(this);
     }
     return _foos;
   }
 }
 
-class MethodGetTest
-    extends streamy.Root
-    with MethodGetTestResourcesMixin {
-  String get apiType => r'MethodGetTest';
-  final streamy.TransactionStrategy _txStrategy;
+class MethodGetTest extends streamy.HttpRoot with MethodGetTestResourceMixin {
+
   final streamy.RequestHandler requestHandler;
-  final streamy.Tracer _tracer;
-  MethodGetTest(
-      this.requestHandler,
-      {String servicePath: 'getTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
-      streamy.TransactionStrategy txStrategy: null,
-      streamy.Tracer tracer: const streamy.NoopTracer()}) :
-          super(typeRegistry, servicePath),
-          this._txStrategy = txStrategy,
-          this._tracer = tracer;
-  Stream send(streamy.Request request) =>
-      requestHandler.handle(request, _tracer.trace(request));
-  MethodGetTestTransaction beginTransaction() =>
-      new MethodGetTestTransaction(typeRegistry, servicePath,
-          _txStrategy.beginTransaction());
+
+  final streamy.TransactionStrategy txStrategy;
+
+  final streamy.Tracer tracer;
+
+  String get apiType => r'MethodGetTest';
+
+  MethodGetTest(streamy.RequestHandler this.requestHandler, {String servicePath: r'getTest/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'getTest/v1/');
+
+  Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }
 
-/// Provides the same API as [MethodGetTest] but runs all requests as
-/// part of the same transaction.
-class MethodGetTestTransaction
-    extends streamy.TransactionRoot
-    with MethodGetTestResourcesMixin {
-  String get apiType => r'MethodGetTestTransaction';
-  MethodGetTestTransaction(
-      streamy.TypeRegistry typeRegistry,
-      String servicePath,
-      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
+class MethodGetTestTransaction extends streamy.HttpTransactionRoot with MethodGetTestResourceMixin {
 }

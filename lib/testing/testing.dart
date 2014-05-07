@@ -105,7 +105,7 @@ final Request TEST_GET_REQUEST = new TestRequest('GET');
 final Request TEST_DELETE_REQUEST = new TestRequest('DELETE');
 // TODO(yjbanov): add POST and PUT test requests
 
-class TestRequest extends Request {
+class TestRequest extends HttpRequest {
   final String _httpMethod;
 
   TestRequest(this._httpMethod) : super(null);

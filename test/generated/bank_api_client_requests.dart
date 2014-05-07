@@ -1,66 +1,101 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library bank.requests;
-import 'dart:async';
-import 'package:fixnum/fixnum.dart' as fixnum;
-import 'package:streamy/streamy.dart' as streamy;
-import 'bank_api_client_objects.dart' as obj;
+library Bank.requests;
 
-/// Retrieves branch information
-class BranchesGetRequest extends streamy.Request {
-  static final List<String> KNOWN_PARAMETERS = [
+import 'package:streamy/streamy.dart' as streamy;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'bank_api_client_objects.dart' as objects;
+import 'bank_api_client_dispatch.dart' as dispatch;
+import 'dart:async';
+import 'package:streamy/base.dart' as base;
+
+class BranchesGetRequest extends streamy.HttpRequest {
+
+  static final List<String> KNOWN_PARAMETERS = const [
     r'branchId',
   ];
-  String get apiType => r'BranchesGetRequest';
-  String get httpMethod => 'GET';
-  String get pathFormat => 'branches/{branchId}';
-  bool get hasPayload => false;
-  BranchesGetRequest(streamy.Root root) : super(root) {
-  }
-  List<String> get pathParameters => const [r'branchId',];
-  List<String> get queryParameters => const [];
 
-  /// Primary key of a branch
   fixnum.Int64 get branchId => parameters[r'branchId'];
-  set branchId(fixnum.Int64 value) {
+  void set branchId(fixnum.Int64 value) {
     parameters[r'branchId'] = value;
   }
+
+  String get apiType => r'BranchesGetRequest';
+
+  bool get hasPayload => false;
+
+  String get httpMethod => r'GET';
+
+  String get pathFormat => r'branches/{branchId}';
+
+  List<String> get pathParameters => const [
+    r'branchId',
+  ];
+
+  List<String> get queryParameters => const [
+  ];
+
+  BranchesGetRequest(streamy.Root root) : super(root);
+
   fixnum.Int64 removeBranchId() => parameters.remove(r'branchId');
-  Stream<streamy.Response<obj.Branch>> _sendDirect() => this.root.send(this);
-  Stream<streamy.Response<obj.Branch>> sendRaw() =>
-      _sendDirect();
-  Stream<obj.Branch> send() =>
-      _sendDirect().map((response) => response.entity);
-  StreamSubscription<obj.Branch> listen(void onData(obj.Branch event)) =>
-      _sendDirect().map((response) => response.entity).listen(onData);
+
+  Stream<streamy.Response<objects.Branch>> _sendDirect() => root.send(this);
+
+  objects.Branch unmarshalResponse(dispatch.Marshaller marshaller, Map data) => marshaller.unmarshalBranch(data);
+
+  Stream<objects.Branch> send() {
+    return _sendDirect()
+      .map((response) => response.entity);
+  }
+
+  Stream<streamy.Response<objects.Branch>> sendRaw() {
+    return _sendDirect();
+  }
+
+  StreamSubscription<objects.Branch> listen() {
+    return _sendDirect()
+      .map((response) => response.entity)
+      .listen(onData);
+  }
+
   BranchesGetRequest clone() => streamy.internalCloneFrom(new BranchesGetRequest(root), this);
-  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
-      new obj.Branch.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
 }
 
-/// Inserts a branch
-class BranchesInsertRequest extends streamy.Request {
-  static final List<String> KNOWN_PARAMETERS = [
+class BranchesInsertRequest extends streamy.HttpRequest {
+
+  static final List<String> KNOWN_PARAMETERS = const [
   ];
+
   String get apiType => r'BranchesInsertRequest';
-  obj.Branch get payload => streamy.internalGetPayload(this);
-  String get httpMethod => 'POST';
-  String get pathFormat => 'branches';
+
   bool get hasPayload => true;
-  BranchesInsertRequest(streamy.Root root, obj.Branch payloadEntity) : super(root, payloadEntity) {
+
+  String get httpMethod => r'POST';
+
+  String get pathFormat => r'branches';
+
+  List<String> get pathParameters => const [
+  ];
+
+  List<String> get queryParameters => const [
+  ];
+
+  BranchesInsertRequest(streamy.Root root, objects.Branch payload) : super(root, payload);
+
+  Stream<streamy.Response> _sendDirect() => root.send(this);
+
+  Stream send() {
+    return _sendDirect()
+      .map((response) => response.entity);
   }
-  List<String> get pathParameters => const [];
-  List<String> get queryParameters => const [];
-  Stream<streamy.Response> _sendDirect() => this.root.send(this);
-  Stream<streamy.Response> sendRaw() =>
-      _sendDirect();
-  Stream send() =>
-      _sendDirect().map((response) => response.entity);
-  StreamSubscription listen(void onData(event)) =>
-      _sendDirect().map((response) => response.entity).listen(onData);
+
+  Stream<streamy.Response> sendRaw() {
+    return _sendDirect();
+  }
+
+  StreamSubscription listen() {
+    return _sendDirect()
+      .map((response) => response.entity)
+      .listen(onData);
+  }
+
   BranchesInsertRequest clone() => streamy.internalCloneFrom(new BranchesInsertRequest(root, payload.clone()), this);
-  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
-      new streamy.EmptyEntity();
 }

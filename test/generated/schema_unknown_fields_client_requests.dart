@@ -1,9 +1,8 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library schemaunknownfieldstest.requests;
-import 'dart:async';
-import 'package:fixnum/fixnum.dart' as fixnum;
+library SchemaUnknownFieldsTest.requests;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'schema_unknown_fields_client_objects.dart' as obj;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'schema_unknown_fields_client_objects.dart' as objects;
+import 'schema_unknown_fields_client_dispatch.dart' as dispatch;
+import 'dart:async';
+import 'package:streamy/base.dart' as base;

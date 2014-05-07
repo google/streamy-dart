@@ -1,24 +1,22 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library methodposttest.resources;
-import 'package:fixnum/fixnum.dart' as fixnum;
+library MethodPostTest.resources;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'method_post_client_requests.dart' as req;
-import 'method_post_client_objects.dart' as obj;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'method_post_client_requests.dart' as requests;
+import 'method_post_client_objects.dart' as objects;
+import 'package:streamy/base.dart' as base;
 
 class FoosResource {
+
   final streamy.Root _root;
-  static final List<String> KNOWN_METHODS = [
+
+  static final List<String> KNOWN_METHODS = const [
     r'update',
   ];
-  String get apiType => r'FoosResource';
-  FoosResource(this._root);
 
-  /// Updates a foo
-  req.FoosUpdateRequest update(obj.Foo payload) {
-    var request = new req.FoosUpdateRequest(_root, payload);
-    return request;
-  }
+  String get apiType => r'FoosResource';
+
+  FoosResource(streamy.Root this._root);
+
+  requests.FoosUpdateRequest update(objects.Foo payload) => new requests.FoosUpdateRequest(_root, payload);
 }

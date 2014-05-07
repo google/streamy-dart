@@ -7,13 +7,14 @@ class Api {
   final String urlName;
   final String version;
   final String rootUrl;
+  final String servicePath;
   /// External imports.
   final Map<String, String> imports = <String, String>{};
   
   final Map<String, Schema> types = <String, Schema>{};
   final Map<String, Resource> resources = <String, Resource>{};
   
-  Api(this.name, this.description, this.urlName, this.version, this.rootUrl);
+  Api(this.name, this.description, this.urlName, this.version, this.rootUrl, {this.servicePath});
   
   String toString() {
     var sb = new StringBuffer()

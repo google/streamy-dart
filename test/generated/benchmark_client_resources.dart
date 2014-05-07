@@ -1,9 +1,7 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library schemaobjecttest.resources;
-import 'package:fixnum/fixnum.dart' as fixnum;
+library SchemaObjectTest.resources;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'benchmark_client_requests.dart' as req;
-import 'benchmark_client_objects.dart' as obj;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'benchmark_client_requests.dart' as requests;
+import 'benchmark_client_objects.dart' as objects;
+import 'package:streamy/base.dart' as base;

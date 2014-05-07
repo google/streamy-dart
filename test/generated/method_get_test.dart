@@ -6,6 +6,7 @@ import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 import 'method_get_client.dart';
 import 'method_get_client_objects.dart';
+import 'method_get_client_dispatch.dart';
 
 main() {
   group('MethodGetTest', () {
@@ -21,12 +22,13 @@ main() {
       Foo testResponse = new Foo()
         ..id = 1
         ..bar = 'bar';
+      var marshaller = new Marshaller();
       var testRequestHandler = new RequestHandler.fromFunction(
           (req) => new Stream.fromIterable(
-              [new Response(req.responseDeserializer(stringify(testResponse.toJson()), const NoopTrace()), Source.RPC, 0)]));
+              [new Response(req.unmarshalResponse(marshaller, marshaller.marshalFoo(testResponse)), Source.RPC, 0)]));
       var subject = new MethodGetTest(testRequestHandler);
       subject.foos.get(1).send().listen(expectAsync1((Foo v) {
-        expect(v.toJson(), equals(testResponse.toJson()));
+        expect(marshaller.marshalFoo(v), equals(marshaller.marshalFoo(testResponse)));
       }, count: 1));
     });
     test('API root has proper service path', () {
@@ -49,7 +51,8 @@ main() {
     test('to/from json', () {
       var f = new Foo()
         ..id = 1;
-      var f2 = new Foo.fromJson(f.toJson(), copy: true);
+      var m = new Marshaller();
+      var f2 = m.unmarshalFoo(m.marshalFoo(f));
       expect(f2.containsKey('bar'), isFalse);
       expect(f2.containsKey('baz'), isFalse);
     });

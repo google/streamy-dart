@@ -2,7 +2,8 @@ part of streamy.generator;
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
-  var api = new Api(full['name'], full['description'], discovery['name'], full['version'], full['rootUrl']);
+  var api = new Api(full['name'], full['description'], discovery['name'], full['version'], full['rootUrl'],
+      servicePath: full['servicePath']);
 
   if (full.containsKey('schemas')) {
     full['schemas']
@@ -132,6 +133,9 @@ TypeRef _parseType(Map type) {
         break;
       default:
     }
+  }
+  if (type.containsKey('repeated') && type['repeated']) {
+    ref = new TypeRef.list(ref);
   }
   return ref;
 }

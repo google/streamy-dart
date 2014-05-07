@@ -1,3 +1,2 @@
-=> new {{requestType}}(_root){{#parameters}}
-  ..parameters[r'{{name}}'] = {{name}}{{/parameters}}{{#hasPayload}}
-  ..payload = payload{{/hasPayload}};
+=> new {{requestType}}(_root{{#hasPayload}}, payload{{/hasPayload}}){{#parameters}}
+  ..parameters[r'{{name}}'] = {{name}}{{/parameters}};

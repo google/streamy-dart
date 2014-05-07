@@ -1,46 +1,28 @@
-/**
- * WARNING: GENERATED CODE. DO NOT EDIT BY HAND.
- * 
- */
-library schemaunknownfieldstest;
-import 'dart:async';
+library SchemaUnknownFieldsTest;
+
 import 'package:streamy/streamy.dart' as streamy;
-import 'schema_unknown_fields_client_resources.dart' as res;
+import 'package:fixnum/fixnum.dart' as fixnum;
+import 'dart:async';
+import 'schema_unknown_fields_client_resources.dart' as resources;
+import 'package:streamy/base.dart' as base;
 
-abstract class SchemaUnknownFieldsTestResourcesMixin {
+class SchemaUnknownFieldsTestResourceMixin {
 }
 
-class SchemaUnknownFieldsTest
-    extends streamy.Root
-    with SchemaUnknownFieldsTestResourcesMixin {
-  String get apiType => r'SchemaUnknownFieldsTest';
-  final streamy.TransactionStrategy _txStrategy;
+class SchemaUnknownFieldsTest extends streamy.HttpRoot with SchemaUnknownFieldsTestResourceMixin {
+
   final streamy.RequestHandler requestHandler;
-  final streamy.Tracer _tracer;
-  SchemaUnknownFieldsTest(
-      this.requestHandler,
-      {String servicePath: 'schemaUnknownFieldsTest/v1/',
-      streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY,
-      streamy.TransactionStrategy txStrategy: null,
-      streamy.Tracer tracer: const streamy.NoopTracer()}) :
-          super(typeRegistry, servicePath),
-          this._txStrategy = txStrategy,
-          this._tracer = tracer;
-  Stream send(streamy.Request request) =>
-      requestHandler.handle(request, _tracer.trace(request));
-  SchemaUnknownFieldsTestTransaction beginTransaction() =>
-      new SchemaUnknownFieldsTestTransaction(typeRegistry, servicePath,
-          _txStrategy.beginTransaction());
+
+  final streamy.TransactionStrategy txStrategy;
+
+  final streamy.Tracer tracer;
+
+  String get apiType => r'SchemaUnknownFieldsTest';
+
+  SchemaUnknownFieldsTest(streamy.RequestHandler this.requestHandler, {String servicePath: r'schemaUnknownFieldsTest/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'schemaUnknownFieldsTest/v1/');
+
+  Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }
 
-/// Provides the same API as [SchemaUnknownFieldsTest] but runs all requests as
-/// part of the same transaction.
-class SchemaUnknownFieldsTestTransaction
-    extends streamy.TransactionRoot
-    with SchemaUnknownFieldsTestResourcesMixin {
-  String get apiType => r'SchemaUnknownFieldsTestTransaction';
-  SchemaUnknownFieldsTestTransaction(
-      streamy.TypeRegistry typeRegistry,
-      String servicePath,
-      streamy.Transaction tx) : super(typeRegistry, servicePath, tx);
+class SchemaUnknownFieldsTestTransaction extends streamy.HttpTransactionRoot with SchemaUnknownFieldsTestResourceMixin {
 }
