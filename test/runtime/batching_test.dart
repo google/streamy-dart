@@ -27,7 +27,7 @@ main() {
       var resp = new StreamyHttpResponse(200, {}, 'hello');
       testHttpService.expect(req, resp);
       subject.send(req).then(expectAsync1((r) {
-        expect(r, resp);=
+        expect(r, resp);
       }, count: 1));
       testHttpService.flush();
     });
