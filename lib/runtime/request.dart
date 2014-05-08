@@ -88,6 +88,9 @@ abstract class Request {
 
   /// Request parameters.
   final Map<String, dynamic> parameters = {};
+  
+  /// Other parameters.
+  final Map<String, dynamic> localParameters = {};
 
   /// Payload, if any.
   final Entity _payload;
@@ -127,7 +130,7 @@ abstract class Request {
     // This is a convenience that isn't codified in the discovery document spec.
     if (hasPayload) {
       pathParameters.forEach((param) {
-        if (payload.contains(param) &&
+        if (payload.containsKey(param) &&
             (payload[param] is String || payload[param] is int || payload[param] is Int64)) {
           parameters[param] = payload[param];
         }
@@ -160,25 +163,33 @@ abstract class Request {
     }
     buf.write(pathFormat.substring(pos));
     bool firstQueryParam = true;
+    write(qp, v) {
+      buf
+        ..write(firstQueryParam ? '?' : '&')
+        ..write(qp)
+        ..write('=')
+        ..write(Uri.encodeQueryComponent(v.toString()));
+      firstQueryParam = false;
+    }
     // queryParameters is ordered.
     for (String qp in queryParameters) {
       if (parameters.containsKey(qp)) {
-        write(v) {
-          buf
-            ..write(firstQueryParam ? '?' : '&')
-            ..write(qp)
-            ..write('=')
-            ..write(Uri.encodeQueryComponent(v.toString()));
-          firstQueryParam = false;
-        }
         if (parameters[qp] is List) {
           // Sort the list of parameters to ensure a canonical path.
-          (parameters[qp].toList()..sort()).forEach(write);
+          (parameters[qp].toList()..sort()).forEach((v) => write(qp, v));
         } else {
-          write(parameters[qp]);
+          write(qp, parameters[qp]);
         }
       }
     }
+    localParameters.forEach((qp, v) {
+      if (v is List) {
+        // Sort the list of parameters to ensure a canonical path.
+        (v.toList()..sort()).forEach((e) => write(qp, e));
+      } else {
+        write(qp, v);
+      }
+    });
     return buf.toString();
   }
 

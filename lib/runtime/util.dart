@@ -56,3 +56,72 @@ class ZeroOrOneConsumer<Entity> extends StreamConsumer<Entity> {
 
   Future<Entity> close() => new Future.value(null);
 }
+
+/// Provides efficient repeated access to a nested field in an [Entity]
+/// structure. Efficiency is provided in two main ways: by front-loading the
+/// path parsing, and by memoizing lookups so repeated accesses on the same
+/// object are fast. This is especially useful for speeding up [Comparator]s,
+/// so a useful [FastComparator] abstraction is provided for that purpose.
+class FastFieldAccessor<S extends Entity, T> {
+
+  final List<String> _pieces;
+  final Expando<T> _cache = new Expando<T>();
+
+  FastFieldAccessor(String path) : _pieces = path.split('.');
+
+  T operator[](S entity) {
+    var memoized = _cache[entity];
+    if (memoized != null) {
+      return memoized;
+    }
+    var current = entity;
+    var i = 0;
+    while (current != null && i < _pieces.length) {
+      current = current[_pieces[i++]];
+    }
+    if (current != null) {
+      _cache[entity] = current;
+    }
+    return current;
+  }
+}
+
+/// A [Comparator] that uses a [FastFieldAccessor] to speed up comparisons based
+/// on nested fields in an [Entity].
+class FastComparator<S extends Entity, T> {
+
+  final FastFieldAccessor<S, T> accessor;
+  final Comparator<T> comparator;
+
+  FastComparator(String field) : this.withComparator(field, Comparable.compare);
+
+  FastComparator.withComparator(String field, this.comparator) :
+      accessor = new FastFieldAccessor<S, T>(field);
+
+  int call(S a, S b) => comparator(accessor[a], accessor[b]);
+}
+
+/// Applies [fn] to each element and replaces the element with the result.
+mapInline(fn(e)) => (List l) {
+  if (l == null) return null;
+  for (int i = 0; i < l.length; i++) {
+    l[i] = fn(l[i]);
+  }
+  return l;
+};
+
+/// Static and null-safe version of [Iterable.map]. Does not alter the passed
+/// list. Creates a separate copy instead.
+mapCopy(fn(e)) => (List l) {
+  if (l == null) return null;
+  return l.map(fn).toList();
+};
+
+/// Parses [String] to [Int64]. Null-safe.
+Int64 atoi64(String v) => v != null ? Int64.parseInt(v) : null;
+/// Converts [int] to [Int64]. Null-safe.
+Int64 itoi64(int v) => v != null ? new Int64(v) : null;
+/// Parses [String] to [double]. Null-safe.
+double atod(String v) => v != null ? double.parse(v) : null;
+/// Calls [Object.toString] on the passed argument. Null-safe.
+String str(v) => v != null ? v.toString() : null;

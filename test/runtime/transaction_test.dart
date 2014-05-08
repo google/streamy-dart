@@ -6,6 +6,7 @@ import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
 import '../generated/bank_api_client.dart';
+import '../generated/bank_api_client_objects.dart';
 
 main() {
   group('Transaction', () {
@@ -82,6 +83,7 @@ class TestTxn implements Transaction {
     }
     requests = [];
     committed = true;
+    return null;
   }
 
   Stream send(Request request) {

@@ -1,24 +1,16 @@
-library streamy.runtime.entity.wrapper.test;
+library runtime_entity_wrapper_test;
 
-import 'package:streamy/streamy.dart';
-import 'package:streamy/testing/testing.dart';
+import 'dart:convert';
+
 import 'package:unittest/unittest.dart';
-
-class TestWrappedEntity extends EntityWrapper {
-  TestWrappedEntity(Map data) : super.wrap(
-      new DynamicEntity.fromMap(data), (entity) => throw "Not supported");
-  Type get streamyType => throw "Not supported";
-}
+import '../../generated/bank_api_client_objects.dart';
 
 main() {
   group('EntityWrapper', () {
-    test('should return field names as Iterable and not crash', () {
-      var subject = new TestWrappedEntity({
-        "a": 1,
-        "b": "z",
-      });
-      var expectedFields = ["a", "b"];
-      expect(subject.fieldNames, equals(expectedFields));
+    test('should serialize nulls as JSON nulls', () {
+      var e = new Branch();
+      e.name = null;
+      expect(JSON.encode(e), '{"name":null}');
     });
   });
 }

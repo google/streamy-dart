@@ -47,6 +47,7 @@ class _ObservableImmutableListView implements ObservableList {
   void clear() => _throw();
   bool contains(element) => _delegate.contains(element);
   bool deliverChanges() => _delegate.deliverChanges();
+  bool deliverListChanges() => _delegate.deliverListChanges();
   elementAt(int index) => _delegate.elementAt(index);
   bool every(bool test(element)) => _delegate.every(test);
   Iterable expand(Iterable f(element)) => _delegate.expand(f);
@@ -61,6 +62,7 @@ class _ObservableImmutableListView implements ObservableList {
   String join([String separator = '']) => _delegate.join(separator);
   int lastIndexOf(Object element, [int startIndex]) => _delegate.lastIndexOf(element, startIndex);
   lastWhere(bool test(element), {Object orElse()}) => _delegate.lastWhere(test, orElse: orElse);
+  Stream<List<ListChangeRecord>> get listChanges => _delegate.listChanges;
   Iterable map(f(element)) => _delegate.map(f);
   void notifyChange(_) => _throw();
   void notifyPropertyChange(_a, _b, _c) => _throw();
@@ -86,6 +88,9 @@ class _ObservableImmutableListView implements ObservableList {
   Set toSet() => _delegate.toSet();
   String toString() => _delegate.toString();
   Iterable where(test(element)) => _delegate.where(test);
+
+  void observed() {}
+  void unobserved() {}
 
   _throw() => throw new UnsupportedError('List is immutable.');
 }
@@ -227,6 +232,20 @@ _deserialize(dynamic value, TypeRegistry reg) {
 
 deserialize(value, TypeRegistry reg) => _deserialize(value, reg);
 
+void deserializeUnknown(Map json, Set<String> known, TypeRegistry reg) {
+  json.forEach((String key, value) {
+    if (!known.contains(key)) {
+      json[key] = _deserialize(json[key], reg);
+    }
+  });
+}
+
+void serialize(Map json, String key, Function map) {
+  if (json.containsKey(key)) {
+    json[key] = map(json[key]);
+  }
+}
+
 /// A sentinel value which indicates that an RPC returned an error.
 class _ErrorEntity implements Entity {
 
@@ -263,7 +282,17 @@ class _ErrorEntity implements Entity {
 const _INTERNAL_ERROR = const Response(null, Source.ERROR, 0);
 
 /// Walk a map-like structure through a list of keys, beginning with an initial value.
-_walk(initial, pieces) => pieces.fold(initial,
-      (current, keyPiece) => current != null ? current[keyPiece] : null);
+_walk(initial, List<String> pieces) {
+  int len = pieces.length;
+  var current = initial;
+  for (int i = 0; i < len; i++) {
+    if (current == null) {
+      return null;
+    }
+    String piece = pieces[i];
+    current = current[piece];
+  }
+  return current;
+}
 
 freezeForTest(entity) => entity._freeze();

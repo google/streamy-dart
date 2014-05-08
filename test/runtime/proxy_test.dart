@@ -6,6 +6,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import '../generated/bank_api_client.dart';
+import '../generated/bank_api_client_objects.dart';
 import '../utils.dart';
 
 main() {
@@ -48,6 +49,18 @@ main() {
       fastForward();
       expect(result, isNotNull);
       expect(result.id, new Int64(123));
+    }));
+
+    test('should accept 204 No Content and report it as null', async(() {
+      expect(fakeHttp.cancelledRequests, hasLength(0));
+      Response<Branch> result;
+      root.branches.get(new Int64(1)).sendRaw().listen((Response<Branch> r) {
+        result = r;
+      });
+      fakeHttp.lastCompleter.complete(new StreamyHttpResponse(204, {}, ''));
+      fastForward();
+      expect(result, isNotNull);
+      expect(result.entity, isNull);
     }));
 
     test('should set content-type in requests with payload', () {

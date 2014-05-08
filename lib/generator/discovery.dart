@@ -8,13 +8,23 @@ class Discovery {
   final List<Resource> resources;
   /// API name
   final String name;
+  /// API version
+  final String version;
   /// API description
   final String description;
   /// Service path
   final String servicePath;
+  /// Links to documentation web-site
+  final String documentationLink;
 
-  Discovery(this.schemas, this.resources, this.name, this.description,
-      this.servicePath);
+  Discovery(
+      this.schemas,
+      this.resources,
+      this.name,
+      this.version,
+      this.description,
+      this.servicePath,
+      this.documentationLink);
 
   factory Discovery.fromJsonString(String jsonString) {
     Map jsDiscovery = json.parse(jsonString);
@@ -22,8 +32,10 @@ class Discovery {
       extractNameTypePairs(jsDiscovery['schemas']),
       extractResources(jsDiscovery['resources']),
       jsDiscovery['name'],
+      jsDiscovery.containsKey('version') ? jsDiscovery['version'] : 'v1',
       jsDiscovery['description'],
-      jsDiscovery['servicePath']
+      jsDiscovery['servicePath'],
+      jsDiscovery['documentationLink']
     );
   }
 }
@@ -170,6 +182,7 @@ class Resource {
 
 List<Method> extractMethods(Map jsMethods) {
   List<Method> result = [];
+  if (jsMethods == null) return result;
   jsMethods.forEach((String name, Map jsSchema) {
     result.add(new Method.fromJsonObject(name, jsSchema));
   });

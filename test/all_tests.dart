@@ -17,8 +17,9 @@ import 'runtime/error_test.dart' as runtime_error_test;
 import 'runtime/request_test.dart' as runtime_request_test;
 import 'runtime/transaction_test.dart' as runtime_transaction_test;
 import 'runtime/transforms_test.dart' as runtime_transforms_test;
-import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 import 'runtime/proxy_test.dart' as runtime_proxy_test;
+import 'runtime/entity/raw_test.dart' as runtime_entity_raw_test;
+import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 
 main(List<String> args) {
   ensureCheckedMode();
@@ -39,8 +40,9 @@ main(List<String> args) {
   runtime_request_test.main();
   runtime_transaction_test.main();
   runtime_transforms_test.main();
-  runtime_entity_wrapper_test.main();
   runtime_proxy_test.main();
+  runtime_entity_raw_test.main();
+  runtime_entity_wrapper_test.main();
 }
 
 void ensureCheckedMode() {

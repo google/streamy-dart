@@ -41,5 +41,11 @@ main() {
         ..parameters["bar"] = "a@b c& d";
       expect(req.path, "/test/a%40b%20c%26%20d");  // component encoding
     });
+    test("adds local parameters properly", () {
+      var req = new RequestWithQueryParams()
+        ..parameters["foo"] = "test1"
+        ..localParameters["baz"] = 'test2';
+      expect(req.path, "/test?foo=test1&baz=test2");
+    });
   });
 }

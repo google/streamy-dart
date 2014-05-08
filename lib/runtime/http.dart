@@ -43,12 +43,6 @@ class StreamyHttpRequest {
         cleanHeaders[name.toLowerCase()] = value;
       });
     }
-    if (payload != null && !cleanHeaders.containsKey('content-length')) {
-      // Determine content length based on Utf8 encoded body.
-      cleanHeaders['content-length'] =
-          _UTF8.encoder.convert(payload).length.toString();
-    }
-
     return new StreamyHttpRequest._private(url, method, cleanHeaders, local,
         onCancel, payload);
   }
@@ -166,7 +160,7 @@ String _trimBody(String body, int byteLength) {
   if (bytes.length <= byteLength) {
     return body;
   }
-  bytes.length = byteLength;
+  bytes = bytes.sublist(0, byteLength);
   return _UTF8.decoder.convert(bytes);
 }
 

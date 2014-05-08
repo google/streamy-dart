@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
+import '../utils.dart';
 
 main() {
   group('DeduplicatingRequestHandler', () {
@@ -111,6 +112,37 @@ main() {
         expect(cancelled, isTrue);
       }));
       sink.add(new Response(new RawEntity(), Source.RPC, 0));
+    });
+    test('should trace deduped requests', () {
+      // Test handler never returns any values (so everything is deduped)
+      var received = <Request>[];
+      var reqHandler = new RequestHandler
+          .fromFunction((req) {
+            received.add(req);
+            return new StreamController().stream;
+          });
+      var tracer = new StreamTracer((_) => false);
+      var events = <TraceEvent>[];
+      tracer.requests.listen((req) => req.events
+          .where((evt) => evt is RpcDeduplicatedEvent)
+          .listen(events.add));
+
+      var subject = new DeduplicatingRequestHandler(reqHandler);
+
+      subject.handle(TEST_GET_REQUEST, tracer.trace(TEST_GET_REQUEST));
+      expect(received, hasLength(1),
+          reason: 'No in-flight requests to dedupe');
+      expect(events, hasLength(0),
+          reason: 'This request is not deduped');
+
+      subject.handle(TEST_GET_REQUEST, tracer.trace(TEST_GET_REQUEST));
+      expect(received, hasLength(1),
+          reason: 'Request should be deduped');
+      expect(events, hasLength(1),
+          reason: 'The second request is deduped');
+      expect(events[0], new isAssignableTo<RpcDeduplicatedEvent>(),
+          reason: 'Something is wrong with the test setup. We should only '
+                  'capture MultiplexerRpcDedupEvents.');
     });
   });
 }

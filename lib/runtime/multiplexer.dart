@@ -8,7 +8,7 @@ class ActiveRequest {
   ActiveRequest({onCancel})
       : sink = new StreamController<Response>(onCancel: onCancel);
 
-  StreamController<Response> get stream => sink.stream;
+  Stream<Response> get stream => sink.stream;
 
   void addPrimary(Response response) {
     sink.add(response);

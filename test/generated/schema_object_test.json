@@ -55,6 +55,26 @@
         }
       }
     },
+    "Context": {
+     "id": "Context",
+     "type": "object",
+     "properties": {
+      "facets": {
+       "type": "array",
+       "items": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "anchor": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
     "-some-entity-": {
       "id": "-some-entity-",
       "type": "object",

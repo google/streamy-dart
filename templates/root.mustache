@@ -1,10 +1,10 @@
 
 abstract class {{topLevelClassName}}ResourcesMixin {
 {{#resources}}
-  {{type}} _{{name}};
-  {{type}} get {{name}} {
+  res.{{type}} _{{name}};
+  res.{{type}} get {{name}} {
     if (_{{name}} == null) {
-      _{{name}} = new {{type}}(this as streamy.Root);
+      _{{name}} = new res.{{type}}(this as streamy.Root);
     }
     return _{{name}};
   }
@@ -17,7 +17,8 @@ class {{topLevelClassName}}
     extends streamy.Root
     with {{topLevelClassName}}ResourcesMixin {
 
-  String get apiType => r'{{discoveryName}}';
+  static final API_TYPE = r'{{discoveryName}}';
+  String get apiType => API_TYPE;
   final streamy.TransactionStrategy _txStrategy;
   final streamy.RequestHandler requestHandler;
   final streamy.Tracer _tracer;
@@ -46,7 +47,8 @@ class {{topLevelClassName}}Transaction
     extends streamy.TransactionRoot
     with {{topLevelClassName}}ResourcesMixin {
 
-  String get apiType => r'{{discoveryName}}Transaction';
+  static final API_TYPE = r'{{discoveryName}}Transaction';
+  String get apiType => API_TYPE;
 
   {{topLevelClassName}}Transaction(
       streamy.TypeRegistry typeRegistry,

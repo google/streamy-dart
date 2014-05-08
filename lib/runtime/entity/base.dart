@@ -54,7 +54,7 @@ abstract class Entity {
   Map toJson();
 
   /// Local data associated with this entity instance.
-  Map<String, dynamic> get local;
+  ObservableMap<String, dynamic> get local;
 
   /// Return the Streamy implementation type of this entity.
   Type get streamyType;
@@ -76,6 +76,9 @@ abstract class Entity {
     // Loop through each field, checking equality of the values.
     var fieldNames = first.fieldNames.toList(growable: false);
     var len = fieldNames.length;
+    if (len != second.fieldNames.length) {
+      return false;
+    }
     for (var i = 0; i < len; i++) {
       if (!second.containsKey(fieldNames[i])) {
         return false;

@@ -18,6 +18,9 @@
           "type": "integer",
           "description": "It's spelled buzz."
         },
+        "cruft": {
+          "type": "string"
+        },
         "qux": {
           "type": "string",
           "description": "Not what it seems.",
@@ -50,6 +53,9 @@
           "items": {
             "$ref": "Foo"
           }
+        },
+        "foo": {
+          "$ref": "Foo"
         }
       }
     }

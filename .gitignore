@@ -5,3 +5,5 @@ dart-sdk
 .c9revisions
 dartsdk-linux-64.tar.gz
 .settings
+test/benchmark_html.dart.*
+.idea

@@ -1,97 +1,164 @@
-import 'dart:convert' as convert;
 import 'dart:io' as io;
 import 'package:args/args.dart';
-import 'package:json/json.dart';
-import 'package:streamy/generator.dart';
+import 'package:quiver/strings.dart';
+import 'package:quiver/pattern.dart';
+import 'package:streamy/generator_utils.dart';
+
+io.File discoveryFile;
+io.Directory outputDir;
+io.File addendumFile;
+io.Directory templatesDir;
+String clientFileName;
+String libVersion;
+String localStreamyLocation;
+String remoteStreamyLocation;
+String remoteBranch;
 
 /// Generates an API client from a Google API discovery file.
 main(List<String> args) {
-  ApigenOptions options = parseArgs(args);
-  var discoveryFile = new io.File(options.discoveryFile);
-  discoveryFile.readAsString(encoding: convert.UTF8).then((String json) {
-    var discovery = new Discovery.fromJsonString(json);
-    var clientFile = new io.File(options.clientFile);
-    var addendumData = {};
-    if (options.addendumFile != null) {
-      var addendumFile = new io.File(options.addendumFile);
-      addendumData = parse(addendumFile.readAsStringSync());
-    }
-    String code = new Emitter(new DefaultTemplateProvider(options.templatesDir))
-        .generate(options.libraryName, discovery, addendumData: addendumData);
-    clientFile.writeAsString(code, encoding: convert.UTF8);
-  });
+  parseArgs(args);
+  generateStreamyClientLibrary(discoveryFile, outputDir,
+      addendumFile: addendumFile,
+      templatesDir: templatesDir,
+      libVersion: libVersion,
+      localStreamyLocation: localStreamyLocation,
+      fileName: clientFileName,
+      remoteStreamyLocation: remoteStreamyLocation,
+      remoteBranch: remoteBranch);
 }
 
-ApigenOptions parseArgs(List<String> arguments) {
-  var argp = new ArgParser()
-    ..addOption(
-        'discovery_file',
-        help: 'Path to the input discovery file.')
-    ..addOption(
-        'client_file',
-        help: 'Path to the output file for generated client API code.')
-    ..addOption(
-        'library_name',
-        help: 'The name of the library name for generated client API code.')
-    ..addOption(
-        'addendum_file',
-        help:'The name, if any, of the Streamy addendum to the discovery file.')
-    ..addOption(
-        'templates_dir',
-        help: 'Directory containing code templates.');
-  var args = argp.parse(arguments);
-  var options = new ApigenOptions(
-      args['discovery_file'],
-      args['client_file'],
-      args['library_name'],
-      args['addendum_file'],
-      args['templates_dir']
-  );
-  if (!validateOptions(options)) {
+void parseArgs(List<String> arguments) {
+  final String locataionErrorMessage = 'both local-streamy-location and '
+      'remote-streamy-location simultaneously not supported';
+
+  var errors = <String>[];
+  var argp = new ArgParser();
+
+  printUsage() {
     print(argp.getUsage());
     io.exit(1);
   }
-  return options;
-}
 
-bool validateOptions(ApigenOptions options) {
-  var errors = <String>[];
-  if (isBlank(options.discoveryFile)) {
-    errors.add('discovery_file option is required');
-  }
-  if (isBlank(options.clientFile)) {
-    errors.add('client_file option is required');
-  }
-  if (isBlank(options.libraryName)) {
-    errors.add('library_name option is required');
-  }
+  argp
+    ..addOption(
+      'client-file-name',
+      abbr: 'c',
+      help: 'Prefix for the .dart files generated.',
+      callback: (String value) {
+        if (isBlank(value)) {
+          errors.add('--client-file-name is required');
+          return;
+        }
+        clientFileName = value;
+      })
+    ..addOption(
+        'discovery-file',
+        abbr: 'd',
+        help: 'Path to the discovery file.',
+        callback: (String value) {
+          if (isBlank(value)) {
+            errors.add('--discovery-file is required');
+            return;
+          }
+          discoveryFile = new io.File(value);
+          if (!discoveryFile.existsSync()) {
+            errors.add('Discovery file $value does not exist');
+            return;
+          }
+        })
+    ..addOption(
+        'output-dir',
+        abbr: 'o',
+        help: 'Directory for the generated client library package.',
+        callback: (String value) {
+          if (isBlank(value)) {
+            errors.add('--output-dir is required');
+            return;
+          }
+          outputDir = new io.Directory(value);
+          if (!outputDir.existsSync()) {
+            errors.add('Output directory $value does not exist');
+            return;
+          }
+        })
+    ..addOption(
+        'addendum-file',
+        abbr: 'a',
+        help: 'Path to addendum to the discovery file.',
+        callback: (String value) {
+          if (!isBlank(value)) {
+            addendumFile = new io.File(value);
+            if (!addendumFile.existsSync()) {
+              errors.add('Addendum file $value does not exist');
+              return;
+            }
+          }
+        })
+    ..addOption(
+        'templates-dir',
+        abbr: 't',
+        help: 'Directory containing code templates.',
+        defaultsTo: 'templates',
+        callback: (String value) {
+          templatesDir = new io.Directory(value);
+          if (!templatesDir.existsSync()) {
+            errors.add('Code template directory $value does not exist');
+            return;
+          }
+        })
+    ..addOption(
+        'package-version',
+        abbr: 'v',
+        help: 'Version to be specified in the generated pubspec.yaml',
+        defaultsTo: '0.0.0',
+        callback: (String value) {
+          if (!matchesFull(new RegExp(r'\d\.\d\.\d'), value)) {
+            errors.add('Version must be in format 1.1.1, but got: $value');
+            return;
+          }
+          libVersion = value;
+        })
+    ..addOption(
+        'local-streamy-location',
+        help: 'Path to a local Streamy package. If specified the local '
+              'version will be used instead of pub version.',
+        callback: (String value) {
+          if (remoteStreamyLocation != null && !isBlank(value)) {
+            errors.add(locataionErrorMessage);
+            return;
+          }
+          localStreamyLocation = value;
+        })
+    ..addFlag(
+        'help',
+        abbr: 'h',
+        help: 'display commandline help options',
+        negatable: false,
+        callback: (bool value) => value ? printUsage() : null)
+    ..addOption(
+        'remote-streamy-location',
+        help: 'Remote to a git Streamy repository. If specified the remote '
+              'version will be used instead of pub version.',
+        callback: (String value) {
+          if (localStreamyLocation != null && !isBlank(value)) {
+            errors.add(locataionErrorMessage);
+            return;
+          }
+          remoteStreamyLocation = value;
+        })
+    ..addOption(
+        'remote-branch',
+        defaultsTo: 'master',
+        help: 'Remote branch name to use',
+        callback: (String value) {
+          remoteBranch = value;
+        });
+  argp.parse(arguments);
   if (errors.length > 0) {
-    print(errors);
-    return false;
-  }
-  return true;
-}
-
-bool isBlank(String s) {
-  return s == null || s.trim().isEmpty;
-}
-
-/// Contains user-provided options for the API generator.
-class ApigenOptions {
-  /// Path to the input discovery file.
-  String discoveryFile;
-  /// Path to the output file containing client API code.
-  String clientFile;
-  /// The name of the library name for generated client API code.
-  String libraryName;
-  /// Optional path to the addendum file which contains extensions to the
-  /// discovery document.
-  String addendumFile;
-  /// Directory containing code templates.
-  String templatesDir;
-
-  ApigenOptions(this.discoveryFile, this.clientFile, this.libraryName,
-      this.addendumFile, String templatesDir) {
-    this.templatesDir = (templatesDir != null) ? templatesDir : 'templates';
+    errors.forEach((e) {
+      // TODO: use logging for errors
+      print('ERROR: $e');
+    });
+    printUsage();
   }
 }
