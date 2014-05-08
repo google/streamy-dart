@@ -136,14 +136,17 @@ class CachingRequestHandler extends RequestHandler {
       return delegate.handle(request, trace);
     }
 
+    StreamController<Response> sink;
     if (request.local.containsKey('noRpcAge')) {
+      sink = new StreamController<Response>();
       // Cache request and delegated request need to happen serially.
-      return cache.get(request).then((cachedEntity) {
-        if (response == null) {
+      cache.get(request).then((cachedEntity) {
+        if (cachedEntity == null) {
           request.local['streamy.foundInCache'] = false;
           trace.record(new CacheMissEvent());
           // Delegate via [_delegateRequest] to cache the response.
-          return _delegateRequest(request, trace).stream;
+          _delegateRequest(request, trace).stream.pipe(sink);
+          return null;
         }
         trace.record(new CacheHitEvent());
         request.local['streamy.foundInCache'] = true;
@@ -155,24 +158,22 @@ class CachingRequestHandler extends RequestHandler {
           return new Stream.fromIterable(
               [_toCachedResponse(cachedEntity, authority: Authority.PRIMARY)]);
         }
-        // Make the RPC request.
-        var sink = _delegateRequest(request, trace);
         // Add the cached entity first.
         sink.add(_toCachedResponse(cachedEntity));
-        return sink.stream;
+        // Make the RPC request.
+        _delegateRequest(request, trace).stream.pipe(sink);
       });
     } else {
       // Make a normal (parallel) cache request. The cache request is fired
       // first to put it ahead of an instantaneous backend in the event loop.
-      var sink;
       cache.get(request).then((cachedEntity) {
         if (cachedEntity != null) {
           sink.add(_toCachedResponse(cachedEntity));
         }
       });
       sink = _delegateRequest(request, trace);
-      return sink.stream;
     }
+    return sink.stream;
   }
 
   _toCachedResponse(cached, {authority: Authority.SECONDARY}) => new Response(

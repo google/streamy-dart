@@ -1,4 +1,4 @@
-library streamy.runtime.cache.test;
+library streamy.runtime.dedup.test;
 
 import 'dart:async';
 import 'package:streamy/streamy.dart';
