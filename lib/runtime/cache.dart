@@ -155,20 +155,25 @@ class CachingRequestHandler extends RequestHandler {
         var now = clock.now().millisecondsSinceEpoch;
         if (now - cachedEntity.ts <= request.local['noRpcAge']) {
           // The entity is young enough to be the primary response.
-          return new Stream.fromIterable(
-              [_toCachedResponse(cachedEntity, authority: Authority.PRIMARY)]);
+          sink.add(_toCachedResponse(cachedEntity,
+              authority: Authority.PRIMARY));
+          sink.close();
+        } else {
+          // Add the cached entity first.
+          sink.add(_toCachedResponse(cachedEntity));
+          // Make the RPC request.
+          _delegateRequest(request, trace).stream.pipe(sink);
         }
-        // Add the cached entity first.
-        sink.add(_toCachedResponse(cachedEntity));
-        // Make the RPC request.
-        _delegateRequest(request, trace).stream.pipe(sink);
       });
     } else {
       // Make a normal (parallel) cache request. The cache request is fired
       // first to put it ahead of an instantaneous backend in the event loop.
       cache.get(request).then((cachedEntity) {
         if (cachedEntity != null) {
+          trace.record(new CacheHitEvent());
           sink.add(_toCachedResponse(cachedEntity));
+        } else {
+          trace.record(new CacheMissEvent());
         }
       });
       sink = _delegateRequest(request, trace);
@@ -194,15 +199,7 @@ class CachingRequestHandler extends RequestHandler {
       ..onDone(sink.close);
     return sink;
   }
-
-  StreamSubscription<Response> _bridgeDelegatedRequest(
-      Request request, Trace trace, StreamController bridge) =>
-    delegate.handle(request, trace).listen(bridge.add)
-      ..onError(bridge.addError)
-      ..onDone(bridge.close);
 }
-
-
 
 class CacheHitEvent implements TraceEvent {
   factory CacheHitEvent() => const CacheHitEvent._private();
