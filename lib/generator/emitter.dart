@@ -1,22 +1,59 @@
 part of streamy.generator;
 
 class StreamyClient {
+  final Config config;
   final DartFile root;
   final DartFile resources;
   final DartFile requests;
   final DartFile objects;
   final DartFile dispatch;
   
-  StreamyClient(this.root, this.resources, this.requests, this.objects, this.dispatch);
+  StreamyClient(this.config, this.root, this.resources, this.requests, this.objects, this.dispatch);
 }
 
 class Emitter {
   final Config config;
-  final TemplateLoader loader;
+  final Map<String, mustache.Template> templates;
   
-  Emitter(
-      this.config,
-      this.loader);
+  Emitter(this.config, this.templates);
+  
+  static final List<String> TEMPLATES = const [
+    'lazy_resource_getter',
+    'map',
+    'marshal',
+    'marshal_mapbacked',
+    'object_clone',
+    'object_ctor',
+    'object_getter',
+    'object_remove',
+    'object_setter',
+    'request_clone',
+    'request_ctor',
+    'request_method',
+    'request_param_getter',
+    'request_param_setter',
+    'request_remove',
+    'request_send',
+    'request_send_direct',
+    'request_unmarshal_response',
+    'root_constructor',
+    'root_send',
+    'string_list',
+    'unmarshal'
+  ];
+      
+  static Future<Emitter> fromTemplateLoader(Config config, TemplateLoader loader) {
+    var templates = <String, mustache.Template>{};
+    var futures = <Future>[];
+    TEMPLATES.forEach((name) => futures.add(loader
+      .load(name)
+      .then((template) {
+        templates[name] = template;
+      })));
+    return Future
+      .wait(futures)
+      .then((_) => new Emitter(config, templates));
+  }
   
   StreamyClient process(Api api) {
     var client;
@@ -41,7 +78,7 @@ class Emitter {
         requestFile = rootFile;
         objectFile = rootFile;
         dispatchFile = rootFile;
-        client = new StreamyClient(rootFile, null, null, null, null);
+        client = new StreamyClient(config, rootFile, null, null, null, null);
         break;
       case SPLIT_LEVEL_PARTS:
         resourceFile = new DartLibraryPart(rootFile.libraryName,
@@ -54,7 +91,7 @@ class Emitter {
             '${config.outputPrefix}_dispatch.dart');
         rootFile.parts.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
         out.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
-        client = new StreamyClient(rootFile, resourceFile, requestFile, objectFile, dispatchFile);
+        client = new StreamyClient(config, rootFile, resourceFile, requestFile, objectFile, dispatchFile);
         break;
       case SPLIT_LEVEL_LIBS:
         resourceFile = new DartLibrary('$libPrefix.resources');
@@ -94,7 +131,7 @@ class Emitter {
         requestFile.imports.addAll(api.imports);
         objectFile.imports.addAll(api.imports);
         dispatchFile.imports.addAll(api.imports);
-        client = new StreamyClient(rootFile, resourceFile, requestFile, objectFile, dispatchFile);
+        client = new StreamyClient(config, rootFile, resourceFile, requestFile, objectFile, dispatchFile);
         break;
     }
     
@@ -117,7 +154,7 @@ class Emitter {
     }
     
     // Implement backing fields and lazy getters for each resource type.
-    var getterTemplate = loader.load('lazy_resource_getter');
+    var getterTemplate = _template('lazy_resource_getter');
     api.resources.forEach((name, resource) {
       // Backing field.
       var fieldName = "_${resource.name}";
@@ -150,7 +187,7 @@ class Emitter {
       ctorData['servicePath'] = api.httpConfig.servicePath;
     }
     var ctor = new DartConstructor(root.name, body: new DartTemplateBody(
-      loader.load('root_constructor'), ctorData))
+      _template('root_constructor'), ctorData))
       ..parameters.add(new DartParameter('requestHandler',
           streamyImport('RequestHandler'), isDirectAssignment: true))
       ..namedParameters.add(new DartNamedParameter('txStrategy',
@@ -167,7 +204,7 @@ class Emitter {
     root.methods.add(ctor);
     
     var send = new DartMethod('send', new DartType('Stream', null, const []),
-      new DartTemplateBody(loader.load('root_send'), {})
+      new DartTemplateBody(_template('root_send'), {})
     )
       ..parameters.add(new DartParameter('request', streamyImport('Request')));
     root.methods.add(send);
@@ -193,7 +230,7 @@ class Emitter {
       String objectPrefix) {
     var name = toProperIdentifier(resource.name);
     var clazz = new DartClass('${toProperIdentifier(resource.name)}Resource');
-    var requestMethodTemplate = loader.load('request_method');
+    var requestMethodTemplate = _template('request_method');
     
     // Set up a _root field for the implementation RequestHandler, and a
     // constructor that sets it.
@@ -268,8 +305,8 @@ class Emitter {
       .toList(growable: false);
       
   DartClass processRequest(Api api, String resourceName, Method method, String objectPrefix, String dispatchPrefix) {
-    var paramGetter = loader.load('request_param_getter');
-    var paramSetter = loader.load('request_param_setter');
+    var paramGetter = _template('request_param_getter');
+    var paramSetter = _template('request_param_setter');
     var methodName = toProperIdentifier(method.name);
     var clazz = new DartClass('$resourceName${methodName}Request',
         baseClass: streamyImport('HttpRequest'));
@@ -291,7 +328,7 @@ class Emitter {
     // constructor that sets it.
     var rootType = streamyImport('Root');
     var ctor = new DartConstructor(clazz.name, body: new DartTemplateBody(
-      loader.load('request_ctor'), {
+      _template('request_ctor'), {
         'hasPayload': payloadType != null,
         'hasListParams': listParams.isNotEmpty,
         'listParams': listParams
@@ -318,7 +355,7 @@ class Emitter {
               new DartTemplateBody(paramGetter, {'name': name}),
               new DartTemplateBody(paramSetter, {'name': name})));
       clazz.methods.add(new DartMethod(toProperIdentifier('remove_$name', firstLetter: false), type,
-          new DartTemplateBody(loader.load('request_remove'), {'name': name})));
+          new DartTemplateBody(_template('request_remove'), {'name': name})));
     });
     
     addApiType(clazz);
@@ -363,8 +400,8 @@ class Emitter {
       sendParams.add(new DartNamedParameter(p.name, type, defaultValue: defaultValue));
     });
     
-    var sendDirectTemplate = loader.load('request_send_direct');
-    var sendTemplate = loader.load('request_send');
+    var sendDirectTemplate = _template('request_send_direct');
+    var sendTemplate = _template('request_send');
     
     // Add _sendDirect.
     var responseType;
@@ -388,7 +425,7 @@ class Emitter {
     
     if (responseType != null && api.httpConfig != null) {
       clazz.methods.add(new DartMethod('unmarshalResponse', responseType,
-          new DartTemplateBody(loader.load('request_unmarshal_response'), {
+          new DartTemplateBody(_template('request_unmarshal_response'), {
             'name': toProperIdentifier(method.responseType.schemaClass)
           }
       ))
@@ -433,7 +470,7 @@ class Emitter {
     
     var clone = new DartMethod('clone',
         new DartType(clazz.name, null, const []),
-        new DartTemplateBody(loader.load('request_clone'), {
+        new DartTemplateBody(_template('request_clone'), {
           'type': clazz.name,
           'hasPayload': payloadType != null
     }));
@@ -458,10 +495,10 @@ class Emitter {
     var clazz = new DartClass(toProperIdentifier(schema.name), baseClass: base);
     clazz.mixins.addAll(schema.mixins.map((mixin) => toDartType(mixin, '')));
     
-    var ctor = loader.load('object_ctor');
-    var getter = loader.load('object_getter');
-    var setter = loader.load('object_setter');
-    var remove = loader.load('object_remove');
+    var ctor = _template('object_ctor');
+    var getter = _template('object_getter');
+    var setter = _template('object_setter');
+    var remove = _template('object_remove');
     
     clazz.methods.add(new DartConstructor(clazz.name, body: new DartTemplateBody(
       ctor, {'wrap': false})));
@@ -499,7 +536,7 @@ class Emitter {
     var schemaType = new DartType.from(clazz);
     if (config.clone) {
       clazz.methods.add(new DartMethod('clone', schemaType,
-          new DartTemplateBody(loader.load('object_clone'), {'type': schemaType})));
+          new DartTemplateBody(_template('object_clone'), {'type': schemaType})));
     }
     
     addApiType(clazz);
@@ -514,8 +551,8 @@ class Emitter {
     var data = {
       'fields': []
     };
-    var marshal = loader.load('marshal');
-    var unmarshal = loader.load('unmarshal');
+    var marshal = _template('marshal');
+    var unmarshal = _template('unmarshal');
     
     var allFields = [];
     var int64Fields = [];
@@ -558,7 +595,7 @@ class Emitter {
         data.add({'key': name, 'value': '_handle${toProperIdentifier(schema)}'});
       });
       clazz.fields.add(new DartSimpleField('_entities$name', rt, isStatic: true, isFinal: true, initializer:
-          new DartTemplateBody(loader.load('map'), {'pairs': data})));
+          new DartTemplateBody(_template('map'), {'pairs': data})));
     }
     var serializerConfig = {
       'entity': type,
@@ -593,7 +630,7 @@ class Emitter {
   }
   
   DartBody stringListBody(Iterable<String> strings, {bool getter: false}) =>
-      new DartTemplateBody(loader.load('string_list'), {
+      new DartTemplateBody(_template('string_list'), {
       'list': strings.map((i) => {'value': i}).toList(growable: false),
       'getter': getter
     });
@@ -629,4 +666,6 @@ class Emitter {
       }
     }
   }
+  
+  mustache.Template _template(String name) => templates[name];
 }

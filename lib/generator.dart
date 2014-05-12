@@ -1,5 +1,6 @@
 library streamy.generator;
 
+import 'dart:async';
 import 'dart:io' as io;
 import 'package:analyzer/analyzer.dart' as analyzer;
 import 'package:json/json.dart' as json;
@@ -14,10 +15,3 @@ part 'generator/discovery.dart';
 part 'generator/service.dart';
 part 'generator/emitter.dart';
 part 'generator/util.dart';
-
-/// Used to report all sorts of problems during API generation.
-class ApigenException implements Exception {
-  String _msg;
-  ApigenException(this._msg);
-  String toString() => _msg;
-}

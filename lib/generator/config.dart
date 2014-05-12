@@ -27,10 +27,7 @@ class Config {
   Config();
 }
 
-void _die(String message) {
-  print(message);
-  exit(1);
-}
+void _die(String message) => throw new Exception(message);
 
 Config parseConfigOrDie(Map data) {
   var config = new Config();
@@ -126,19 +123,26 @@ Config parseConfigOrDie(Map data) {
   return config;
 }
 
-Api apiFromConfig(Config config) {
+Future<String> _fileReader(String path) => new io.File(path).readAsString();
+
+Future<Api> apiFromConfig(
+  Config config, {String pathPrefix: '', fileReader: _fileReader}) {
   if (config.discoveryFile != null) {
-    var addendum = {};
-    var discovery = json.parse(
-        new io.File(config.discoveryFile).readAsStringSync());
+    var addendum = new Future.value('{}');
+    var discovery = fileReader(pathPrefix + config.discoveryFile);
     if (config.addendumFile != null) {
-      addendum = json.parse(new io.File(config.addendumFile).readAsStringSync());
+      addendum = fileReader(pathPrefix + config.addendumFile);
     }
-    return parseDiscovery(discovery, addendum);
-  } else if (config.serviceFile != null) {
+    return Future
+      .wait([discovery, addendum])
+      .then((data) => data.map(json.parse).toList(growable: false))
+      .then((data) => parseDiscovery(data[0], data[1]));
+  } else {
     _die('Handle services.');
   }
 }
+
+
 class TemplateLoader {
   
   factory TemplateLoader.fromDirectory(String path) {

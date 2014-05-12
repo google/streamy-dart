@@ -28,3 +28,5 @@ dev_dependencies:
   unittest: any
   benchmark_harness: ">=1.0.0"
   intl: any
+transformers:
+- streamy
