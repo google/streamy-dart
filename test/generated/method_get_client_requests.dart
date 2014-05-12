@@ -1,22 +1,20 @@
-library MethodGetTest.requests;
+library MethodGetTest.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:streamy/base.dart' as base;
 import 'method_get_client_objects.dart' as objects;
 import 'method_get_client_dispatch.dart' as dispatch;
 import 'dart:async';
-import 'package:streamy/base.dart' as base;
 
 class FoosGetRequest extends streamy.HttpRequest {
-
-  static final List<String> KNOWN_PARAMETERS = const [
-    r'fooId',
-  ];
 
   int get fooId => parameters[r'fooId'];
   void set fooId(int value) {
     parameters[r'fooId'] = value;
   }
+
+  static final String API_TYPE = r'FoosGetRequest';
 
   String get apiType => r'FoosGetRequest';
 

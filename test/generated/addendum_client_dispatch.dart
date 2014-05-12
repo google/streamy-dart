@@ -1,4 +1,4 @@
-library AddendumTest.dispatch;
+library AddendumTest.null.dispatch;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;

@@ -4,21 +4,19 @@ class Api {
   final StreamyConfig streamy = new StreamyConfig();
   final String name;
   final String description;
-  final String urlName;
-  final String version;
-  final String rootUrl;
-  final String servicePath;
+  final HttpConfig httpConfig;
+  final bool marshalling;
   /// External imports.
   final Map<String, String> imports = <String, String>{};
-  
   final Map<String, Schema> types = <String, Schema>{};
   final Map<String, Resource> resources = <String, Resource>{};
   
-  Api(this.name, this.description, this.urlName, this.version, this.rootUrl, {this.servicePath});
+  Api(this.name, this.description,
+      {this.httpConfig, this.marshalling: true});
   
   String toString() {
     var sb = new StringBuffer()
-      ..writeln("Api: $name (urlName=$urlName, v=$version, root=$rootUrl)");
+      ..writeln("Api: $name");
     sb.writeAll(types.values);
     sb.writeAll(resources.values);
     sb.writeln();
@@ -163,7 +161,6 @@ class ListTypeRef implements TypeRef {
 class StreamyConfig {
   // Send params.
   List<SendParam> sendParams = [];
-  
 }
 
 class SendParam {
@@ -172,4 +169,13 @@ class SendParam {
   final dynamic defaultValue;
   
   SendParam(this.name, this.typeRef, this.defaultValue);
+}
+
+class HttpConfig {
+  final String urlName;
+  final String version;
+  final String rootUrl;
+  final String servicePath;
+  
+  HttpConfig(this.urlName, this.version, this.rootUrl, this.servicePath);
 }

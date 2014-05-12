@@ -1,4 +1,4 @@
-library Bank.requests;
+library Bank.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -17,6 +17,8 @@ class BranchesGetRequest extends streamy.HttpRequest {
   void set branchId(fixnum.Int64 value) {
     parameters[r'branchId'] = value;
   }
+
+  static final String API_TYPE = r'BranchesGetRequest';
 
   String get apiType => r'BranchesGetRequest';
 
@@ -63,6 +65,8 @@ class BranchesInsertRequest extends streamy.HttpRequest {
 
   static final List<String> KNOWN_PARAMETERS = const [
   ];
+
+  static final String API_TYPE = r'BranchesInsertRequest';
 
   String get apiType => r'BranchesInsertRequest';
 

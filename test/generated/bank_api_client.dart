@@ -1,4 +1,4 @@
-library Bank;
+library Bank.null;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -26,9 +26,11 @@ class Bank extends streamy.HttpRoot with BankResourceMixin {
 
   final streamy.Tracer tracer;
 
+  static final String API_TYPE = r'Bank';
+
   String get apiType => r'Bank';
 
-  Bank(streamy.RequestHandler this.requestHandler, {String servicePath: r'bank/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'bank/v1/');
+  Bank(streamy.RequestHandler this.requestHandler, {streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer(), String servicePath: r'bank/v1/'}) : super(r'bank/v1/');
 
   Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

@@ -1,4 +1,4 @@
-library SchemaUnknownFieldsTest;
+library SchemaUnknownFieldsTest.null;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -17,9 +17,11 @@ class SchemaUnknownFieldsTest extends streamy.HttpRoot with SchemaUnknownFieldsT
 
   final streamy.Tracer tracer;
 
+  static final String API_TYPE = r'SchemaUnknownFieldsTest';
+
   String get apiType => r'SchemaUnknownFieldsTest';
 
-  SchemaUnknownFieldsTest(streamy.RequestHandler this.requestHandler, {String servicePath: r'schemaUnknownFieldsTest/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'schemaUnknownFieldsTest/v1/');
+  SchemaUnknownFieldsTest(streamy.RequestHandler this.requestHandler, {streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer(), String servicePath: r'schemaUnknownFieldsTest/v1/'}) : super(r'schemaUnknownFieldsTest/v1/');
 
   Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

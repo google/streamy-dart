@@ -1,4 +1,4 @@
-library MethodPostTest.requests;
+library MethodPostTest.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -17,6 +17,8 @@ class FoosUpdateRequest extends streamy.HttpRequest {
   void set id(int value) {
     parameters[r'id'] = value;
   }
+
+  static final String API_TYPE = r'FoosUpdateRequest';
 
   String get apiType => r'FoosUpdateRequest';
 

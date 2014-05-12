@@ -1,9 +1,9 @@
-library MethodGetTest.dispatch;
+library MethodGetTest.null.dispatch;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
-import 'method_get_client_objects.dart' as objects;
 import 'package:streamy/base.dart' as base;
+import 'method_get_client_objects.dart' as objects;
 
 class Marshaller {
 

@@ -1,4 +1,4 @@
-library Bank.objects;
+library Bank.null.objects;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -27,6 +27,8 @@ class Branch extends base.Entity {
     this[r'location'] = value;
   }
 
+  static final String API_TYPE = r'Branch';
+
   String get apiType => r'Branch';
 
   Branch() {
@@ -50,6 +52,8 @@ class Address extends base.Entity {
 
   static final List<String> KNOWN_PROPERTIES = const [
   ];
+
+  static final String API_TYPE = r'Address';
 
   String get apiType => r'Address';
 
@@ -99,6 +103,8 @@ class Account extends base.Entity {
     this[r'balance'] = value;
   }
 
+  static final String API_TYPE = r'Account';
+
   String get apiType => r'Account';
 
   Account() {
@@ -138,6 +144,8 @@ class Customer extends base.Entity {
   void set name(String value) {
     this[r'name'] = value;
   }
+
+  static final String API_TYPE = r'Customer';
 
   String get apiType => r'Customer';
 

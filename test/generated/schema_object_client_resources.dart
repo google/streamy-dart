@@ -1,4 +1,4 @@
-library SchemaObjectTest.resources;
+library SchemaObjectTest.null.resources;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -13,6 +13,8 @@ class -some-resource-Resource {
   static final List<String> KNOWN_METHODS = const [
     r'-some-method-',
   ];
+
+  static final String API_TYPE = r'-some-resource-Resource';
 
   String get apiType => r'-some-resource-Resource';
 

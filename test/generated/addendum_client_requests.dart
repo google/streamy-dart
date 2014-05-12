@@ -1,4 +1,4 @@
-library AddendumTest.requests;
+library AddendumTest.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -17,6 +17,8 @@ class FoosGetRequest extends streamy.HttpRequest {
   void set fooId(int value) {
     parameters[r'fooId'] = value;
   }
+
+  static final String API_TYPE = r'FoosGetRequest';
 
   String get apiType => r'FoosGetRequest';
 

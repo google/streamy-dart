@@ -1,4 +1,4 @@
-library MethodPostTest.resources;
+library MethodPostTest.null.resources;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -13,6 +13,8 @@ class FoosResource {
   static final List<String> KNOWN_METHODS = const [
     r'update',
   ];
+
+  static final String API_TYPE = r'FoosResource';
 
   String get apiType => r'FoosResource';
 

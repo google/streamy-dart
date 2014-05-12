@@ -1,9 +1,5 @@
 part of streamy.generator;
 
-const SPLIT_LEVEL_NONE = 1;
-const SPLIT_LEVEL_PARTS = 2;
-const SPLIT_LEVEL_LIBS = 3;
-
 class StreamyClient {
   final DartFile root;
   final DartFile resources;
@@ -15,16 +11,10 @@ class StreamyClient {
 }
 
 class Emitter {
-  final int splitLevel;
-  final PathConfig pathConfig;
-  final HierarchyConfig hierarchyConfig;
-  final TemplateLoader loader;
   final Config config;
+  final TemplateLoader loader;
   
   Emitter(
-      this.splitLevel,
-      this.pathConfig,
-      this.hierarchyConfig,
       this.config,
       this.loader);
   
@@ -36,15 +26,16 @@ class Emitter {
     var objectFile, objectPrefix;
     var dispatchFile, dispatchPrefix;
     var libPrefix = api.name;
-    if (api.version != null) {
-      libPrefix = "$libPrefix.${api.version}";
+    if (api.httpConfig != null) {
+      libPrefix = "$libPrefix.${api.httpConfig.version}";
     }
     rootFile = new DartLibrary(libPrefix)
       ..imports['package:streamy/streamy.dart'] = 'streamy'
       ..imports['package:fixnum/fixnum.dart'] = 'fixnum'
+      ..imports[config.baseImport] = 'base'
       ..imports['dart:async'] = null;
     var out = [rootFile];
-    switch (splitLevel) {
+    switch (config.splitLevel) {
       case SPLIT_LEVEL_NONE:
         resourceFile = rootFile;
         requestFile = rootFile;
@@ -54,13 +45,13 @@ class Emitter {
         break;
       case SPLIT_LEVEL_PARTS:
         resourceFile = new DartLibraryPart(rootFile.libraryName,
-            pathConfig.relativePath('resources.dart'));
+            '${config.outputPrefix}_resources.dart');
         requestFile = new DartLibraryPart(rootFile.libraryName,
-            pathConfig.relativePath('requests.dart'));
+            '${config.outputPrefix}_requests.dart');
         objectFile = new DartLibraryPart(rootFile.libraryName,
-            pathConfig.relativePath('objects.dart'));
+            '${config.outputPrefix}_objects.dart');
         dispatchFile = new DartLibraryPart(rootFile.libraryName,
-            pathConfig.relativePath('dispatch.dart'));
+            '${config.outputPrefix}_dispatch.dart');
         rootFile.parts.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
         out.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
         client = new StreamyClient(rootFile, resourceFile, requestFile, objectFile, dispatchFile);
@@ -75,25 +66,29 @@ class Emitter {
         objectPrefix = 'objects';
         dispatchPrefix = 'dispatch';
         rootFile.imports
-          ..[pathConfig.importPath('resources.dart')] = 'resources';
+          ..[importPath('resources.dart')] = 'resources';
         resourceFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
-          ..[pathConfig.importPath('requests.dart')] = 'requests'
-          ..[pathConfig.importPath('objects.dart')] = 'objects';
+          ..[config.baseImport] = 'base'
+          ..[importPath('requests.dart')] = 'requests'
+          ..[importPath('objects.dart')] = 'objects';
         requestFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
-          ..[pathConfig.importPath('objects.dart')] = 'objects'
-          ..[pathConfig.importPath('dispatch.dart')] = 'dispatch'
-          ..['dart:async'] = null;;
+          ..[config.baseImport] = 'base'
+          ..[importPath('objects.dart')] = 'objects'
+          ..[importPath('dispatch.dart')] = 'dispatch'
+          ..['dart:async'] = null;
         objectFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
-          ..['package:fixnum/fixnum.dart'] = 'fixnum';
+          ..['package:fixnum/fixnum.dart'] = 'fixnum'
+          ..[config.baseImport] = 'base';
         dispatchFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
-          ..[pathConfig.importPath('objects.dart')] = 'objects';
+          ..[config.baseImport] = 'base'
+          ..[importPath('objects.dart')] = 'objects';
         out.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
         resourceFile.imports.addAll(api.imports);
         requestFile.imports.addAll(api.imports);
@@ -137,29 +132,38 @@ class Emitter {
       resourceMixin.fields.add(getter);
     });
     
+    var baseType = streamyImport('Root');
+    if (api.httpConfig != null) {
+      baseType = streamyImport('HttpRoot');
+    }
     var mixinType = new DartType.from(resourceMixin);
-    var root = new DartClass(toProperIdentifier(api.name), baseClass: streamyImport('HttpRoot'))
+    var root = new DartClass(toProperIdentifier(api.name), baseClass: baseType)
       ..mixins.add(mixinType)
       ..fields.add(new DartSimpleField('requestHandler', streamyImport('RequestHandler'), isFinal: true))
       ..fields.add(new DartSimpleField('txStrategy', streamyImport('TransactionStrategy'), isFinal: true))
       ..fields.add(new DartSimpleField('tracer', streamyImport('Tracer'), isFinal: true));
     
+    var ctorData = {
+      'http': api.httpConfig != null
+    };
+    if (api.httpConfig != null) {
+      ctorData['servicePath'] = api.httpConfig.servicePath;
+    }
     var ctor = new DartConstructor(root.name, body: new DartTemplateBody(
-      loader.load('root_constructor'), {
-        'servicePath': api.servicePath
-      }
-    ))
+      loader.load('root_constructor'), ctorData))
       ..parameters.add(new DartParameter('requestHandler',
           streamyImport('RequestHandler'), isDirectAssignment: true))
-      ..namedParameters.add(new DartNamedParameter('servicePath',
-          const DartType.string(),
-          defaultValue: new DartConstantBody("r'${api.servicePath}'")))
       ..namedParameters.add(new DartNamedParameter('txStrategy',
           streamyImport('TransactionStrategy'),
           isDirectAssignment: true))
       ..namedParameters.add(new DartNamedParameter('tracer', streamyImport('Tracer'),
           isDirectAssignment: true,
           defaultValue: new DartConstantBody('const streamy.NoopTracer()')));
+    if (api.httpConfig != null) {
+      ctor.namedParameters.add(new DartNamedParameter('servicePath',
+          const DartType.string(),
+          defaultValue: new DartConstantBody("r'${api.httpConfig.servicePath}'")));
+    }
     root.methods.add(ctor);
     
     var send = new DartMethod('send', new DartType('Stream', null, const []),
@@ -200,7 +204,7 @@ class Emitter {
     clazz.methods.add(ctor);
     
     
-    if (config.knownMethods) {
+    if (config.known) {
       clazz.fields.add(new DartSimpleField('KNOWN_METHODS',
           new DartType.list(const DartType.string()),
           isFinal: true, isStatic: true,
@@ -246,6 +250,10 @@ class Emitter {
     });
     addApiType(clazz);
     return clazz;
+  }
+  
+  String importPath(String file) {
+    return config.importPrefix + config.outputPrefix + '_' + file;
   }
   
   List<DartClass> processRequests(Api api, String objectPrefix, String dispatchPrefix) =>
@@ -294,7 +302,7 @@ class Emitter {
     }
     clazz.methods.add(ctor);
     
-    if (config.knownParameters) {
+    if (config.known) {
       clazz.fields.add(new DartSimpleField('KNOWN_PARAMETERS',
           new DartType.list(const DartType.string()),
           isStatic: true, isFinal: true,
@@ -378,7 +386,7 @@ class Emitter {
       sendType = new DartType.stream(responseType);
     }
     
-    if (responseType != null) {
+    if (responseType != null && api.httpConfig != null) {
       clazz.methods.add(new DartMethod('unmarshalResponse', responseType,
           new DartTemplateBody(loader.load('request_unmarshal_response'), {
             'name': toProperIdentifier(method.responseType.schemaClass)
@@ -446,7 +454,7 @@ class Emitter {
     .fold(new DartClass('Marshaller'), (clazz, schema) => processSchemaForMarshaller(clazz, schema, objectPrefix));
   
   DartClass processSchema(Schema schema) {
-    var base = hierarchyConfig.baseClassFor(schema.name);
+    var base = new DartType(config.baseClass, 'base', const []);
     var clazz = new DartClass(toProperIdentifier(schema.name), baseClass: base);
     clazz.mixins.addAll(schema.mixins.map((mixin) => toDartType(mixin, '')));
     
@@ -461,7 +469,7 @@ class Emitter {
       body: new DartTemplateBody(ctor, {'wrap': true}))
       ..parameters.add(new DartParameter('map', new DartType.map(const DartType.string(), const DartType.dynamic()))));
     
-    if (config.knownProperties) {
+    if (config.known) {
       clazz.fields.add(new DartSimpleField('KNOWN_PROPERTIES',
           new DartType.list(const DartType.string()),
           isFinal: true, isStatic: true,
@@ -489,7 +497,7 @@ class Emitter {
     });
     
     var schemaType = new DartType.from(clazz);
-    if (config.cloneEntity) {
+    if (config.clone) {
       clazz.methods.add(new DartMethod('clone', schemaType,
           new DartTemplateBody(loader.load('object_clone'), {'type': schemaType})));
     }
@@ -576,23 +584,10 @@ class Emitter {
     return clazz;
   }
   
-  SerializationWrapper serializationWrapperFor(TypeRef type) {
-    if (type is ListTypeRef) {
-      var st = serializationWrapperFor(type.subType);
-      // Don't need .map() if the transform is the identity function.
-      if (st.isEmpty) {
-        return const SerializationWrapper('', '.toList(growable: false)');
-      }
-      return new SerializationWrapper('', '.map((v) => ${st.prefix}v${st.suffix}).toList(growable: false)');
-    } else if (type is SchemaTypeRef) {
-      return new SerializationWrapper('marshal${type.schemaClass}(', ')');
-    } else if (type.base == 'int64') {
-      return const SerializationWrapper('', '.toString()');
-    }
-    return const SerializationWrapper.empty();
-  }
-  
   void addApiType(DartClass clazz) {
+    clazz.fields.add(new DartSimpleField('API_TYPE', const DartType.string(),
+        initializer: new DartConstantBody("r'${clazz.name}'"),
+        isStatic: true, isFinal: true));
     clazz.fields.add(new DartComplexField.getterOnly('apiType',
         const DartType.string(), new DartConstantBody("=> r'${clazz.name}';")));
   }
@@ -634,15 +629,4 @@ class Emitter {
       }
     }
   }
-}
-
-class SerializationWrapper {
-  final String prefix;
-  final String suffix;
-  
-  const SerializationWrapper(this.prefix, this.suffix);
-  
-  const SerializationWrapper.empty() : this('', '');
-  
-  bool get isEmpty => this.prefix == '' && this.suffix == '';
 }

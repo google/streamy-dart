@@ -2,8 +2,8 @@ part of streamy.generator;
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
-  var api = new Api(full['name'], full['description'], discovery['name'], full['version'], full['rootUrl'],
-      servicePath: full['servicePath']);
+  var httpConfig = new HttpConfig(discovery['name'], full['version'], full['rootUrl'], full['servicePath']);
+  var api = new Api(full['name'], full['description'], httpConfig: httpConfig);
 
   if (full.containsKey('schemas')) {
     full['schemas']
@@ -138,29 +138,4 @@ TypeRef _parseType(Map type) {
     ref = new TypeRef.list(ref);
   }
   return ref;
-}
-
-Map _mergeMaps(Map a, Map b) {
-  var out = {};
-  a.keys.forEach((key) {
-    if (!b.containsKey(key)) {
-      out[key] = a[key];
-    } else {
-      var aVal = a[key];
-      var bVal = b[key];
-      if (bVal == null || aVal == null) {
-        out[key] = aVal;
-      } else if (aVal is Map && bVal is Map) {
-        out[key] = _mergeMaps(aVal, bVal);
-      } else {
-        out[key] = bVal;
-      }
-    }
-  });
-  b.keys.forEach((key) {
-    if (!a.containsKey(key)) {
-      out[key] = b[key];
-    }
-  });
-  return out;
 }

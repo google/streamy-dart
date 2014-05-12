@@ -1,14 +1,5 @@
 part of streamy.runtime;
 
-abstract class Request {
-  Root get root;
-}
-
-abstract class CacheableRequest {
-  int get hashCode;
-  bool equals(other);
-}
-
 abstract class DynamicAccess {
   Iterable<String> keys;
   bool containsKey(String key);

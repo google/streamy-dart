@@ -1,4 +1,4 @@
-library MultiplexerTest.requests;
+library MultiplexerTest.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -17,6 +17,8 @@ class FoosGetRequest extends streamy.HttpRequest {
   void set id(int value) {
     parameters[r'id'] = value;
   }
+
+  static final String API_TYPE = r'FoosGetRequest';
 
   String get apiType => r'FoosGetRequest';
 
@@ -70,6 +72,8 @@ class FoosUpdateRequest extends streamy.HttpRequest {
     parameters[r'id'] = value;
   }
 
+  static final String API_TYPE = r'FoosUpdateRequest';
+
   String get apiType => r'FoosUpdateRequest';
 
   bool get hasPayload => true;
@@ -122,6 +126,8 @@ class FoosDeleteRequest extends streamy.HttpRequest {
     parameters[r'id'] = value;
   }
 
+  static final String API_TYPE = r'FoosDeleteRequest';
+
   String get apiType => r'FoosDeleteRequest';
 
   bool get hasPayload => false;
@@ -171,6 +177,8 @@ class FoosCancelRequest extends streamy.HttpRequest {
   void set id(int value) {
     parameters[r'id'] = value;
   }
+
+  static final String API_TYPE = r'FoosCancelRequest';
 
   String get apiType => r'FoosCancelRequest';
 

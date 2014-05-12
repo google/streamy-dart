@@ -1,4 +1,4 @@
-/// Runtime library used by all generated APIs.
+`/// Runtime library used by all generated APIs.
 library streamy.runtime;
 
 import 'dart:async';
@@ -30,6 +30,7 @@ part 'runtime/multiplexer.dart';
 part 'runtime/proxy.dart';
 part 'runtime/request.dart';
 part 'runtime/response.dart';
+part 'runtime/root.dart';
 part 'runtime/tracing.dart';
 part 'runtime/transforms.dart';
 part 'runtime/util.dart';

@@ -1,4 +1,4 @@
-library Bank.resources;
+library Bank.null.resources;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -14,6 +14,8 @@ class BranchesResource {
     r'get',
     r'insert',
   ];
+
+  static final String API_TYPE = r'BranchesResource';
 
   String get apiType => r'BranchesResource';
 

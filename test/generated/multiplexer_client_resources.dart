@@ -1,4 +1,4 @@
-library MultiplexerTest.resources;
+library MultiplexerTest.null.resources;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -16,6 +16,8 @@ class FoosResource {
     r'delete',
     r'cancel',
   ];
+
+  static final String API_TYPE = r'FoosResource';
 
   String get apiType => r'FoosResource';
 

@@ -1,4 +1,4 @@
-library AddendumTest.objects;
+library AddendumTest.null.objects;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -20,6 +20,8 @@ class Foo extends base.Entity {
   void set bar(String value) {
     this[r'bar'] = value;
   }
+
+  static final String API_TYPE = r'Foo';
 
   String get apiType => r'Foo';
 

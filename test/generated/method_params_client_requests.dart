@@ -1,4 +1,4 @@
-library MethodParamsTest.requests;
+library MethodParamsTest.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -41,6 +41,8 @@ class FoosGetRequest extends streamy.HttpRequest {
   void set param3(List<String> value) {
     parameters[r'param3'] = value;
   }
+
+  static final String API_TYPE = r'FoosGetRequest';
 
   String get apiType => r'FoosGetRequest';
 

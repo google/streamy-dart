@@ -1,4 +1,4 @@
-library MethodParamsTest;
+library MethodParamsTest.null;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -26,9 +26,11 @@ class MethodParamsTest extends streamy.HttpRoot with MethodParamsTestResourceMix
 
   final streamy.Tracer tracer;
 
+  static final String API_TYPE = r'MethodParamsTest';
+
   String get apiType => r'MethodParamsTest';
 
-  MethodParamsTest(streamy.RequestHandler this.requestHandler, {String servicePath: r'paramsTest/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'paramsTest/v1/');
+  MethodParamsTest(streamy.RequestHandler this.requestHandler, {streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer(), String servicePath: r'paramsTest/v1/'}) : super(r'paramsTest/v1/');
 
   Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

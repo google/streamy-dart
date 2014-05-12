@@ -1,4 +1,4 @@
-library MultiplexerTest;
+library MultiplexerTest.null;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -26,9 +26,11 @@ class MultiplexerTest extends streamy.HttpRoot with MultiplexerTestResourceMixin
 
   final streamy.Tracer tracer;
 
+  static final String API_TYPE = r'MultiplexerTest';
+
   String get apiType => r'MultiplexerTest';
 
-  MultiplexerTest(streamy.RequestHandler this.requestHandler, {String servicePath: r'multiplexerTest/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'multiplexerTest/v1/');
+  MultiplexerTest(streamy.RequestHandler this.requestHandler, {streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer(), String servicePath: r'multiplexerTest/v1/'}) : super(r'multiplexerTest/v1/');
 
   Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

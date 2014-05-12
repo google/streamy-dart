@@ -1,4 +1,4 @@
-library SchemaObjectTest.requests;
+library SchemaObjectTest.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -23,6 +23,8 @@ class -some-resource--some-method-Request extends streamy.HttpRequest {
   void set -query param-(int value) {
     parameters[r'-query param-'] = value;
   }
+
+  static final String API_TYPE = r'-some-resource--some-method-Request';
 
   String get apiType => r'-some-resource--some-method-Request';
 

@@ -1,7 +1,7 @@
 part of streamy.generator;
 
 Api parseServices(List<String> paths) {
-  var api = new Api('example', '', '', '', '');
+  var api = new Api('example', 'Example service', marshalling: false);
   var i = 1;
   paths.forEach((path) => _parseServiceFile(api, path, analyzer.parseDartFile(path), i++));
   var pc = new PathConfig.prefixed('lib/', 'package:api/');
@@ -9,9 +9,8 @@ Api parseServices(List<String> paths) {
   var c = new Config(knownProperties: false);
   var emitter = new Emitter(SPLIT_LEVEL_NONE, pc, hc, c,
       new TemplateLoader.fromDirectory('templates'));
-  emitter.process(api).forEach((file) {
-    print(file.render());
-  });
+  var client = emitter.process(api);
+  print(client.root.render());
 }
 
 void _parseServiceFile(Api api, String importPath, analyzer.CompilationUnit cu, int index) {

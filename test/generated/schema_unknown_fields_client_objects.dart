@@ -1,4 +1,4 @@
-library SchemaUnknownFieldsTest.objects;
+library SchemaUnknownFieldsTest.null.objects;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -14,6 +14,8 @@ class Foo extends base.Entity {
   void set baz(String value) {
     this[r'baz'] = value;
   }
+
+  static final String API_TYPE = r'Foo';
 
   String get apiType => r'Foo';
 
@@ -34,6 +36,8 @@ class Bar extends base.Entity {
 
   static final List<String> KNOWN_PROPERTIES = const [
   ];
+
+  static final String API_TYPE = r'Bar';
 
   String get apiType => r'Bar';
 

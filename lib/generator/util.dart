@@ -39,3 +39,28 @@ List<String> splitStringAcrossLines(String src, [int maxLen = 80]) {
   lines.add(out.toString().trim());
   return lines;
 }
+
+Map _mergeMaps(Map a, Map b) {
+  var out = {};
+  a.keys.forEach((key) {
+    if (!b.containsKey(key)) {
+      out[key] = a[key];
+    } else {
+      var aVal = a[key];
+      var bVal = b[key];
+      if (bVal == null || aVal == null) {
+        out[key] = aVal;
+      } else if (aVal is Map && bVal is Map) {
+        out[key] = _mergeMaps(aVal, bVal);
+      } else {
+        out[key] = bVal;
+      }
+    }
+  });
+  b.keys.forEach((key) {
+    if (!a.containsKey(key)) {
+      out[key] = b[key];
+    }
+  });
+  return out;
+}

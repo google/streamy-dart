@@ -1,10 +1,10 @@
-library MethodGetTest;
+library MethodGetTest.null;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:streamy/base.dart' as base;
 import 'dart:async';
 import 'method_get_client_resources.dart' as resources;
-import 'package:streamy/base.dart' as base;
 
 class MethodGetTestResourceMixin {
 
@@ -26,9 +26,11 @@ class MethodGetTest extends streamy.HttpRoot with MethodGetTestResourceMixin {
 
   final streamy.Tracer tracer;
 
+  static final String API_TYPE = r'MethodGetTest';
+
   String get apiType => r'MethodGetTest';
 
-  MethodGetTest(streamy.RequestHandler this.requestHandler, {String servicePath: r'getTest/v1/', streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer()}) : super(r'getTest/v1/');
+  MethodGetTest(streamy.RequestHandler this.requestHandler, {streamy.TransactionStrategy this.txStrategy, streamy.Tracer this.tracer: const streamy.NoopTracer(), String servicePath: r'getTest/v1/'}) : super(r'getTest/v1/');
 
   Stream send(streamy.Request request) => requestHandler.handle(request, tracer.trace(request));
 }

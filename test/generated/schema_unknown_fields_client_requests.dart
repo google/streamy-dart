@@ -1,4 +1,4 @@
-library SchemaUnknownFieldsTest.requests;
+library SchemaUnknownFieldsTest.null.requests;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;

@@ -1,4 +1,4 @@
-library SchemaObjectTest.objects;
+library SchemaObjectTest.null.objects;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -51,6 +51,8 @@ class Foo extends base.Entity {
     this[r'corge'] = value;
   }
 
+  static final String API_TYPE = r'Foo';
+
   String get apiType => r'Foo';
 
   Foo() {
@@ -94,6 +96,8 @@ class Bar extends base.Entity {
   void set foo(Foo value) {
     this[r'foo'] = value;
   }
+
+  static final String API_TYPE = r'Bar';
 
   String get apiType => r'Bar';
 

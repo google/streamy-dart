@@ -1,16 +1,10 @@
-library MethodGetTest.objects;
+library MethodGetTest.null.objects;
 
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:fixnum/fixnum.dart' as fixnum;
 import 'package:streamy/base.dart' as base;
 
 class Foo extends base.Entity {
-
-  static final List<String> KNOWN_PROPERTIES = const [
-    r'id',
-    r'bar',
-    r'baz',
-  ];
 
   int get id => this[r'id'];
   void set id(int value) {
@@ -26,6 +20,8 @@ class Foo extends base.Entity {
   void set baz(fixnum.Int64 value) {
     this[r'baz'] = value;
   }
+
+  static final String API_TYPE = r'Foo';
 
   String get apiType => r'Foo';
 
