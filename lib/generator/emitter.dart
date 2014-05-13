@@ -21,6 +21,7 @@ class Emitter {
     'lazy_resource_getter',
     'map',
     'marshal',
+    'marshal_handle',
     'marshal_mapbacked',
     'object_clone',
     'object_ctor',
@@ -63,7 +64,7 @@ class Emitter {
     var objectFile, objectPrefix;
     var dispatchFile, dispatchPrefix;
     var libPrefix = api.name;
-    if (api.httpConfig != null) {
+    if (api.httpConfig != null && api.httpConfig.version != null) {
       libPrefix = "$libPrefix.${api.httpConfig.version}";
     }
     rootFile = new DartLibrary(libPrefix)
@@ -157,14 +158,16 @@ class Emitter {
     var getterTemplate = _template('lazy_resource_getter');
     api.resources.forEach((name, resource) {
       // Backing field.
-      var fieldName = "_${resource.name}";
-      var type = new DartType('${toProperIdentifier(resource.name)}Resource',
+      var resName = toProperIdentifier(resource.name);
+      var lcResName = toProperIdentifier(resource.name, firstLetter: false);
+      var fieldName = '_$lcResName';
+      var type = new DartType('${resName}Resource',
           resourcePrefix, const []);
       var field = new DartSimpleField(fieldName, type);
       resourceMixin.fields.add(field);
       
       // Lazy getter.
-      var getter = new DartComplexField.getterOnly(resource.name, type,
+      var getter = new DartComplexField.getterOnly(lcResName, type,
           new DartTemplateBody(getterTemplate, {'field': fieldName, 'resource': type}));
       resourceMixin.fields.add(getter);
     });
@@ -274,7 +277,7 @@ class Emitter {
           '${toProperIdentifier(resource.name)}${toProperIdentifier(method.name)}Request',
           requestPrefix, const []);
       
-      var m = new DartMethod(method.name, requestType,
+      var m = new DartMethod(toProperIdentifier(method.name, firstLetter: false), requestType,
           new DartTemplateBody(requestMethodTemplate, {
             'requestType': requestType,
             'parameters': pnames
@@ -544,6 +547,23 @@ class Emitter {
     return clazz;
   }
   
+  _accumulateMarshallingTypes(String name, TypeRef typeRef, List<String> int64Fields, List<String> doubleFields, Map entityFields) {
+    switch (typeRef.base) {
+      case 'int64':
+        int64Fields.add(name);
+        break;
+      case 'double':
+        doubleFields.add(name);
+        break;
+      case 'schema':
+        entityFields[name] = typeRef.schemaClass;
+        break;
+      case 'list':
+        _accumulateMarshallingTypes(name, typeRef.subType, int64Fields, doubleFields, entityFields);
+        break;
+    }
+  }
+  
   DartClass processSchemaForMarshaller(DartClass clazz, Schema schema, String objectPrefix) {
     var name = toProperIdentifier(schema.name);
     var type = new DartType(name, objectPrefix, const []);
@@ -562,22 +582,7 @@ class Emitter {
     schema
       .properties
       .forEach((_, field) {
-        var name = field.name;
-        var type = field.typeRef;
-        if (field.typeRef is ListTypeRef) {
-          type = type.subType;
-        }
-        switch (type.base) {
-          case 'int64':
-            int64Fields.add(field.name);
-            break;
-          case 'double':
-            doubleFields.add(field.name);
-            break;
-          case 'schema':
-            entityFields[field.name] = type.schemaClass;
-            break;
-        }
+        _accumulateMarshallingTypes(field.name, field.typeRef, int64Fields, doubleFields, entityFields);
         allFields.add({'key': field.name, 'identifier': toProperIdentifier(field.name, firstLetter: false)});
       });
   
@@ -594,8 +599,8 @@ class Emitter {
       entityFields.forEach((name, schema) {
         data.add({'key': name, 'value': '_handle${toProperIdentifier(schema)}'});
       });
-      clazz.fields.add(new DartSimpleField('_entities$name', rt, isStatic: true, isFinal: true, initializer:
-          new DartTemplateBody(_template('map'), {'pairs': data})));
+      clazz.fields.add(new DartComplexField.getterOnly('_entities$name', rt,
+          new DartTemplateBody(_template('map'), {'pairs': data, 'getter': true, 'const': false})));
     }
     var serializerConfig = {
       'entity': type,
@@ -614,6 +619,12 @@ class Emitter {
     clazz.methods.add(new DartMethod('unmarshal$name', type,
         new DartTemplateBody(unmarshal, serializerConfig))
       ..parameters.add(new DartParameter('data', rt)));
+    clazz.methods.add(new DartMethod('_handle$name', const DartType.dynamic(), new DartTemplateBody(_template('marshal_handle'), {
+        'type': name
+      }), isStatic: true)
+        ..parameters.add(new DartParameter('marshaller', new DartType('Marshaller', null, const [])))
+        ..parameters.add(new DartParameter('data', const DartType.dynamic()))
+        ..parameters.add(new DartParameter('marshal', const DartType.boolean())));
       /*
     var unmarshal = new DartMethod('unmarshal$name', type,
         new DartTemplateBody(unmarshal, data));
@@ -642,7 +653,7 @@ class Emitter {
     if (ref is ListTypeRef) {
       return new DartType.list(toDartType(ref.subType, objectPrefix));
     } else if (ref is SchemaTypeRef) {
-      return new DartType(ref.schemaClass, objectPrefix, const []);
+      return new DartType(toProperIdentifier(ref.schemaClass), objectPrefix, const []);
     } else {
       switch (ref.base) {
         case 'int64':

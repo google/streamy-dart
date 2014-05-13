@@ -30,3 +30,5 @@ dev_dependencies:
   intl: any
 transformers:
 - streamy
+- $dart2js:
+    $include: nonexistent/path

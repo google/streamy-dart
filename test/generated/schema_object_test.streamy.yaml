@@ -1,7 +1,7 @@
-discovery: method_post_test.json
+discovery: schema_object_test.json
 output:
   files: split
-  prefix: method_post_client
+  prefix: schema_object_client
 base:
   class: Entity
   import: package:streamy/base.dart

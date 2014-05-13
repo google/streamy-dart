@@ -1,7 +1,7 @@
-discovery: method_post_test.json
+discovery: bank_api_test.json
 output:
-  files: split
-  prefix: method_post_client
+  files: single
+  prefix: bank_api_test
 base:
   class: Entity
   import: package:streamy/base.dart

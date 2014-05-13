@@ -2,7 +2,7 @@ part of streamy.generator;
 
 String toProperIdentifier(String identifier, {firstLetter: true}) {
   var first = !firstLetter;
-  return identifier
+  var name = identifier
     .split('_')
     .map((piece) {
       if (first) {
@@ -16,6 +16,20 @@ String toProperIdentifier(String identifier, {firstLetter: true}) {
       }
     })
     .join();
+  if (name.length == 0) {
+    throw new StateError('Empty property, schema, resource or method name');
+  }
+
+  // Replace bad starting character with dollar sign (it has to be public)
+  if (!name.startsWith(IDENTIFIER_START)) {
+    name = '\$${name.substring(1)}';
+  }
+  // Replace bad characters in the middle with underscore
+  name = name.replaceAll(NON_IDENTIFIER_CHAR_MATCHER, '_');
+  if (name.startsWith('_')) {
+    name = 'clean${name}';
+  }
+  return name;
 }
   
 List<String> splitStringAcrossLines(String src, [int maxLen = 80]) {
@@ -64,3 +78,159 @@ Map _mergeMaps(Map a, Map b) {
   });
   return out;
 }
+
+/// Characters allowed as starting identifier characters. Note the absence of
+/// underscore. This is because generated identifiers have to be public.
+final IDENTIFIER_START = new RegExp(r'[a-zA-Z\$]');
+final NON_IDENTIFIER_CHAR_MATCHER = new RegExp(r'[^a-zA-Z\d\$_]');
+
+/// Disallowed property names.
+const _ILLEGAL_PROPERTY_NAMES = const [
+  // Streamy reserved symbols
+  'parameters',
+  'global',
+  'clone',
+  'patch',
+  'isFrozen',
+  'containsKey',
+  'fieldNames',
+  'remove',
+  'toJson',
+  'local',
+  'streamyType',
+  'changes',
+  'deliverChanges',
+  'notifyChange',
+  'notifyPropertyChange',
+  'hasObservers',
+  'apiType',
+
+  // Dart keywords
+  'continue',
+  'extends',
+  'throw',
+  'default',
+  'rethrow',
+  'true',
+  'assert',
+  'do',
+  'false',
+  'in',
+  'return',
+  'try',
+  'break',
+  'final',
+  'is',
+  'case',
+  'else',
+  'finally',
+  'var',
+  'catch',
+  'enum',
+  'for',
+  'new',
+  'super',
+  'void',
+  'class',
+  'null',
+  'switch',
+  'while',
+  'const',
+  'if',
+  'this',
+  'with',
+];
+
+/// Disallowed method names.
+const _ILLEGAL_METHOD_NAMES = const [
+  'abstract',
+  'continue',
+  'extends',
+  'throw',
+  'default',
+  'factory',
+  'rethrow',
+  'true',
+  'assert',
+  'do',
+  'false',
+  'in',
+  'return',
+  'try',
+  'break',
+  'final',
+  'is',
+  'case',
+  'else',
+  'finally',
+  'static',
+  'var',
+  'catch',
+  'enum',
+  'for',
+  'new',
+  'super',
+  'void',
+  'class',
+  'null',
+  'switch',
+  'while',
+  'const',
+  'external',
+  'if',
+  'this',
+  'with',
+];
+
+/// Disallowed class names (e.g. they are from dart:core).
+const _ILLEGAL_CLASS_NAMES = const [
+  'BidirectionalIterator',
+  'Comparable',
+  'Comparator',
+  'DateTime',
+  'Deprecated',
+  'Duration',
+  'Expando',
+  'Function',
+  'Invocation',
+  'Iterable',
+  'Iterator',
+  'List',
+  'Map',
+  'Match',
+  'Null',
+  'Object',
+  'Pattern',
+  'RegExp',
+  'RuneIterator',
+  'Runes',
+  'Set',
+  'StackTrace',
+  'Stopwatch',
+  'String',
+  'StringBuffer',
+  'StringSink',
+  'Symbol',
+  'Type',
+  'Uri',
+  'AbstractClassInstantiationError',
+  'ArgumentError',
+  'AssertionError',
+  'CastError',
+  'ConcurrentModificationError',
+  'CyclicInitializationError',
+  'Error',
+  'Exception',
+  'FallThroughError',
+  'FormatException',
+  'IntegerDivisionByZeroException',
+  'NoSuchMethodError',
+  'NullThrownError',
+  'OutOfMemoryError',
+  'RangeError',
+  'StackOverflowError',
+  'StateError',
+  'TypeError',
+  'UnimplementedError',
+  'UnsupportedError',
+];

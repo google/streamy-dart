@@ -22,7 +22,7 @@ Api parseDiscovery(Map discovery, Map addendum) {
         }
         */
         props.forEach((name, property) {
-          type.properties[name] = _parseProperty(name, property);
+          type.properties[name] = _parseProperty(name, property, key, api);
         });
         
         api.types[key] = type;
@@ -41,17 +41,17 @@ Api parseDiscovery(Map discovery, Map addendum) {
             var payloadType = null;
             var responseType = null;
             if (method.containsKey('request')) {
-              payloadType = _parseType(method['request']);
+              payloadType = _parseType(method['request'], key, '${name}_Request', api);
             }
             if (method.containsKey('response')) {
-              responseType = _parseType(method['response']);
+              responseType = _parseType(method['response'], key, '${name}_Response', api);
             }
             var m = new Method(name, new Path(method['path']),
                 method['httpMethod'], payloadType, responseType);
             type.methods[name] = m;
             if (method.containsKey('parameters')) {
               method['parameters'].forEach((pname, param) {
-                m.parameters[pname] = _parseProperty(pname, param);
+                m.parameters[pname] = _parseProperty(pname, param, key, api);
               });
             }
           });
@@ -87,7 +87,7 @@ Api parseDiscovery(Map discovery, Map addendum) {
   return api;
 }
 
-Field _parseProperty(String name, Map property) {
+Field _parseProperty(String name, Map property, String containerName, Api api) {
   var desc = "";
   if (property.containsKey('description')) {
     desc = property['description'];
@@ -96,10 +96,11 @@ Field _parseProperty(String name, Map property) {
   if (property.containsKey('location')) {
     location = property['location'];
   }
-  return new Field(name, desc, _parseType(property), location);
+  return new Field(name, desc, _parseType(property, containerName, name, api), location);
 }
 
-TypeRef _parseType(Map type) {
+/// Process a type.
+TypeRef _parseType(Map type, String containerName, String propertyName, Api api) {
   var ref = const TypeRef.any();
   if (type.containsKey('\$ref')) {
     ref = new TypeRef.schema(type['\$ref']);
@@ -129,9 +130,21 @@ TypeRef _parseType(Map type) {
         ref = const TypeRef.boolean();
         break;
       case 'array':
-        ref = new TypeRef.list(_parseType(type['items']));
+        ref = new TypeRef.list(_parseType(type['items'], containerName, propertyName, api));
+        break;
+      case 'object':
+        var schemaName = '${containerName}_$propertyName';
+        ref = new TypeRef.schema(schemaName);
+        var schema = new Schema(schemaName);
+        if (type.containsKey('properties')) {
+          type['properties'].forEach((name, property) {
+            schema.properties[name] = _parseProperty(name, property, schemaName, api);
+          });
+        }
+        api.types[schemaName] = schema;
         break;
       default:
+        throw new Exception('Unknown type: ${type["type"]}');
     }
   }
   if (type.containsKey('repeated') && type['repeated']) {

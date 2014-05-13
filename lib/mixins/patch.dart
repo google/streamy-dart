@@ -17,3 +17,4 @@ class Patch {
   void freeze() {
     super.freeze();
   }
+}

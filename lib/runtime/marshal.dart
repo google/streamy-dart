@@ -4,9 +4,9 @@ void marshalToString(List<String> fields, Map data) {
   fields
     .where(data.containsKey)
     .forEach((key) {
-    var value = map[key];
+    var value = data[key];
     if (value != null) {
-      map[key] = value.toString();
+      data[key] = value.toString();
     }
   });
 }
@@ -15,43 +15,63 @@ void unmarshalInt64s(List<String> fields, Map data) {
   fields
     .where(data.containsKey)
     .forEach((key) {
-      var value = map[key];
-      if (value != null) {
-        if (value is String) {
-          map[key] = Int64.parseInt(value);
-        } else {
-          map[key] = new Int64(value);
-        }
-      }
+      data[key] = unmarshalInt64Data(data[key]);
     });
+}
+
+unmarshalInt64Data(data) {
+  if (data == null) {
+    return null;
+  } else if (data is List) {
+    return data.map(unmarshalInt64Data).toList();
+  } else if (data is String) {
+    return Int64.parseInt(data);
+  } else {
+    return new Int64(data);
+  }
 }
 
 void unmarshalDoubles(List<String> fields, Map data) {
   fields
     .where(data.containsKey)
     .forEach((key) {
-      var value = map[key];
+      var value = data[key];
       if (value != null) {
         if (value is List) {
         } else if (value is String) {
-          map[key] = double.parse(value);
+          data[key] = double.parse(value);
         }
       }
     });
 }
 
-void handleEntities(Map handlers, Map data, bool marshal) {
+unmarshalDoubleData(data) {
+  if (data == null) {
+    return null;
+  } else if (data is List) {
+    return data.map(unmarshalDoubleData).toList();
+  } else if (data is String) {
+    return double.parse(data);
+  } else {
+    return data;
+  }
+}
+
+void handleEntities(marshaller, Map handlers, Map data, bool marshal) {
   handlers
     .keys
     .where(data.containsKey)
     .forEach((key) {
-      var value = data[key];
-      if (value != null) {
-        if (value is List) {
-          data[key] = value.map((v) => handlers[key](value, marshal)).toList();
-        } else {
-          data[key] = handlers[key](value, false);
-        }
-      }
+      data[key] = handleEntityData(data[key], marshaller, handlers[key], marshal);
     });
+}
+
+handleEntityData(data, marshaller, handler, bool marshal) {
+  if (data == null) {
+    return null;
+  } else if (data is List) {
+    return data.map((v) => handleEntityData(v, marshaller, handler, marshal)).toList();
+  } else {
+    return handler(marshaller, data, marshal);
+  }
 }

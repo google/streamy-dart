@@ -9,7 +9,7 @@ class YamlTransformer extends Transformer {
   
   YamlTransformer.asPlugin();
   
-  String get allowedExtensions => '.streamy.yaml .mustache';
+  String get allowedExtensions => '.streamy.yaml';
   
   Future isPrimary(Asset asset) {
     return asset.id.path.endsWith('.streamy.yaml');
@@ -38,7 +38,6 @@ class YamlTransformer extends Transformer {
       return;
     }
     var id = new AssetId(transform.primaryInput.id.package, '${_prefixFrom(transform.primaryInput.id.path)}$outputPrefix$name.dart');
-    print("Writing: $id");
     transform.addOutput(new Asset.fromString(id, file.render()));
   }
   

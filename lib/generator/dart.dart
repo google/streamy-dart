@@ -182,8 +182,9 @@ class DartMethod {
   final List<DartNamedParameter> namedParameters = [];
   final DartType returnType;
   final DartBody body;
+  final bool isStatic;
 
-  DartMethod(this.name, this.returnType, this.body);
+  DartMethod(this.name, this.returnType, this.body, {this.isStatic: false});
   
   void render(StringBuffer out, int indent) {
     var id = strings.repeat('  ', indent);
@@ -196,6 +197,9 @@ class DartMethod {
       });
     }
     out.write(id);
+    if (isStatic) {
+      out.write('static ');
+    }
     returnType.render(out);
     out
       ..write(' ')

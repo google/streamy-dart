@@ -8,9 +8,11 @@ import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
 import 'schema_object_client.dart';
 import 'schema_object_client_objects.dart';
+import 'schema_object_client_dispatch.dart';
 import '../utils.dart';
 
 main() {
+  var marshaller = new Marshaller();
   group('SchemaObjectTest', () {
     Foo foo;
     setUp(() {
@@ -31,7 +33,7 @@ main() {
       expect(foo['baz'], equals(2));
     });
     test('JsonCorrectlyPopulated', () {
-      expect(foo.toJson(), equals({
+      expect(marshaller.marshalFoo(foo), equals({
         'id': 1,
         'bar': 'bar',
         'baz': 2,
@@ -40,7 +42,7 @@ main() {
     });
     test('RemovedKeyNotPresentInJson', () {
       expect(foo.removeBaz(), equals(2));
-      expect(foo.toJson(), equals({
+      expect(marshaller.marshalFoo(foo), equals({
         'id': 1,
         'bar': 'bar',
         'qux': '1234',
@@ -52,29 +54,29 @@ main() {
     });
     test('SerializeListToJson', () {
       var bar = new Bar()..foos = [new Foo()..id = 321];
-      bar = new Bar.fromJsonString(stringify(bar.toJson()), const streamy.NoopTrace());
+      bar = marshaller.unmarshalBar(streamy.jsonParse(stringify(marshaller.marshalBar(bar))));
       expect(bar.foos.length, equals(1));
       expect(bar.foos[0].id, equals(321));
     });
     test('DeserializeMissingListToNull', () {
-      var bar = new Bar.fromJsonString('{}', const streamy.NoopTrace());
+      var bar = marshaller.unmarshalBar({});
       expect(bar.foos, isNull);
     });
     test('List of doubles works properly', () {
       foo.quux = [1.5, 2.5, 3.5, 4.5];
       expect(foo.quux, equals([1.5, 2.5, 3.5, 4.5]));
       expect(foo['quux'], equals([1.5, 2.5, 3.5, 4.5]));
-      expect(foo.toJson()['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
+      expect(marshaller.marshalFoo(foo)['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
     });
     test('type=number format=double works correctly', () {
-      var foo2 = new Foo.fromJson(new ObservableMap.from({
+      var foo2 = marshaller.unmarshalFoo(new ObservableMap.from({
         'corge': 1.2
       }));
       expect(foo2.corge, equals(1.2));
       expect(foo2.corge, new isInstanceOf<double>());
     });
     test('Deserialize formatted strings and lists', () {
-      var foo2 = new Foo.fromJson(new ObservableMap.from({
+      var foo2 = marshaller.unmarshalFoo(new ObservableMap.from({
         'qux': '123456789123456789123456789',
         'quux': ['2.5', '3.5', '4.5', '5.5']
       }));
@@ -190,7 +192,7 @@ main() {
       foo.local.remove('hello');
     });
     test('lists are observable', () {
-      var bar = new Bar.fromJsonString('{"foos": [{}]}', const streamy.NoopTrace());
+      var bar = marshaller.unmarshalBar(streamy.jsonParse('{"foos": [{}]}'));
       expect(bar.foos, new isInstanceOf<ObservableList>());
     });
     test('lists become observable via setter', () {
@@ -361,7 +363,7 @@ main() {
   });
   group('Array of arrays', () {
     test('should deserilize correctly', () {
-      var subject = new Context.fromJsonString(
+      var subject = marshaller.unmarshalContext(streamy.jsonParse(
 '''
 {
   "facets": [
@@ -371,11 +373,11 @@ main() {
     [null]
   ]
 }
-''', null);
+'''));
       expect(subject.facets, hasLength(4));
       expect(subject.facets[0], hasLength(2));
       subject.facets[0].forEach((f) {
-        expect(f, new isAssignableTo<Context_Facets>());
+        expect(f, new isAssignableTo<ContextFacets>());
       });
       expect(subject.facets[0][0].anchor, 'a');
       expect(subject.facets[1], hasLength(0));
@@ -387,14 +389,14 @@ main() {
       var subject = new Context()
         ..facets = [
           [
-            new Context_Facets()..anchor = 'a',
-            new Context_Facets()..anchor = 'b',
+            new ContextFacets()..anchor = 'a',
+            new ContextFacets()..anchor = 'b',
           ],
           [],
           null,
           [null],
         ];
-      expect(stringify(subject.toJson()),
+      expect(stringify(marshaller.marshalContext(subject)),
           '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });
