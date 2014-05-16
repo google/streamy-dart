@@ -82,7 +82,32 @@ abstract class Observability extends MapBase implements observe.Observable {
   }
 }
 
-abstract class CopyClone extends Observability implements streamy.Cloneable {
+abstract class Immutability extends Observability implements streamy.Freezeable {
+  
+  bool _isFrozen = false;
+  
+  operator[]=(String key, value) {
+    if (_isFrozen) {
+      throw new Exception("Frozen.");
+    }
+    super[key] = value;
+  }
+  
+  remove(String key) {
+    if (_isFrozen) {
+      throw new Exception("Frozen.");
+    }
+    return super.remove(key);
+  }
+  
+  void freeze() {
+    _isFrozen = true;
+  }
+  
+  bool get isFrozen => _isFrozen;
+}
+
+abstract class CopyClone extends Immutability implements streamy.Cloneable {
 
   dynamic clone();
   
