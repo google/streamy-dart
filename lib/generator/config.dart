@@ -157,7 +157,7 @@ class TemplateLoader {
 }
 
 class FileTemplateLoader implements TemplateLoader {
-  final Directory path;
+  final io.Directory path;
   
   FileTemplateLoader(String path) : path = new io.Directory(path).absolute;
   
