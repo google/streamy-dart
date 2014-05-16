@@ -21,7 +21,7 @@ main() {
         subject
           .handle(TEST_GET_REQUEST, const NoopTrace())
           .map((r) => r.entity)
-          .listen(expectAsync1((e) {
+          .listen(expectAsync((e) {
             if (first) {
               expect(e['key'], 'foo');
               first = false;
@@ -46,13 +46,13 @@ main() {
         .handle(TEST_GET_REQUEST, const NoopTrace())
         .map((r) => r.entity)
         .single
-        .then(expectAsync1((e) {
+        .then(expectAsync((e) {
           expect(e['key'], 'foo');
           subject
             .handle(TEST_GET_REQUEST, const NoopTrace())
             .map((r) => r.entity)
             .single
-            .then(expectAsync1((e) {
+            .then(expectAsync((e) {
               expect(e['key'], 'bar');
             }));
         }));
@@ -70,7 +70,7 @@ main() {
           .handle(TEST_DELETE_REQUEST, const NoopTrace())
           .map((r) => r.entity)
           .single
-          .then(expectAsync1((e) {
+          .then(expectAsync((e) {
             expect(e['key'], expected);
           }));
       }
@@ -104,7 +104,7 @@ main() {
       var a;
       var b;
       a = subject.handle(TEST_GET_REQUEST, const NoopTrace()).listen((_) {});
-      b = subject.handle(TEST_GET_REQUEST, const NoopTrace()).listen(expectAsync1((_) {
+      b = subject.handle(TEST_GET_REQUEST, const NoopTrace()).listen(expectAsync((_) {
         expect(cancelled, isFalse);
         a.cancel();
         expect(cancelled, isFalse);

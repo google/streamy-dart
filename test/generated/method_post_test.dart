@@ -34,7 +34,7 @@ main() {
       var subject = new MethodPostTest(new ImmediateRequestHander());
       var testReq = subject.foos.update(foo)
         ..id = 123;
-      testReq.send().single.then(expectAsync1((e) {
+      testReq.send().single.then(expectAsync((e) {
         expect(e.bar, equals('test'));
       }, count: 1));
     });

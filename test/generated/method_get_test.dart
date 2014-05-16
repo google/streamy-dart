@@ -27,7 +27,7 @@ main() {
           (req) => new Stream.fromIterable(
               [new Response(req.responseDeserializer(stringify(testResponse.toJson()), const NoopTrace()), Source.RPC, 0)]));
       var subject = new MethodGetTest(testRequestHandler);
-      subject.foos.get(1).send().listen(expectAsync1((Foo v) {
+      subject.foos.get(1).send().listen(expectAsync((Foo v) {
         expect(v.toJson(), equals(testResponse.toJson()));
       }, count: 1));
     });
