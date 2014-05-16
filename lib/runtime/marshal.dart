@@ -4,11 +4,18 @@ void marshalToString(List<String> fields, Map data) {
   fields
     .where(data.containsKey)
     .forEach((key) {
-    var value = data[key];
-    if (value != null) {
-      data[key] = value.toString();
-    }
-  });
+      data[key] = marshalDataToString(data[key]);
+    });
+}
+
+marshalDataToString(data) {
+  if (data == null) {
+    return null;
+  } else if (data is List) {
+    return data.map(marshalDataToString).toList();
+  } else {
+    return data.toString();
+  }
 }
 
 void unmarshalInt64s(List<String> fields, Map data) {
