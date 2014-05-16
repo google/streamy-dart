@@ -1,5 +1,7 @@
 library streamy.transformer;
 
+import 'dart:async';
+
 import 'package:barback/barback.dart';
 import 'package:mustache/mustache.dart' as mustache;
 import 'package:streamy/generator.dart';
@@ -44,13 +46,6 @@ class YamlTransformer extends Transformer {
   String _prefixFrom(String path) => (path.split('/')..removeLast()..add('')).join('/');
 }
 
-/*
-.then((emitter) => apiFromConfig(emitter.config, fileReader: (path) {
-      print("Reading: $path");
-      return transform.getInput(new AssetId(transform.primaryInput.id.package, path));
-    })
-      .then(emitter.process))
-      */
 class AssetTemplateLoader implements TemplateLoader {
   final Transform transform;
   

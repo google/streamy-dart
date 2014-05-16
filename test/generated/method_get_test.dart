@@ -45,7 +45,7 @@ main() {
     });
     test('of MethodGetTestTransaction', () {
       expect(MethodGetTestTransaction.API_TYPE, 'MethodGetTestTransaction');
-      expect(new MethodGetTestTransaction(null, null, null).apiType,
+      expect(new MethodGetTestTransaction(null, null).apiType,
           'MethodGetTestTransaction');
     });
     test('of Foo', () {
