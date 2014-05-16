@@ -13,7 +13,7 @@ class CopyClone implements streamy.Cloneable {
     return other;
   }
   
-  void _cloneHelper(value) {
+  _cloneHelper(value) {
     if (value is streamy.Cloneable) {
       return value.clone();
     } else if (value is List) {
