@@ -1,0 +1,6 @@
+{
+{{#sendParams}}  local[r'{{name}}'] = {{name}};
+{{/sendParams}}  return _sendDirect(){{^raw}}
+    .map((response) => response.entity){{/raw}}{{#listen}}
+    .listen(onData){{/listen}};
+}

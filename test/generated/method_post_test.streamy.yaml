@@ -1,0 +1,12 @@
+discovery: method_post_test.json
+output:
+  files: split
+  prefix: method_post_client
+base:
+  class: Entity
+  import: package:streamy/base.dart
+  backing: map
+options:
+  clone: true
+  removers: true
+  known: false

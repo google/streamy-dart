@@ -12,6 +12,9 @@ class ProxyClient extends RequestHandler {
   ProxyClient(this.proxyUrl, this.httpHandler);
 
   Stream<Response> handle(Request req, Trace trace) {
+    if (request is! HttpRequest) {
+      throw new StreamyException("Fail.");
+    }
     var url = '$proxyUrl/${req.root.servicePath}${req.path}';
     var payload = null;
     var headers = {};
