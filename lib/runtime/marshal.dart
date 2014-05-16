@@ -35,13 +35,7 @@ void unmarshalDoubles(List<String> fields, Map data) {
   fields
     .where(data.containsKey)
     .forEach((key) {
-      var value = data[key];
-      if (value != null) {
-        if (value is List) {
-        } else if (value is String) {
-          data[key] = double.parse(value);
-        }
-      }
+      data[key] = unmarshalDoubleData(data[key]);
     });
 }
 
