@@ -23,6 +23,7 @@ class Config {
   bool clone = true;
   bool removers = true;
   bool known = false;
+  bool global = false;
   
   Config();
 }
@@ -76,19 +77,22 @@ Config parseConfigOrDie(Map data) {
     }
   }
   
-  if (base.containsKey('options')) {
-    var options = base['options'];
+  if (data.containsKey('options')) {
+    var options = data['options'];
     if (options is! Map) {
       _die('Invalid value for: options.');
     }
     if (options.containsKey('clone')) {
-      config.clone = base['clone'];
+      config.clone = options['clone'];
     }
     if (options.containsKey('removers')) {
-      config.removers = base['removers'];
+      config.removers = options['removers'];
     }
     if (options.containsKey('known')) {
-      config.known = base['known'];
+      config.known = options['known'];
+    }
+    if (options.containsKey('global')) {
+      config.global = options['global'];
     }
   }
   

@@ -11,6 +11,13 @@ class StreamyClient {
   StreamyClient(this.config, this.root, this.resources, this.requests, this.objects, this.dispatch);
 }
 
+class SchemaDefinition {
+  final DartClass clazz;
+  final DartTypedef globalDef;
+  
+  SchemaDefinition(this.clazz, this.globalDef);
+}
+
 class Emitter {
   final Config config;
   final Map<String, mustache.Template> templates;
@@ -23,6 +30,7 @@ class Emitter {
     'marshal',
     'marshal_handle',
     'marshal_mapbacked',
+    'object_add_global',
     'object_clone',
     'object_ctor',
     'object_getter',
@@ -142,7 +150,9 @@ class Emitter {
     rootFile.classes.addAll(processRoot(api, resourcePrefix));
     resourceFile.classes.addAll(processResources(api, requestPrefix, objectPrefix));
     requestFile.classes.addAll(processRequests(api, objectPrefix, dispatchPrefix));
-    objectFile.classes.addAll(processSchemas(api));
+    var schemas = processSchemas(api);
+    objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
+    objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef).where((v) => v != null));
     dispatchFile.classes.add(processMarshaller(api, objectPrefix));
     return client;
   }
@@ -354,7 +364,7 @@ class Emitter {
     method.parameters.forEach((name, param) {
       var type = toDartType(param.typeRef, objectPrefix);
       clazz.fields.add(
-          new DartComplexField(name, type,
+          new DartComplexField(toProperIdentifier(name, firstLetter: false), type,
               new DartTemplateBody(paramGetter, {'name': name}),
               new DartTemplateBody(paramSetter, {'name': name})));
       clazz.methods.add(new DartMethod(toProperIdentifier('remove_$name', firstLetter: false), type,
@@ -482,7 +492,7 @@ class Emitter {
     return clazz;
   }
   
-  List<DartClass> processSchemas(Api api) => api
+  List<SchemaDefinition> processSchemas(Api api) => api
     .types
     .values
     .map(processSchema)
@@ -493,10 +503,12 @@ class Emitter {
     .values
     .fold(new DartClass('Marshaller'), (clazz, schema) => processSchemaForMarshaller(clazz, schema, objectPrefix));
   
-  DartClass processSchema(Schema schema) {
+  SchemaDefinition processSchema(Schema schema) {
     var base = new DartType(config.baseClass, 'base', const []);
     var clazz = new DartClass(toProperIdentifier(schema.name), baseClass: base);
     clazz.mixins.addAll(schema.mixins.map((mixin) => toDartType(mixin, '')));
+    
+    var globalFnDef = null;
     
     var ctor = _template('object_ctor');
     var getter = _template('object_getter');
@@ -514,6 +526,17 @@ class Emitter {
           new DartType.list(const DartType.string()),
           isFinal: true, isStatic: true,
           initializer: stringListBody(schema.properties.values.map((m) => m.name))));
+    }
+    
+    if (config.global) {
+      globalFnDef = new DartTypedef('${clazz.name}GlobalFn', const DartType.dynamic())
+        ..parameters.add(new DartParameter('entity', new DartType.from(clazz)));
+      clazz.methods.add(new DartMethod('addGlobal', const DartType.none(), new DartTemplateBody(
+        _template('object_add_global'), {'type': clazz.name}), isStatic: true)
+        ..parameters.add(new DartParameter('name', const DartType.string()))
+        ..parameters.add(new DartParameter('computeFn', new DartType.from(globalFnDef)))
+        ..namedParameters.add(new DartNamedParameter('memoize', const DartType.boolean(), defaultValue: new DartConstantBody('false')))
+        ..namedParameters.add(new DartNamedParameter('dependencies', new DartType('List', null, const []))));
     }
     
     schema.properties.forEach((_, field) {
@@ -544,7 +567,7 @@ class Emitter {
     
     addApiType(clazz);
     
-    return clazz;
+    return new SchemaDefinition(clazz, globalFnDef);
   }
   
   _accumulateMarshallingTypes(String name, TypeRef typeRef, List<String> int64Fields, List<String> doubleFields, Map entityFields) {

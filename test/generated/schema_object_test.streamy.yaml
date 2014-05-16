@@ -10,3 +10,4 @@ options:
   clone: true
   removers: true
   known: false
+  global: true

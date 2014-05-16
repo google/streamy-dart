@@ -26,7 +26,7 @@ main() {
           basePath.substring(basePath.lastIndexOf(path.separator) + 1);
       String discoveryJson = testJsonFile.readAsStringSync();
       */
-      var templateLoader = new TemplateLoader.fromDirectory('templates');
+      var templateLoader = new TemplateLoader.fromDirectory('lib/templates');
       Directory.current = testConfigFile.parent.absolute;
       var api = apiFromConfig(config);
       Emitter.fromTemplateLoader(config, templateLoader).then((emitter) {

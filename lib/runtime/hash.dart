@@ -76,3 +76,10 @@ class EntityUtils {
     return true;
   }
 }
+
+class Entity {
+
+  static bool deepEquals(DynamicAccess first, DynamicAccess second) => EntityUtils.deepEquals(first, second);
+  static int deepHashCode(DynamicAccess entity) => EntityUtils.deepHashCode(entity);
+
+}

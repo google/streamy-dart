@@ -1,13 +1,24 @@
 part of streamy.generator;
 
+abstract class DartNamed {
+  String get name;
+}
+
 abstract class DartFile {
   final String libraryName;
+  final List<DartTypedef> typedefs = [];
   final List<DartClass> classes = [];
   
   DartFile(this.libraryName);
   
   void _render(StringBuffer out) {
-    if (classes != null && classes.isNotEmpty) {
+    if (typedefs.isNotEmpty) {
+      typedefs.forEach((def) {
+        out.writeln();
+        def.render(out, 0);
+      });
+    }
+    if (classes.isNotEmpty) {
       classes.forEach((clazz) {
         out.writeln();
         clazz.render(out, 0);
@@ -65,7 +76,7 @@ class DartType {
   final List<DartType> parameters;
   
   const DartType.none() : this('void', null, const []);
-  DartType.from(DartClass clazz) : this(clazz.name, null, const []);
+  DartType.from(DartNamed named) : this(named.name, null, const []);
   const DartType.dynamic() : this('dynamic', null, const []);
   const DartType.integer() : this('int', null, const []);
   const DartType.boolean() : this('bool', null, const []);
@@ -105,7 +116,7 @@ class DartType {
   }
 }
 
-class DartClass {
+class DartClass implements DartNamed {
   final String name;
   final List<String> comments = [];
   final DartType baseClass;
@@ -172,6 +183,34 @@ class DartClass {
       });
     }
     out.writeln('}');
+  }
+}
+
+class DartTypedef implements DartNamed {
+  final String name;
+  final DartType returnType;
+  final List<DartParameter> parameters = [];
+  
+  DartTypedef(this.name, this.returnType);
+  
+  void render(StringBuffer out, int indent) {
+    out.write(strings.repeat('  ', indent));
+    out.write('typedef ');
+    if (returnType != null) {
+      returnType.render(out);
+      out.write(' ');
+    }
+    out.write(name);
+    out.write('(');
+    var first = true;
+    parameters.forEach((param) {
+      if (!first) {
+        out.write(', ');
+      }
+      first = false;
+      param.render(out);
+    });
+    out.writeln(');');
   }
 }
 

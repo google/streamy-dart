@@ -358,7 +358,7 @@ main() {
     });
     test('should not appear in resources and methods names', () {
       new SchemaObjectTest(null)
-        .$some_resource_.$some_method_(null, null);
+        .$some_resource_.$some_method_();
     });
   });
   group('Array of arrays', () {

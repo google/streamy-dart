@@ -81,7 +81,7 @@ abstract class GlobalView extends Observable with _FakeMap implements Map {
 
 class _GlobalViewImpl extends ChangeNotifier with _FakeMap implements GlobalView {
 
-  EntityWrapper _entity;
+  var _entity;
   Map<String, GlobalRegistration> _globals;
   var _changeController;
   var _changesSub;
