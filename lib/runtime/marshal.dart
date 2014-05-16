@@ -12,7 +12,7 @@ marshalDataToString(data) {
   if (data == null) {
     return null;
   } else if (data is List) {
-    return data.map(marshalDataToString).toList();
+    return new ObservableList.from(data.map(marshalDataToString));
   } else {
     return data.toString();
   }
@@ -30,7 +30,7 @@ unmarshalInt64Data(data) {
   if (data == null) {
     return null;
   } else if (data is List) {
-    return data.map(unmarshalInt64Data).toList();
+    return new ObservableList.from(data.map(unmarshalInt64Data));
   } else if (data is String) {
     return Int64.parseInt(data);
   } else {
@@ -50,7 +50,7 @@ unmarshalDoubleData(data) {
   if (data == null) {
     return null;
   } else if (data is List) {
-    return data.map(unmarshalDoubleData).toList();
+    return new ObservableList.from(data.map(unmarshalDoubleData));
   } else if (data is String) {
     return double.parse(data);
   } else {
@@ -71,7 +71,7 @@ handleEntityData(data, marshaller, handler, bool marshal) {
   if (data == null) {
     return null;
   } else if (data is List) {
-    return data.map((v) => handleEntityData(v, marshaller, handler, marshal)).toList();
+    return new ObservableList.from(data.map((v) => handleEntityData(v, marshaller, handler, marshal)));
   } else {
     return handler(marshaller, data, marshal);
   }
