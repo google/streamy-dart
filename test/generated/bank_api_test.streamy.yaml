@@ -1,0 +1,12 @@
+discovery: bank_api_test.json
+output:
+  files: single
+  prefix: bank_api_test
+base:
+  class: Entity
+  import: package:streamy/base.dart
+  backing: map
+options:
+  clone: true
+  removers: true
+  known: false

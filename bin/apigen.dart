@@ -4,27 +4,30 @@ import 'package:quiver/strings.dart';
 import 'package:quiver/pattern.dart';
 import 'package:streamy/generator_utils.dart';
 
+final _SPLITTING_LEVELS = const {
+  'none': SPLIT_LEVEL_NONE,
+  'parts': SPLIT_LEVEL_PARTS,
+  'full': SPLIT_LEVEL_LIBS
+};
+
 io.File discoveryFile;
 io.Directory outputDir;
 io.File addendumFile;
 io.Directory templatesDir;
+int splitLevel;
 String clientFileName;
 String libVersion;
 String localStreamyLocation;
 String remoteStreamyLocation;
 String remoteBranch;
 
+String baseClass;
+String baseImport;
+
 /// Generates an API client from a Google API discovery file.
 main(List<String> args) {
   parseArgs(args);
-  generateStreamyClientLibrary(discoveryFile, outputDir,
-      addendumFile: addendumFile,
-      templatesDir: templatesDir,
-      libVersion: libVersion,
-      localStreamyLocation: localStreamyLocation,
-      fileName: clientFileName,
-      remoteStreamyLocation: remoteStreamyLocation,
-      remoteBranch: remoteBranch);
+  // Build a configuration.
 }
 
 void parseArgs(List<String> arguments) {
@@ -51,6 +54,38 @@ void parseArgs(List<String> arguments) {
         }
         clientFileName = value;
       })
+    ..addOption(
+      'base-class',
+      abbr: 'bc',
+      help: 'Base class that Entities will inherit from. This is typically a ' +
+          'Mixologist-generated class, but doesn\'t have to be.',
+      defaultsTo: 'Entity',
+      callback: (String value) {
+        baseClass = value;
+      })
+    ..addOption(
+      'base-import',
+      abbr: 'bi',
+      help: 'Fully qualified import path to use for the generated base class.',
+      defaultsTo: 'package:streamy/base.dart',
+      callback: (String value) {
+        baseImport = value;
+      })
+    ..addOption(
+      'output-splitting',
+      abbr: 's',
+      help: "Splitting level for generated code. 'none' for no splitting " +
+          "(default). 'parts' for multiple part files within one library, " +
+          "and 'full' for independent libraries.",
+      defaultsTo: 'none',
+      callback: (String value) {
+        value = value.toLowerCase();
+        if (!_SPLITTING_LEVELS.containsKey(value)) {
+          errors.add('Invalid --output-splitting level: $value');
+          return;
+        }
+        splitLevel = _SPLITTING_LEVELS[value];
+      });
     ..addOption(
         'discovery-file',
         abbr: 'd',

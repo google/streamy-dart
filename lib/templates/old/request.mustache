@@ -1,0 +1,91 @@
+
+{{#docs}}/// {{.}}
+{{/docs}}
+class {{name}} extends streamy.Request {
+  static final List<String> KNOWN_PARAMETERS = [
+{{#parameters}}    r'{{name}}',
+{{/parameters}}  ];
+
+  static final API_TYPE = r'{{name}}';
+  String get apiType => API_TYPE;
+
+  {{#payload}}obj.{{payloadType}} get payload => streamy.internalGetPayload(this);{{/payload}}
+
+  {{#patchable}}
+  final patch;
+  {{/patchable}}
+
+  String get httpMethod => {{#patchable}}patch ? 'PATCH' : {{/patchable}}'{{httpMethod}}';
+
+  String get pathFormat => '{{path}}';
+
+  bool get hasPayload => {{#payload}}true{{/payload}}{{^payload}}false{{/payload}};
+
+  {{name}}(streamy.Root root{{#payload}}, obj.{{payloadType}} payloadEntity{{/payload}}{{#patchable}}, {bool this.patch: false}{{/patchable}}) : super(root{{#payload}}, payloadEntity{{/payload}}) {
+{{#parameters}}{{#repeated}}    {{varName}} = new {{type}}();
+{{/repeated}}{{/parameters}}
+  }
+
+  List<String> get pathParameters => const [{{#path_parameters}}r'{{name}}',{{/path_parameters}}];
+  List<String> get queryParameters => const [{{#query_parameters}}r'{{name}}',{{/query_parameters}}];
+
+{{#parameters}}
+{{#docs}}  /// {{.}}
+{{/docs}}
+  {{type}} get {{varName}} => parameters[r'{{name}}'];
+
+  set {{varName}}({{type}} value) {
+    parameters[r'{{name}}'] = value;
+  }
+  {{type}} {{removerName}}() => parameters.remove(r'{{name}}');
+{{/parameters}}
+
+  Stream<streamy.Response{{#hasResponse}}<obj.{{responseType}}>{{/hasResponse}}> _sendDirect() => this.root.send(this);
+
+
+  {{^hasSendParams}}Stream<streamy.Response{{#hasResponse}}<obj.{{responseType}}>{{/hasResponse}}> sendRaw() =>
+      _sendDirect();{{/hasSendParams}}
+  {{#hasSendParams}}Stream<streamy.Response{{#hasResponse}}<obj.{{responseType}}>{{/hasResponse}}> sendRaw({
+{{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
+{{/sendParams}}
+{{#sendParams}}
+    this.local[r'{{name}}'] = {{name}};
+{{/sendParams}}
+    return _sendDirect();
+  }
+  {{/hasSendParams}}
+
+  {{^hasSendParams}}Stream{{#hasResponse}}<obj.{{responseType}}>{{/hasResponse}} send() =>
+      _sendDirect().map((response) => response.entity);{{/hasSendParams}}
+
+  {{#hasSendParams}}Stream{{#hasResponse}}<obj.{{responseType}}>{{/hasResponse}} send({
+{{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
+{{/sendParams}}
+{{#sendParams}}
+    this.local[r'{{name}}'] = {{name}};
+{{/sendParams}}
+    return _sendDirect().map((response) => response.entity);
+  }{{/hasSendParams}}
+
+  {{^hasSendParams}}StreamSubscription{{#hasResponse}}<obj.{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}obj.{{responseType}} {{/hasResponse}}event)) =>
+      _sendDirect().map((response) => response.entity).listen(onData);{{/hasSendParams}}
+  {{#hasSendParams}}StreamSubscription{{#hasResponse}}<obj.{{responseType}}>{{/hasResponse}} listen(void onData({{#hasResponse}}obj.{{responseType}} {{/hasResponse}}event), {
+{{#sendParams}}      {{type}} {{name}}: {{default}}{{^last}},{{/last}}{{#last}} }) { {{/last}}
+{{/sendParams}}
+{{#sendParams}}
+    this.local[r'{{name}}'] = {{name}};
+{{/sendParams}}
+    return _sendDirect().map((response) => response.entity).listen(onData);
+  }{{/hasSendParams}}
+
+  {{name}} clone() => streamy.internalCloneFrom(new {{name}}(root{{#payload}}, payload.clone(){{/payload}}), this);
+
+{{#hasResponse}}
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
+      new obj.{{responseType}}.fromJsonString(str, trace, typeRegistry: root.typeRegistry);
+{{/hasResponse}}
+{{^hasResponse}}
+  streamy.Deserializer get responseDeserializer => (String str, streamy.Trace trace) =>
+      new streamy.EmptyEntity();
+{{/hasResponse}}
+}

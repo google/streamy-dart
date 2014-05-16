@@ -1,5 +1,6 @@
 {
   "name": "AddendumTest",
+  "description": "Test client for addendum documents.",
   "servicePath": "addendum/v1/",
   "schemas": {
     "Foo": {

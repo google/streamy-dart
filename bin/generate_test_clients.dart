@@ -1,55 +1,53 @@
 import 'dart:io';
-import 'package:json/json.dart';
+import 'package:json/json.dart' as json;
 import 'package:path/path.dart' as path;
+import 'package:yaml/yaml.dart' as yaml;
 import 'package:streamy/generator.dart';
 
 /// Generates test clients defined by JSON in test/generated folder.
 main() {
   Directory generatedDir = new Directory('test/generated');
   var allFiles = generatedDir.listSync(recursive: false, followLinks: false);
-  allFiles.forEach((FileSystemEntity e) {
-    if (!(e is File)) {
-      return;
-    }
-    File testJsonFile = e;
-    if (!testJsonFile.path.endsWith('_test.json')) {
-      return;
-    }
-    print('Processing: ${testJsonFile}');
-    // Remove _test.json at the end of the path
-    String basePath =
-        testJsonFile.path.substring(0, testJsonFile.path.length - 10);
-    String baseFileName =
-        basePath.substring(basePath.lastIndexOf(path.separator) + 1);
-    String discoveryJson = testJsonFile.readAsStringSync();
-    var discoveryData = new Discovery.fromJsonString(discoveryJson);
-
-    var rootOut = new File('${basePath}_client.dart').openWrite();
-    var resourceOut = new File('${basePath}_client_resources.dart').openWrite();
-    var requestOut = new File('${basePath}_client_requests.dart').openWrite();
-    var objectOut = new File('${basePath}_client_objects.dart').openWrite();
-
-    File addendumFile = new File('${basePath}_addendum.json');
-    Map addendumData = {};
-    if (addendumFile.existsSync()) {
-      print('Processing addendum: $testJsonFile');
-      addendumData = parse(addendumFile.readAsStringSync());
-    }
-    addendumData['resources_import'] = '${baseFileName}_client_resources.dart';
-    addendumData['requests_import'] = '${baseFileName}_client_requests.dart';
-    addendumData['objects_import'] = '${baseFileName}_client_objects.dart';
-
-    emitCode(new EmitterConfig(
-        discoveryData,
-        new DefaultTemplateProvider.defaultInstance(),
-        rootOut,
-        resourceOut,
-        requestOut,
-        objectOut,
-        addendumData: addendumData));
-    rootOut.close();
-    resourceOut.close();
-    requestOut.close();
-    objectOut.close();
+  var current = Directory.current;
+  allFiles
+    .where((e) => e is File)
+    .where((e) => e.path.endsWith('_test.streamy.yaml'))
+    //.take(1)
+    .forEach((FileSystemEntity e) {
+      Directory.current = current;
+      File testConfigFile = e;
+      print('Processing: ${testConfigFile}');
+      var config = parseConfigOrDie(yaml.loadYaml(testConfigFile.readAsStringSync()));
+      /*
+      // Remove _test.json at the end of the path
+      String basePath =
+          testJsonFile.path.substring(0, testJsonFile.path.length - 10);
+      String baseFileName =
+          basePath.substring(basePath.lastIndexOf(path.separator) + 1);
+      String discoveryJson = testJsonFile.readAsStringSync();
+      */
+      var templateLoader = new TemplateLoader.fromDirectory('lib/templates');
+      Directory.current = testConfigFile.parent.absolute;
+      var api = apiFromConfig(config);
+      Emitter.fromTemplateLoader(config, templateLoader).then((emitter) {
+        api.imports['package:streamy/base.dart'] = 'base';
+        var out = emitter.process(api);
+        
+        if (config.outputPrefix == "") {
+          _die('bad output prefix.');
+        }
+        maybeWriteFile(out.root, '${config.outputPrefix}.dart');
+        maybeWriteFile(out.resources, '${config.outputPrefix}_resources.dart');
+        maybeWriteFile(out.requests, '${config.outputPrefix}_requests.dart');
+        maybeWriteFile(out.objects, '${config.outputPrefix}_objects.dart');
+        maybeWriteFile(out.dispatch, '${config.outputPrefix}_dispatch.dart');
+      });
   });
+}
+
+maybeWriteFile(DartFile file, String path) {
+  if (file == null) {
+    return;
+  }
+  new File(path).writeAsStringSync(file.render());
 }
