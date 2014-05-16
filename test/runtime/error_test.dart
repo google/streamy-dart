@@ -14,7 +14,7 @@ main() {
             ..value(new Response(new RawEntity(), Source.RPC, 0))
         ).build();
       var subject = new RetryingRequestHandler(testHandler);
-      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.then(expectAsync1((res) {
+      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.then(expectAsync((res) {
         expect(res.entity, new isInstanceOf<RawEntity>());
       }));
     });
@@ -25,7 +25,7 @@ main() {
         ).build();
       // Expect the retry strategy to not be called.
       var subject = new RetryingRequestHandler(testHandler, strategy: expectAsync3((a, b, c) {}, count: 0));
-      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.catchError(expectAsync1((e) {
+      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.catchError(expectAsync((e) {
         expect(e, new isInstanceOf<StreamyRpcException>());
       }));
     });
@@ -44,7 +44,7 @@ main() {
       }
 
       var subject = new RetryingRequestHandler(testHandler, strategy: expectAsync3(testStrategy, count: 3, max: 3));
-      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.then(expectAsync1((res) {
+      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.then(expectAsync((res) {
         expect(res.entity, new isInstanceOf<RawEntity>());
       }));
     });
@@ -63,7 +63,7 @@ main() {
       }
 
       var subject = new RetryingRequestHandler(testHandler, maxRetries: 3, strategy: expectAsync3(testStrategy, count: 3, max: 3));
-      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.catchError(expectAsync1((e) {
+      subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.catchError(expectAsync((e) {
         expect(e, new isInstanceOf<StreamyRpcException>());
       }));
     });
@@ -71,7 +71,7 @@ main() {
 }
 
 expectAsync3(fn, {count: 1, max: 0}) {
-  var tracker = expectAsync0(() {}, count: count, max: max);
+  var tracker = expectAsync(() {}, count: count, max: max);
   return (a, b, c) {
     tracker();
     return fn(a, b, c);
