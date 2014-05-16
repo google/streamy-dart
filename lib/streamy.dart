@@ -16,6 +16,7 @@ part 'runtime/api.dart';
 part 'runtime/batching.dart';
 part 'runtime/cache.dart';
 part 'runtime/dedup.dart';
+part 'runtime/entity_util.dart';
 part 'runtime/error.dart';
 part 'runtime/hash.dart';
 part 'runtime/http.dart';
