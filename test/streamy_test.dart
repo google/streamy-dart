@@ -47,7 +47,7 @@ main() {
         .transform(() => new EntityDedupTransformer())
         .handle(new TestRequest('GET'), const NoopTrace())
         .single
-        .then(expectAsync1((e) {
+        .then(expectAsync((e) {
           expect(Entity.deepEquals(e.entity, a.entity), isTrue);
           expect(Entity.deepEquals(e.entity, b.entity), isTrue);
         }));
@@ -191,7 +191,7 @@ main() {
   });
 }
 
-asyncExpect(Future future, matcher) => future.then(expectAsync1((v) {
+asyncExpect(Future future, matcher) => future.then(expectAsync((v) {
   expect(v, matcher);
 }));
 

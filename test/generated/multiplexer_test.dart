@@ -18,14 +18,14 @@ main() {
     });
 
     test('handles a basic get', () {
-      client.foos.get(1).sendRaw().listen(expectAsync1((v) {
+      client.foos.get(1).sendRaw().listen(expectAsync((v) {
         expect(v.entity.id, equals(1));
         expect(v.source, equals(Source.RPC));
       }, count: 1));
     });
     test('handles a cached get', () {
       // Issue the first RPC just to get stuff in cache.
-      client.foos.get(2).sendRaw().first.then(expectAsync1((v) {
+      client.foos.get(2).sendRaw().first.then(expectAsync((v) {
         var expects = [(v1) {
           expect(v1.entity.id, equals(2));
           expect(v1.source, equals('CACHE'));
@@ -33,7 +33,7 @@ main() {
           expect(v2.entity.id, equals(2));
           expect(v2.source, equals('RPC'));
         }].iterator;
-          client.foos.get(2).sendRaw().listen(expectAsync1(
+          client.foos.get(2).sendRaw().listen(expectAsync(
             (v) => (expects..moveNext()).current(v), count: 2));
       }, count: 1));
     });
@@ -54,14 +54,14 @@ main() {
       }].iterator;
 
       // First RPC
-      client.foos.get(3).sendRaw().listen(expectAsync1(
+      client.foos.get(3).sendRaw().listen(expectAsync(
         (v) => (expects..moveNext()).current(v), count: 2));
     });
     test('handles a basic non-cachable request', () {
       var foo = new Foo()
         ..id = 1
         ..bar = 'foo';
-      client.foos.update(foo).send().single.then(expectAsync1((v) {
+      client.foos.update(foo).send().single.then(expectAsync((v) {
         expect(v, isNot(same(foo)));
         expect(v.id, equals(1));
         expect(v.bar, equals("foo.updated.1"));
@@ -73,14 +73,14 @@ main() {
         ..bar = 'foo';
       Future<Foo> first = client.foos.update(foo).send().single;
       Future<Foo> second = client.foos.update(foo).send().single;
-      Future.wait([first, second]).then(expectAsync1((results) {
+      Future.wait([first, second]).then(expectAsync((results) {
         expect(results[0].bar, anyOf(equals('foo.updated.1'), equals('foo.updated.2')));
         expect(results[1].bar, anyOf(equals('foo.updated.1'), equals('foo.updated.2')));
         expect(results[0].bar != results[1].bar, isTrue);
       }));
     });
     test('handles a no-response method', () {
-      client.foos.delete(1).send().single.then(expectAsync1((response) {
+      client.foos.delete(1).send().single.then(expectAsync((response) {
         expect(response, new isInstanceOf<EmptyEntity>());
       }));
     });
@@ -111,7 +111,7 @@ class ImmediateRequestHandler extends RequestHandler {
       return new Future.value(new Response(request.responseDeserializer('', const NoopTrace()), Source.RPC, _ts())).asStream();
     } else if (request is FoosCancelRequest) {
       var c;
-      c = new StreamController<Response<Foo>>(onCancel: expectAsync0(() {
+      c = new StreamController<Response<Foo>>(onCancel: expectAsync(() {
         expect(c.isClosed, isFalse);
       }));
       c.add(new Response(new Foo()..id = 1, Source.RPC, _ts()));

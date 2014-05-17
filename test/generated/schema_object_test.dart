@@ -108,7 +108,7 @@ main() {
     });
     test('objects are observable', () {
       var foo = new Foo();
-      foo.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+      foo.changes.listen(expectAsync((List<ChangeRecord> changes) {
         expect(changes, hasLength(4));
 
         var r1 = changes[0] as MapChangeRecord;
@@ -142,7 +142,7 @@ main() {
         ..foos = [foo];
 
       // Expect foo to receive notifications
-      foo.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+      foo.changes.listen(expectAsync((List<ChangeRecord> changes) {
         expect(changes, hasLength(1));
 
         var r1 = changes[0] as MapChangeRecord;
@@ -152,7 +152,7 @@ main() {
       }, count: 1));
 
       // Bar should not receive notifications
-      bar.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+      bar.changes.listen(expectAsync((List<ChangeRecord> changes) {
         fail('Should not receive notifications');
       }, count: 0));
 
@@ -161,7 +161,7 @@ main() {
     });
     test('local is observable', () {
       var foo = new Foo();
-      foo.local.changes.listen(expectAsync1((List<ChangeRecord> changes) {
+      foo.local.changes.listen(expectAsync((List<ChangeRecord> changes) {
         expect(changes, hasLength(5));
 
         var r0 = changes[0] as PropertyChangeRecord;
@@ -258,10 +258,10 @@ main() {
       expect(foo['global.idStr'], equals('Id #1'));
     });
     test('Observation with no dependencies', () {
-      foo.global.changes.listen(expectAsync1((_) {}, count: 0));
+      foo.global.changes.listen(expectAsync((_) {}, count: 0));
     });
     test('Observation with a property dependency', () {
-      foo.global.changes.listen(expectAsync1((changes) {
+      foo.global.changes.listen(expectAsync((changes) {
         expect(changes.map((c) => c.key), contains('depStr'));
         expect(foo.global['depStr'], 'Id #3');
       }, count: 1));
@@ -269,20 +269,20 @@ main() {
     });
     test('Observation with an external dependency', () {
       var sub;
-      sub = foo.global.changes.listen(expectAsync1((changes) {
+      sub = foo.global.changes.listen(expectAsync((changes) {
         expect(changes.map((c) => c.key), contains('depStr2'));
         sub.cancel();
       }, count: 1));
-      exDepCancel.future.whenComplete(expectAsync0(() {}, count: 1));
+      exDepCancel.future.whenComplete(expectAsync(() {}, count: 1));
       exDep.add(foo.id);
     });
     test('Observation with both internal and external dependencies', () {
       var sub;
-      sub = foo.global.changes.listen(expectAsync1((changes) {
+      sub = foo.global.changes.listen(expectAsync((changes) {
         expect(changes.map((c) => c.key), contains('depStr3'));
         expect(foo.global['depStr3'], 'Id #1');
         var sub2;
-        sub2 = foo.global.changes.listen(expectAsync1((changes) {
+        sub2 = foo.global.changes.listen(expectAsync((changes) {
           expect(changes.map((c) => c.key), contains('depStr3'));
           expect(foo.global['depStr3'], 'Id #3');
           sub2.cancel();
@@ -290,7 +290,7 @@ main() {
         sub.cancel();
         foo.id = 3;
       }, count: 1));
-      exDepCancel.future.whenComplete(expectAsync0(() {
+      exDepCancel.future.whenComplete(expectAsync(() {
         expect(foo.id, 3);
       }, count: 1));
       exDep.add(foo.id);
