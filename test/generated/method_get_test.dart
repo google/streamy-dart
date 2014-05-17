@@ -29,7 +29,7 @@ main() {
           (req) => new Stream.fromIterable(
               [new Response(req.unmarshalResponse(marshaller, marshaller.marshalFoo(testResponse)), Source.RPC, 0)]));
       var subject = new MethodGetTest(testRequestHandler);
-      subject.foos.get(1).send().listen(expectAsync1((Foo v) {
+      subject.foos.get(1).send().listen(expectAsync((Foo v) {
         expect(marshaller.marshalFoo(v), equals(marshaller.marshalFoo(testResponse)));
       }, count: 1));
     });

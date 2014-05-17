@@ -29,10 +29,10 @@ main() {
       var brancher = (new BranchingRequestHandlerBuilder()
           ..addBranch(TypedTestRequest, testHandler)
         ).build(defaultHandler);
-        brancher.handle(TEST_GET_REQUEST, const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(TEST_GET_REQUEST, const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('hello'));
         }));
-        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('world'));
         }));
     });
@@ -40,7 +40,7 @@ main() {
       var brancher = (new BranchingRequestHandlerBuilder()
           ..addBranch(TypedTestRequest, testHandler, predicate: (_) => false)
         ).build(defaultHandler);
-        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('hello'));
         }));
     });
@@ -49,13 +49,13 @@ main() {
           ..addBranch(TypedTestRequest, testHandler, predicate: (r) => r.option)
           ..addBranch(TypedTestRequest, testHandler2, predicate: (r) => !r.option)
         ).build(defaultHandler);
-        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('world'));
         }));
-        brancher.handle(new TypedTestRequest(false), const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(new TypedTestRequest(false), const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('universe'));
         }));
-        brancher.handle(TEST_GET_REQUEST, const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(TEST_GET_REQUEST, const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('hello'));
         }));
     });
@@ -64,13 +64,13 @@ main() {
           ..addBranch(TypedTestRequest, testHandler)
           ..addBranch(DifferentlyTypedTestRequest, testHandler2)
         ).build(defaultHandler);
-        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(new TypedTestRequest(true), const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('world'));
         }));
-        brancher.handle(new DifferentlyTypedTestRequest(), const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(new DifferentlyTypedTestRequest(), const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('universe'));
         }));
-        brancher.handle(TEST_GET_REQUEST, const NoopTrace()).single.then(expectAsync1((response) {
+        brancher.handle(TEST_GET_REQUEST, const NoopTrace()).single.then(expectAsync((response) {
           expect(response.entity['value'], equals('hello'));
         }));
     });
