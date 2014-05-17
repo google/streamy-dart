@@ -1,6 +1,6 @@
 library streamy.test;
-/*
 import 'runtime/http_test.dart' as http_test;
+/*
 import 'generated/addendum_test.dart' as addendum_test;
 */
 import 'streamy_test.dart' as streamy_test;
@@ -28,6 +28,7 @@ import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 
 main(List<String> args) {
   ensureCheckedMode();
+  http_test.main();
   method_get_test.main();
   method_post_test.main();
   method_params_test.main();
@@ -36,7 +37,6 @@ main(List<String> args) {
   /*
   addendum_test.main();
   schema_unknown_fields_test.main();
-  http_test.main();
   streamy_test.main();
   batching_test.main();
   generator_emitter_test.main(args);
