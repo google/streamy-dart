@@ -46,6 +46,7 @@ class Emitter {
     'request_send',
     'request_send_direct',
     'request_unmarshal_response',
+    'root_begin_transaction',
     'root_constructor',
     'root_send',
     'root_transaction_constructor',
@@ -189,11 +190,16 @@ class Emitter {
       baseType = streamyImport('HttpRoot');
     }
     var mixinType = new DartType.from(resourceMixin);
+    var txClassName = toProperIdentifier('${api.name}Transaction');
     var root = new DartClass(toProperIdentifier(api.name), baseClass: baseType)
       ..mixins.add(mixinType)
       ..fields.add(new DartSimpleField('requestHandler', streamyImport('RequestHandler'), isFinal: true))
       ..fields.add(new DartSimpleField('txStrategy', streamyImport('TransactionStrategy'), isFinal: true))
-      ..fields.add(new DartSimpleField('tracer', streamyImport('Tracer'), isFinal: true));
+      ..fields.add(new DartSimpleField('tracer', streamyImport('Tracer'), isFinal: true))
+      ..methods.add(new DartMethod(
+        'beginTransaction',
+        new DartType(txClassName, null, const []),
+        new DartTemplateBody(_template('root_begin_transaction'), {'txClassName': txClassName})));
     
     var ctorData = {
       'http': api.httpConfig != null
@@ -225,23 +231,22 @@ class Emitter {
     root.methods.add(send);
     
     addApiType(root);
-    
-    var transactionRoot = new DartClass(
-        '${toProperIdentifier(api.name)}Transaction',
+
+    var txRoot = new DartClass(
+        txClassName,
         baseClass: streamyImport('HttpTransactionRoot'))
       ..mixins.add(mixinType);
-    
 
-    var txnCtor = new DartConstructor(transactionRoot.name, body: new DartTemplateBody(
+    var txnCtor = new DartConstructor(txRoot.name, body: new DartTemplateBody(
       _template('root_transaction_constructor'), {}));
     txnCtor.parameters
-      ..add(new DartParameter('servicePath', const DartType.string()))
-      ..add(new DartParameter('txn', streamyImport('Transaction')));
-    transactionRoot.methods.add(txnCtor);
-    
-    addApiType(transactionRoot);
-    
-    return [resourceMixin, root, transactionRoot];
+      ..add(new DartParameter('txn', streamyImport('Transaction')))
+      ..add(new DartParameter('servicePath', const DartType.string()));
+    txRoot.methods.add(txnCtor);
+
+    addApiType(txRoot);
+
+    return [resourceMixin, root, txRoot];
   }
 
   List<DartClass> processResources(Api api, String requestPrefix, String objectPrefix) =>
