@@ -3,7 +3,14 @@ library streamy.runtime.multiplexer.test;
 import 'dart:async';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
+import 'package:streamy/mixins/base_map.dart';
 import 'package:unittest/unittest.dart';
+
+DynamicAccess makeEntity() {
+  var entity = new MapBase();
+  setMap(entity, {});
+  return entity;
+}
 
 main() {
  group('Multiplexer', () {
@@ -22,9 +29,9 @@ main() {
         }));
     });
     test('sends new value across request bounds', () {
-      var r1 = new RawEntity()
+      var r1 = makeEntity()
         ..['key'] = 'alpha';
-      var r2 = new RawEntity()
+      var r2 = makeEntity()
         ..['key'] = 'beta';
       var testHandler = (
           testRequestHandler()
@@ -79,14 +86,14 @@ main() {
       stream.first.then(expectAsync((r) {
         expect(r.authority, Authority.SECONDARY);
         expect(r.entity['key'], 'bar');
-        s1.add(new Response(new RawEntity()..['key'] = 'foo', Source.RPC, 0));
+        s1.add(new Response(makeEntity()..['key'] = 'foo', Source.RPC, 0));
       }));
 
       // Primary response from [s1] considered PRIMARY.
       stream.skip(1).first.then(expectAsync((r) {
         expect(r.authority, Authority.PRIMARY);
         expect(r.entity['key'], 'foo');
-        s2.add(new Response(new RawEntity()..['key'] = 'baz', Source.RPC, 0));
+        s2.add(new Response(makeEntity()..['key'] = 'baz', Source.RPC, 0));
       }));
 
       // Crossover response from [s2] now considered PRIMARY.
@@ -112,8 +119,8 @@ main() {
           expect(r.entity['key'], 'bar');
         }));
 
-        s2.add(new Response(new RawEntity()..['key'] = 'bar', Source.RPC, 0,
-            authority: Authority.PRIMARY));
+        s2.add(new Response(makeEntity()..['key'] = 'bar',
+            Source.RPC, 0, authority: Authority.PRIMARY));
     });
   });
 }
