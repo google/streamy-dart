@@ -11,8 +11,8 @@ main() {
     test('deduplicates 5 identical cachable requests', () {
       var handler = (testRequestHandler()
         ..values([
-            new Response(new RawEntity()..['key'] = 'foo', Source.CACHE, 0),
-            new Response(new RawEntity()..['key'] = 'bar', Source.RPC, 1)
+            new Response(makeEntity()..['key'] = 'foo', Source.CACHE, 0),
+            new Response(makeEntity()..['key'] = 'bar', Source.RPC, 1)
         ]))
         .build();
       var subject = new DeduplicatingRequestHandler(handler);
@@ -38,8 +38,8 @@ main() {
     });
     test('does not deduplicate after first response', () {
       var handler = (testRequestHandler()
-        ..value(new Response(new RawEntity()..['key'] = 'foo', Source.RPC, 0))
-        ..value(new Response(new RawEntity()..['key'] = 'bar', Source.RPC, 0)))
+        ..value(new Response(makeEntity()..['key'] = 'foo', Source.RPC, 0))
+        ..value(new Response(makeEntity()..['key'] = 'bar', Source.RPC, 0)))
         .build();
       var subject = new DeduplicatingRequestHandler(handler);
       subject
@@ -59,9 +59,9 @@ main() {
     });
     test('does not deduplicate 3 non-cachable requests', () {
       var handler = (testRequestHandler()
-        ..value(new Response(new RawEntity()..['key'] = 'foo', Source.RPC, 1))
-        ..value(new Response(new RawEntity()..['key'] = 'bar', Source.RPC, 1))
-        ..value(new Response(new RawEntity()..['key'] = 'baz', Source.RPC, 1)))
+        ..value(new Response(makeEntity()..['key'] = 'foo', Source.RPC, 1))
+        ..value(new Response(makeEntity()..['key'] = 'bar', Source.RPC, 1))
+        ..value(new Response(makeEntity()..['key'] = 'baz', Source.RPC, 1)))
         .build();
       var subject = new DeduplicatingRequestHandler(handler);
       void sendOneRequest(expected) {
@@ -111,7 +111,7 @@ main() {
         b.cancel();
         expect(cancelled, isTrue);
       }));
-      sink.add(new Response(new RawEntity(), Source.RPC, 0));
+      sink.add(new Response(makeEntity(), Source.RPC, 0));
     });
     test('should trace deduped requests', () {
       // Test handler never returns any values (so everything is deduped)
