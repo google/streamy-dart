@@ -5,12 +5,7 @@ import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:streamy/mixins/base_map.dart';
 import 'package:unittest/unittest.dart';
-
-DynamicAccess makeEntity() {
-  var entity = new MapBase();
-  setMap(entity, {});
-  return entity;
-}
+import '../utils.dart';
 
 main() {
  group('Multiplexer', () {

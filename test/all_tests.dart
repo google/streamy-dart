@@ -10,11 +10,11 @@ import 'generated/method_params_test.dart' as method_params_test;
 import 'generated/schema_object_test.dart' as schema_object_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/batching_test.dart' as runtime_batching_test;
+import 'runtime/branching_test.dart' as runtime_branching_test;
 /*
 import 'generated/multiplexer_test.dart' as multiplexer_test;
 import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
 import 'generator/emitter_test.dart' as generator_emitter_test;
-import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/cache_test.dart' as runtime_cache_test;
 import 'runtime/dedup_test.dart' as runtime_dedup_test;
 import 'runtime/error_test.dart' as runtime_error_test;
@@ -33,6 +33,7 @@ main(List<String> args) {
   method_post_test.main();
   method_params_test.main();
   runtime_batching_test.main();
+  runtime_branching_test.main();
   runtime_multiplexer_test.main();
   schema_object_test.main();
   //streamy_test.main();
@@ -41,7 +42,6 @@ main(List<String> args) {
   schema_unknown_fields_test.main();
   streamy_test.main();
   generator_emitter_test.main(args);
-  runtime_branching_test.main();
   runtime_cache_test.main();
   runtime_dedup_test.main();
   runtime_error_test.main();
