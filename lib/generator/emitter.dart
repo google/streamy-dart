@@ -47,6 +47,7 @@ class Emitter {
     'request_unmarshal_response',
     'root_constructor',
     'root_send',
+    'root_transaction_constructor',
     'string_list',
     'unmarshal'
   ];
@@ -228,6 +229,16 @@ class Emitter {
         '${toProperIdentifier(api.name)}Transaction',
         baseClass: streamyImport('HttpTransactionRoot'))
       ..mixins.add(mixinType);
+    
+
+    var txnCtor = new DartConstructor(transactionRoot.name, body: new DartTemplateBody(
+      _template('root_transaction_constructor'), {}));
+    txnCtor.parameters
+      ..add(new DartParameter('servicePath', const DartType.string()))
+      ..add(new DartParameter('txn', streamyImport('Transaction')));
+    transactionRoot.methods.add(txnCtor);
+    
+    addApiType(transactionRoot);
     
     return [resourceMixin, root, transactionRoot];
   }

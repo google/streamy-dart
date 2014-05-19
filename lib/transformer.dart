@@ -44,13 +44,6 @@ class YamlTransformer extends Transformer {
   String _prefixFrom(String path) => (path.split('/')..removeLast()..add('')).join('/');
 }
 
-/*
-.then((emitter) => apiFromConfig(emitter.config, fileReader: (path) {
-      print("Reading: $path");
-      return transform.getInput(new AssetId(transform.primaryInput.id.package, path));
-    })
-      .then(emitter.process))
-      */
 class AssetTemplateLoader implements TemplateLoader {
   final Transform transform;
   
