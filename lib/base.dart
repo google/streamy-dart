@@ -269,7 +269,7 @@ abstract class Patch extends Global implements streamy.Patchable {
     } else if (v is streamy.Patchable) {
       return v.patch();
     } else if (v is Map) {
-      ObservableMap c = new ObservableMap();
+      var c = new observe.ObservableMap();
       v.forEach((k, v) {
         c[k] = _patchHelper(v);
       });
