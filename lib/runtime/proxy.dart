@@ -11,15 +11,17 @@ class ProxyClient extends RequestHandler {
 
   ProxyClient(this.proxyUrl, this.httpHandler);
 
-  Stream<Response> handle(Request req, Trace trace) {
-    if (request is! HttpRequest) {
-      throw new StreamyException("Fail.");
+  Stream<Response> handle(Request originalReq, Trace trace) {
+    if (originalReq is! HttpRequest) {
+      throw new ProxyClientException('ProxyClient only works with HttpRequests');
     }
-    var url = '$proxyUrl/${req.root.servicePath}${req.path}';
+    HttpRequest req = originalReq;
+    HttpRoot root = req.root;
+    var url = '$proxyUrl/${root.servicePath}${req.path}';
     var payload = null;
     var headers = {};
     if (req.hasPayload) {
-      payload = stringify(req.payload);
+      payload = JSON.encode(req.marshalPayload());
       headers[_CONTENT_TYPE] = 'application/json; charset=utf-8';
     }
     var cancelCompleter = new Completer();
@@ -57,7 +59,7 @@ class ProxyClient extends RequestHandler {
       }
       var responsePayload = null;
       if (resp.statusCode == 200 || resp.statusCode == 201) {
-        responsePayload = req.responseDeserializer(resp.body, trace);
+        responsePayload = req.unmarshalResponse(JSON.decode(resp.body));
       }
       return new Response(responsePayload, Source.RPC,
           new DateTime.now().millisecondsSinceEpoch);
@@ -78,4 +80,10 @@ class ProxyRequestSent implements TraceEvent {
   const ProxyRequestSent._private();
 
   String toString() => 'streamy.proxy.sent';
+}
+
+class ProxyClientException extends StreamyException {
+  final String _msg;
+  ProxyClientException(this._msg);
+  String toString() => 'ProxyClientException: $_msg';
 }
