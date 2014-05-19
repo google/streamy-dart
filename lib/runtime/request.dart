@@ -45,7 +45,7 @@ abstract class Transaction {
 
 class HttpTransactionRoot extends TransactionRoot implements HttpRoot {
   final String servicePath;
-  
+
   HttpTransactionRoot(Transaction tx, this.servicePath) : super(tx);
 }
 
@@ -118,8 +118,10 @@ abstract class HttpRequest implements Request {
       });
     }
   }
-  
-  dynamic unmarshalResponse(marshaller, Map data);
+
+  dynamic marshalPayload();
+
+  dynamic unmarshalResponse(Map data);
 
   /// Returns the payload, if any.
   get payload => _payload;
