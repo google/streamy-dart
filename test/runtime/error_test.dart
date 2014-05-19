@@ -1,9 +1,11 @@
 library streamy.runtime.error.test;
 
 import 'dart:async';
+import 'package:streamy/mixins/base_map.dart';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
+import '../utils.dart';
 
 main() {
   group('RetryingRequestHandler', () {
@@ -11,11 +13,11 @@ main() {
       var testHandler = (
           testRequestHandler()
             ..rpcError(503)
-            ..value(new Response(new RawEntity(), Source.RPC, 0))
+            ..value(new Response(makeEntity(), Source.RPC, 0))
         ).build();
       var subject = new RetryingRequestHandler(testHandler);
       subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.then(expectAsync((res) {
-        expect(res.entity, new isInstanceOf<RawEntity>());
+        expect(res.entity, new isInstanceOf<MapBase>());
       }));
     });
     test("doesn't retry on 404 error", () {
@@ -33,7 +35,7 @@ main() {
       var testHandler = (
           testRequestHandler()
             ..rpcError(503, times: 3)
-            ..value(new Response(new RawEntity(), Source.RPC, 0))
+            ..value(new Response(makeEntity(), Source.RPC, 0))
         ).build();
 
       int retryCount = 0;
@@ -45,14 +47,14 @@ main() {
 
       var subject = new RetryingRequestHandler(testHandler, strategy: expectAsync3(testStrategy, count: 3, max: 3));
       subject.handle(TEST_GET_REQUEST, const NoopTrace()).first.then(expectAsync((res) {
-        expect(res.entity, new isInstanceOf<RawEntity>());
+        expect(res.entity, new isInstanceOf<MapBase>());
       }));
     });
     test("doesn't retry past the maximum number of times", () {
       var testHandler = (
           testRequestHandler()
             ..rpcError(503, times: 4)
-            ..value(new Response(new RawEntity(), Source.RPC, 0))
+            ..value(new Response(makeEntity(), Source.RPC, 0))
         ).build();
 
       int retryCount = 0;

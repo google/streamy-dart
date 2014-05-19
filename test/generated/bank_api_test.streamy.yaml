@@ -1,7 +1,7 @@
 discovery: bank_api_test.json
 output:
-  files: single
-  prefix: bank_api_test
+  files: split
+  prefix: bank_api_client
 base:
   class: Entity
   import: package:streamy/base.dart
