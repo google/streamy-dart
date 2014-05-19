@@ -34,6 +34,7 @@ class Emitter {
     'object_clone',
     'object_ctor',
     'object_getter',
+    'object_patch',
     'object_remove',
     'object_setter',
     'request_clone',
@@ -574,6 +575,10 @@ class Emitter {
     if (config.clone) {
       clazz.methods.add(new DartMethod('clone', schemaType,
           new DartTemplateBody(_template('object_clone'), {'type': schemaType})));
+    }
+    if (config.patch) {
+      clazz.methods.add(new DartMethod('patch', schemaType,
+          new DartTemplateBody(_template('object_patch'), {'type': schemaType})));
     }
     
     addApiType(clazz);

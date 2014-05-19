@@ -298,7 +298,6 @@ main() {
       exDep.add(foo.id);
     });
   });
-  /* TODO: fix test
   group('patch()', () {
     test('works like clone() for a new basic entity', () {
       var e = new Foo()
@@ -343,11 +342,10 @@ main() {
       barC.primary.bar = 'changed!';
       barC.foos[0].remove('bar');
       var barP = barC.patch();
-      expect(stringify(barP),
-          '{"foos":[{"id":2},{"bar":"this does not change","id":3}],"primary":{"bar":"changed!"}}');
+      expect(stringify(marshaller.marshalBar(barP)),
+          '{"primary":{"bar":"changed!"},"foos":[{"id":2},{"id":3,"bar":"this does not change"}]}');
     });
   });
-  */
   group('Bad characters', () {
     test('should not appear in entity classes', () {
       new $some_entity_();

@@ -22,6 +22,12 @@ class Immutability implements streamy.Freezeable {
   
   void freeze() {
     _isFrozen = true;
+    keys.forEach((key) {
+      var value = this[key];
+      if (value != null && value is streamy.Freezeable) {
+        value.freeze();
+      }
+    });
   }
   
   bool get isFrozen => _isFrozen;
