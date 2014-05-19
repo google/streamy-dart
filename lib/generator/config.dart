@@ -21,6 +21,7 @@ class Config {
   
   bool mapBackedFields = true;
   bool clone = true;
+  bool patch = true;
   bool removers = true;
   bool known = false;
   bool global = false;
@@ -93,6 +94,9 @@ Config parseConfigOrDie(Map data) {
     }
     if (options.containsKey('global')) {
       config.global = options['global'];
+    }
+    if (options.containsKey('patch')) {
+      config.patch = options['patch'];
     }
   }
   
