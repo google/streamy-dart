@@ -1,7 +1,6 @@
 library streamy.transformer;
 
 import 'dart:async';
-
 import 'package:barback/barback.dart';
 import 'package:mustache/mustache.dart' as mustache;
 import 'package:streamy/generator.dart';
@@ -13,10 +12,9 @@ class YamlTransformer extends Transformer {
   
   String get allowedExtensions => '.streamy.yaml';
   
-  Future isPrimary(Asset asset) {
-    return asset.id.path.endsWith('.streamy.yaml');
-  }
-  
+  Future<bool> isPrimary(Asset asset) =>
+    new Future.value(asset.id.path.endsWith('.streamy.yaml'));
+
   Future apply(Transform transform) => transform
     .primaryInput
     .readAsString()
@@ -51,7 +49,7 @@ class AssetTemplateLoader implements TemplateLoader {
   
   AssetTemplateLoader(this.transform);
   
-  mustache.Template load(String name) => transform
+  Future<mustache.Template> load(String name) => transform
     .getInput(new AssetId('streamy', 'lib/templates/$name.mustache'))
     .then((asset) => asset.readAsString())
     .then(mustache.parse);

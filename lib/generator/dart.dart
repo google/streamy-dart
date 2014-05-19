@@ -10,8 +10,10 @@ abstract class DartFile {
   final List<DartClass> classes = [];
   
   DartFile(this.libraryName);
-  
-  void _render(StringBuffer out) {
+
+  String render();
+
+   void _render(StringBuffer out) {
     if (typedefs.isNotEmpty) {
       typedefs.forEach((def) {
         out.writeln();
