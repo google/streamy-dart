@@ -69,7 +69,8 @@ class MixologistYamlTransformer extends Transformer {
   
   String get allowedExtensions => '.mixologist.yaml';
     
-  Future apply(Transform transform) => transform
+  Future apply(Transform transform) {
+    return transform
       .primaryInput
       .readAsString()
       .then(yaml.loadYaml)
@@ -79,16 +80,17 @@ class MixologistYamlTransformer extends Transformer {
           forEachAsync(
             config
               .mixins
-              .where((mixin) => !mixins.containsKey(mixin)),
-            (mixin) => transform
+              .where((name) => !mixins.containsKey(name)),
+            (name) => transform
               .getInput(new AssetId(transform.primaryInput.id.package,
-                  '${_prefixFrom(transform.primaryInput.id)}$path/$mixin.dart'))
+                  '${_prefixFrom(transform.primaryInput.id)}$path/name.dart'))
               .then((asset) => asset.read())
-              .then((asset) => asset.pipe(new mixologist.MixinReader()))
-              .then((asset) {
-                mixins[mixin] = asset;
+              .then((byteStream) => byteStream.pipe(
+                  new mixologist.MixinReader()))
+              .then((mixin) {
+                mixins[name] = mixin;
               })
-              .catchError((e) {/* Ignore any errors, some files don't exist */})
+              //.catchError((e) {/* Ignore any errors, some files don't exist */})
           )
           .then((_) => mixins)
         ).then((mixins) {
@@ -117,7 +119,7 @@ class MixologistYamlTransformer extends Transformer {
         transform.addOutput(new Asset.fromString(id, lines.join('\n')));
       })
     );
-      
+  }
 }
 
 String _prefixFrom(AssetId asset) => (asset.path.split('/')..removeLast()..add('')).join('/');
