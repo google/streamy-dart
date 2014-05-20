@@ -84,9 +84,7 @@ class MixologistYamlTransformer extends Transformer {
             (name) => transform
               .getInput(new AssetId(transform.primaryInput.id.package,
                   '${_prefixFrom(transform.primaryInput.id)}$path/$name.dart'))
-              .then((asset) => asset.read())
-              .then((byteStream) => byteStream.pipe(
-                  new mixologist.MixinReader()))
+              .then((asset) => asset.read().pipe(new mixologist.MixinReader()))
               .then((mixin) {
                 mixins[name] = mixin;
               })
