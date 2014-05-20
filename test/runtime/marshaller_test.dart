@@ -15,9 +15,21 @@ main() {
       entity = new Branch();
     });
     test('should serialize nulls as JSON nulls', () {
-      var e = new Branch();
-      e.name = null;
-      expect(JSON.encode(marshaller.marshalBranch(e)), '{"name":null}');
+      entity.name = null;
+      expect(JSON.encode(marshaller.marshalBranch(entity)), '{"name":null}');
+    });
+    test('.local does not affect serialization of the entity', () {
+      var s1 = JSON.encode(marshaller.marshalBranch(entity));
+      entity.local['foo'] = 'not serialized';
+      var s2 = JSON.encode(marshaller.marshalBranch(entity));
+      expect(s2, equals(s1));
+    });
+  });
+
+  group('base.Entity', () {
+    Branch entity;
+    setUp(() {
+      entity = new Branch();
     });
     test('.wrapMap constructor does not copy data', () {
       var map = toObservable({'list': [1, 2, 3]});
@@ -37,12 +49,6 @@ main() {
     test('stores and retrieves data via operator[]', () {
       entity.local['foo'] = 'bar';
       expect(entity.local['foo'], equals('bar'));
-    });
-    test('does not affect serialization of the entity', () {
-      var s1 = JSON.encode(marshaller.marshalBranch(entity));
-      entity.local['foo'] = 'not serialized';
-      var s2 = JSON.encode(marshaller.marshalBranch(entity));
-      expect(s2, equals(s1));
     });
     test('does not survive cloning', () {
       entity.local['foo'] = 'this should not be cloned';
