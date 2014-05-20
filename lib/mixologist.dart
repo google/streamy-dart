@@ -7,3 +7,4 @@ import 'dart:io';
 part 'mixologist/in.dart';
 part 'mixologist/import.dart';
 part 'mixologist/out.dart';
+part 'mixologist/config.dart';
