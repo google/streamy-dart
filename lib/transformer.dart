@@ -22,28 +22,34 @@ class StreamyYamlTransformer extends Transformer {
     .readAsString()
     .then(yaml.loadYaml)
     .then(parseConfigOrDie)
-    .then((config) => Emitter.fromTemplateLoader(config, new AssetTemplateLoader(transform)))
-    .then((emitter) => apiFromConfig(emitter.config, pathPrefix: _prefixFrom(transform.primaryInput.id), fileReader: (path) => transform
+    .then((config) => Emitter.fromTemplateLoader(config,
+        new AssetTemplateLoader(transform)))
+    .then((emitter) => apiFromConfig(emitter.config, pathPrefix:
+        _prefixFrom(transform.primaryInput.id), fileReader: (path) => transform
       .getInput(new AssetId(transform.primaryInput.id.package, path))
       .then((input) => input.readAsString()))
       .then(emitter.process))
     .then((client) {
       _maybeOutput(transform, client.root, '', client.config.outputPrefix);
-      _maybeOutput(transform, client.resources, '_resources', client.config.outputPrefix);
-      _maybeOutput(transform, client.requests, '_requests', client.config.outputPrefix);
-      _maybeOutput(transform, client.objects, '_objects', client.config.outputPrefix);
-      _maybeOutput(transform, client.dispatch, '_dispatch', client.config.outputPrefix);
+      _maybeOutput(transform, client.resources, '_resources',
+          client.config.outputPrefix);
+      _maybeOutput(transform, client.requests, '_requests',
+          client.config.outputPrefix);
+      _maybeOutput(transform, client.objects, '_objects',
+          client.config.outputPrefix);
+      _maybeOutput(transform, client.dispatch, '_dispatch',
+          client.config.outputPrefix);
     });
   
-  void _maybeOutput(Transform transform, DartFile file, String name, String outputPrefix) {
+  void _maybeOutput(Transform transform, DartFile file, String name,
+      String outputPrefix) {
     if (file == null) {
       return;
     }
-    var id = new AssetId(transform.primaryInput.id.package, '${_prefixFrom(transform.primaryInput.id)}$outputPrefix$name.dart');
+    var id = new AssetId(transform.primaryInput.id.package,
+        '${_prefixFrom(transform.primaryInput.id)}$outputPrefix$name.dart');
     transform.addOutput(new Asset.fromString(id, file.render()));
   }
-  
-
 }
 
 class AssetTemplateLoader implements TemplateLoader {
@@ -70,19 +76,26 @@ class MixologistYamlTransformer extends Transformer {
       .then(mixologist.parseConfig)
       .then((config) =>
         reduceAsync(config.paths, {}, (mixins, path) =>
-          forEachAsync(config.mixins.where((mixin) => !mixins.containsKey(mixin)), (mixin) => transform
-            .getInput(new AssetId(transform.primaryInput.id.package, '${_prefixFrom(transform.primaryInput.id)}$path/$mixin.dart'))
-            .then((asset) => asset.read())
-            .then((asset) => asset.pipe(new mixologist.MixinReader()))
-            .then((asset) {
-              mixins[mixin] = asset;
-            })
-            .catchError((e) {/* Ignore any errors - some files may not exist. */})
+          forEachAsync(
+            config
+              .mixins
+              .where((mixin) => !mixins.containsKey(mixin)),
+            (mixin) => transform
+              .getInput(new AssetId(transform.primaryInput.id.package,
+                  '${_prefixFrom(transform.primaryInput.id)}$path/$mixin.dart'))
+              .then((asset) => asset.read())
+              .then((asset) => asset.pipe(new mixologist.MixinReader()))
+              .then((asset) {
+                mixins[mixin] = asset;
+              })
+              .catchError((e) {/* Ignore any errors, some files don't exist */})
           )
           .then((_) => mixins)
         ).then((mixins) {
         // Validate that every mixin needed has been loaded.
-        var missing = config.mixins.where((mixin) => !mixins.containsKey(mixin));
+        var missing = config
+          .mixins
+          .where((mixin) => !mixins.containsKey(mixin));
         if (missing.isNotEmpty) {
           throw new Exception('Could not find mixins: ${missing.join(", ")}');
         }
@@ -94,11 +107,13 @@ class MixologistYamlTransformer extends Transformer {
           'library ${config.libraryName};', '']
           ..addAll(mixologist.writeImports(mixologist.unifyImports(mixinList)))
           ..add('')
-          ..addAll(new mixologist.LinearizedTarget(config.className, '', 'Object', mixinList).linearize())
+          ..addAll(new mixologist.LinearizedTarget(
+              config.className, '', 'Object', mixinList).linearize())
           ..add('');
       })
       .then((lines) {
-        var id = new AssetId(transform.primaryInput.id.package, '${_prefixFrom(transform.primaryInput.id)}${config.output}');
+        var id = new AssetId(transform.primaryInput.id.package,
+            '${_prefixFrom(transform.primaryInput.id)}${config.output}');
         transform.addOutput(new Asset.fromString(id, lines.join('\n')));
       })
     );
