@@ -8,6 +8,7 @@ import 'generated/method_get_test.dart' as method_get_test;
 import 'generated/method_post_test.dart' as method_post_test;
 import 'generated/method_params_test.dart' as method_params_test;
 import 'generated/schema_object_test.dart' as schema_object_test;
+import 'generated/handler_test.dart' as handler_test;
 import 'runtime/batching_test.dart' as runtime_batching_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/cache_test.dart' as runtime_cache_test;
@@ -17,7 +18,6 @@ import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/transaction_test.dart' as runtime_transaction_test;
 import 'runtime/proxy_test.dart' as runtime_proxy_test;
 /*
-import 'generated/multiplexer_test.dart' as multiplexer_test;
 import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
 import 'generator/emitter_test.dart' as generator_emitter_test;
 import 'runtime/request_test.dart' as runtime_request_test;
@@ -28,6 +28,7 @@ import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 
 main(List<String> args) {
   ensureCheckedMode();
+  handler_test.main();
   http_test.main();
   method_get_test.main();
   method_post_test.main();
@@ -41,7 +42,6 @@ main(List<String> args) {
   runtime_transaction_test.main();
   schema_object_test.main();
   runtime_proxy_test.main();
-  //streamy_test.main();
   /*
   addendum_test.main();
   schema_unknown_fields_test.main();
@@ -56,7 +56,7 @@ main(List<String> args) {
 
 void ensureCheckedMode() {
   try {
-    Object a = "abc";
+    Object a = "Testing checked mode...";
     int b = a;
     print(b);  // ensures that the code is not tree-shaken off
     throw new StateError("Checked mode is disabled. Use option -c.");
