@@ -14,7 +14,7 @@ abstract class Cache {
 }
 
 class CachedEntity {
-  final Entity entity;
+  final entity;
   final int ts;
 
   CachedEntity(this.entity, this.ts);
