@@ -1,7 +1,6 @@
 part of streamy.generator;
 
 class Api {
-  final StreamyConfig streamy = new StreamyConfig();
   final String name;
   final String description;
   final HttpConfig httpConfig;
@@ -156,19 +155,6 @@ class ListTypeRef implements TypeRef {
   ListTypeRef(this.subType);
   
   String toString() => 'list($subType)';
-}
-
-class StreamyConfig {
-  // Send params.
-  List<SendParam> sendParams = [];
-}
-
-class SendParam {
-  final String name;
-  final TypeRef typeRef;
-  final dynamic defaultValue;
-  
-  SendParam(this.name, this.typeRef, this.defaultValue);
 }
 
 class HttpConfig {

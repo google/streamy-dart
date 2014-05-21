@@ -4,6 +4,14 @@ const SPLIT_LEVEL_NONE = 1;
 const SPLIT_LEVEL_PARTS = 2;
 const SPLIT_LEVEL_LIBS = 3;
 
+class SendParam {
+  final String name;
+  final TypeRef typeRef;
+  final dynamic defaultValue;
+  
+  SendParam(this.name, this.typeRef, this.defaultValue);
+}
+
 class Config {
   
   String discoveryFile;
@@ -25,6 +33,8 @@ class Config {
   bool removers = true;
   bool known = false;
   bool global = false;
+  
+  List<SendParam> sendParams = [];
   
   Config();
 }
@@ -125,6 +135,47 @@ Config parseConfigOrDie(Map data) {
     }
     if (output.containsKey('import')) {
       config.importPrefix = output['import'];
+    }
+  }
+  
+  if (data.containsKey('request')) {
+    var request = data['request'];
+    if (request is! Map) {
+      _die('Invalid value for: request.');
+    }
+    if (request.containsKey('sendParams')) {
+      config.sendParams.addAll(request['sendParams']
+        .keys
+        .map((name) {
+          var param = request['sendParams'][name];
+          var type = const TypeRef.any();
+          var defaultValue = null;
+          var parseDefaultValue;
+          if (param is Map) {
+            if (param.containsKey('type')) {
+              switch (param['type']) {
+                case 'string':
+                  type = const TypeRef.string();
+                  break;
+                case 'int':
+                  type = const TypeRef.integer();
+                  parseDefaultValue = (dv) => int.parse(dv.toString());
+                  break;
+                case 'boolean':
+                  parseDefaultValue = (dv) => dv.toString() == 'true';
+                  break;
+                default:
+                  _die('Unsupported sendParam type: ${param["type"]}');
+                  break;
+                
+              }
+            }
+            if (param.containsKey('default')) {
+              defaultValue = parseDefaultValue(param['default']);
+            }
+            return new SendParam(name, type, defaultValue);
+          }
+        }));
     }
   }
   
