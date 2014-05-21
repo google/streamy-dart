@@ -1,69 +1,70 @@
 part of streamy.runtime;
 
 /// Defines interface for an asynchronous cache.
-abstract class Cache {
+abstract class Cache<T> {
 
   /// Get an entity from the cache.
-  Future<CachedEntity> get(Request key);
+  Future<CachedEntity<T>> get(HttpRequest key);
 
   /// Set an entity in the cache.
-  Future set(Request key, CachedEntity value);
+  Future set(HttpRequest key, CachedEntity<T> value);
 
   /// Invalidate an entity in the cache.
-  Future invalidate(Request key);
+  Future invalidate(HttpRequest key);
 }
 
-class CachedEntity {
-  final entity;
+class CachedEntity<T> {
+  final T entity;
   final int ts;
 
   CachedEntity(this.entity, this.ts);
 }
 
 /// A [Future] based [Cache] that's backed by a [Map].
-class AsyncMapCache implements Cache {
+class AsyncMapCache<T> implements Cache<T> {
 
-  var _cache = new Map<Request, CachedEntity>();
+  var _cache = new Map<HttpRequest, CachedEntity<T>>();
 
-  Future<CachedEntity> get(key) {
+  Future<CachedEntity<T>> get(key) {
     if (_cache.containsKey(key)) {
       return new Future.value(_cache[key]);
     }
     return new Future.value(null);
   }
 
-  Future set(Request key, CachedEntity value) {
+  Future set(HttpRequest key, CachedEntity<T> value) {
     _cache[key] = value;
     return new Future.value(true);
   }
 
-  Future invalidate(Request key) {
+  Future invalidate(HttpRequest key) {
     _cache.remove(key);
     return new Future.value(true);
   }
 }
 
-/// A [Cache] wrapper that honors a 'caching: false' [Request] local property.
-class CachingFlagCacheWrapper implements Cache {
+/// A [Cache] wrapper that honors a 'caching: false' [HttpRequest] local property.
+class CachingFlagCacheWrapper<T> implements Cache<T> {
 
-  final Cache delegate;
+  final Cache<T> delegate;
 
   CachingFlagCacheWrapper(this.delegate);
-  Future<CachedEntity> get(Request key) {
+
+  Future<CachedEntity<T>> get(HttpRequest key) {
     if (key.local['caching'] == false) {
       return new Future.value(null);
     }
     return delegate.get(key);
   }
 
-  Future set(Request key, CachedEntity entity) {
+  Future set(HttpRequest key, CachedEntity<T> entity) {
     if (key.local['caching'] == false) {
       return new Future.value(true);
     }
     return delegate.set(key, entity);
   }
 
-  Future invalidate(Request key) {
+  Future invalidate(HttpRequest key) {
     if (key.local['caching'] == false) {
       return new Future.value(true);
     }
@@ -73,19 +74,19 @@ class CachingFlagCacheWrapper implements Cache {
 
 /// Wraps a [Future]<[Cache]> and pretends to be synchronous, delaying cache calls
 /// until the delegate cache is asynchronously loaded.
-class AsyncCacheWrapper implements Cache {
+class AsyncCacheWrapper<T> implements Cache<T> {
 
-  final Future<Cache> delegateFuture;
-  Cache _delegate = null;
+  final Future<Cache<T>> delegateFuture;
+  Cache<T> _delegate = null;
 
-  AsyncCacheWrapper(Future<Cache> this.delegateFuture) {
+  AsyncCacheWrapper(Future<Cache<T>> this.delegateFuture) {
     delegateFuture.then((delegate) {
       _delegate = delegate;
     });
   }
 
   /// Get an entity from the cache.
-  Future<CachedEntity> get(Request key) {
+  Future<CachedEntity<T>> get(HttpRequest key) {
     if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.get(key);
@@ -95,7 +96,7 @@ class AsyncCacheWrapper implements Cache {
   }
 
   /// Set an entity in the cache.
-  Future set(Request key, CachedEntity entity) {
+  Future set(HttpRequest key, CachedEntity<T> entity) {
     if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.set(key, entity);
@@ -105,7 +106,7 @@ class AsyncCacheWrapper implements Cache {
   }
 
   /// Invalidate an entity in the cache.
-  Future invalidate(Request key) {
+  Future invalidate(HttpRequest key) {
     if (_delegate == null) {
       return delegateFuture.then((delegate) {
         return delegate.invalidate(key);
@@ -115,13 +116,13 @@ class AsyncCacheWrapper implements Cache {
   }
 }
 
-class CachingRequestHandler extends RequestHandler {
+class CachingRequestHandler<T> extends RequestHandler {
 
   final delegate;
   final cache;
   var clock;
 
-  CachingRequestHandler(RequestHandler this.delegate, Cache this.cache,
+  CachingRequestHandler(RequestHandler this.delegate, Cache<T> this.cache,
       {Clock clock: null}) {
     if (clock == null) {
       clock = const Clock();
@@ -129,7 +130,8 @@ class CachingRequestHandler extends RequestHandler {
     this.clock = clock;
   }
 
-  Stream<Response> handle(Request request, Trace trace) {
+  @override
+  Stream<Response> handle(HttpRequest request, Trace trace) {
     // Handle non-cachable requests.
     if (!request.isCachable) {
       // Delegate directly. This doesn't cache the response.
@@ -184,7 +186,7 @@ class CachingRequestHandler extends RequestHandler {
   _toCachedResponse(cached, {authority: Authority.SECONDARY}) => new Response(
       cached.entity, Source.CACHE, cached.ts, authority: authority);
 
-  StreamController<Response> _delegateRequest(Request request, Trace trace) {
+  StreamController<Response> _delegateRequest(HttpRequest request, Trace trace) {
     var sub;
     var sink = new StreamController<Response>(onCancel: () => sub.cancel());
     sub = delegate

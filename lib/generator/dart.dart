@@ -88,7 +88,7 @@ class DartType {
   DartType.stream(DartType streamOf) : this('Stream', null, [streamOf]);
   DartType.map(DartType keyType, DartType valueType) :
       this('Map', null, [keyType, valueType]);
-  const DartType(this.dartType, this.importNamespace, this.parameters);
+  const DartType(this.dartType, [this.importNamespace, this.parameters = const []]);
   
   void render(StringBuffer out) {
     if (importNamespace != null) {
@@ -284,16 +284,19 @@ class DartConstructor implements DartMethod {
   final List<DartParameter> parameters = [];
   final List<DartNamedParameter> namedParameters = [];
   final DartBody body;
+  final bool isConst;
   
   String get name => forClass;
   
-  DartConstructor(this.forClass, {this.named, this.body});
+  DartConstructor(this.forClass, {this.named, this.body, this.isConst});
   
   void render(StringBuffer out, int indent) {
     var spacing = strings.repeat('  ', indent);
-    out
-      ..write(spacing)
-      ..write(forClass);
+    out.write(spacing);
+    if (isConst) {
+      out.write('const ');
+    }
+    out.write(forClass);
     if (named != null) {
       out
         ..write('.')

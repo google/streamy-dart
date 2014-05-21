@@ -1,6 +1,7 @@
 library streamy.generated.handler.test;
 
 import 'dart:async';
+import 'package:streamy/base.dart';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'handler_client.dart';
@@ -48,7 +49,7 @@ main() {
     HandlerTest client;
     setUp(() {
       client = new HandlerTest(new CachingRequestHandler(
-          new ImmediateRequestHandler(), new AsyncMapCache()));
+          new ImmediateRequestHandler(), new AsyncMapCache<Entity>()));
     });
     sharedTestSuite(() => client);
     test('handles a cached get', () {
