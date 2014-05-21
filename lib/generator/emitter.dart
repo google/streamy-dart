@@ -424,7 +424,7 @@ class Emitter {
 
     // Set up send() methods.
     var sendParams = [];
-    api.streamy.sendParams.forEach((p) {
+    config.sendParams.forEach((p) {
       var type = toDartType(p.typeRef, objectPrefix);
       var defaultValue;
       if (p.defaultValue != null) {

@@ -59,31 +59,6 @@ Api parseDiscovery(Map discovery, Map addendum) {
         api.resources[key] = type;
       });
   }
-  
-  if (full.containsKey('sendParams')) {
-    full['sendParams'].forEach((name, param) {
-      var type, defaultValue;
-      switch (param['type']) {
-        case 'String':
-          type = const TypeRef.string();
-          break;
-        case 'int':
-          type = const TypeRef.integer();
-          break;
-        case 'bool':
-          type = const TypeRef.boolean();
-          break;
-        default:
-          type = const TypeRef.any();
-          break;
-      }
-      if (param.containsKey('default')) {
-        defaultValue = param['default'];
-      }
-      api.streamy.sendParams.add(new SendParam(name, type, defaultValue));
-    });
-  }
-  
   return api;
 }
 

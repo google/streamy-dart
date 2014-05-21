@@ -34,7 +34,6 @@ class ImmediateRequestHandler extends RequestHandler {
     expect(request.local['dedup'], equals(true));
     expect(request.local['ttl'], equals(800));
     expect(request.local['foo'], equals('baz'));
-    Deserializer d = request.responseDeserializer;
-    return stream.map((data) => new Response(d(data, trace), Source.RPC, 0));
+    return stream.map((data) => new Response(request.unmarshalResponse(data), Source.RPC, 0));
   }
 }
