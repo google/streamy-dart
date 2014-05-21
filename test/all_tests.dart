@@ -1,5 +1,6 @@
 library streamy.test;
 import 'runtime/http_test.dart' as http_test;
+import 'base_test.dart' as base_test;
 import 'streamy_test.dart' as streamy_test;
 import 'generated/addendum_test.dart' as addendum_test;
 import 'generated/method_get_test.dart' as method_get_test;
@@ -12,6 +13,7 @@ import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/cache_test.dart' as runtime_cache_test;
 import 'runtime/dedup_test.dart' as runtime_dedup_test;
 import 'runtime/error_test.dart' as runtime_error_test;
+import 'runtime/marshaller_test.dart' as runtime_marshaller_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/transaction_test.dart' as runtime_transaction_test;
 import 'runtime/proxy_test.dart' as runtime_proxy_test;
@@ -20,13 +22,13 @@ import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test
 import 'generator/emitter_test.dart' as generator_emitter_test;
 import 'runtime/request_test.dart' as runtime_request_test;
 import 'runtime/transforms_test.dart' as runtime_transforms_test;
-import 'runtime/entity/raw_test.dart' as runtime_entity_raw_test;
-import 'runtime/entity/wrapper_test.dart' as runtime_entity_wrapper_test;
 */
 
 main(List<String> args) {
   ensureCheckedMode();
+
   handler_test.main();
+  base_test.main();
   http_test.main();
   method_get_test.main();
   method_post_test.main();
@@ -36,19 +38,20 @@ main(List<String> args) {
   runtime_cache_test.main();
   runtime_dedup_test.main();
   runtime_error_test.main();
+  runtime_marshaller_test.main();
   runtime_multiplexer_test.main();
+  runtime_proxy_test.main();
   runtime_transaction_test.main();
   schema_object_test.main();
   runtime_proxy_test.main();
   addendum_test.main();
+  //streamy_test.main();
   /*
   schema_unknown_fields_test.main();
   streamy_test.main();
   generator_emitter_test.main(args);
   runtime_request_test.main();
   runtime_transforms_test.main();
-  runtime_entity_raw_test.main();
-  runtime_entity_wrapper_test.main();
   */
 }
 
