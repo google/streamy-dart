@@ -5,6 +5,13 @@ import 'dart:async';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/mixins/base_map.dart';
 import 'package:streamy/streamy.dart';
+import 'package:streamy/base.dart' as base;
+
+class RawEntity extends base.Entity {
+  RawEntity() {
+    base.setMap(this, {});
+  }
+}
 
 /// A safer [isInstanceOf].
 class isAssignableTo<T> extends Matcher {
