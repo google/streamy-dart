@@ -1,11 +1,11 @@
-library streamy.generated.multiplexer.test;
+library streamy.generated.handler.test;
 
 import 'dart:async';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
-import 'multiplexer_client.dart';
-import 'multiplexer_client_requests.dart';
-import 'multiplexer_client_objects.dart';
+import 'handler_client.dart';
+import 'handler_client_requests.dart';
+import 'handler_client_objects.dart';
 
 sharedTestSuite(Function client) {
   test('handles a basic get', () {
@@ -45,9 +45,9 @@ sharedTestSuite(Function client) {
 
 main() {
   group('CachingRequestHandler', () {
-    MultiplexerTest client;
+    HandlerTest client;
     setUp(() {
-      client = new MultiplexerTest(new CachingRequestHandler(
+      client = new HandlerTest(new CachingRequestHandler(
           new ImmediateRequestHandler(), new AsyncMapCache()));
     });
     sharedTestSuite(() => client);
@@ -68,10 +68,10 @@ main() {
   });
   group('MultiplexingRequestHandler', () {
     var mplex;
-    MultiplexerTest client;
+    HandlerTest client;
     setUp(() {
       mplex = new MultiplexingRequestHandler(new ImmediateRequestHandler());
-      client = new MultiplexerTest(mplex);
+      client = new HandlerTest(mplex);
     });
     sharedTestSuite(() => client);
     test('handles dual streams', () {
