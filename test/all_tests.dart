@@ -51,8 +51,8 @@ main(List<String> args) {
   runtime_request_test.main();
   runtime_transforms_test.main();
   runtime_transaction_test.main();
-  /*
   streamy_test.main();
+  /*
   schema_unknown_fields_test.main();
   generator_emitter_test.main(args);
   */
