@@ -159,10 +159,10 @@ Config parseConfigOrDie(Map data) {
                   break;
                 case 'int':
                   type = const TypeRef.integer();
-                  parseDefaultValue = (dv) => int.parse(dv);
+                  parseDefaultValue = (dv) => int.parse(dv.toString());
                   break;
                 case 'boolean':
-                  parseDefaultValue = (dv) => dv == 'true';
+                  parseDefaultValue = (dv) => dv.toString() == 'true';
                   break;
                 default:
                   _die('Unsupported sendParam type: ${param["type"]}');
@@ -173,6 +173,7 @@ Config parseConfigOrDie(Map data) {
             if (param.containsKey('default')) {
               defaultValue = parseDefaultValue(param['default']);
             }
+            return new SendParam(name, type, defaultValue);
           }
         }));
     }

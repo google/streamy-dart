@@ -423,8 +423,7 @@ class Emitter {
                 .map((p) => p.name), getter: true)));
 
     // Set up send() methods.
-    var sendParams = [];
-    config.sendParams.forEach((p) {
+    var sendParams = config.sendParams.map((p) {
       var type = toDartType(p.typeRef, objectPrefix);
       var defaultValue;
       if (p.defaultValue != null) {
@@ -434,8 +433,8 @@ class Emitter {
           defaultValue = new DartConstantBody(p.defaultValue.toString());
         }
       }
-      sendParams.add(new DartNamedParameter(p.name, type, defaultValue: defaultValue));
-    });
+      return new DartNamedParameter(p.name, type, defaultValue: defaultValue);
+    }).toList();
     
     var sendDirectTemplate = _template('request_send_direct');
     var sendTemplate = _template('request_send');
@@ -485,7 +484,7 @@ class Emitter {
           'listen': false,
           'raw': false,
         }))
-      ..parameters.addAll(sendParams);
+      ..namedParameters.addAll(sendParams);
     clazz.methods.add(send);
     
     // Add sendRaw().
@@ -496,7 +495,7 @@ class Emitter {
           'raw': true
         }
     ))
-      ..parameters.addAll(sendParams);
+      ..namedParameters.addAll(sendParams);
     clazz.methods.add(sendRaw);
     
     var listenType = new DartType('StreamSubscription', null, responseParams);
@@ -507,7 +506,8 @@ class Emitter {
         'raw': false
       }
     ))
-      ..parameters.addAll(sendParams);
+      ..parameters.add(new DartParameter('onData', const DartType('Function')))
+      ..namedParameters.addAll(sendParams);
     clazz.methods.add(listen);
     
     var clone = new DartMethod('clone',

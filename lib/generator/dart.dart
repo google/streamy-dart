@@ -246,8 +246,8 @@ class DartMethod {
       ..write(' ')
       ..write(name)
       ..write('(');
+    var first = true;
     if (parameters.isNotEmpty) {
-      var first = true;
       parameters.forEach((p) {
         if (!first) {
           out.write(', ');
@@ -255,21 +255,21 @@ class DartMethod {
         first = false;
         p.render(out);
       });
-      if (namedParameters.isNotEmpty) {
+    }
+    if (namedParameters.isNotEmpty) {
+      if (!first) {
+        out.write(', ');
+      }
+      out.write('{');
+      first = true;
+      namedParameters.forEach((p) {
         if (!first) {
           out.write(', ');
         }
-        out.write('{');
-        first = true;
-        namedParameters.forEach((p) {
-          if (!first) {
-            out.write(', ');
-          }
-          first = false;
-          p.render(out);
-        });
-        out.write('}');
-      }
+        first = false;
+        p.render(out);
+      });
+      out.write('}');
     }
     out.write(') ');
     // One would think this would be indent + 1, but methods provide their own

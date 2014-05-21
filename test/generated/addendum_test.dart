@@ -5,6 +5,7 @@ import 'package:json/json.dart';
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 import 'addendum_client.dart';
+import 'addendum_client_dispatch.dart';
 import 'addendum_client_objects.dart';
 
 main() {
@@ -26,9 +27,9 @@ main() {
 }
 
 class ImmediateRequestHandler extends RequestHandler {
-  Stream<String> stream;
+  Stream<Map> stream;
   ImmediateRequestHandler(Foo value) {
-    this.stream = new Stream.fromIterable([stringify(value.toJson())]);
+    this.stream = new Stream.fromIterable([new Marshaller().marshalFoo(value)]);
   }
   Stream<Response<Foo>> handle(Request request, Trace trace) {
     expect(request.local['dedup'], equals(true));

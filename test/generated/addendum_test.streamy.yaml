@@ -1,4 +1,5 @@
 discovery: addendum_test.json
+addendum: addendum_addendum.json
 output:
   files: split
   prefix: addendum_client
@@ -10,12 +11,13 @@ options:
   clone: true
   removers: true
   known: false
-sendParams:
-  foo:
-    type: String
-  ttl:
-    type: int
-    default: 800
-  dedup:
-    type: bool
-    default: true
+request:
+  sendParams:
+    foo:
+      type: string
+    ttl:
+      type: int
+      default: 800
+    dedup:
+      type: boolean
+      default: true

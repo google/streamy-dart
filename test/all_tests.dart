@@ -1,9 +1,7 @@
 library streamy.test;
 import 'runtime/http_test.dart' as http_test;
-/*
-import 'generated/addendum_test.dart' as addendum_test;
-*/
 import 'streamy_test.dart' as streamy_test;
+import 'generated/addendum_test.dart' as addendum_test;
 import 'generated/method_get_test.dart' as method_get_test;
 import 'generated/method_post_test.dart' as method_post_test;
 import 'generated/method_params_test.dart' as method_params_test;
@@ -42,8 +40,8 @@ main(List<String> args) {
   runtime_transaction_test.main();
   schema_object_test.main();
   runtime_proxy_test.main();
-  /*
   addendum_test.main();
+  /*
   schema_unknown_fields_test.main();
   streamy_test.main();
   generator_emitter_test.main(args);
