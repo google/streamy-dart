@@ -14,8 +14,8 @@ class StreamyYamlTransformer extends Transformer {
   
   String get allowedExtensions => '.streamy.yaml';
   
-  Future<bool> isPrimary(Asset asset) =>
-    new Future.value(asset.id.path.endsWith('.streamy.yaml'));
+  Future<bool> isPrimary(AssetId asset) =>
+    new Future.value(asset.path.endsWith('.streamy.yaml'));
 
   Future apply(Transform transform) => transform
     .primaryInput
