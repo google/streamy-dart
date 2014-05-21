@@ -3,7 +3,7 @@ library streamy.runtime.request.test;
 import 'package:unittest/unittest.dart';
 import 'package:streamy/streamy.dart';
 
-class RequestWithQueryParams extends Request {
+class RequestWithQueryParams extends HttpRequest {
 
   RequestWithQueryParams() : super(null);
   Request clone() => null;
@@ -16,7 +16,7 @@ class RequestWithQueryParams extends Request {
   List<String> get queryParameters => ["foo"];
 }
 
-class RequestWithPathParams extends Request {
+class RequestWithPathParams extends HttpRequest {
 
   RequestWithPathParams() : super(null);
   Request clone() => null;

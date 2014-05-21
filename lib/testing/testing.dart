@@ -181,12 +181,12 @@ class TestHttpService implements StreamyHttpService {
   }
 }
 
-class TestingRoot extends Root {
+class TestingRoot extends HttpRoot {
 
   final RequestHandler delegate;
   final Tracer tracer;
 
-  TestingRoot(this.delegate, this.tracer) : super(EMPTY_REGISTRY, '/test');
+  TestingRoot(this.delegate, this.tracer) : super('/test');
 
   Stream<Response> send(Request request) =>
     delegate.handle(request, tracer.trace(request));
