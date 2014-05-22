@@ -9,7 +9,6 @@ class StreamyBuildJsonListener extends BuildJsonListener {
   
   void beginObject() {
     super.beginObject();
-    currentContainer = new ObservableMap();
   }
   
   void beginArray() {

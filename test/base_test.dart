@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
-import '../../generated/bank_api_client_objects.dart';
+import 'generated/bank_api_client_objects.dart';
 
 main() {
   group('base.Entity', () {

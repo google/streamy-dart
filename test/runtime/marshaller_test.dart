@@ -2,8 +2,8 @@ library runtime_marshaller_test;
 
 import 'dart:convert';
 import 'package:unittest/unittest.dart';
-import '../../generated/bank_api_client_objects.dart';
-import '../../generated/bank_api_client_dispatch.dart';
+import '../generated/bank_api_client_objects.dart';
+import '../generated/bank_api_client_dispatch.dart';
 
 main() {
   group('Marshaller', () {
