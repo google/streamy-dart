@@ -9,27 +9,10 @@ import 'package:unittest/unittest.dart';
 import 'utils.dart';
 
 main() {
-  /* TODO: fix test
-  group('DynamicEntity', () {
-    test('noSuchMethod getters/setters work', () {
-      var e = new DynamicEntity();
-      e.foo = 'bar';
-      expect(e.foo, equals('bar'));
-    });
-    test('Exception on non-accessor invocation.', () {
-      var e = new DynamicEntity();
-      e.foo = 'a';
-      expect(() => e.foo(), throwsA(new isInstanceOf<ClosureInvocationException>()));
-    });
-  });
-  */
   group('jsonParse', () {
     test('creates Observable types', () {
       var res = jsonParse('{"a":[{"b":3},{"c":4}]}');
-      expect(res, new isInstanceOf<ObservableMap>());
       expect(res['a'], new isInstanceOf<ObservableList>());
-      expect(res['a'][0], new isInstanceOf<ObservableMap>());
-      expect(res['a'][1], new isInstanceOf<ObservableMap>());
     });
   });
   group('EntityDedupTransformer', () {
