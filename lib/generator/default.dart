@@ -6,23 +6,23 @@ part of streamy.generator;
 /// The location of templates bundled with Streamy. It assumes Streamy is run
 /// from the root of the project. This value is used by default if no specific
 /// value is provided.
-const String DEFAULT_TEMPLATE_DIR = 'templates';
+const String DEFAULT_TEMPLATE_DIR = 'lib/templates';
 
 /// Reads template source from files named {templateName}.mustache.
-class DefaultTemplateProvider implements TemplateProvider {
+class DefaultTemplateLoader implements TemplateLoader {
   final String templateDir;
 
-  DefaultTemplateProvider(this.templateDir);
+  DefaultTemplateLoader(this.templateDir);
 
-  factory DefaultTemplateProvider.defaultInstance() {
-    return new DefaultTemplateProvider(DEFAULT_TEMPLATE_DIR);
+  factory DefaultTemplateLoader.defaultInstance() {
+    return new DefaultTemplateLoader(DEFAULT_TEMPLATE_DIR);
   }
 
-  String get sourceOfTemplates => 'folder ${templateDir}';
-
-  String operator[](String templateName) {
-    io.File templateFile =
+  @override
+  Future<mustache.Template> load(String templateName) {
+    var templateFile =
         new io.File('${templateDir}/${templateName}.mustache');
-    return templateFile.readAsStringSync();
+    return templateFile.readAsString()
+      .then(mustache.parse);
   }
 }

@@ -2,8 +2,16 @@ part of streamy.generator;
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
-  var httpConfig = new HttpConfig(discovery['name'], full['version'], full['rootUrl'], full['servicePath']);
-  var api = new Api(full['name'], full['description'], httpConfig: httpConfig);
+  var httpConfig = new HttpConfig(
+      discovery['name'],
+      full['version'],
+      full['rootUrl'],
+      full['servicePath']);
+  var api = new Api(
+      full['name'],
+      full['description'],
+      docLink: full['documentationLink'],
+      httpConfig: httpConfig);
 
   if (full.containsKey('schemas')) {
     full['schemas']

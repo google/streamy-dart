@@ -8,7 +8,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:args/args.dart';
 import 'package:streamy/generator.dart';
-import 'package:streamy/generator_utils.dart';
 import 'package:quiver/async.dart';
 import 'package:quiver/strings.dart';
 
