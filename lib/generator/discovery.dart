@@ -126,6 +126,9 @@ TypeRef _parseType(Map type, String containerName, String propertyName, Api api)
         }
         api.types[schemaName] = schema;
         break;
+      case 'any':
+        ref = const TypeRef.any();
+        break;
       default:
         throw new Exception('Unknown type: ${type["type"]}');
     }
