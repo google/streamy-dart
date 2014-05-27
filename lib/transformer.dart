@@ -24,12 +24,12 @@ class StreamyYamlTransformer extends Transformer {
     .then(parseConfigOrDie)
     .then((config) => Emitter.fromTemplateLoader(config,
         new AssetTemplateLoader(transform)))
-    .then((emitter) => apiFromConfig(emitter.config, pathPrefix:
+    .then((Emitter emitter) => apiFromConfig(emitter.config, pathPrefix:
         _prefixFrom(transform.primaryInput.id), fileReader: (path) => transform
       .getInput(new AssetId(transform.primaryInput.id.package, path))
       .then((input) => input.readAsString()))
       .then(emitter.process))
-    .then((client) {
+    .then((StreamyClient client) {
       _maybeOutput(transform, client.root, '', client.config.outputPrefix);
       _maybeOutput(transform, client.resources, '_resources',
           client.config.outputPrefix);

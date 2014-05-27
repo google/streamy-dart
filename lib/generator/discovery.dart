@@ -2,8 +2,16 @@ part of streamy.generator;
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
-  var httpConfig = new HttpConfig(discovery['name'], full['version'], full['rootUrl'], full['servicePath']);
-  var api = new Api(full['name'], full['description'], httpConfig: httpConfig);
+  var httpConfig = new HttpConfig(
+      discovery['name'],
+      full['version'],
+      full['rootUrl'],
+      full['servicePath']);
+  var api = new Api(
+      full['name'],
+      full['description'],
+      docLink: full['documentationLink'],
+      httpConfig: httpConfig);
 
   if (full.containsKey('schemas')) {
     full['schemas']
@@ -117,6 +125,9 @@ TypeRef _parseType(Map type, String containerName, String propertyName, Api api)
           });
         }
         api.types[schemaName] = schema;
+        break;
+      case 'any':
+        ref = const TypeRef.any();
         break;
       default:
         throw new Exception('Unknown type: ${type["type"]}');

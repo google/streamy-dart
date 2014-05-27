@@ -28,16 +28,16 @@ List<String> writeImports(Map<String, String> imports) {
   return out;
 }
 
-class ImportException extends Exception {
+class ImportException implements Exception {
   final String path;
   final String attemptedAlias;
   final String attemptedMixin;
   final String importAlias;
   final String importMixin;
-  
+
   ImportException(this.path, this.attemptedAlias, this.attemptedMixin,
       this.importAlias, this.importMixin);
-      
+
   String toString() => "Attempted import of '$path' as '$attemptedAlias' by " +
       "$attemptedMixin, but already imported as '$importAlias' by $importMixin";
 }

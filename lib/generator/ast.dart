@@ -3,6 +3,7 @@ part of streamy.generator;
 class Api {
   final String name;
   final String description;
+  final String docLink;
   final HttpConfig httpConfig;
   final bool marshalling;
   /// External imports.
@@ -11,7 +12,7 @@ class Api {
   final Map<String, Resource> resources = <String, Resource>{};
   
   Api(this.name, this.description,
-      {this.httpConfig, this.marshalling: true});
+      {this.docLink, this.httpConfig, this.marshalling: true});
   
   String toString() {
     var sb = new StringBuffer()
