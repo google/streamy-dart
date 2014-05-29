@@ -1,20 +1,28 @@
 #!/bin/bash
 set -x
+set -e
 
 # Run apigen test
-mkdir integration/bankapi
 dart -c bin/apigen.dart \
-  --client-file-name=bankapi \
-  --discovery-file=test/generated/bank_api_test.json \
-  --output-dir=integration/bankapi \
+  --config=test/generated/bank_api_test.streamy.yaml \
+  --output-dir=integration \
+  --package-name=bankapi \
+  --package-version=0.0.0 \
   --local-streamy-location=../..
 
-(cd integration/apigen_test && \
-  pub get && \
-  dart -c bin/main.dart)
+# NOTE: The (cmd1 && cmd2 && ...) trick doesn't work because it
+#       does not exist on error. Have to cd in and out explicitly.
+cd integration/apigen_test
+pub get
+pub build bin --mode=debug
+dart -c --package-root=build/bin/packages build/bin/main.dart
+cd ../..
 
 # Run transformer test
-(cd integration/transformer_test && \
-  pub get && \
-  pub build bin && \
-  dart -c --package-root=build bin/main.dart)
+cd integration/transformer_test
+pub get
+pub build bin --mode=debug
+dart -c --package-root=build/bin/packages build/bin/main.dart
+cd ../..
+
+echo 'SUCCESS'

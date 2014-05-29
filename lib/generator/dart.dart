@@ -288,7 +288,7 @@ class DartConstructor implements DartMethod {
   
   String get name => forClass;
   
-  DartConstructor(this.forClass, {this.named, this.body, this.isConst});
+  DartConstructor(this.forClass, {this.named, this.body, this.isConst: false});
   
   void render(StringBuffer out, int indent) {
     var spacing = strings.repeat('  ', indent);

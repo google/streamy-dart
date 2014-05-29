@@ -5,5 +5,5 @@ description: >
 dependencies:
   streamy:
     path: ../..
-  Bank_v1:
+  bankapi:
     path: ../bankapi

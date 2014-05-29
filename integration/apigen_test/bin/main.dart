@@ -1,4 +1,4 @@
-import 'package:Bank_v1/bankapi_objects.dart';
+import 'package:bankapi/bank_api_client_objects.dart';
 
 main() {
   var branch = new Branch();
