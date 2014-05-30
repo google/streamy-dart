@@ -12,13 +12,23 @@ class SendParam {
   SendParam(this.name, this.typeRef, this.defaultValue);
 }
 
+class ServiceConfig {
+  String name;
+  List<ServiceInput> inputs = [];
+}
+
+class ServiceInput {
+  String importPath;
+  String filePath;
+}
+
 class Config {
   
   String discoveryFile;
   String addendumFile;
 
-  String serviceFile;
-  
+  ServiceConfig service;
+
   String baseClass = 'Entity';
   String baseImport = 'package:streamy/base.dart';
   
@@ -52,7 +62,26 @@ Config parseConfigOrDie(Map data) {
     }
   }
   if (data.containsKey('service')) {
-    config.serviceFile = data['service'];
+    var service = data['service'];
+    config.service = new ServiceConfig();
+    if (!service.containsKey('name')) {
+      _die('Missing service name.');
+    }
+    if (!service.containsKey('source') || service['source'] is! List) {
+      _die('Missing service source(s).');
+    }
+    config.service.name = service['name'];
+    config.service.inputs.addAll(service['source'].map((src) {
+      if (!src.containsKey('import')) {
+        _die('Missing service source import.');
+      }
+      if (!src.containsKey('file')) {
+        _die('Missing service source file.');
+      }
+      return new ServiceInput()
+        ..importPath = src['import']
+        ..filePath = src['file'];
+    }));
     if (data.containsKey('discovery')) {
       _die('Cannot specify both discovery and service.');
     }
@@ -61,7 +90,7 @@ Config parseConfigOrDie(Map data) {
     }
   }
   
-  if (config.discoveryFile == null && config.serviceFile == null) {
+  if (config.discoveryFile == null && config.service == null) {
     _die('Must specify either discovery or service.');
   }
   
@@ -196,9 +225,19 @@ Future<Api> apiFromConfig(
       .wait([discovery, addendum])
       .then((data) => data.map(json.parse).toList(growable: false))
       .then((data) => parseDiscovery(data[0], data[1]));
-  } else {
-    _die('Handle services.');
   }
+  if (config.service != null) {
+    return Future
+      .wait(config.service.inputs.map((input) => fileReader(pathPrefix + input.filePath)))
+      .then((dataList) {
+        var api = new Api(config.service.name, 'desc');
+        for (var i = 0; i < config.service.inputs.length; i++) {
+          _parseServiceFile(api, config.service.inputs[i].importPath, analyzer.parseCompilationUnit(dataList[i]), i);
+        }
+        return api;
+      });
+  }
+  throw new Exception('Config has neither discovery or service. Parser bug?');
 }
 
 

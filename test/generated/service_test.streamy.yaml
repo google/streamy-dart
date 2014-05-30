@@ -1,0 +1,18 @@
+service:
+  name: TestService
+  source:
+    - import: service_test_interface.dart
+      file: service_test_interface.dart
+output:
+  files: single
+  prefix: service_client
+base:
+  class: Entity
+  import: package:streamy/base_fields.dart
+  backing: fields
+options:
+  clone: false
+  removers: false
+  known: false
+  global: false
+  patch: false
