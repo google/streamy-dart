@@ -64,8 +64,8 @@ class Method {
   final String name;
   final Path httpPath;
   final String httpMethod;
-  final TypeDef payloadType;
-  final TypeDef responseType;
+  final TypeRef payloadType;
+  final TypeRef responseType;
   final Map<String, Field> parameters = <String, Field>{};
   
   Method(this.name, this.httpPath, this.httpMethod, this.payloadType, this.responseType);
