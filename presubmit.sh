@@ -12,4 +12,4 @@ dart -c --package-root=build/test/packages \
   build/test/all_tests.dart
 
 # Run integration tests
-integration/run_tests.sh
+test/integration/run_tests.sh

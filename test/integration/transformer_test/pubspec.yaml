@@ -4,6 +4,6 @@ description: >
   Tests Streamy transformers.
 dependencies:
   streamy:
-    path: ../..
+    path: ../../..
 transformers:
 - streamy

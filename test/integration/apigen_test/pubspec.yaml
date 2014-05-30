@@ -4,6 +4,6 @@ description: >
   Tests apigen.dart utility.
 dependencies:
   streamy:
-    path: ../..
+    path: ../../..
   bankapi:
     path: ../bankapi
