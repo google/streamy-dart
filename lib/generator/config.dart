@@ -13,13 +13,17 @@ class SendParam {
 }
 
 class ServiceConfig {
-  String name;
-  List<ServiceInput> inputs = [];
+  final String name;
+  final List<ServiceInput> inputs = [];
+  
+  ServiceConfig(this.name);
 }
 
 class ServiceInput {
-  String importPath;
-  String filePath;
+  final String importPath;
+  final String filePath;
+  
+  ServiceInput(this.importPath, this.filePath);
 }
 
 class Config {
@@ -63,14 +67,13 @@ Config parseConfigOrDie(Map data) {
   }
   if (data.containsKey('service')) {
     var service = data['service'];
-    config.service = new ServiceConfig();
     if (!service.containsKey('name')) {
       _die('Missing service name.');
     }
     if (!service.containsKey('source') || service['source'] is! List) {
       _die('Missing service source(s).');
     }
-    config.service.name = service['name'];
+    config.service = new ServiceConfig(service['name']);
     config.service.inputs.addAll(service['source'].map((src) {
       if (!src.containsKey('import')) {
         _die('Missing service source import.');
@@ -78,9 +81,7 @@ Config parseConfigOrDie(Map data) {
       if (!src.containsKey('file')) {
         _die('Missing service source file.');
       }
-      return new ServiceInput()
-        ..importPath = src['import']
-        ..filePath = src['file'];
+      return new ServiceInput(src['import'], src['file']);
     }));
     if (data.containsKey('discovery')) {
       _die('Cannot specify both discovery and service.');
