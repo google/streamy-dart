@@ -226,7 +226,10 @@ class Multiplexer extends RequestHandler {
       return;
     }
 
-    response.entity._freeze();
+    // response.entity can be null for 204s
+    if (response.entity != null) {
+      response.entity._freeze();
+    }
 
     // Publish this new entity on every channel.
     _activeIndex[request].forEach((act) =>
