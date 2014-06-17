@@ -6,6 +6,18 @@ import 'package:unittest/unittest.dart';
 
 main() {
  group('Multiplexer', () {
+    test('handles 204 responses (null entity) gracefully', () {
+      // the responses should be forward as is
+      var resp = new Response(null, Source.RPC, 0);
+      Request req = new TestRequest('GET');
+      var testHandler = (testRequestHandler()..value(resp)).build();
+      var subject = new Multiplexer(testHandler);
+      subject.handle(req, const NoopTrace()).listen(expectAsync1((actual) {
+        expect(actual.entity, isNull);
+        expect(actual.source, Source.RPC);
+        expect(actual.authority, Authority.PRIMARY);
+      }, count: 1));
+    });
     test('does not throw on error but forward to error catchers', () {
       var testHandler = (
           testRequestHandler()
