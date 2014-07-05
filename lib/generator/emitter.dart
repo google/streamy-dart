@@ -548,10 +548,16 @@ class Emitter {
     var remove = _template('object_remove');
 
     clazz.methods.add(new DartConstructor(clazz.name, body: new DartTemplateBody(
-      ctor, {'wrap': false})));
-    clazz.methods.add(new DartConstructor(clazz.name, named: 'wrap',
-      body: new DartTemplateBody(ctor, {'wrap': true}))
-      ..parameters.add(new DartParameter('map', new DartType.map(const DartType.string(), const DartType.dynamic()))));
+      ctor, {
+        'mapBacked': config.mapBackedFields,
+        'wrap': false
+      })));
+      
+    if (config.mapBackedFields) {
+      clazz.methods.add(new DartConstructor(clazz.name, named: 'wrap',
+        body: new DartTemplateBody(ctor, {'mapBacked': true, 'wrap': true}))
+        ..parameters.add(new DartParameter('map', new DartType.map(const DartType.string(), const DartType.dynamic()))));
+    }
 
     if (config.known) {
       clazz.fields.add(new DartSimpleField('KNOWN_PROPERTIES',

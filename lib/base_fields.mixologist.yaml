@@ -1,0 +1,7 @@
+output: base_fields.dart
+library: streamy.base
+class: Entity
+paths:
+  - mixins
+mixins:
+  - base_podo
