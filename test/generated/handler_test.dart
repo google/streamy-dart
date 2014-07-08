@@ -1,7 +1,7 @@
 library streamy.generated.handler.test;
 
 import 'dart:async';
-import 'package:streamy/base.dart';
+import 'package:streamy/base.dart' as base;
 import 'package:streamy/streamy.dart';
 import 'package:unittest/unittest.dart';
 import 'handler_client.dart';

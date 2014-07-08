@@ -5,12 +5,12 @@
  */
 library streamy.benchmarks;
 
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:args/args.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:json/json.dart' as json;
 import 'package:intl/intl.dart' as intl;
 import 'package:streamy/streamy.dart';
 import 'generated/benchmark_client_objects.dart';
@@ -238,7 +238,8 @@ class DeserializationBenchmark extends StreamyBenchmark {
 
   void setup() {
     var foo = makePopulatedFoo(LEVEL);
-    js = json.stringify(foo);
+    jsonParse();
+    js = JSON.encode(foo);
   }
 }
 

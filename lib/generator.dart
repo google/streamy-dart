@@ -1,10 +1,9 @@
 library streamy.generator;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 import 'package:analyzer/analyzer.dart' as analyzer;
-// TODO: Switch to dart:convert. json package is deprecated
-import 'package:json/json.dart' as json;
 import 'package:mustache/mustache.dart' as mustache;
 import 'package:quiver/strings.dart' as strings;
 import 'package:yaml/yaml.dart' as yaml;

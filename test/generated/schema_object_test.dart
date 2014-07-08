@@ -1,8 +1,8 @@
 library streamy.generated.schema_object.test;
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:fixnum/fixnum.dart' as fixnum;
-import 'package:json/json.dart';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
@@ -54,7 +54,7 @@ main() {
     });
     test('SerializeListToJson', () {
       var bar = new Bar()..foos = [new Foo()..id = 321];
-      bar = marshaller.unmarshalBar(streamy.jsonParse(stringify(marshaller.marshalBar(bar))));
+      bar = marshaller.unmarshalBar(streamy.jsonParse(JSON.encode(marshaller.marshalBar(bar))));
       expect(bar.foos.length, equals(1));
       expect(bar.foos[0].id, equals(321));
     });
@@ -312,7 +312,7 @@ main() {
       barC.primary.bar = 'changed!';
       barC.foos[0].remove('bar');
       var barP = barC.patch();
-      expect(stringify(marshaller.marshalBar(barP)),
+      expect(JSON.encode(marshaller.marshalBar(barP)),
           '{"primary":{"bar":"changed!"},"foos":[{"id":2},{"id":3,"bar":"this does not change"}]}');
     });
   });
@@ -368,7 +368,7 @@ main() {
           null,
           [null],
         ];
-      expect(stringify(marshaller.marshalContext(subject)),
+      expect(JSON.encode(marshaller.marshalContext(subject)),
           '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });

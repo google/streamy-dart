@@ -224,7 +224,7 @@ Future<Api> apiFromConfig(
     }
     return Future
       .wait([discovery, addendum])
-      .then((data) => data.map(json.parse).toList(growable: false))
+      .then((data) => data.map(JSON.decode).toList(growable: false))
       .then((data) => parseDiscovery(data[0], data[1]));
   }
   if (config.service != null) {

@@ -1,7 +1,7 @@
 part of streamy.runtime;
 
 abstract class DynamicAccess {
-  Iterable<String> keys;
+  Iterable<String> get keys;
   bool containsKey(String key);
   operator[](String key);
   void operator[]=(String key, value);

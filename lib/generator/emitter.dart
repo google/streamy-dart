@@ -242,13 +242,16 @@ class Emitter {
     var txRoot = new DartClass(
         txClassName,
         baseClass: streamyImport('HttpTransactionRoot'))
+      ..fields.add(new DartSimpleField('marshaller', marshallerType, isFinal: true))
       ..mixins.add(mixinType);
 
     var txnCtor = new DartConstructor(txRoot.name, body: new DartTemplateBody(
       _template('root_transaction_constructor'), {}));
     txnCtor.parameters
       ..add(new DartParameter('txn', streamyImport('Transaction')))
-      ..add(new DartParameter('servicePath', const DartType.string()));
+      ..add(new DartParameter('servicePath', const DartType.string()))
+      ..add(new DartParameter('marshaller', marshallerType,
+          isDirectAssignment: true));
     txRoot.methods.add(txnCtor);
 
     addApiType(txRoot);

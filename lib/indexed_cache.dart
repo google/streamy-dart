@@ -1,9 +1,9 @@
 library streamy.indexed_cache;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:html';
 import 'dart:indexed_db' as idb;
-import 'package:json/json.dart' as json;
 import 'package:streamy/streamy.dart';
 
 /// A [Cache] that persists data in IndexedDB.
@@ -64,7 +64,7 @@ class IndexedDbCache extends Cache {
     var cacheEntry = {
       "request": key.signature,
       "ts": entity.ts,
-      "entity": json.stringify(entity)
+      "entity": JSON.encode(entity.entity)
     };
     var txn = db.transaction("entityCache", "readwrite");
     var store = txn.objectStore("entityCache");

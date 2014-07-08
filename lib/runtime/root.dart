@@ -16,6 +16,8 @@ abstract class HttpRoot implements Root {
   final String servicePath;
   
   HttpRoot(this.servicePath);
+
+  dynamic get marshaller;
 }
 
 /// Substitute for a [Root] object that executes requests as part of the same

@@ -36,8 +36,6 @@ main() {
       expect(entity.clone().local['foo'], isNull);
     });
     test('local cannot be set', () {
-      expect(() => entity.local = {},
-      throwsA(new isInstanceOf<NoSuchMethodError>()));
       expect(() => entity['local'] = {},
       throwsA(new isInstanceOf<ArgumentError>()));
     });

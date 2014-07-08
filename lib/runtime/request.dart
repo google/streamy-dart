@@ -65,7 +65,7 @@ abstract class HttpRequest implements Request {
   String get apiType => 'Request';
 
   /// The root object from the API which generated this request.
-  final Root root;
+  final HttpRoot root;
 
   /// Request parameters.
   final Map<String, dynamic> parameters = {};
@@ -119,9 +119,9 @@ abstract class HttpRequest implements Request {
     }
   }
 
-  dynamic marshalPayload();
+  dynamic marshalPayload() => '';
 
-  dynamic unmarshalResponse(Map data);
+  dynamic unmarshalResponse(Map data) => null;
 
   /// Returns the payload, if any.
   get payload => _payload;
