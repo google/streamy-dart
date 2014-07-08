@@ -8,12 +8,8 @@ dynamic jsonParse(String json) {
 }
 
 _observableReviver(dynamic key, dynamic value) {
-  if (value is Observable) {
-    return value;
-  } else if (value is List) {
+  if (value is List) {
     return new ObservableList.from(value);
-  } else if (value is Map) {
-    return new ObservableMap.from(value);
   } else {
     return value;
   }
