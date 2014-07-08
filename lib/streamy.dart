@@ -9,6 +9,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:observe/observe.dart';
 import 'package:quiver/collection.dart';
 import 'package:quiver/iterables.dart';
+import 'package:quiver/cache.dart';
 import 'package:quiver/time.dart';
 
 part 'runtime/api.dart';

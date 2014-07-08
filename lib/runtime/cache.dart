@@ -1,18 +1,5 @@
 part of streamy.runtime;
 
-/// Defines interface for an asynchronous cache.
-abstract class Cache<T> {
-
-  /// Get an entity from the cache.
-  Future<CachedEntity<T>> get(HttpRequest key);
-
-  /// Set an entity in the cache.
-  Future set(HttpRequest key, CachedEntity<T> value);
-
-  /// Invalidate an entity in the cache.
-  Future invalidate(HttpRequest key);
-}
-
 class CachedEntity<T> {
   final T entity;
   final int ts;
@@ -21,7 +8,7 @@ class CachedEntity<T> {
 }
 
 /// A [Future] based [Cache] that's backed by a [Map].
-class AsyncMapCache<T> implements Cache<T> {
+class AsyncMapCache<T> implements Cache<HttpRequest, CachedEntity<T>> {
 
   var _cache = new Map<HttpRequest, CachedEntity<T>>();
 
@@ -44,9 +31,9 @@ class AsyncMapCache<T> implements Cache<T> {
 }
 
 /// A [Cache] wrapper that honors a 'caching: false' [HttpRequest] local property.
-class CachingFlagCacheWrapper<T> implements Cache<T> {
+class CachingFlagCacheWrapper<T> implements Cache<HttpRequest, CachedEntity<T>> {
 
-  final Cache<T> delegate;
+  final Cache<HttpRequest, CachedEntity<T>> delegate;
 
   CachingFlagCacheWrapper(this.delegate);
 
@@ -74,12 +61,12 @@ class CachingFlagCacheWrapper<T> implements Cache<T> {
 
 /// Wraps a [Future]<[Cache]> and pretends to be synchronous, delaying cache calls
 /// until the delegate cache is asynchronously loaded.
-class AsyncCacheWrapper<T> implements Cache<T> {
+class AsyncCacheWrapper<T> implements Cache<HttpRequest, CachedEntity<T>> {
 
-  final Future<Cache<T>> delegateFuture;
-  Cache<T> _delegate = null;
+  final Future<Cache<HttpRequest, CachedEntity<T>>> delegateFuture;
+  Cache<HttpRequest, CachedEntity<T>> _delegate = null;
 
-  AsyncCacheWrapper(Future<Cache<T>> this.delegateFuture) {
+  AsyncCacheWrapper(Future<Cache<HttpRequest, CachedEntity<T>>> this.delegateFuture) {
     delegateFuture.then((delegate) {
       _delegate = delegate;
     });
@@ -122,8 +109,8 @@ class CachingRequestHandler<T> extends RequestHandler {
   final cache;
   var clock;
 
-  CachingRequestHandler(RequestHandler this.delegate, Cache<T> this.cache,
-      {Clock clock: null}) {
+  CachingRequestHandler(RequestHandler this.delegate,
+      Cache<HttpRequest, CachedEntity<T>> this.cache, {Clock clock: null}) {
     if (clock == null) {
       clock = const Clock();
     }
