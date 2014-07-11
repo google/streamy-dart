@@ -2,6 +2,7 @@
 library streamy.runtime;
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -17,10 +18,11 @@ part 'runtime/cache.dart';
 part 'runtime/dedup.dart';
 part 'runtime/entity_util.dart';
 part 'runtime/error.dart';
+part 'runtime/global.dart';
 part 'runtime/hash.dart';
 part 'runtime/http.dart';
-part 'runtime/global.dart';
 part 'runtime/json.dart';
+part 'runtime/lazy.dart';
 part 'runtime/marshal.dart';
 part 'runtime/multiplexer.dart';
 part 'runtime/proxy.dart';

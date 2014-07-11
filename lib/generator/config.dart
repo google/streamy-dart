@@ -47,6 +47,7 @@ class Config {
   bool removers = true;
   bool known = false;
   bool global = false;
+  bool lazy = false;
   
   List<SendParam> sendParams = [];
   
@@ -137,6 +138,9 @@ Config parseConfigOrDie(Map data) {
     }
     if (options.containsKey('patch')) {
       config.patch = options['patch'];
+    }
+    if (options.containsKey('lazy')) {
+      config.lazy = options['lazy'];
     }
   }
   

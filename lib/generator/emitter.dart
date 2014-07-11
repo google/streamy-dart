@@ -680,6 +680,7 @@ class Emitter {
       'hasDoubles': doubleFields.isNotEmpty,
       'doubles': doubleFields,
       'hasEntities': entityFields.isNotEmpty,
+      'lazy': config.lazy,
     };
     clazz.methods.add(new DartMethod('marshal$name', rt,
         new DartTemplateBody(marshal, serializerConfig))

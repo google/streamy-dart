@@ -11,3 +11,4 @@ options:
   removers: true
   known: false
   global: true
+  lazy: true
