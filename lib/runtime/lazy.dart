@@ -70,11 +70,11 @@ class LazyList<E> extends ListBase<E> implements ObservableList<E> {
       _changes = new StreamController<List<ChangeRecord>>.broadcast(onListen: () {
         sub = delegate.changes.listen((changeList) {
           if (!_changesDisabled) {
-            
+            _changes.add(changeList);
           }
         });
       }, onCancel: () => sub.cancel());
     }
-    return _changes;
+    return _changes.stream;
   }
 }
