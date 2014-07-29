@@ -1,0 +1,18 @@
+proto:
+  name: TestProto
+  source:
+    file: proto_test.proto
+    root: $CWD/test/generated/
+output:
+  files: single
+  prefix: proto_client
+base:
+  class: Entity
+  import: package:streamy/base_fields.dart
+  backing: map
+options:
+  clone: false
+  removers: false
+  known: false
+  global: false
+  patch: false

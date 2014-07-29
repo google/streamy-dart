@@ -8,6 +8,7 @@ import 'package:mustache/mustache.dart' as mustache;
 import 'package:quiver/strings.dart' as strings;
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:path/path.dart' as path;
+import 'package:streamy/google/protobuf/descriptor.pb.dart' as protoSchema;
 
 part 'generator/ast.dart';
 part 'generator/config.dart';
@@ -16,6 +17,7 @@ part 'generator/discovery.dart';
 part 'generator/default.dart';
 part 'generator/service.dart';
 part 'generator/emitter.dart';
+part 'generator/proto.dart';
 part 'generator/util.dart';
 
 /// Generates a Streamy API client package in pub format.

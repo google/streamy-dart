@@ -97,14 +97,15 @@ class Path {
 }
 
 class Field {
+  final String key;
   final String name;
   final String description;
   final TypeRef typeRef;
   final String location;
   
-  Field(this.name, this.description, this.typeRef, this.location);
+  Field(this.name, this.description, this.typeRef, this.location, {this.key: null});
   
-  String toString() => "type=$typeRef, loc=$location";
+  String toString() => "type=$typeRef, loc=$location, key=$key";
 }
 
 class TypeRef {

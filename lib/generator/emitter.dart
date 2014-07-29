@@ -52,6 +52,7 @@ class Emitter {
     'root_send',
     'root_transaction_constructor',
     'string_list',
+    'string_map',
     'unmarshal'
   ];
       
@@ -662,6 +663,17 @@ class Emitter {
     if (doubleFields.isNotEmpty) {
       clazz.fields.add(new DartSimpleField('_doubles$name', stringList, isStatic: true, isFinal: true, initializer: stringListBody(doubleFields)));
     }
+    
+    var fieldMapping = {};
+    schema.properties.values.forEach((field) {
+      if (field.key != null) {
+        fieldMapping[field.key] = field.name;
+      }
+    });
+    
+    if (fieldMapping.isNotEmpty)
+      clazz.fields.add(new DartSimpleField('_fieldMapping$name', serialMap, isStatic: true, isFinal: true, initializer: mapBody(fieldMapping)));
+    }
     if (entityFields.isNotEmpty) {
       var data = [];
       entityFields.forEach((name, schema) {
@@ -680,6 +692,7 @@ class Emitter {
       'hasDoubles': doubleFields.isNotEmpty,
       'doubles': doubleFields,
       'hasEntities': entityFields.isNotEmpty,
+      'hasFieldMapping': fieldMapping.isNotEmpty,
     };
     clazz.methods.add(new DartMethod('marshal$name', rt,
         new DartTemplateBody(marshal, serializerConfig))
@@ -708,6 +721,14 @@ class Emitter {
       'list': strings.map((i) => {'value': i}).toList(growable: false),
       'getter': getter
     });
+  
+  DartBody mapBody(Map map) {
+    var data = [];
+    map.forEach((key, value) {
+      data.add({'key': key, 'value': value});
+    });
+    return new DartTemplateBody(_template('string_map'), {'map': data});
+  }
 
   DartType streamyImport(String clazz, {params: const []}) =>
       new DartType(clazz, 'streamy', params);

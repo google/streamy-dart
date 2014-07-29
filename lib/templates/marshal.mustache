@@ -1,7 +1,15 @@
 {
   var res = new Map(){{#fromFields}}{{#fields}}
-    ..[r'{{key}}'] = entity.{{identifier}}{{/fields}}{{/fromFields}}{{^fromFields}}
-    ..addAll(base.getMap(entity)){{/fromFields}};{{#hasInt64s}}
+    ..[r'{{key}}'] = entity.{{identifier}}{{/fields}}{{/fromFields}}{{^fromFields}}{{#hasFieldMapping}};
+    var src = base.getMap(entity);
+    src.forEach((key, value) {
+      if (_fieldMapping.containsKey(key)) {
+        res[_fieldMapping[key]] = value;
+      } else {
+        res[key] = value;
+      }
+    }){{/hasFieldMapping}}{{^hasFieldMapping}}
+    ..addAll(base.getMap(entity)){{/hasFieldMapping}}{{/fromFields}};{{#hasInt64s}}
   streamy.marshalToString(_int64s{{name}}, res);{{/hasInt64s}}{{#hasDoubles}}
   streamy.marshalToString(_doubles{{name}}, res);{{/hasDoubles}}{{#hasEntities}}
   streamy.handleEntities(this, _entities{{name}}, res, true);{{/hasEntities}}
