@@ -9,6 +9,8 @@ typedef void CancelFn();
 
 internalCloneFrom(dest, source) => dest.._cloneFrom(source);
 internalGetPayload(Request r) => r._payload;
+Entity internalFreeze(Entity entity) =>
+  entity.._freeze();
 
 dynamic nullSafeOperation(x, f(elem)) => x != null ? f(x) : null;
 
