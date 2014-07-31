@@ -16,7 +16,7 @@ class ProxyClient extends RequestHandler {
     var payload = null;
     var headers = {};
     if (req.hasPayload) {
-      payload = stringify(req.payload);
+      payload = jsonEncode(req.payload);
       headers[_CONTENT_TYPE] = 'application/json; charset=utf-8';
     }
     var cancelCompleter = new Completer();
@@ -41,7 +41,7 @@ class ProxyClient extends RequestHandler {
         if (!resp.headers.containsKey(_CONTENT_TYPE) ||
             resp.headers[_CONTENT_TYPE].startsWith('application/json')) {
           try {
-            jsonError = parse(resp.body);
+            jsonError = JSON.decode(resp.body);
             if (jsonError.containsKey('error') &&
                 jsonError['error'].containsKey('errors')) {
               errors = jsonError['error']['errors'];

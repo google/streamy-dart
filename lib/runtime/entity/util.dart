@@ -186,6 +186,27 @@ _patchCheckEqual(a, b) {
   return a == b;
 }
 
+jsonEncode(value) => JSON.encode(_serializeHelper(value));
+
+_serializeHelper(value) {
+  if (value is Entity) {
+    var res = value.toJson();
+    res.forEach((key, subValue) {
+      res[key] = _serializeHelper(subValue);
+    });
+    return res;
+  } else if (value is List) {
+    return value.map(_serializeHelper).toList();
+  } else if (value is Map) {
+    var res = {};
+    value.forEach((key, subValue) {
+      res[key] = _serializeHelper(subValue);
+    });
+    return res;
+  }
+  return value;
+}
+
 /**
  * Adds unknown properties from the ramaining map entries after all known
  * properties have been deserialized. [remainderJson] contains the remaining

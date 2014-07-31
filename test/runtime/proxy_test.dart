@@ -97,9 +97,10 @@ main() {
       fakeHttp.lastCompleter.complete(new StreamyHttpResponse(
           200, {'content-type': 'application/json'}, '{"id": "123"}'));
       fastForward();
-      expect(events, hasLength(2));
-      expect(events[0].runtimeType, DeserializationStartEvent);
-      expect(events[1].runtimeType, DeserializationEndEvent);
+      int countEventTypes(Type type) =>
+          events.fold(0, (int c, e) => e.runtimeType == type ? c + 1 : c);
+      expect(countEventTypes(DeserializationStartEvent), 1);
+      expect(countEventTypes(DeserializationEndEvent), 1);
     }));
   });
 }

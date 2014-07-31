@@ -2,7 +2,7 @@ part of streamy.runtime;
 
 /// Parent of all data transfer objects. Provides map-like methods for
 /// accessing field values.
-class RawEntity extends Entity implements Map, Observable {
+class RawEntity extends Entity {
 
   RawEntity() : super.base() {
     _data = new ObservableMap();

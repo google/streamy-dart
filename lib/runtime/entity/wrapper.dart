@@ -2,7 +2,7 @@ part of streamy.runtime;
 
 /// Wraps an [Entity] and delegates to it. This is the base class for all
 /// generated entities.
-abstract class EntityWrapper extends Entity implements Observable {
+abstract class EntityWrapper extends Entity {
 
   final Entity _delegate;
 
@@ -59,6 +59,8 @@ abstract class EntityWrapper extends Entity implements Observable {
 
   Iterable<String> get fieldNames => _delegate.fieldNames;
 
+  Iterable<String> get keys => _delegate.keys;
+
   dynamic remove(String key) => _delegate.remove(key);
 
   dynamic operator[](String key) {
@@ -70,6 +72,18 @@ abstract class EntityWrapper extends Entity implements Observable {
     }
     return _delegate[key];
   }
+
+  // Map type.
+  void addAll(Map<String, dynamic> other) => _delegate.addAll(other);
+  void clear() => _delegate.clear();
+  bool containsValue(value) => _delegate.containsValue(value);
+  void forEach(Function f) => _delegate.forEach(f);
+  putIfAbsent(String key, Function ifAbsent) =>
+  _delegate.putIfAbsent(key, ifAbsent);
+  bool get isEmpty => _delegate.isEmpty;
+  bool get isNotEmpty => _delegate.isNotEmpty;
+  int get length => _delegate.length;
+  Iterable get values => _delegate.values;
 
   void operator[]=(String key, value) {
     _delegate[key] = value;

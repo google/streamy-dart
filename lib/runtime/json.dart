@@ -1,27 +1,21 @@
 part of streamy.runtime;
 
-/**
- * A [JsonListener] that parses Json into Streamy-compatible structures.
- *
- * Currently, this means that it builds [Observable] data types.
- */
-class StreamyBuildJsonListener extends BuildJsonListener {
-  
-  void beginObject() {
-    super.beginObject();
-    currentContainer = new ObservableMap();
-  }
-  
-  void beginArray() {
-    super.beginArray();
-    currentContainer = new ObservableList();
-  }
+final _observableJsonCodec = new JsonCodec.withReviver(_observableReviver);
+
+/// Parses JSON into [Observable] lists and maps.
+dynamic jsonParse(String json, [Trace trace = const NoopTrace()]) {
+  trace.record(new JsonParseStartEvent());
+  var result = _observableJsonCodec.decode(json);
+  trace.record(new JsonParseEndEvent());
+  return result;
 }
 
-dynamic jsonParse(String json, [Trace trace = const NoopTrace()]) {
-  var listener = new StreamyBuildJsonListener();
-  trace.record(new JsonParseStartEvent());
-  new JsonParser(json, listener).parse();
-  trace.record(new JsonParseEndEvent());
-  return listener.result;
+_observableReviver(dynamic key, dynamic value) {
+  if (value is List) {
+    return new ObservableList.from(value);
+  } else if (value is Map) {
+    return new ObservableMap.from(value);
+  } else {
+    return value;
+  }
 }

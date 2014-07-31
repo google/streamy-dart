@@ -39,7 +39,7 @@ class Foo extends streamy.EntityWrapper {
   String removeBaz() => remove(r'baz');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+          new Foo.fromJson(streamy.jsonParse(strJson, trace), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
@@ -82,7 +82,7 @@ class Bar extends streamy.EntityWrapper {
       super.wrap(entity, (cloned) => cloneWrapper(cloned), globals: _globals);
   factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+          new Bar.fromJson(streamy.jsonParse(strJson, trace), typeRegistry: typeRegistry);
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Bar.fromJson(json, typeRegistry: reg);
   factory Bar.fromJson(Map json,

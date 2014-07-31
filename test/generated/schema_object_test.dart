@@ -361,7 +361,7 @@ main() {
     [null]
   ]
 }
-''', null);
+''', const streamy.NoopTrace());
       expect(subject.facets, hasLength(4));
       expect(subject.facets[0], hasLength(2));
       subject.facets[0].forEach((f) {
