@@ -31,8 +31,14 @@ class Discovery {
     Map jsDiscovery = JSON.decode(jsonString);
     Map addendumSchemas = addendumData != null && addendumData.containsKey('schemas') ?
         addendumData['schemas'] : {};
+    var schemas = jsDiscovery['schemas'];
+    if (schemas != null) {
+      schemas.addAll(addendumSchemas);
+    } else {
+      schemas = addendumSchemas;
+    }
     return new Discovery(
-      extractNameTypePairs(jsDiscovery['schemas']..addAll(addendumSchemas)),
+      extractNameTypePairs(schemas),
       extractResources(jsDiscovery['resources']),
       jsDiscovery['name'],
       jsDiscovery.containsKey('version') ? jsDiscovery['version'] : 'v1',
