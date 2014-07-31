@@ -3,7 +3,6 @@
 library streamy.impl;
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:streamy/streamy.dart';
 
 /// A rudimentary [RequestHandler] that serializes [Request] objects to JSON
@@ -34,8 +33,7 @@ class SimpleRequestHandler extends RequestHandler {
       'Content-Type': 'application/json'
     }, {},
         cancelCompleter.future,
-        payload: request.payload != null ?
-            JSON.encode(request.payload.toJson()) : null);
+        payload: request.payload != null ? jsonEncode(request.payload) : null);
     _http.send(req).then((StreamyHttpResponse resp) {
       ctrl.add(new Response(
           request.responseDeserializer(resp.body, trace),
