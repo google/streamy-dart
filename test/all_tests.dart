@@ -15,6 +15,7 @@ import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/cache_test.dart' as runtime_cache_test;
 import 'runtime/dedup_test.dart' as runtime_dedup_test;
 import 'runtime/error_test.dart' as runtime_error_test;
+import 'runtime/json_test.dart' as runtime_json_test;
 import 'runtime/request_test.dart' as runtime_request_test;
 import 'runtime/transaction_test.dart' as runtime_transaction_test;
 import 'runtime/transforms_test.dart' as runtime_transforms_test;
@@ -39,6 +40,7 @@ main(List<String> args) {
   runtime_cache_test.main();
   runtime_dedup_test.main();
   runtime_error_test.main();
+  runtime_json_test.main();
   runtime_request_test.main();
   runtime_transaction_test.main();
   runtime_transforms_test.main();

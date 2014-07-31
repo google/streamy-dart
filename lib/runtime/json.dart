@@ -18,8 +18,10 @@ class StreamyBuildJsonListener extends BuildJsonListener {
   }
 }
 
-dynamic jsonParse(String json) {
+dynamic jsonParse(String json, [Trace trace = const NoopTrace()]) {
   var listener = new StreamyBuildJsonListener();
+  trace.record(new JsonParseStartEvent());
   new JsonParser(json, listener).parse();
+  trace.record(new JsonParseEndEvent());
   return listener.result;
 }

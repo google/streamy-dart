@@ -54,7 +54,9 @@ class ProxyClient extends RequestHandler {
       }
       var responsePayload = null;
       if (resp.statusCode == 200 || resp.statusCode == 201) {
+        trace.record(new DeserializationStartEvent(resp.body.length));
         responsePayload = req.responseDeserializer(resp.body, trace);
+        trace.record(new DeserializationEndEvent());
       }
       return new Response(responsePayload, Source.RPC,
           new DateTime.now().millisecondsSinceEpoch);

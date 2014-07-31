@@ -8,6 +8,29 @@ abstract class TraceEvent {
   String toString();
 }
 
+/// Indicates the start of JSON parsing.
+class JsonParseStartEvent extends TraceEvent {
+  String toString() => "streamy.json.start";
+}
+
+/// Indicates the end of JSON parsing.
+class JsonParseEndEvent extends TraceEvent {
+  String toString() => "streamy.json.end";
+}
+
+/// Indicates the start of deserialization.
+class DeserializationStartEvent extends TraceEvent {
+  int size;
+
+  DeserializationStartEvent(this.size);
+  String toString() => "streamy.deserialization.start($size)";
+}
+
+/// Indicates the end of deserialization.
+class DeserializationEndEvent extends TraceEvent {
+  String toString() => "streamy.deserialization.end";
+}
+
 /// A trace for a particular request. Essentially a sink for [TraceEvent]s.
 abstract class Trace {
   void record(TraceEvent event);
@@ -23,6 +46,15 @@ class NoopTrace implements Trace {
   const NoopTrace();
 
   void record(TraceEvent _) {}
+}
+
+/// Logs all traces into an in-memory list.
+class LoggingTrace implements Trace {
+  final List<TraceEvent> log = <TraceEvent>[];
+
+  void record(TraceEvent evt) {
+    log.add(evt);
+  }
 }
 
 /// A [Tracer] that drops [TraceEvent]s on the floor.
