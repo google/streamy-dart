@@ -14,8 +14,12 @@ Future<Api> fromProto(ProtoConfig config) {
   var root = config.root;
   
   // Determine commandline to protoc to get the descriptor.
+  // TODO(Alex): Since protoc reads the proto file directly, barback doesn't
+  // count it as a dependency (or any of its dependencies). Thus, the
+  // edit-save-refresh cycle fails when editing .proto files currently.
   var protoPath = config.root.replaceAll(r'$CWD', io.Directory.current.path);
-  var protocArgs = ['-o/dev/stdout', '--proto_path=$protoPath', '$protoPath${config.sourceFile}'];
+  var protocArgs = ['-o/dev/stdout', '--proto_path=$protoPath',
+      '$protoPath${config.sourceFile}'];
   return io
     .Process
     .start('protoc', protocArgs)
@@ -43,13 +47,15 @@ Future<Api> fromProto(ProtoConfig config) {
               type = new TypeRef.schema(field.typeName.split('.')[2]);
               break;
             default:
-              throw new Exception("Unknown type: ${field.name} / ${field.type} / $proto");
+              throw new Exception("Unknown: ${field.name} / ${field.type}");
           }
-          if (field.label == protoSchema.FieldDescriptorProto_Label.LABEL_REPEATED) {
+          if (field.label ==
+              protoSchema.FieldDescriptorProto_Label.LABEL_REPEATED) {
             type = new TypeRef.list(type);
           }
           schema.properties[field.name] =
-              new Field(field.name, 'Desc', type, "${field.number}", key: "${field.number}");
+              new Field(field.name, 'Desc', type, "${field.number}",
+                  key: "${field.number}");
         });
         api.types[schema.name] = schema;
       });
