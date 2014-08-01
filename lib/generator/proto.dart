@@ -45,6 +45,9 @@ Future<Api> fromProto(ProtoConfig config) {
             default:
               throw new Exception("Unknown type: ${field.name} / ${field.type} / $proto");
           }
+          if (field.label == protoSchema.FieldDescriptorProto_Label.LABEL_REPEATED) {
+            type = new TypeRef.list(type);
+          }
           schema.properties[field.name] =
               new Field(field.name, 'Desc', type, "${field.number}", key: "${field.number}");
         });

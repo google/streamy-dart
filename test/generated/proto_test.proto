@@ -3,7 +3,7 @@ package proto_test;
 message Foo {
   optional int64 id = 1;
   optional string name = 2;
-  optional Bar other = 3;
+  repeated Bar other = 3;
 }
 
 message Bar {
