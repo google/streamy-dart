@@ -102,7 +102,7 @@ Config parseConfigOrDie(Map data) {
   if (data.containsKey('proto')) {
     var proto = data['proto'];
     if (!proto.containsKey('name')) {
-      _die('Missing proto service name.');
+      _die('Missing proto api name.');
     }
     if (!proto.containsKey('source')) {
       _die('Missing proto source.');
