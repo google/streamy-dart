@@ -8,7 +8,7 @@ output:
   prefix: proto_client
 base:
   class: Entity
-  import: package:streamy/base_fields.dart
+  import: package:streamy/base.dart
   backing: map
 options:
   clone: false

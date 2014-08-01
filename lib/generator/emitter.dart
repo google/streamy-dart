@@ -656,7 +656,7 @@ class Emitter {
       });
 
     var stringList = new DartType.list(const DartType.string());
-    var serialMap = new DartType('Map', '', const []);
+    var serialMap = new DartType('Map', null, const []);
     if (int64Fields.isNotEmpty) {
       clazz.fields.add(new DartSimpleField('_int64s$name', stringList, isStatic: true, isFinal: true, initializer: stringListBody(int64Fields)));
     }
@@ -670,9 +670,9 @@ class Emitter {
         fieldMapping[field.key] = field.name;
       }
     });
-    
-    if (fieldMapping.isNotEmpty)
+    if (fieldMapping.isNotEmpty) {
       clazz.fields.add(new DartSimpleField('_fieldMapping$name', serialMap, isStatic: true, isFinal: true, initializer: mapBody(fieldMapping)));
+      clazz.fields.add(new DartSimpleField('_fieldUnmapping$name', serialMap, isStatic: true, isFinal: true, initializer: mapBody(invertMap(fieldMapping))));
     }
     if (entityFields.isNotEmpty) {
       var data = [];
@@ -721,13 +721,21 @@ class Emitter {
       'list': strings.map((i) => {'value': i}).toList(growable: false),
       'getter': getter
     });
-  
+    
   DartBody mapBody(Map map) {
     var data = [];
     map.forEach((key, value) {
       data.add({'key': key, 'value': value});
     });
     return new DartTemplateBody(_template('string_map'), {'map': data});
+  }
+  
+  Map invertMap(Map input) {
+    Map output = {};
+    input.forEach((key, value) {
+      output[value] = key;
+    });
+    return output;
   }
 
   DartType streamyImport(String clazz, {params: const []}) =>
