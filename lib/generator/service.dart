@@ -1,7 +1,7 @@
 part of streamy.generator;
 
 Api parseServices(List<String> paths) {
-  var api = new Api('example', 'Example service', marshalling: false);
+  var api = new Api('example', marshalling: false);
   var i = 1;
   paths.forEach((path) => _parseServiceFile(api, path, analyzer.parseDartFile(path), i++));
   var pc = new PathConfig.prefixed('lib/', 'package:api/');

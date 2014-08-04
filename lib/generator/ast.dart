@@ -11,8 +11,8 @@ class Api {
   final Map<String, Schema> types = <String, Schema>{};
   final Map<String, Resource> resources = <String, Resource>{};
   
-  Api(this.name, this.description,
-      {this.docLink, this.httpConfig, this.marshalling: true});
+  Api(this.name, {this.description, this.docLink, this.httpConfig,
+      this.marshalling: true});
   
   String toString() {
     var sb = new StringBuffer()

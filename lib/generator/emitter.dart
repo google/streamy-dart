@@ -656,7 +656,7 @@ class Emitter {
       });
 
     var stringList = new DartType.list(const DartType.string());
-    var serialMap = new DartType('Map', null, const []);
+    var serialMap = new DartType('Map');
     if (int64Fields.isNotEmpty) {
       clazz.fields.add(new DartSimpleField('_int64s$name', stringList, isStatic: true, isFinal: true, initializer: stringListBody(int64Fields)));
     }
@@ -671,8 +671,12 @@ class Emitter {
       }
     });
     if (fieldMapping.isNotEmpty) {
-      clazz.fields.add(new DartSimpleField('_fieldMapping$name', serialMap, isStatic: true, isFinal: true, initializer: mapBody(fieldMapping)));
-      clazz.fields.add(new DartSimpleField('_fieldUnmapping$name', serialMap, isStatic: true, isFinal: true, initializer: mapBody(invertMap(fieldMapping))));
+      clazz.fields.add(new DartSimpleField('_fieldMapping$name', serialMap,
+          isStatic: true, isFinal: true,
+          initializer: mapBody(fieldMapping)));
+      clazz.fields.add(new DartSimpleField('_fieldUnmapping$name', serialMap,
+          isStatic: true, isFinal: true,
+          initializer: mapBody(invertMap(fieldMapping))));
     }
     if (entityFields.isNotEmpty) {
       var data = [];
@@ -722,7 +726,7 @@ class Emitter {
       'getter': getter
     });
     
-  DartBody mapBody(Map map) {
+  DartBody mapBody(Map<String, String> map) {
     var data = [];
     map.forEach((key, value) {
       data.add({'key': key, 'value': value});

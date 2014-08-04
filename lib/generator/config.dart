@@ -257,7 +257,7 @@ Future<Api> apiFromConfig(
     return Future
       .wait(config.service.inputs.map((input) => fileReader(pathPrefix + input.filePath)))
       .then((dataList) {
-        var api = new Api(config.service.name, 'desc');
+        var api = new Api(config.service.name);
         for (var i = 0; i < config.service.inputs.length; i++) {
           _parseServiceFile(api, config.service.inputs[i].importPath, analyzer.parseCompilationUnit(dataList[i]), i);
         }

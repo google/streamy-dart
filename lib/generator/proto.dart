@@ -1,14 +1,6 @@
 part of streamy.generator;
 
-Api fromProtoX(req) {
-  var proto = req
-    .protoFile
-    .where((proto) => req
-      .fileToGenerate
-      .contains(proto.name))
-    .single;
-}
-
+/// Generate a Streamy [Api] from a [ProtoConfig].
 Future<Api> fromProto(ProtoConfig config) {
   // Read the proto file.
   var root = config.root;
@@ -20,15 +12,14 @@ Future<Api> fromProto(ProtoConfig config) {
   var protoPath = config.root.replaceAll(r'$CWD', io.Directory.current.path);
   var protocArgs = ['-o/dev/stdout', '--proto_path=$protoPath',
       '$protoPath${config.sourceFile}'];
-  return io
-    .Process
+  return io.Process
     .start('protoc', protocArgs)
     .then((protoc) => protoc.stdout.toList())
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
     .then((proto) => proto.file.single)
     .then((proto) {
-      var api = new Api(config.name, 'This is a description.');
+      var api = new Api(config.name);
       proto.messageType.forEach((message) {
         var schema = new Schema(message.name);
         message.field.forEach((field) {

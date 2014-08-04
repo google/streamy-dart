@@ -1,5 +1,4 @@
-{
-  // TODO(Alex): #fromFields behavior when #hasFieldMapping is broken.
+{ {{! TODO(Alex): #fromFields behavior when #hasFieldMapping is broken. }}
   var res = new Map(){{#fromFields}}{{#fields}}
     ..[r'{{key}}'] = entity.{{identifier}}{{/fields}}{{/fromFields}}{{^fromFields}}
     ..addAll(base.getMap(entity)){{/fromFields}};{{#hasInt64s}}

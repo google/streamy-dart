@@ -9,7 +9,7 @@ Api parseDiscovery(Map discovery, Map addendum) {
       full['servicePath']);
   var api = new Api(
       full['name'],
-      full['description'],
+      description: full['description'],
       docLink: full['documentationLink'],
       httpConfig: httpConfig);
 
