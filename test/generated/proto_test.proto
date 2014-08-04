@@ -1,0 +1,12 @@
+package proto_test;
+
+message Foo {
+  optional int64 id = 1;
+  optional string name = 2;
+  repeated Bar other = 3;
+}
+
+message Bar {
+  optional int64 id = 1;
+  optional string name = 2;
+}

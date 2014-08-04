@@ -26,12 +26,21 @@ class ServiceInput {
   ServiceInput(this.importPath, this.filePath);
 }
 
+class ProtoConfig {
+  final String name;
+  final String sourceFile;
+  final String root;
+  
+  ProtoConfig(this.name, this.sourceFile, this.root);
+}
+
 class Config {
   
   String discoveryFile;
   String addendumFile;
 
   ServiceConfig service;
+  ProtoConfig proto;
 
   String baseClass = 'Entity';
   String baseImport = 'package:streamy/base.dart';
@@ -90,9 +99,26 @@ Config parseConfigOrDie(Map data) {
       _die('Cannot specify both service and addendum.');
     }
   }
+  if (data.containsKey('proto')) {
+    var proto = data['proto'];
+    if (!proto.containsKey('name')) {
+      _die('Missing proto api name.');
+    }
+    if (!proto.containsKey('source')) {
+      _die('Missing proto source.');
+    }
+    var source = proto['source'];
+    if (!source.containsKey('file')) {
+      _die('Missing proto source file.');
+    }
+    if (!source.containsKey('root')) {
+      _die('Missing proto root.');
+    }
+    config.proto = new ProtoConfig(proto['name'], source['file'], source['root']);
+  }
   
-  if (config.discoveryFile == null && config.service == null) {
-    _die('Must specify either discovery or service.');
+  if (config.discoveryFile == null && config.service == null && config.proto == null) {
+    _die('Must specify either discovery, service, or proto.');
   }
   
   // Base class.
@@ -231,16 +257,18 @@ Future<Api> apiFromConfig(
     return Future
       .wait(config.service.inputs.map((input) => fileReader(pathPrefix + input.filePath)))
       .then((dataList) {
-        var api = new Api(config.service.name, 'desc');
+        var api = new Api(config.service.name);
         for (var i = 0; i < config.service.inputs.length; i++) {
           _parseServiceFile(api, config.service.inputs[i].importPath, analyzer.parseCompilationUnit(dataList[i]), i);
         }
         return api;
       });
   }
-  throw new Exception('Config has neither discovery or service. Parser bug?');
+  if (config.proto != null) {
+    return fromProto(config.proto);
+  }
+  throw new Exception('Config missing discovery, service, or proto. Parser bug?');
 }
-
 
 class TemplateLoader {
   

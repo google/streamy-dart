@@ -1,9 +1,17 @@
-{
+{ {{! TODO(Alex): #fromFields behavior when #hasFieldMapping is broken. }}
   var res = new Map(){{#fromFields}}{{#fields}}
     ..[r'{{key}}'] = entity.{{identifier}}{{/fields}}{{/fromFields}}{{^fromFields}}
     ..addAll(base.getMap(entity)){{/fromFields}};{{#hasInt64s}}
   streamy.marshalToString(_int64s{{name}}, res);{{/hasInt64s}}{{#hasDoubles}}
   streamy.marshalToString(_doubles{{name}}, res);{{/hasDoubles}}{{#hasEntities}}
-  streamy.handleEntities(this, _entities{{name}}, res, true);{{/hasEntities}}
+  streamy.handleEntities(this, _entities{{name}}, res, true);{{/hasEntities}}{{^fromFields}}{{#hasFieldMapping}}
+  res
+    .keys
+    .toList()
+    .forEach((key) {
+      if (_fieldUnmapping{{name}}.containsKey(key)) {
+        res[_fieldUnmapping{{name}}[key]] = res.remove(key);
+      }
+    });{{/hasFieldMapping}}{{/fromFields}}
   return res;
 }
