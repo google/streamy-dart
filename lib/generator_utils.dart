@@ -1,8 +1,8 @@
 library streamy.generator.utils;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
-import 'package:json/json.dart';
 import 'package:streamy/generator.dart';
 import 'dart:convert' as convert;
 import 'package:mustache/mustache.dart' as mus;
@@ -20,11 +20,11 @@ Future generateStreamyClientLibrary(
     String remoteStreamyLocation,
     String remoteBranch}) {
   var json = discoveryFile.readAsStringSync(encoding: convert.UTF8);
-  var discovery = new Discovery.fromJsonString(json);
   var addendumData = {};
   if (addendumFile != null) {
-    addendumData = parse(addendumFile.readAsStringSync());
+    addendumData = JSON.decode(addendumFile.readAsStringSync());
   }
+  var discovery = new Discovery.fromJsonString(json, addendumData: addendumData);
   if (fileName == null) {
     fileName = discovery.name;
   }

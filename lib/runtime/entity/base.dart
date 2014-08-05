@@ -1,7 +1,7 @@
 part of streamy.runtime;
 
 /// Public interface of Streamy entities.
-abstract class Entity {
+abstract class Entity implements Map, Observable {
 
   const Entity.base();
 
@@ -58,6 +58,25 @@ abstract class Entity {
 
   /// Return the Streamy implementation type of this entity.
   Type get streamyType;
+
+  // Map type.
+  void addAll(Map<String, dynamic> other);
+  void clear();
+  bool containsValue(value);
+  void forEach(Function f);
+  putIfAbsent(String key, Function ifAbsent);
+  bool get isEmpty;
+  bool get isNotEmpty;
+  Iterable<String> get keys;
+  int get length;
+  Iterable get values;
+
+  // Observable type.
+  Stream<List<ChangeRecord>> get changes;
+  bool get hasObservers;
+  bool deliverChanges();
+  void notifyChange(ChangeRecord record);
+  notifyPropertyChange(Symbol field, oldValue, newValue);
 
   /// Check for deep equality of entities (slow).
   /// TODO(arick): figure out a way to clean this up a bit.

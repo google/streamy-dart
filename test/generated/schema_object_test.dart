@@ -111,39 +111,34 @@ main() {
       expect(streamy.entityWrapperGetDelegateForTest(bar2),
           new isInstanceOf<streamy.RawEntity>());
     });
+
+    void expectChange(List<ChangeRecord> changes, dynamic property, [Matcher countMatcher]) {
+      if (countMatcher == null) {
+        countMatcher = greaterThan(0);
+      }
+      int count = 0;
+      for (var cr in changes) {
+        if (cr is PropertyChangeRecord) {
+          if (cr.name == property) {
+            count++;
+          }
+        } else if (cr is MapChangeRecord) {
+          if (cr.key == property) {
+            count++;
+          }
+        }
+      }
+      expect(count, countMatcher,
+          reason: 'Did not find the correct number of changes of ${property}'
+                  ' in ${changes}');
+    }
+
     test('objects are observable', () {
       var foo = new Foo();
       foo.changes.listen(expectAsync((List<ChangeRecord> changes) {
-        expect(changes, hasLength(7));
-
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
-        expect(r1.key, 'id');
-        expect(r1.isInsert, isTrue);
-        expect(r1.isRemove, isFalse);
-
-        var r2 = changes[2] as MapChangeRecord;
-        expect(r2.key, 'id');
-        expect(r2.isInsert, isFalse);
-        expect(r2.isRemove, isFalse);
-
-        var r3 = changes[3] as PropertyChangeRecord;
-        expect(r3.name, const Symbol('length'));
-
-        var r4 = changes[4] as MapChangeRecord;
-        expect(r4.key, 'bar');
-        expect(r4.isInsert, isTrue);
-        expect(r4.isRemove, isFalse);
-
-        var r5 = changes[5] as MapChangeRecord;
-        expect(r5.key, 'id');
-        expect(r5.isInsert, isFalse);
-        expect(r5.isRemove, isTrue);
-
-        var r6 = changes[6] as PropertyChangeRecord;
-        expect(r6.name, const Symbol('length'));
+        expectChange(changes, const Symbol('length'));
+        expectChange(changes, 'id', equals(3));
+        expectChange(changes, 'bar', equals(1));
       }, count: 1));
       foo.id = 1;
       foo.id = 2;
@@ -157,15 +152,8 @@ main() {
 
       // Expect foo to receive notifications
       foo.changes.listen(expectAsync((List<ChangeRecord> changes) {
-        expect(changes, hasLength(2));
-
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
-        expect(r1.key, 'id');
-        expect(r1.isInsert, isTrue);
-        expect(r1.isRemove, isFalse);
+        expectChange(changes, const Symbol('length'));
+        expectChange(changes, 'id', equals(1));
       }, count: 1));
 
       // Bar should not receive notifications
@@ -179,28 +167,8 @@ main() {
     test('local is observable', () {
       var foo = new Foo();
       foo.local.changes.listen(expectAsync((List<ChangeRecord> changes) {
-        expect(changes, hasLength(5));
-
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
-        expect(r1.key, 'hello');
-        expect(r1.isInsert, isTrue);
-        expect(r1.isRemove, isFalse);
-
-        var r2 = changes[2] as MapChangeRecord;
-        expect(r2.key, 'hello');
-        expect(r2.isInsert, isFalse);
-        expect(r2.isRemove, isFalse);
-
-        var r3 = changes[3] as MapChangeRecord;
-        expect(r3.key, 'hello');
-        expect(r3.isInsert, isFalse);
-        expect(r3.isRemove, isTrue);
-
-        var r4 = changes[4] as PropertyChangeRecord;
-        expect(r4.name, const Symbol('length'));
+        expectChange(changes, const Symbol('length'));
+        expectChange(changes, 'hello', equals(3));
       }, count: 1));
 
       // Fire changes
@@ -393,7 +361,7 @@ main() {
     [null]
   ]
 }
-''', null);
+''', const streamy.NoopTrace());
       expect(subject.facets, hasLength(4));
       expect(subject.facets[0], hasLength(2));
       subject.facets[0].forEach((f) {

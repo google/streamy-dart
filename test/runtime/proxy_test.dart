@@ -13,12 +13,14 @@ main() {
   group('ProxyClient', () {
     FakeStreamyHttpService fakeHttp;
     Bank root;
+    StreamTracer tracer;
     ProxyClient subject;
 
     setUp(() {
       fakeHttp = new FakeStreamyHttpService();
       subject = new ProxyClient('proxy', fakeHttp);
-      root = new Bank(subject);
+      tracer = new StreamTracer((_) => false);
+      root = new Bank(subject, tracer: tracer);
     });
 
     test('should serialize and forward request to a service', () {
@@ -85,6 +87,21 @@ main() {
       expect(httpReq.payload, isNull);
       expect(httpReq.headers['content-type'], isNull);
     });
+
+    test('should send trace events', async(() {
+      var events = [];
+      tracer.requests.listen((TracedRequest req) {
+        req.events.listen(events.add);
+      });
+      root.branches.get(new Int64(1)).send();
+      fakeHttp.lastCompleter.complete(new StreamyHttpResponse(
+          200, {'content-type': 'application/json'}, '{"id": "123"}'));
+      fastForward();
+      int countEventTypes(Type type) =>
+          events.fold(0, (int c, e) => e.runtimeType == type ? c + 1 : c);
+      expect(countEventTypes(DeserializationStartEvent), 1);
+      expect(countEventTypes(DeserializationEndEvent), 1);
+    }));
   });
 }
 

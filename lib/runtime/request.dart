@@ -183,11 +183,19 @@ abstract class Request {
       }
     }
     localParameters.forEach((qp, v) {
+      write(v) {
+        buf
+          ..write(firstQueryParam ? '?' : '&')
+          ..write(qp)
+          ..write('=')
+          ..write(Uri.encodeQueryComponent(v.toString()));
+        firstQueryParam = false;
+      }
       if (v is List) {
         // Sort the list of parameters to ensure a canonical path.
-        (v.toList()..sort()).forEach((e) => write(qp, e));
+        (v.toList()..sort()).forEach(write);
       } else {
-        write(qp, v);
+        write(v);
       }
     });
     return buf.toString();

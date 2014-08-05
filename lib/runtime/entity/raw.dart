@@ -2,7 +2,7 @@ part of streamy.runtime;
 
 /// Parent of all data transfer objects. Provides map-like methods for
 /// accessing field values.
-class RawEntity extends Entity implements Map, Observable {
+class RawEntity extends Entity {
 
   RawEntity() : super.base() {
     _data = new ObservableMap();
@@ -72,7 +72,11 @@ class RawEntity extends Entity implements Map, Observable {
       var vNew = input._data[key];
       var vOld = input._original[key];
       if (!_patchCheckEqual(vOld, vNew)) {
-        _data[key] = _patch(vNew);
+        _data[key] = vOld == null ? vNew : _patch(vNew);
+        // TODO(arick): Handle the case of vOld and vNew are different objects
+        // but only vNew.x has changed by the user.  However, both vNew.x and
+        // vNew.y need to be updated since vNew is a Ref that was obtained from
+        // a different object that was fetched.
       }
     });
   }

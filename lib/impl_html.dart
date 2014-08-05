@@ -7,8 +7,8 @@ library streamy.html_impl;
 import 'dart:html';
 import 'dart:async';
 
-import "package:streamy/streamy.dart";
-import "impl.dart";
+import 'package:streamy/streamy.dart';
+import 'impl.dart';
 
 /**
  * A plain HTTP service that sends HTTP requests via [HttpRequest].

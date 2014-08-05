@@ -81,7 +81,7 @@ class Foo extends streamy.EntityWrapper {
   double removeCorge() => remove(r'corge');
   factory Foo.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Foo.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+          new Foo.fromJson(streamy.jsonParse(strJson, trace), typeRegistry: typeRegistry);
   static Foo entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Foo.fromJson(json, typeRegistry: reg);
   factory Foo.fromJson(Map json,
@@ -154,7 +154,7 @@ class Bar extends streamy.EntityWrapper {
   List<Foo> removeFoos() => remove(r'foos');
   factory Bar.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Bar.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+          new Bar.fromJson(streamy.jsonParse(strJson, trace), typeRegistry: typeRegistry);
   static Bar entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Bar.fromJson(json, typeRegistry: reg);
   factory Bar.fromJson(Map json,
@@ -208,7 +208,7 @@ class Context_Facets extends streamy.EntityWrapper {
   String removeAnchor() => remove(r'anchor');
   factory Context_Facets.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Context_Facets.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+          new Context_Facets.fromJson(streamy.jsonParse(strJson, trace), typeRegistry: typeRegistry);
   static Context_Facets entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Context_Facets.fromJson(json, typeRegistry: reg);
   factory Context_Facets.fromJson(Map json,
@@ -259,7 +259,7 @@ class Context extends streamy.EntityWrapper {
   List<List<Context_Facets>> removeFacets() => remove(r'facets');
   factory Context.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new Context.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+          new Context.fromJson(streamy.jsonParse(strJson, trace), typeRegistry: typeRegistry);
   static Context entityFactory(Map json, streamy.TypeRegistry reg) =>
       new Context.fromJson(json, typeRegistry: reg);
   factory Context.fromJson(Map json,
@@ -310,7 +310,7 @@ class $some_entity_ extends streamy.EntityWrapper {
   fixnum.Int64 remove$badly_named_property____$_______() => remove(r'%badly#named property~!@#$%^&*()?');
   factory $some_entity_.fromJsonString(String strJson, streamy.Trace trace,
       {streamy.TypeRegistry typeRegistry: streamy.EMPTY_REGISTRY}) =>
-          new $some_entity_.fromJson(streamy.jsonParse(strJson), typeRegistry: typeRegistry);
+          new $some_entity_.fromJson(streamy.jsonParse(strJson, trace), typeRegistry: typeRegistry);
   static $some_entity_ entityFactory(Map json, streamy.TypeRegistry reg) =>
       new $some_entity_.fromJson(json, typeRegistry: reg);
   factory $some_entity_.fromJson(Map json,

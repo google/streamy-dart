@@ -26,10 +26,19 @@ class Discovery {
       this.servicePath,
       this.documentationLink);
 
-  factory Discovery.fromJsonString(String jsonString) {
-    Map jsDiscovery = json.parse(jsonString);
+  /// Creates a [Discovery] from JSON.  Mixes in schemas from addendumData, if provided.
+  factory Discovery.fromJsonString(String jsonString, {Map<String, Map> addendumData}) {
+    Map jsDiscovery = JSON.decode(jsonString);
+    Map addendumSchemas = addendumData != null && addendumData.containsKey('schemas') ?
+        addendumData['schemas'] : {};
+    var schemas = jsDiscovery['schemas'];
+    if (schemas != null) {
+      schemas.addAll(addendumSchemas);
+    } else {
+      schemas = addendumSchemas;
+    }
     return new Discovery(
-      extractNameTypePairs(jsDiscovery['schemas']),
+      extractNameTypePairs(schemas),
       extractResources(jsDiscovery['resources']),
       jsDiscovery['name'],
       jsDiscovery.containsKey('version') ? jsDiscovery['version'] : 'v1',
@@ -42,8 +51,7 @@ class Discovery {
 
 /// Takes plain JSON map of names and type descriptors and extracts objectified
 /// version.
-Map<String, TypeDescriptor> extractNameTypePairs(
-    Map<String, Map> jsNameTypePairs, {String parentName: null}) {
+Map<String, TypeDescriptor> extractNameTypePairs(Map<String, Map> jsNameTypePairs) {
   if (jsNameTypePairs == null) {
     return {};
   }
