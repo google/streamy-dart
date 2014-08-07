@@ -3,51 +3,14 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:streamy/mixologist.dart' as mixologist;
 
+var outputFile;
+var libraryName;
+var className;
+var mixins;
+var mixinDirs;
+
 main(List<String> args) {
-  var outputFile;
-  var libraryName;
-  var className;
-  var mixins;
-  var mixinDirs;
-  
-  var argp = new ArgParser()
-    ..addOption('output-file',
-        abbr: 'o',
-        help: 'Path to the generated file to output',
-        callback: (value) {
-          outputFile = value;
-        })
-    ..addOption('output-library',
-        abbr: 'l',
-        help: 'Name of the generated library',
-        callback: (value) {
-          libraryName = value;
-        })
-    ..addOption('output-class',
-        abbr: 'c',
-        help: 'Name of the final generated class',
-        callback: (value) {
-          className = value;
-        })
-    ..addOption('mixin-dirs',
-        abbr: 'i',
-        help: 'Path to the directories which contains the potential mixins, ' +
-            'comma separated',
-        defaultsTo: 'lib/mixins',
-        callback: (value) {
-          mixinDirs = value;
-        })
-    ..addOption('mixins',
-        abbr: 'm',
-        help: 'List of mixins with which to build the output file',
-        callback: (value) {
-          mixins = (value == null) ? null : value.split(',');
-        });
-  argp.parse(args);
-  if (outputFile == null || libraryName == null || className == null || mixinDirs == null || mixins == null) {
-    print(argp.getUsage());
-    return;
-  }
+  parseArgs(args);
   var mixinMap = {};
   mixinDirs
     .split(',')
@@ -85,4 +48,45 @@ main(List<String> args) {
         ..write(lines.join("\n")))
         .close())
     .then((_) => print("Generated $outputFile."));
+}
+
+void parseArgs(List<String> args) {
+  var argp = new ArgParser()
+    ..addOption('output-file',
+  abbr: 'o',
+  help: 'Path to the generated file to output',
+  callback: (value) {
+    outputFile = value;
+  })
+    ..addOption('output-library',
+  abbr: 'l',
+  help: 'Name of the generated library',
+  callback: (value) {
+    libraryName = value;
+  })
+    ..addOption('output-class',
+  abbr: 'c',
+  help: 'Name of the final generated class',
+  callback: (value) {
+    className = value;
+  })
+    ..addOption('mixin-dirs',
+  abbr: 'i',
+  help: 'Path to the directories which contains the potential mixins, ' +
+  'comma separated',
+  defaultsTo: 'lib/mixins',
+  callback: (value) {
+    mixinDirs = value;
+  })
+    ..addOption('mixins',
+  abbr: 'm',
+  help: 'List of mixins with which to build the output file',
+  callback: (value) {
+    mixins = (value == null) ? null : value.split(',');
+  });
+  argp.parse(args);
+  if (outputFile == null || libraryName == null || className == null || mixinDirs == null || mixins == null) {
+    print(argp.getUsage());
+    return;
+  }
 }
