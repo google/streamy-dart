@@ -82,7 +82,6 @@ class MixologistYamlTransformer extends Transformer {
       .then((_) =>
           mixologist.mix(config, new TransformFileSystem(transform)))
       .then((code) {
-        print('>>> produced code');
         var id = new AssetId(transform.primaryInput.id.package,
         '${prefixFrom(transform.primaryInput.id)}${config.output}');
         transform.addOutput(new Asset.fromString(id, code));
