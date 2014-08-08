@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:barback/barback.dart';
 import 'fs.dart';
 
+/// Adapts transformer asset space as a file system. Use it
+/// when your paths point to Dart assets.
 class TransformFileSystem implements FileSystem {
 
   final Transform _transform;
