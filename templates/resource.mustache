@@ -37,7 +37,7 @@ class {{type}} {
   {{type}} _{{name}};
   {{type}} get {{name}} {
     if (_{{name}} == null) {
-      _{{name}} = new {{type}}(this as streamy.Root);
+      _{{name}} = new {{type}}(_root);
     }
     return _{{name}};
   }
