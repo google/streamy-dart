@@ -166,14 +166,16 @@ class _Emitter {
 
   Map get _addendum => _conf.addendumData;
 
-  Map processResource(Resource resource) {
-    // TODO(yjbanov): support sub-resources
+  Map processResource(Resource resource, String parentClassName) {
+    var classNamePrefix = parentClassName.isEmpty ? '' : '${parentClassName}_';
+    var resourceClassName =
+        classNamePrefix + _makeClassName('${resource.name}Resource');
     List<Map> methods = [];
     resource.methods.forEach((Method method) {
       MethodInfo methodInfo = processMethod(resource, method);
       var methodData = {
         'name': methodInfo.apiName,
-        'reqType': methodInfo.requestTypeName,
+        'reqType': classNamePrefix + methodInfo.requestTypeName,
         'payload': methodInfo.payloadData,
         'parameters': methodInfo.parameters,
         'hasPathParameters': methodInfo.pathParameters.isNotEmpty,
@@ -187,21 +189,26 @@ class _Emitter {
       };
       methods.add(methodData);
     });
-    var resourceClassName = _makeClassName('${resource.name}Resource');
+    List<Map> subResources = [];
+    resource.resources.forEach((Resource subResource) {
+      subResources.add(processResource(subResource, parentClassName));
+    });
     var resourceData = {
       'name': _makePropertyName(resource.name),
       'type': resourceClassName,
       'methods': methods,
+      'resources': subResources,
     };
     _resource.render(resourceData);
     return resourceData;
   }
 
-  MethodInfo processMethod(Resource resource, Method method) {
+  MethodInfo processMethod(
+      Resource resource, Method method, String classNamePrefix) {
     MethodInfo methodInfo = new MethodInfo(this, resource, method);
 
     var requestData = {
-      'name': methodInfo.requestTypeName,
+      'name': classNamePrefix + methodInfo.requestTypeName,
       'parameters': methodInfo.parameters,
       'payload': methodInfo.payloadData,
       'topLevelClassName': _topLevelClassName,

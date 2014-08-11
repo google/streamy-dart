@@ -32,4 +32,14 @@ class {{type}} {
     return request;
   }
 {{/methods}}
+
+{{#resources}}
+  {{type}} _{{name}};
+  {{type}} get {{name}} {
+    if (_{{name}} == null) {
+      _{{name}} = new {{type}}(this as streamy.Root);
+    }
+    return _{{name}};
+  }
+{{/resources}}
 }
