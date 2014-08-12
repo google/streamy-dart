@@ -153,13 +153,17 @@ class Emitter {
     rootFile.imports.addAll(api.imports);
     
     // Root class
-    rootFile.classes.addAll(processRoot(api, resourcePrefix, dispatchPrefix));
-    resourceFile.classes.addAll(processResources(api, requestPrefix, objectPrefix));
-    requestFile.classes.addAll(processRequests(api, objectPrefix, dispatchPrefix));
+    if (config.generateApi) {
+      rootFile.classes.addAll(processRoot(api, resourcePrefix, dispatchPrefix));
+      resourceFile.classes.addAll(processResources(api, requestPrefix, objectPrefix));
+      requestFile.classes.addAll(processRequests(api, objectPrefix, dispatchPrefix));
+    }
     var schemas = processSchemas(api);
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
     objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef).where((v) => v != null));
-    dispatchFile.classes.add(processMarshaller(api, objectPrefix));
+    if (config.generateMarshallers) {
+      dispatchFile.classes.add(processMarshaller(api, objectPrefix));
+    }
     return client;
   }
   
@@ -462,22 +466,24 @@ class Emitter {
     } else {
       sendType = new DartType.stream(responseType);
     }
-    
-    if (responseType != null && api.httpConfig != null) {
-      clazz.methods.add(new DartMethod('unmarshalResponse', responseType,
-          new DartTemplateBody(_template('request_unmarshal_response'), {
+
+    if (config.generateMarshallers) {
+      if (responseType != null && api.httpConfig != null) {
+        clazz.methods.add(new DartMethod('unmarshalResponse', responseType,
+        new DartTemplateBody(_template('request_unmarshal_response'), {
             'name': toProperIdentifier(method.responseType.schemaClass)
-          }))
-        ..parameters.add(new DartParameter('data', new DartType('Map', null, const []))));
+        }))
+          ..parameters.add(new DartParameter('data', new DartType('Map', null, const []))));
+      }
+
+      if (method.payloadType != null) {
+        clazz.methods.add(new DartMethod('marshalPayload', new DartType('Map'),
+        new DartTemplateBody(_template('request_marshal_payload'), {
+            'name': toProperIdentifier(method.payloadType.schemaClass)
+        })));
+      }
     }
 
-    if (method.payloadType != null) {
-      clazz.methods.add(new DartMethod('marshalPayload', new DartType('Map'),
-      new DartTemplateBody(_template('request_marshal_payload'), {
-          'name': toProperIdentifier(method.payloadType.schemaClass)
-      })));
-    }
-    
     var sendParamNames = sendParams
       .map((p) => {'name': p.name})
       .toList(growable: false);

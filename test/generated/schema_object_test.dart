@@ -283,7 +283,7 @@ main() {
         ..id = 1
         ..bar = 'this changes'
         ..quux = [1.1, 1.2];
-      streamy.freezeForTest(e);
+      e.freeze();
       var c = e.clone();
       c.bar = 'this has changed';
       var p = c.patch();
@@ -307,7 +307,7 @@ main() {
       var bar = new Bar()
         ..primary = foo1
         ..foos = [foo2, foo3];
-      streamy.freezeForTest(bar);
+      bar.freeze();
       var barC = bar.clone();
       barC.primary.bar = 'changed!';
       barC.foos[0].remove('bar');

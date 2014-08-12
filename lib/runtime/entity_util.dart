@@ -294,5 +294,3 @@ _walk(initial, List<String> pieces) {
   }
   return current;
 }
-
-freezeForTest(entity) => entity.freeze();

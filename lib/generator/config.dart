@@ -49,14 +49,19 @@ class Config {
   String outputPrefix = '';
   
   int splitLevel = SPLIT_LEVEL_NONE;
-  
+
+  /// Indicates whether to generate marshallers
+  bool generateMarshallers = true;
+  /// Indicates whether to generate API root, resource and request objects
+  bool generateApi = true;
+
   bool mapBackedFields = true;
   bool clone = true;
   bool patch = true;
   bool removers = true;
   bool known = false;
   bool global = false;
-  
+
   List<SendParam> sendParams = [];
   
   Config();
@@ -191,6 +196,12 @@ Config parseConfigOrDie(Map data) {
     }
     if (output.containsKey('import')) {
       config.importPrefix = output['import'];
+    }
+    if (output.containsKey('generate_api')) {
+      config.generateApi = output['generate_api'];
+    }
+    if (output.containsKey('generate_marshallers')) {
+      config.generateMarshallers = output['generate_marshallers'];
     }
   }
   

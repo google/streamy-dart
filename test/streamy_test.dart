@@ -3,6 +3,7 @@ library streamy.streamy.test;
 import 'dart:async';
 import 'package:fixnum/fixnum.dart';
 import 'package:observe/observe.dart';
+import 'package:streamy/raw_entity.dart';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
