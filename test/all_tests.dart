@@ -15,6 +15,7 @@ import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/cache_test.dart' as runtime_cache_test;
 import 'runtime/dedup_test.dart' as runtime_dedup_test;
 import 'runtime/error_test.dart' as runtime_error_test;
+import 'runtime/json_test.dart' as runtime_json_test;
 import 'runtime/http_test.dart' as runtime_http_test;
 import 'runtime/marshaller_test.dart' as runtime_marshaller_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
@@ -46,6 +47,7 @@ main(List<String> args) {
   runtime_cache_test.main();
   runtime_dedup_test.main();
   runtime_error_test.main();
+  runtime_json_test.main();
   runtime_http_test.main();
   runtime_marshaller_test.main();
   runtime_multiplexer_test.main();
