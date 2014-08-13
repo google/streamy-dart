@@ -103,6 +103,28 @@ main() {
       expect(events[2].runtimeType, DeserializationStartEvent);
       expect(events[3].runtimeType, DeserializationEndEvent);
     }));
+
+    test('should turn errors into StreamyRpcException', async(() {
+      var result;
+      StreamyRpcException err;
+      root.branches.get(new Int64(1)).send()
+        .listen((r) { result = r; },
+            onError: (e) { err = e; });
+      fakeHttp.lastCompleter.complete(new StreamyHttpResponse(500, {
+        'content-type': 'application/json'
+      }, '''
+        {
+          "error": {
+            "errors": [{ "message": "this is an error!" }]
+          }
+        }'''));
+      fastForward();
+      expect(result, isNull);
+      expect(err, isNotNull);
+      expect(err.errors, hasLength(1));
+      expect(err.error.containsKey('message'), isTrue);
+      expect(err.message, 'this is an error!');
+    }));
   });
 }
 
