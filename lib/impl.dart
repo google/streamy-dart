@@ -36,16 +36,26 @@ class SimpleRequestHandler extends RequestHandler {
         cancelCompleter.future,
         payload: request.hasPayload ? JSON.encode(request.marshalPayload()) : null);
     _http.send(req).then((StreamyHttpResponse resp) {
-      var responsePayload = null;
-      if (resp.statusCode == 200 || resp.statusCode == 201) {
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
         var responseJson = jsonParse(resp.body, trace);
         trace.record(new DeserializationStartEvent(resp.body.length));
-        responsePayload = req.unmarshalResponse(responseJson);
+        var responsePayload = req.unmarshalResponse(responseJson);
         trace.record(new DeserializationEndEvent());
+        ctrl.add(new Response(responsePayload, Source.RPC,
+            new DateTime.now().millisecondsSinceEpoch));
+      } else {
+        Map jsonError = null;
+        try {
+          jsonError = JSON.decode(resp.body);
+        } catch(_) {
+          // Apparently, body wan't JSON. The caller will have to make do.
+        }
+        ctrl.addError(new StreamyRpcException(resp.statusCode, request,
+            jsonError));
       }
-      ctrl.add(new Response(responsePayload, Source.RPC,
-          new DateTime.now().millisecondsSinceEpoch));
-    }, onError: ctrl.addError);
+    }, onError: (e) => ctrl.addError(new StreamyRpcException(0, request,
+        {'error': {'errors': [{'message': e.message}]}})));
+
     return ctrl.stream;
   }
 }

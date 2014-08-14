@@ -7,7 +7,7 @@ library streamy.html_impl;
 import 'dart:html';
 import 'dart:async';
 
-import 'package:streamy/streamy.dart';
+import 'package:streamy/streamy.dart' hide HttpRequest;
 import 'impl.dart';
 
 /**
@@ -44,7 +44,9 @@ class HtmlHttpService implements StreamyHttpService {
       c.complete(new StreamyHttpResponse(req.status, req.responseHeaders,
           req.responseText));
     });
-    req.onError.first.then(c.completeError);
+    req.onError.first.then((_) => c.completeError(new StreamyHttpError(
+        // The passed ProgressEvent doesn't contain any useful information.
+        'An error occured communicating with the server')));
     return c.future;
   }
 }
