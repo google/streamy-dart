@@ -29,6 +29,11 @@ class OneShotRequestTransformer extends EventTransformer {
       sink.close();
     }
   }
+
+  void handleError(error, EventSink<Response> sink, Trace trace) {
+    sink.addError(error);
+    sink.close();
+  }
 }
 
 /// An [EventTransformer] that clones frozen entities, to make them mutable.
@@ -72,7 +77,9 @@ class UserCallbackTracingTransformer extends EventTransformer {
   void handleError(error, EventSink<Response> sink, Trace trace) {
     trace.record(new UserCallbackQueuedEvent());
     _openCallbacks++;
-    _runZonedWithOnDone(() => sink.addError(error), () {
+    _runZonedWithOnDone(() {
+      sink.addError(error);
+    }, () {
       trace.record(new UserCallbackDoneEvent());
       _openCallbacks--;
       if (_openCallbacks == 0 && _closed && !_sentDone) {
@@ -221,9 +228,14 @@ _runZonedWithOnDone(fn, onDone, trace) {
   // Initial count is 1 due to running 'fn'. This makes it work out
   // nicely if 'fn' itself throws an Exception.
   var asyncCount = 1;
+  var inOnDone = false;
 
   var zoneSpec = new ZoneSpecification(
     scheduleMicrotask: (Zone _, ZoneDelegate parent, Zone zone, f()) {
+      if (inOnDone) {
+        parent.scheduleMicrotask(zone, f);
+        return;
+      }
       asyncCount++;
       parent.scheduleMicrotask(zone, () {
         trace.record(new UserCallbackAsyncEnterEvent());
@@ -233,6 +245,7 @@ _runZonedWithOnDone(fn, onDone, trace) {
           trace.record(new UserCallbackAsyncExitEvent());
           asyncCount--;
           if (asyncCount == 0) {
+            inOnDone = true;
             onDone();
           }
         }
@@ -245,6 +258,7 @@ _runZonedWithOnDone(fn, onDone, trace) {
     } finally {
       asyncCount--;
       if (asyncCount == 0) {
+        inOnDone = true;
         onDone();
       }
     }
