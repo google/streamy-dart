@@ -10,8 +10,9 @@ import 'generated/method_params_test.dart' as generated_method_params_test;
 import 'generated/proto_test.dart' as generated_proto_test;
 import 'generated/schema_object_test.dart' as generated_schema_object_test;
 
-import 'mixins/patch_map_test.dart' as mixins_patch_map_test;
+import 'mixins/dot_access_test.dart' as mixins_dot_access_test;
 import 'mixins/is_map_test.dart' as mixins_is_map_test;
+import 'mixins/patch_map_test.dart' as mixins_patch_map_test;
 
 import 'runtime/batching_test.dart' as runtime_batching_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
@@ -46,8 +47,9 @@ main(List<String> args) {
   generated_proto_test.main();
   generated_schema_object_test.main();
 
-  mixins_patch_map_test.main();
+  mixins_dot_access_test.main();
   mixins_is_map_test.main();
+  mixins_patch_map_test.main();
 
   runtime_batching_test.main();
   runtime_branching_test.main();
