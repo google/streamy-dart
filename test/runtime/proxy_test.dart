@@ -40,7 +40,7 @@ main() {
       expect(fakeHttp.cancelledRequests, hasLength(1));
     }));
 
-    test('should deserialize response and return to listener', async(() {
+    test('should deserialize response and return to listener frozen', async(() {
       expect(fakeHttp.cancelledRequests, hasLength(0));
       Branch result;
       root.branches.get(new Int64(1)).send().listen((Branch foo) {
@@ -51,6 +51,7 @@ main() {
       fastForward();
       expect(result, isNotNull);
       expect(result.id, new Int64(123));
+      expect(result.isFrozen, isTrue);
     }));
 
     test('should accept 204 No Content and report it as null', async(() {

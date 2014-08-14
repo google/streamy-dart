@@ -52,11 +52,12 @@ class ProxyClient extends RequestHandler {
         }
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
-      var responsePayload = null;
+      Freezeable responsePayload = null;
       if (resp.statusCode == 200 || resp.statusCode == 201) {
         var responseJson = jsonParse(resp.body, trace);
         trace.record(new DeserializationStartEvent(resp.body.length));
         responsePayload = req.unmarshalResponse(responseJson);
+        responsePayload.freeze();
         trace.record(new DeserializationEndEvent());
       }
       return new Response(responsePayload, Source.RPC,
