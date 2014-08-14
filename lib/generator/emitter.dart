@@ -728,10 +728,10 @@ class Emitter {
 
   DartBody stringListBody(Iterable<String> strings, {bool getter: false}) =>
       new DartTemplateBody(_template('string_list'), {
-      'list': strings.map((i) => {'value': i}).toList(growable: false),
-      'getter': getter
-    });
-    
+        'list': strings.map((i) => {'value': i}).toList(growable: false),
+        'getter': getter
+      });
+
   DartBody mapBody(Map<String, String> map) {
     var data = [];
     map.forEach((key, value) {
