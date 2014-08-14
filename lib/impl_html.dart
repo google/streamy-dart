@@ -21,10 +21,16 @@ class HtmlHttpService implements StreamyHttpService {
     var req = new HttpRequest();
 
     req.open(request.method, request.url, async: true);
+
+    request.headers.forEach((k, v) {
+      req.setRequestHeader(k, v);
+    });
+
+    if (request.withCredentials) {
+      req.withCredentials = true;
+    }
+
     if (request.payload != null) {
-      request.headers.forEach((k, v) {
-        req.setRequestHeader(k, v);
-      });
       req.send(request.payload);
     } else {
       req.send();
