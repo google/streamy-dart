@@ -31,7 +31,6 @@ import 'runtime/transaction_test.dart' as runtime_transaction_test;
 import 'streamy_test.dart' as streamy_test;
 
 /*
-import 'generated/schema_unknown_fields_test.dart' as schema_unknown_fields_test;
 import 'generator/emitter_test.dart' as generator_emitter_test;
 */
 
@@ -66,7 +65,6 @@ main(List<String> args) {
   runtime_transaction_test.main();
   streamy_test.main();
   /*
-  schema_unknown_fields_test.main();
   generator_emitter_test.main(args);
   */
 }

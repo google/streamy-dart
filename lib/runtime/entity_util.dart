@@ -1,11 +1,5 @@
 part of streamy.runtime;
 
-/// Produces an entity from a given JSON map
-typedef dynamic EntityFactory(Map json, TypeRegistry reg);
-
-/// Doesn't contain any types.
-const TypeRegistry EMPTY_REGISTRY = const _EmptyTypeRegistry();
-
 void _freezeHelper(object) {
   if (object is Freezeable) {
     object.freeze();
@@ -93,51 +87,6 @@ class _ObservableImmutableListView implements ObservableList {
   void unobserved() {}
 
   _throw() => throw new UnsupportedError('List is immutable.');
-}
-
-
-/// Information about types generated from a discovery document.
-abstract class TypeRegistry {
-
-  /// Constructs a registry from a map that maps schema/entity kind to
-  /// factories that can deserialize the JSON representation to a concrete
-  /// entity object.
-  factory TypeRegistry(Map<String, EntityFactory> factoryMap) =>
-      new _TypeRegistryImpl(factoryMap);
-
-  /// Checks if a given kind is registered.
-  bool isRegistered(String kind);
-
-  /// Deserializes JSON into a concrete entity object. Throws if given [kind]
-  /// is not registered, so check with [isRegistered] method prior to calling
-  /// this method.
-  dynamic deserialize(String kind, Map json);
-}
-
-/// A real type registry implementation.
-class _TypeRegistryImpl implements TypeRegistry {
-  final Map<String, EntityFactory> _factoryMap;
-
-  _TypeRegistryImpl(Map<String, EntityFactory> this._factoryMap);
-
-  bool isRegistered(String kind) => this._factoryMap.containsKey(kind);
-
-  dynamic deserialize(String kind, Map json) {
-    if (!isRegistered(kind)) {
-      throw new StateError("'$kind' is not a registered type.");
-    }
-    return this._factoryMap[kind](json, this);
-  }
-}
-
-/// A dummy registry that doesn't have any types.
-class _EmptyTypeRegistry implements TypeRegistry {
-  const _EmptyTypeRegistry();
-
-  dynamic deserialize(String kind, Map json) {
-    throw new StateError("Not supported by empty registry.");
-  }
-  bool isRegistered(String kind) => false;
 }
 
 _clone(v) {
