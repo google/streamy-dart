@@ -33,6 +33,18 @@ main() {
       expect(entity['a'], 1);
     });
 
+    test('.putIfAbsent should return original value if present', () {
+      var entity = raw({'a': 1});
+      expect(entity.putIfAbsent('a', () {
+        fail('Should not have been called');
+      }), 1);
+    });
+
+    test('.putIfAbsent should return new value if NOT present', () {
+      var entity = raw({});
+      expect(entity.putIfAbsent('a', () => 1), 1);
+    });
+
     test('.putIfAbsent should put if absent', () {
       var entity = raw({});
       entity.putIfAbsent('a', () => 1);

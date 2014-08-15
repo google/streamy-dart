@@ -27,8 +27,11 @@ class IsMap implements Map {
 
   putIfAbsent(String key, ifAbsent()) {
     if (!containsKey(key)) {
-      this[key] = ifAbsent();
+      var newVal = ifAbsent();
+      this[key] = newVal;
+      return newVal;
     }
+    return this[key];
   }
 
   void addAll(Map<String, dynamic> other) {
