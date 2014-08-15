@@ -197,11 +197,11 @@ Config parseConfigOrDie(Map data) {
     if (output.containsKey('import')) {
       config.importPrefix = output['import'];
     }
-    if (output.containsKey('generate_api')) {
-      config.generateApi = output['generate_api'];
+    if (output.containsKey('generateApi')) {
+      config.generateApi = output['generateApi'];
     }
-    if (output.containsKey('generate_marshallers')) {
-      config.generateMarshallers = output['generate_marshallers'];
+    if (output.containsKey('generateMarshallers')) {
+      config.generateMarshallers = output['generateMarshallers'];
     }
   }
   

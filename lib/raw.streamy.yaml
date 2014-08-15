@@ -4,8 +4,8 @@ discovery: raw.api.json
 output:
   files: single
   prefix: raw_entity
-  generate_api: false
-  generate_marshallers: false
+  generateApi: false
+  generateMarshallers: false
 base:
   class: Entity
   import: package:streamy/base.dart
