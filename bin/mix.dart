@@ -10,6 +10,7 @@ import 'package:yaml/yaml.dart' as yaml;
 
 io.Directory outputDir;
 io.File configFile;
+io.Directory searchDir;
 
 main(List<String> args) {
   parseArgs(args);
@@ -19,7 +20,7 @@ main(List<String> args) {
       config = mixologist.parseConfig(yaml.loadYaml(configString));
     })
     .then((_) =>
-        mixologist.mix(config, new LocalFileSystem(new io.Directory('./lib'))))
+        mixologist.mix(config, new LocalFileSystem(searchDir)))
     .then((String code) {
       var outputFilePath = path.join(outputDir.path, config.output);
       new io.Directory(path.dirname(outputFilePath)).createSync(recursive: true);
@@ -41,6 +42,13 @@ void parseArgs(List<String> args) {
       help: 'Output directory',
       callback: (value) {
         outputDir = new io.Directory(value);
+      })
+    ..addOption('search-dir',
+      abbr: 's',
+      help: 'Directory to look for mixins',
+      defaultsTo: 'lib',
+      callback: (value) {
+        searchDir = new io.Directory(value);
       });
   argp.parse(args);
   if (outputDir == null || configFile == null) {

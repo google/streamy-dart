@@ -157,6 +157,14 @@ class StreamyHttpResponse {
   }
 }
 
+/// Contains information about an error that has occurred within a
+/// [StreamyHttpService].
+class StreamyHttpError {
+  final String message;
+
+  StreamyHttpError(this.message);
+}
+
 String _trimBody(String body, int byteLength) {
   var strLength = body.length;
   List<int> bytes = _UTF8.encoder.convert(body);

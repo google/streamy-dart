@@ -10,11 +10,16 @@ import 'generated/method_params_test.dart' as generated_method_params_test;
 import 'generated/proto_test.dart' as generated_proto_test;
 import 'generated/schema_object_test.dart' as generated_schema_object_test;
 
+import 'mixins/dot_access_test.dart' as mixins_dot_access_test;
+import 'mixins/is_map_test.dart' as mixins_is_map_test;
+import 'mixins/patch_map_test.dart' as mixins_patch_map_test;
+
 import 'runtime/batching_test.dart' as runtime_batching_test;
 import 'runtime/branching_test.dart' as runtime_branching_test;
 import 'runtime/cache_test.dart' as runtime_cache_test;
 import 'runtime/dedup_test.dart' as runtime_dedup_test;
 import 'runtime/error_test.dart' as runtime_error_test;
+import 'runtime/json_test.dart' as runtime_json_test;
 import 'runtime/http_test.dart' as runtime_http_test;
 import 'runtime/marshaller_test.dart' as runtime_marshaller_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
@@ -41,11 +46,17 @@ main(List<String> args) {
   generated_method_params_test.main();
   generated_proto_test.main();
   generated_schema_object_test.main();
+
+  mixins_dot_access_test.main();
+  mixins_is_map_test.main();
+  mixins_patch_map_test.main();
+
   runtime_batching_test.main();
   runtime_branching_test.main();
   runtime_cache_test.main();
   runtime_dedup_test.main();
   runtime_error_test.main();
+  runtime_json_test.main();
   runtime_http_test.main();
   runtime_marshaller_test.main();
   runtime_multiplexer_test.main();

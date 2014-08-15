@@ -17,7 +17,7 @@ part 'runtime/cache.dart';
 part 'runtime/dedup.dart';
 part 'runtime/entity_util.dart';
 part 'runtime/error.dart';
-part 'runtime/hash.dart';
+part 'runtime/equality.dart';
 part 'runtime/http.dart';
 part 'runtime/global.dart';
 part 'runtime/json.dart';

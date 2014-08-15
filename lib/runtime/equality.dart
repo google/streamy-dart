@@ -14,7 +14,7 @@ class EntityUtils {
         running = ((17 * running) + deepHashCode(value)) % MAX_HASHCODE;
       } else if (value is List) {
         for (var listValue in value) {
-          if (listValue is DyanmicAccess) {
+          if (listValue is DynamicAccess) {
             running = ((17 * running) + deepHashCode(listValue)) % MAX_HASHCODE;
           } else {
             running = ((17 * running) + listValue.hashCode) % MAX_HASHCODE;
@@ -34,12 +34,7 @@ class EntityUtils {
     if (first == null || second == null) {
       return (first == second);
     }
-    
-/*
-    if (first.local.length != second.local.length) {
-      return false;
-    }
-*/
+
     // Loop through each field, checking equality of the values.
     var fieldNames = first.keys.toList(growable: false);
     var len = fieldNames.length;

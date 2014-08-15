@@ -29,6 +29,11 @@ class OneShotRequestTransformer extends EventTransformer {
       sink.close();
     }
   }
+
+  void handleError(error, EventSink<Response> sink, Trace trace) {
+    sink.addError(error);
+    sink.close();
+  }
 }
 
 /// An [EventTransformer] that clones frozen entities, to make them mutable.
@@ -57,29 +62,31 @@ class UserCallbackTracingTransformer extends EventTransformer {
   UserCallbackTracingTransformer() : super();
 
   void handleData(Response response, EventSink<Response> sink, Trace trace) {
-    trace.record(new UserCallbackQueuedEvent());
+    trace.record(new UserCallbackQueuedEvent(response: response));
     _openCallbacks++;
     _runZonedWithOnDone(() => sink.add(response), () {
-      trace.record(new UserCallbackDoneEvent());
+      trace.record(new UserCallbackDoneEvent(response: response));
       _openCallbacks--;
       if (_openCallbacks == 0 && _closed && !_sentDone) {
         trace.record(new RequestOverEvent());
         _sentDone = true;
       }
-    }, trace);
+    }, trace, response: response);
   }
 
   void handleError(error, EventSink<Response> sink, Trace trace) {
-    trace.record(new UserCallbackQueuedEvent());
+    trace.record(new UserCallbackQueuedEvent(error: error));
     _openCallbacks++;
-    _runZonedWithOnDone(() => sink.addError(error), () {
-      trace.record(new UserCallbackDoneEvent());
+    _runZonedWithOnDone(() {
+      sink.addError(error);
+    }, () {
+      trace.record(new UserCallbackDoneEvent(error: error));
       _openCallbacks--;
       if (_openCallbacks == 0 && _closed && !_sentDone) {
         trace.record(new RequestOverEvent());
         _sentDone = true;
       }
-    }, trace);
+    }, trace, error: error);
   }
 
   void handleDone(EventSink<Response> sink, Trace trace) {
@@ -103,36 +110,40 @@ class UserCallbackTracingTransformer extends EventTransformer {
 
 /// Fired when the user callback of a response is queued.
 class UserCallbackQueuedEvent implements TraceEvent {
-  factory UserCallbackQueuedEvent() => const UserCallbackQueuedEvent._private();
+  final Response response;
+  final error;
 
-  const UserCallbackQueuedEvent._private();
+  UserCallbackQueuedEvent({this.response: null, this.error: null});
 
   String toString() => 'streamy.userCallback.start';
 }
 
 /// Fired when the user callback of a response completes.
 class UserCallbackDoneEvent implements TraceEvent {
-  factory UserCallbackDoneEvent() => const UserCallbackDoneEvent._private();
+  final Response response;
+  final error;
 
-  const UserCallbackDoneEvent._private();
+  UserCallbackDoneEvent({this.response: null, this.error: null});
 
   String toString() => 'streamy.userCallback.done';
 }
 
 /// Fired at the beginning of an asynchronous operation that happens during a user callback.
 class UserCallbackAsyncEnterEvent implements TraceEvent {
-  factory UserCallbackAsyncEnterEvent() => const UserCallbackAsyncEnterEvent._private();
+  final Response response;
+  final error;
 
-  const UserCallbackAsyncEnterEvent._private();
+  UserCallbackAsyncEnterEvent({this.response: null, this.error: null});
 
   String toString() => 'streamy.userCallback.async.start';
 }
 
 /// Fired at the end of an asynchronous operation that happens during a user callback.
 class UserCallbackAsyncExitEvent implements TraceEvent {
-  factory UserCallbackAsyncExitEvent() => const UserCallbackAsyncExitEvent._private();
+  final Response response;
+  final error;
 
-  const UserCallbackAsyncExitEvent._private();
+  UserCallbackAsyncExitEvent({this.response: null, this.error: null});
 
   String toString() => 'streamy.userCallback.async.done';
 }
@@ -217,22 +228,30 @@ class TransformingRequestHandler extends RequestHandler {
 // this can be optimized to return a const-constructed [StreamTransformer].
 typedef StreamTransformer<Response, Response> StreamTransformerFactory(Request request, Trace trace);
 
-_runZonedWithOnDone(fn, onDone, trace) {
+_runZonedWithOnDone(fn, onDone, trace, {response: null, error: null}) {
   // Initial count is 1 due to running 'fn'. This makes it work out
   // nicely if 'fn' itself throws an Exception.
   var asyncCount = 1;
+  var inOnDone = false;
 
   var zoneSpec = new ZoneSpecification(
     scheduleMicrotask: (Zone _, ZoneDelegate parent, Zone zone, f()) {
+      if (inOnDone) {
+        parent.scheduleMicrotask(zone, f);
+        return;
+      }
       asyncCount++;
       parent.scheduleMicrotask(zone, () {
-        trace.record(new UserCallbackAsyncEnterEvent());
+        trace.record(new UserCallbackAsyncEnterEvent(
+            response: response, error: error));
         try {
           f();
         } finally {
-          trace.record(new UserCallbackAsyncExitEvent());
+          trace.record(new UserCallbackAsyncExitEvent(
+              response: response, error: error));
           asyncCount--;
           if (asyncCount == 0) {
+            inOnDone = true;
             onDone();
           }
         }
@@ -245,6 +264,7 @@ _runZonedWithOnDone(fn, onDone, trace) {
     } finally {
       asyncCount--;
       if (asyncCount == 0) {
+        inOnDone = true;
         onDone();
       }
     }

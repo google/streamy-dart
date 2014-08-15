@@ -5,6 +5,7 @@ paths:
   - mixins
 mixins:
   - base_map
+  - is_map
   - observable
   - immutable
   - copy_clone

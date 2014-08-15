@@ -47,7 +47,7 @@ class MultiplexingRequestHandler extends RequestHandler {
 
   MultiplexingRequestHandler(this.delegate);
 
-  Stream<Response> handle(Request request, Trace trace) {
+  Stream<Response> handle(HttpRequest request, Trace trace) {
     if (!request.isCachable) {
       return delegate.handle(request, trace);
     }
