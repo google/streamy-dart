@@ -28,8 +28,8 @@ main() {
         .handle(new TestRequest('GET'), const NoopTrace())
         .single
         .then(expectAsync((e) {
-          expect(Entity.deepEquals(e.entity, a.entity), isTrue);
-          expect(Entity.deepEquals(e.entity, b.entity), isTrue);
+          expect(EntityUtils.deepEquals(e.entity, a.entity), isTrue);
+          expect(EntityUtils.deepEquals(e.entity, b.entity), isTrue);
         }));
     });
   });

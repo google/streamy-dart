@@ -84,10 +84,10 @@ main() {
       expect(foo2.quux, equals([2.5, 3.5, 4.5, 5.5]));
     });
     test("clone()'d entities are equal", () {
-      expect(streamy.Entity.deepEquals(foo.clone(), foo), equals(true));
+      expect(streamy.EntityUtils.deepEquals(foo.clone(), foo), equals(true));
       var bar = new Bar()
         ..foos = [foo];
-      expect(streamy.Entity.deepEquals(bar.clone(), bar), equals(true));
+      expect(streamy.EntityUtils.deepEquals(bar.clone(), bar), equals(true));
     });
     test('clone() is deep', () {
       var bar = new Bar()
@@ -104,7 +104,7 @@ main() {
       // This tests that the [EntityWrapper] subclasses aren't identical, but
       // not the [RawEntity] entities inside them.
       bar.foos[0].baz = 42;
-      expect(streamy.Entity.deepEquals(bar, bar2), equals(false));
+      expect(streamy.EntityUtils.deepEquals(bar, bar2), equals(false));
     });
     test('objects are observable', () {
       var foo = new Foo();
@@ -324,6 +324,7 @@ main() {
       $some_entity_.addGlobal('test',
           ($some_entity_ e) => null);
     });
+
     test('should not appear in entity properties', () {
       new $some_entity_()
         ..$badly_named_property____$_______ = new fixnum.Int64(123);
