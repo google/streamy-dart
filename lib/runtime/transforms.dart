@@ -10,7 +10,7 @@ class EntityDedupTransformer extends EventTransformer {
   EntityDedupTransformer() : super();
 
   void handleData(Response response, EventSink sink, Trace trace) {
-    if (!Entity.deepEquals(response.entity, _last)) {
+    if (!EntityUtils.deepEquals(response.entity, _last)) {
       sink.add(response);
     }
     _last = response.entity;

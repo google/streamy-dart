@@ -10,7 +10,7 @@ class EntityUtils {
     for (var i = 0; i < len; i++) {
       running = ((17 * running) + fieldNames[i].hashCode) % MAX_HASHCODE;
       var value = entity[fieldNames[i]];
-      if (value is Entity) {
+      if (value is DynamicAccess) {
         running = ((17 * running) + deepHashCode(value)) % MAX_HASHCODE;
       } else if (value is List) {
         for (var listValue in value) {
@@ -70,11 +70,4 @@ class EntityUtils {
     }
     return true;
   }
-}
-
-class Entity {
-
-  static bool deepEquals(DynamicAccess first, DynamicAccess second) => EntityUtils.deepEquals(first, second);
-  static int deepHashCode(DynamicAccess entity) => EntityUtils.deepHashCode(entity);
-
 }
