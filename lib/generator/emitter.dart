@@ -169,7 +169,7 @@ class Emitter {
   
   List<DartClass> processRoot(Api api, String resourcePrefix, String dispatchPrefix) {
     // Create the resource mixin class.
-    var resourceMixin = new DartClass('${toProperIdentifier(api.name)}ResourceMixin');
+    var resourceMixin = new DartClass('${toProperIdentifier(api.name)}ResourcesMixin');
     if (api.description != null) {
       resourceMixin.comments.addAll(splitStringAcrossLines(api.description));
     }
