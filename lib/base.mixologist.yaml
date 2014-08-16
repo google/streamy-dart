@@ -13,3 +13,4 @@ mixins:
   - local
   - global
   - patch_map
+  - has_api_type
