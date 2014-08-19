@@ -131,7 +131,7 @@ main(List<String> args) {
       expectContains(resourceCode,
            '  /// Gets a bar.\n'
            '  /// Returns 404 on bad ID.\n'
-           '  BarsGetRequest get(');
+           '  FoosResource_BarsGetRequest get(');
     });
     test('should emit docs for request class', () {
       expectContains(requestCode,
@@ -143,7 +143,7 @@ main(List<String> args) {
       expectContains(requestCode,
           '/// Gets a bar.\n'
           '/// Returns 404 on bad ID.\n'
-          'class BarsGetRequest ');
+          'class FoosResource_BarsGetRequest ');
     });
     test('should emit docs for request parameter', () {
       expectContains(requestCode,

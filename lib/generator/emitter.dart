@@ -172,7 +172,7 @@ class _Emitter {
         classNamePrefix + _makeClassName('${resource.name}Resource');
     List<Map> methods = [];
     resource.methods.forEach((Method method) {
-      MethodInfo methodInfo = processMethod(resource, method);
+      MethodInfo methodInfo = processMethod(resource, method, classNamePrefix);
       var methodData = {
         'name': methodInfo.apiName,
         'reqType': classNamePrefix + methodInfo.requestTypeName,
