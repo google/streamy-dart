@@ -616,6 +616,10 @@ class Emitter {
       clazz.methods.add(new DartMethod('patch', schemaType,
           new DartTemplateBody(_template('object_patch'), {'type': schemaType})));
     }
+    if (config.global) {
+      clazz.methods.add(new DartComplexField.getterOnly('streamyType',
+         new DartType('Type'), new DartConstantBody('=> ${clazz.name};')));
+    }
 
     addApiType(clazz);
 

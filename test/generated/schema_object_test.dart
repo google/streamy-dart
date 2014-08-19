@@ -267,6 +267,14 @@ main() {
       }, count: 1));
       exDep.add(foo.id);
     });
+    test('should work with sub-classes', () {
+      Foo.addGlobal('testGlobal', (e) {
+        expect(e.runtimeType, FooSubclass);
+        return 'magic';
+      });
+      var subject = new FooSubclass();
+      expect(subject['global.testGlobal'], 'magic');
+    });
   });
   group('patch()', () {
     test('works like clone() for a new basic entity', () {
@@ -373,4 +381,8 @@ main() {
           '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });
+}
+
+class FooSubclass extends Foo {
+
 }
