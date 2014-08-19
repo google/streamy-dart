@@ -213,9 +213,6 @@ class Emitter {
     var ctorData = {
       'http': api.httpConfig != null
     };
-    if (api.httpConfig != null) {
-      ctorData['servicePath'] = api.httpConfig.servicePath;
-    }
     var ctor = new DartConstructor(root.name, body: new DartTemplateBody(
       _template('root_constructor'), ctorData))
       ..parameters.add(new DartParameter('requestHandler',

@@ -72,4 +72,10 @@ main() {
       expect(f2.containsKey('baz'), isFalse);
     });
   });
+  group('Root object', () {
+    test('should allow specifying custom servicePath', () {
+      var root = new MethodGetTest(null, servicePath: '/differentPath');
+      expect(root.servicePath, '/differentPath');
+    });
+  });
 }
