@@ -50,7 +50,7 @@ Future generateStreamyClientPackage(
       }
     }
 
-    var packageDirPath = '${outputDir.path}/${packageName}';
+    var packageDirPath = outputDir.path;
     var libDirPath = '${packageDirPath}/lib';
     new io.Directory(libDirPath).createSync(recursive: true);
     var basePath = '${libDirPath}/${client.config.outputPrefix}';
@@ -59,6 +59,7 @@ Future generateStreamyClientPackage(
       if (dartFile == null) return new Future.value();
       var fileName = '${client.config.outputPrefix}${suffix}.dart';
       var file = new io.File(path.join(libDirPath, fileName));
+      new io.Directory(path.dirname(file.path)).createSync(recursive: true);
       file.writeAsStringSync(dartFile.render());
     }
 

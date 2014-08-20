@@ -77,8 +77,8 @@ class Emitter {
     var objectFile, objectPrefix;
     var dispatchFile, dispatchPrefix;
     var libPrefix = api.name;
-    if (api.httpConfig != null && api.httpConfig.version != null) {
-      libPrefix = "$libPrefix.${api.httpConfig.version}";
+    if (api.httpConfig != null) {
+      libPrefix = "$libPrefix";
     }
     rootFile = new DartLibrary(libPrefix)
       ..imports['package:streamy/streamy.dart'] = 'streamy'
