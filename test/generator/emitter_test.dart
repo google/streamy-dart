@@ -19,7 +19,18 @@ main(List<String> args) {
       "properties": {
         "id": {
           "type": "integer",
-          "description": "Primary key.\\nSometimes called ID."
+          "description": "Primary key of a Foo.\\nSometimes called ID."
+        }
+      }
+    },
+    "Bar": {
+      "id": "Bar",
+      "type": "object",
+      "description": "This is a bar.\\nEnough said.",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key of a Bar.\\nSometimes called ID."
         }
       }
     }
@@ -45,6 +56,37 @@ main(List<String> args) {
             }
           },
           "parameterOrder": ["fooId"]
+        }
+      },
+      "resources": {
+        "bars": {
+          "methods": {
+            "get": {
+              "id": "service.foos.bars.get",
+              "path": "foos/{fooId}/bars/{barId}",
+              "name": "",
+              "response": {
+                "\$ref": "Bar"
+              },
+              "httpMethod": "GET",
+              "description": "Gets a bar.\\nReturns 404 on bad ID.",
+              "parameters": {
+                "fooId": {
+                  "type": "integer",
+                  "description": "Primary key of bar's parent foo.",
+                  "required": true,
+                  "location": "path"
+                },
+                "barId": {
+                  "type": "integer",
+                  "description": "Primary key of bar.",
+                  "required": true,
+                  "location": "path"
+                }
+              },
+              "parameterOrder": ["fooId", "barId"]
+            }
+          }
         }
       }
     }
@@ -85,11 +127,23 @@ main(List<String> args) {
           '  /// Returns 404 on bad ID.\n'
           '  req.FoosGetRequest get(');
     });
+    test('should emit docs for sub-resource methods', () {
+      expectContains(resourceCode,
+           '  /// Gets a bar.\n'
+           '  /// Returns 404 on bad ID.\n'
+           '  FoosResourceBarsGetRequest get(');
+    });
     test('should emit docs for request class', () {
       expectContains(requestCode,
           '/// Gets a foo.\n'
           '/// Returns 404 on bad ID.\n'
           'class FoosGetRequest ');
+    });
+    test('should emit docs for sub-resource request class', () {
+      expectContains(requestCode,
+          '/// Gets a bar.\n'
+          '/// Returns 404 on bad ID.\n'
+          'class FoosResourceBarsGetRequest ');
     });
     test('should emit docs for request parameter', () {
       expectContains(requestCode,
@@ -97,15 +151,31 @@ main(List<String> args) {
           '  /// Second line\n'
           '  int get fooId =>');
     });
+    test('should emit docs for sub-resource request parameters', () {
+      expectContains(requestCode,
+          '  /// Primary key of bar\'s parent foo.\n'
+          '  int get fooId =>');
+      expectContains(requestCode,
+          '  /// Primary key of bar.\n'
+          '  int get barId =>');
+    });
     test('should emit docs for schema class', () {
       expectContains(objectCode,
           '/// This is a foo.\n'
           '/// Enough said.\n'
           'class Foo ');
+      expectContains(objectCode,
+          '/// This is a bar.\n'
+          '/// Enough said.\n'
+          'class Bar ');
     });
     test('should emit docs for schema property', () {
       expectContains(objectCode,
-          '  /// Primary key.\n'
+          '  /// Primary key of a foo.\n'
+          '  /// Sometimes called ID.\n'
+          '  int get id => ');
+      expectContains(objectCode,
+          '  /// Primary key of a bar.\n'
           '  /// Sometimes called ID.\n'
           '  int get id => ');
     });

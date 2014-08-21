@@ -175,22 +175,8 @@ class Emitter {
     }
     
     // Implement backing fields and lazy getters for each resource type.
-    var getterTemplate = _template('lazy_resource_getter');
-    api.resources.forEach((name, resource) {
-      // Backing field.
-      var resName = toProperIdentifier(resource.name);
-      var lcResName = toProperIdentifier(resource.name, firstLetter: false);
-      var fieldName = '_$lcResName';
-      var type = new DartType('${resName}Resource',
-          resourcePrefix, const []);
-      var field = new DartSimpleField(fieldName, type);
-      resourceMixin.fields.add(field);
-      
-      // Lazy getter.
-      var getter = new DartComplexField.getterOnly(lcResName, type,
-          new DartTemplateBody(getterTemplate, {'field': fieldName, 'resource': type}));
-      resourceMixin.fields.add(getter);
-    });
+    api.resources.forEach((name, resource) =>
+        _addLazyGetter(resourceMixin, name, resource, resourcePrefix));
     
     var baseType = streamyImport('Root');
     if (api.httpConfig != null) {
@@ -268,6 +254,7 @@ class Emitter {
     api
       .resources
       .values
+      .expand(_expandResources)
       .map((resource) => processResource(resource, requestPrefix, objectPrefix))
       .toList(growable: false);
   
@@ -330,6 +317,10 @@ class Emitter {
       m.parameters.addAll(plist);
       clazz.methods.add(m);
     });
+    
+    resource.subresources.forEach((name, resource) =>
+        _addLazyGetter(clazz, name, resource, requestPrefix));
+
     addApiType(clazz);
     return clazz;
   }
@@ -342,6 +333,7 @@ class Emitter {
     api
       .resources
       .values
+      .expand(_expandResources)
       .expand((resource) => resource
         .methods
         .values
@@ -781,4 +773,28 @@ class Emitter {
   }
 
   mustache.Template _template(String name) => templates[name];
+
+  _addLazyGetter(DartClass clazz, String name, Resource resource, String resourcePrefix) {
+    var getterTemplate = _template('lazy_resource_getter');
+
+    // Backing field.
+    var resName = toProperIdentifier(resource.name);
+    var fieldName = toProperIdentifier(name, firstLetter: false);
+    var privateFieldName = '_$fieldName';
+    var type = new DartType('${resName}Resource',
+        resourcePrefix, const []);
+    var field = new DartSimpleField(privateFieldName, type);
+    clazz.fields.add(field);
+    
+    // Lazy getter.
+    var getter = new DartComplexField.getterOnly(fieldName, type,
+        new DartTemplateBody(getterTemplate, {'field': privateFieldName, 'resource': type}));
+    clazz.fields.add(getter);
+  }
+  
+  List<Resource> _expandResources(Resource resource) {
+    var expanded = [resource];
+    resource.subresources.values.forEach((r) => expanded.addAll(_expandResources(r)));
+    return expanded;
+  }
 }
