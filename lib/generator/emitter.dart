@@ -319,7 +319,7 @@ class Emitter {
     });
     
     resource.subresources.forEach((name, resource) =>
-        _addLazyGetter(clazz, name, resource, ''));
+        _addLazyGetter(clazz, name, resource, null));
 
     addApiType(clazz);
     return clazz;
