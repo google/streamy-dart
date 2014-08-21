@@ -23,7 +23,9 @@ class Emitter {
   final Map<String, mustache.Template> templates;
   
   Emitter(this.config, this.templates);
-  
+
+  static final BASE_PREFIX = '_streamy_base_';
+
   static final List<String> TEMPLATES = const [
     'lazy_resource_getter',
     'map',
@@ -83,7 +85,7 @@ class Emitter {
     rootFile = new DartLibrary(libPrefix)
       ..imports['package:streamy/streamy.dart'] = 'streamy'
       ..imports['package:fixnum/fixnum.dart'] = 'fixnum'
-      ..imports[config.baseImport] = 'base'
+      ..imports[config.baseImport] = BASE_PREFIX
       ..imports['dart:async'] = null;
     var out = [rootFile];
     switch (config.splitLevel) {
@@ -122,24 +124,24 @@ class Emitter {
         resourceFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
-          ..[config.baseImport] = 'base'
+          ..[config.baseImport] = BASE_PREFIX
           ..[importPath('requests.dart')] = 'requests'
           ..[importPath('objects.dart')] = 'objects';
         requestFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
-          ..[config.baseImport] = 'base'
+          ..[config.baseImport] = BASE_PREFIX
           ..[importPath('objects.dart')] = 'objects'
           ..[importPath('dispatch.dart')] = 'dispatch'
           ..['dart:async'] = null;
         objectFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
-          ..[config.baseImport] = 'base';
+          ..[config.baseImport] = BASE_PREFIX;
         dispatchFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
-          ..[config.baseImport] = 'base'
+          ..[config.baseImport] = BASE_PREFIX
           ..[importPath('objects.dart')] = 'objects';
         out.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
         resourceFile.imports.addAll(api.imports);
@@ -543,7 +545,7 @@ class Emitter {
   }
 
   SchemaDefinition processSchema(Schema schema) {
-    var base = new DartType(config.baseClass, 'base', const []);
+    var base = new DartType(config.baseClass, BASE_PREFIX, const []);
     var clazz = new DartClass(toProperIdentifier(schema.name), baseClass: base);
     clazz.mixins.addAll(schema.mixins.map((mixin) => toDartType(mixin, '')));
 
@@ -557,12 +559,17 @@ class Emitter {
     clazz.methods.add(new DartConstructor(clazz.name, body: new DartTemplateBody(
       ctor, {
         'mapBacked': config.mapBackedFields,
-        'wrap': false
+        'wrap': false,
+        'basePrefix': BASE_PREFIX,
       })));
       
     if (config.mapBackedFields) {
       clazz.methods.add(new DartConstructor(clazz.name, named: 'wrap',
-        body: new DartTemplateBody(ctor, {'mapBacked': true, 'wrap': true}))
+        body: new DartTemplateBody(ctor, {
+          'mapBacked': true,
+          'wrap': true,
+          'basePrefix': BASE_PREFIX,
+        }))
         ..parameters.add(new DartParameter('map', new DartType.map(const DartType.string(), const DartType.dynamic()))));
     }
 
@@ -704,6 +711,7 @@ class Emitter {
       'doubles': doubleFields,
       'hasEntities': entityFields.isNotEmpty,
       'hasFieldMapping': fieldMapping.isNotEmpty,
+      'basePrefix': BASE_PREFIX,
     };
     clazz.methods.add(new DartMethod('marshal$name', rt,
         new DartTemplateBody(marshal, serializerConfig))
