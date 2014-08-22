@@ -42,13 +42,11 @@ main() {
       expect(MethodGetTest.API_TYPE, 'MethodGetTest');
       expect(new MethodGetTest(null).apiType, 'MethodGetTest');
     });
-    /* TODO: fix test
     test('of MethodGetTestTransaction', () {
       expect(MethodGetTestTransaction.API_TYPE, 'MethodGetTestTransaction');
-      expect(new MethodGetTestTransaction(null, null).apiType,
+      expect(new MethodGetTestTransaction(null, null, null).apiType,
           'MethodGetTestTransaction');
     });
-    */
     test('of Foo', () {
       expect(Foo.API_TYPE, 'Foo');
       expect(new Foo().apiType, 'Foo');

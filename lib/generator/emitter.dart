@@ -171,7 +171,7 @@ class Emitter {
   
   List<DartClass> processRoot(Api api, String resourcePrefix, String dispatchPrefix) {
     // Create the resource mixin class.
-    var resourceMixin = new DartClass('${toProperIdentifier(api.name)}ResourcesMixin');
+    var resourceMixin = new DartClass('${_makeClassName(api.name)}ResourcesMixin');
     if (api.description != null) {
       resourceMixin.comments.addAll(splitStringAcrossLines(api.description));
     }
@@ -180,10 +180,9 @@ class Emitter {
     var getterTemplate = _template('lazy_resource_getter');
     api.resources.forEach((name, resource) {
       // Backing field.
-      var resName = toProperIdentifier(resource.name);
-      var lcResName = toProperIdentifier(resource.name, firstLetter: false);
+      var lcResName = _makePropertyName(resource.name);
       var fieldName = '_$lcResName';
-      var type = new DartType('${resName}Resource',
+      var type = new DartType('${_makeClassName(resource.name)}Resource',
           resourcePrefix, const []);
       var field = new DartSimpleField(fieldName, type);
       resourceMixin.fields.add(field);
@@ -200,8 +199,8 @@ class Emitter {
     }
     final marshallerType = new DartType('Marshaller', dispatchPrefix, const []);
     var mixinType = new DartType.from(resourceMixin);
-    var txClassName = toProperIdentifier('${api.name}Transaction');
-    var root = new DartClass(toProperIdentifier(api.name), baseClass: baseType)
+    var txClassName = _makeClassName('${api.name}Transaction');
+    var root = new DartClass(_makeClassName(api.name), baseClass: baseType)
       ..mixins.add(mixinType)
       ..fields.add(new DartSimpleField('marshaller', marshallerType, isFinal: true))
       ..fields.add(new DartSimpleField('requestHandler', streamyImport('RequestHandler'), isFinal: true))
@@ -272,8 +271,7 @@ class Emitter {
   
   DartClass processResource(Resource resource, String requestPrefix,
       String objectPrefix) {
-    var name = toProperIdentifier(resource.name);
-    var clazz = new DartClass('${toProperIdentifier(resource.name)}Resource');
+    var clazz = new DartClass('${_makeClassName(resource.name)}Resource');
     var requestMethodTemplate = _template('request_method');
     
     // Set up a _root field for the implementation RequestHandler, and a
@@ -315,10 +313,10 @@ class Emitter {
       }
       
       var requestType = new DartType(
-          '${toProperIdentifier(resource.name)}${toProperIdentifier(method.name)}Request',
+          '${_makeClassName(resource.name)}${_makeClassName(method.name)}Request',
           requestPrefix, const []);
       
-      var m = new DartMethod(toProperIdentifier(method.name, firstLetter: false), requestType,
+      var m = new DartMethod(_makeMethodName(method.name), requestType,
           new DartTemplateBody(requestMethodTemplate, {
             'requestType': requestType,
             'parameters': pnames
@@ -344,15 +342,17 @@ class Emitter {
       .expand((resource) => resource
         .methods
         .values
-        .map((method) => processRequest(api, toProperIdentifier(resource.name), method, objectPrefix, dispatchPrefix))
+        .map((method) => processRequest(api, _makeClassName(resource.name),
+            method, objectPrefix, dispatchPrefix))
       )
       .toList(growable: false);
-      
-  DartClass processRequest(Api api, String resourceName, Method method, String objectPrefix, String dispatchPrefix) {
+
+  DartClass processRequest(Api api, String resourceClassName, Method method,
+      String objectPrefix, String dispatchPrefix) {
     var paramGetter = _template('request_param_getter');
     var paramSetter = _template('request_param_setter');
-    var methodName = toProperIdentifier(method.name);
-    var clazz = new DartClass('$resourceName${methodName}Request',
+    var methodName = _makeClassName(method.name);
+    var clazz = new DartClass('$resourceClassName${methodName}Request',
         baseClass: streamyImport('HttpRequest'));
         
     // Determine payload type.
@@ -395,10 +395,10 @@ class Emitter {
     method.parameters.forEach((name, param) {
       var type = toDartType(param.typeRef, objectPrefix);
       clazz.fields.add(
-          new DartComplexField(toProperIdentifier(name, firstLetter: false), type,
+          new DartComplexField(_makePropertyName(name), type,
               new DartTemplateBody(paramGetter, {'name': name}),
               new DartTemplateBody(paramSetter, {'name': name})));
-      clazz.methods.add(new DartMethod(toProperIdentifier('remove_$name', firstLetter: false), type,
+      clazz.methods.add(new DartMethod(_makeRemoverName(name), type,
           new DartTemplateBody(_template('request_remove'), {'name': name})));
     });
     
@@ -470,7 +470,7 @@ class Emitter {
       if (responseType != null && api.httpConfig != null) {
         clazz.methods.add(new DartMethod('unmarshalResponse', responseType,
         new DartTemplateBody(_template('request_unmarshal_response'), {
-            'name': toProperIdentifier(method.responseType.schemaClass)
+            'name': _makeClassName((method.responseType as SchemaTypeRef).schemaClass)
         }))
           ..parameters.add(new DartParameter('data', new DartType('Map', null, const []))));
       }
@@ -478,7 +478,7 @@ class Emitter {
       if (method.payloadType != null) {
         clazz.methods.add(new DartMethod('marshalPayload', new DartType('Map'),
         new DartTemplateBody(_template('request_marshal_payload'), {
-            'name': toProperIdentifier(method.payloadType.schemaClass)
+            'name': _makeClassName((method.payloadType as SchemaTypeRef).schemaClass)
         })));
       }
     }
@@ -546,7 +546,7 @@ class Emitter {
 
   SchemaDefinition processSchema(Schema schema) {
     var base = new DartType(config.baseClass, BASE_PREFIX, const []);
-    var clazz = new DartClass(toProperIdentifier(schema.name), baseClass: base);
+    var clazz = new DartClass(_makeClassName(schema.name), baseClass: base);
     clazz.mixins.addAll(schema.mixins.map((mixin) => toDartType(mixin, '')));
 
     var globalFnDef = null;
@@ -593,7 +593,7 @@ class Emitter {
 
     schema.properties.forEach((_, field) {
       // Add getter and setter, delegating to map access.
-      var name = toProperIdentifier(field.name, firstLetter: false);
+      var name = _makePropertyName(field.name);
       var type = toDartType(field.typeRef, null);
       if (config.mapBackedFields) {
         var f = new DartComplexField(name, type,
@@ -601,7 +601,7 @@ class Emitter {
             new DartTemplateBody(setter, {'name': field.name}));
         clazz.fields.add(f);
         if (config.removers) {
-          var r = new DartMethod('remove${toProperIdentifier(field.name)}', type,
+          var r = new DartMethod(_makeRemoverName(field.name), type,
               new DartTemplateBody(remove, {'name': field.name}));
         clazz.methods.add(r);
         }
@@ -639,16 +639,17 @@ class Emitter {
         doubleFields.add(name);
         break;
       case 'schema':
-        entityFields[name] = typeRef.schemaClass;
+        entityFields[name] = (typeRef as SchemaTypeRef).schemaClass;
         break;
       case 'list':
-        _accumulateMarshallingTypes(name, typeRef.subType, int64Fields, doubleFields, entityFields);
+        _accumulateMarshallingTypes(name, (typeRef as ListTypeRef).subType,
+            int64Fields, doubleFields, entityFields);
         break;
     }
   }
 
   void processSchemaForMarshaller(DartClass clazz, Schema schema, String objectPrefix) {
-    var name = toProperIdentifier(schema.name);
+    var name = _makeClassName(schema.name);
     var type = new DartType(name, objectPrefix, const []);
     var rt = new DartType.map(const DartType.string(), const DartType.dynamic());
     var data = {
@@ -665,17 +666,25 @@ class Emitter {
     schema
       .properties
       .forEach((_, field) {
-        _accumulateMarshallingTypes(field.name, field.typeRef, int64Fields, doubleFields, entityFields);
-        allFields.add({'key': field.name, 'identifier': toProperIdentifier(field.name, firstLetter: false)});
+        _accumulateMarshallingTypes(field.name, field.typeRef, int64Fields,
+            doubleFields, entityFields);
+        allFields.add({
+          'key': field.name,
+          'identifier': _makePropertyName(field.name),
+        });
       });
 
     var stringList = new DartType.list(const DartType.string());
     var serialMap = new DartType('Map');
     if (int64Fields.isNotEmpty) {
-      clazz.fields.add(new DartSimpleField('_int64s$name', stringList, isStatic: true, isFinal: true, initializer: stringListBody(int64Fields)));
+      clazz.fields.add(new DartSimpleField('_int64s$name', stringList,
+          isStatic: true, isFinal: true,
+              initializer: stringListBody(int64Fields)));
     }
     if (doubleFields.isNotEmpty) {
-      clazz.fields.add(new DartSimpleField('_doubles$name', stringList, isStatic: true, isFinal: true, initializer: stringListBody(doubleFields)));
+      clazz.fields.add(new DartSimpleField('_doubles$name', stringList,
+          isStatic: true, isFinal: true,
+              initializer: stringListBody(doubleFields)));
     }
     
     var fieldMapping = {};
@@ -695,10 +704,17 @@ class Emitter {
     if (entityFields.isNotEmpty) {
       var data = [];
       entityFields.forEach((name, schema) {
-        data.add({'key': name, 'value': '_handle${toProperIdentifier(schema)}'});
+        data.add({
+          'key': name,
+          'value': _makeHandlerName(schema),
+        });
       });
       clazz.fields.add(new DartComplexField.getterOnly('_entities$name', rt,
-          new DartTemplateBody(_template('map'), {'pairs': data, 'getter': true, 'const': false})));
+          new DartTemplateBody(_template('map'), {
+            'pairs': data,
+            'getter': true,
+            'const': false,
+          })));
     }
     var serializerConfig = {
       'entity': type,
@@ -764,7 +780,7 @@ class Emitter {
     if (ref is ListTypeRef) {
       return new DartType.list(toDartType(ref.subType, objectPrefix));
     } else if (ref is SchemaTypeRef) {
-      return new DartType(toProperIdentifier(ref.schemaClass), objectPrefix, const []);
+      return new DartType(_makeClassName(ref.schemaClass), objectPrefix, const []);
     } else {
       switch (ref.base) {
         case 'int64':
@@ -782,7 +798,9 @@ class Emitter {
         case 'number':
           return const DartType.double();
         case 'external':
-          return new DartType(ref.type, ref.importedFrom, const []);
+          ExternalTypeRef externalTypeRef = ref;
+          return new DartType(externalTypeRef.type,
+              externalTypeRef.importedFrom, const []);
         default:
           throw new Exception('Unhandled API type: $ref');
       }

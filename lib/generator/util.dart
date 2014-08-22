@@ -1,8 +1,47 @@
 part of streamy.generator;
 
-String toProperIdentifier(String identifier, {firstLetter: true}) {
-  var first = !firstLetter;
-  var name = identifier
+String _makePropertyName(String name) {
+  name = _fixIllegalChars(name);
+  if (_ILLEGAL_PROPERTY_NAMES.contains(name)) {
+    name = '\$${name}';
+  }
+  return name;
+}
+
+String _makeMethodName(String name) {
+  name = _fixIllegalChars(name);
+  if (_ILLEGAL_METHOD_NAMES.contains(name)) {
+    name = '\$${name}';
+  }
+  return name;
+}
+
+String _makeRemoverName(String name) {
+  name = _capitalize(_fixIllegalChars(name));
+  return 'remove${name}';
+}
+
+String _makeHandlerName(String name) {
+  name = _capitalize(_fixIllegalChars(name));
+  return '_handle${name}';
+}
+
+String _makeClassName(String name) {
+  name = _capitalize(_fixIllegalChars(name));
+  if (_ILLEGAL_CLASS_NAMES.contains(name)) {
+    name = '\$${name}';
+  }
+  return name;
+}
+
+String _fixIllegalChars(String name) {
+  if (name.length == 0) {
+    throw new StateError('Empty property, schema, resource or method name');
+  }
+
+  // Make names like foo_bar_baz look like fooBarBaz
+  var first = true;
+  name = name
     .split('_')
     .map((piece) {
       if (first) {
@@ -16,22 +55,30 @@ String toProperIdentifier(String identifier, {firstLetter: true}) {
       }
     })
     .join();
-  if (name.length == 0) {
-    throw new StateError('Empty property, schema, resource or method name');
-  }
+
 
   // Replace bad starting character with dollar sign (it has to be public)
-  if (!name.startsWith(IDENTIFIER_START)) {
+  if(!name.startsWith(IDENTIFIER_START)) {
     name = '\$${name.substring(1)}';
   }
+
   // Replace bad characters in the middle with underscore
   name = name.replaceAll(NON_IDENTIFIER_CHAR_MATCHER, '_');
   if (name.startsWith('_')) {
     name = 'clean${name}';
   }
+
   return name;
 }
-  
+
+/// Turns the first letter in a string to a capital letter.
+String _capitalize(String str) {
+  if (str == null || str.length == 0) {
+    return str;
+  }
+  return str[0].toUpperCase() + str.substring(1);
+}
+
 List<String> splitStringAcrossLines(String src, [int maxLen = 80]) {
   var lines = [];
   var words = src.split(' ');
