@@ -11,6 +11,18 @@ import 'nested_resources_client_dispatch.dart';
 
 main() {
   group('NestedResourcesTest', () {
+    test('Generates top-level resources', () {
+      var subject = new NestedResourcesTest(null);
+      expect(subject.foos.runtimeType, equals(FoosResource));
+    });
+    test('Generates second-level resources', () {
+      var subject = new NestedResourcesTest(null);
+      expect(subject.foos.bars.runtimeType, equals(FoosBarsResource));
+    });
+    test('Generates third-level resources', () {
+      var subject = new NestedResourcesTest(null);
+      expect(subject.foos.bars.bazes.runtimeType, equals(FoosBarsBazesResource));
+    });
     test('Generates methods for top-level resources', () {
       var subject = new NestedResourcesTest(null);
       expect(subject.foos.get(1).httpMethod, equals('GET'));
