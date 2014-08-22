@@ -42,13 +42,11 @@ main() {
       expect(MethodGetTest.API_TYPE, 'MethodGetTest');
       expect(new MethodGetTest(null).apiType, 'MethodGetTest');
     });
-    /* TODO: fix test
     test('of MethodGetTestTransaction', () {
       expect(MethodGetTestTransaction.API_TYPE, 'MethodGetTestTransaction');
-      expect(new MethodGetTestTransaction(null, null).apiType,
+      expect(new MethodGetTestTransaction(null, null, null).apiType,
           'MethodGetTestTransaction');
     });
-    */
     test('of Foo', () {
       expect(Foo.API_TYPE, 'Foo');
       expect(new Foo().apiType, 'Foo');
@@ -70,6 +68,12 @@ main() {
       var f2 = m.unmarshalFoo(m.marshalFoo(f));
       expect(f2.containsKey('bar'), isFalse);
       expect(f2.containsKey('baz'), isFalse);
+    });
+  });
+  group('Root object', () {
+    test('should allow specifying custom servicePath', () {
+      var root = new MethodGetTest(null, servicePath: '/differentPath');
+      expect(root.servicePath, '/differentPath');
     });
   });
 }

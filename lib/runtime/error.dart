@@ -13,7 +13,9 @@ class StreamyRpcException implements Exception {
   final Map response;
 
   /// Convenience accessor
-  List<Map> get errors => response != null ? response['error']['errors'] : null;
+  List<Map> get errors => response != null && response['error'] is Map
+      ? response['error']['errors']
+      : null;
   Map get error => errors != null && errors.length > 0 ? errors[0] : null;
   String get message => error != null && error.containsKey('message') ? error['message'] : null;
 
