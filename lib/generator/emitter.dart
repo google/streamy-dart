@@ -787,8 +787,11 @@ class Emitter {
     clazz.fields.add(field);
     
     // Lazy getter.
-    var getter = new DartComplexField.getterOnly(fieldName, type,
-        new DartTemplateBody(getterTemplate, {'field': privateFieldName, 'resource': type}));
+    var root = clazz.fields.any((DartField field) => field.name == '_root')
+        ? '_root' : 'this as streamy.Root';
+    var templateBody = new DartTemplateBody(
+        getterTemplate, {'field': privateFieldName, 'resource': type, 'root': root});
+    var getter = new DartComplexField.getterOnly(fieldName, type, templateBody);
     clazz.fields.add(getter);
   }
   
