@@ -39,7 +39,7 @@ class SimpleRequestHandler extends RequestHandler {
       if (resp.statusCode >= 200 && resp.statusCode < 300) {
         var responseJson = jsonParse(resp.body, trace);
         trace.record(new DeserializationStartEvent(resp.body.length));
-        var responsePayload = req.unmarshalResponse(responseJson);
+        var responsePayload = request.unmarshalResponse(responseJson);
         trace.record(new DeserializationEndEvent());
         ctrl.add(new Response(responsePayload, Source.RPC,
             new DateTime.now().millisecondsSinceEpoch));
