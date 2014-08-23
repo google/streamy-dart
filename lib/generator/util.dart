@@ -1,5 +1,17 @@
 part of streamy.generator;
 
+String _joinParts(Iterable<String> parts) {
+  bool isFirst = true;
+  return parts.map((part) {
+    part = _fixIllegalChars(part);
+    if (!isFirst) {
+      part = _capitalize(part);
+    }
+    isFirst = false;
+    return part;
+  }).join('');
+}
+
 String _makePropertyName(String name) {
   name = _fixIllegalChars(name);
   if (_ILLEGAL_PROPERTY_NAMES.contains(name)) {

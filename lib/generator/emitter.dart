@@ -313,7 +313,7 @@ class Emitter {
       }
       
       var requestType = new DartType(
-          '${_makeClassName(resource.name)}${_makeClassName(method.name)}Request',
+          _makeClassName(_joinParts([resource.name, method.name, 'Request'])),
           requestPrefix, const []);
       
       var m = new DartMethod(_makeMethodName(method.name), requestType,
@@ -351,10 +351,12 @@ class Emitter {
       String objectPrefix, String dispatchPrefix) {
     var paramGetter = _template('request_param_getter');
     var paramSetter = _template('request_param_setter');
-    var methodName = _makeClassName(method.name);
-    var clazz = new DartClass('$resourceClassName${methodName}Request',
+    var requestClassName = _makeClassName(
+        _joinParts([resourceClassName, method.name, 'Request']));
+    var clazz = new DartClass(
+        requestClassName,
         baseClass: streamyImport('HttpRequest'));
-        
+
     // Determine payload type.
     var payloadType;
     if (method.payloadType != null) {
