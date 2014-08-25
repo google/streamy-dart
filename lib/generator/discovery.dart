@@ -40,34 +40,45 @@ Api parseDiscovery(Map discovery, Map addendum) {
   if (full.containsKey('resources')) {
     full['resources']
       .keys
-      .forEach((key) {
-        var resource = full['resources'][key];
-        var type = new Resource(key);
-        if (resource.containsKey('methods')) {
-          var methods = resource['methods'];
-          methods.forEach((name, method) {
-            var payloadType = null;
-            var responseType = null;
-            if (method.containsKey('request')) {
-              payloadType = _parseType(method['request'], key, '${name}_Request', api);
-            }
-            if (method.containsKey('response')) {
-              responseType = _parseType(method['response'], key, '${name}_Response', api);
-            }
-            var m = new Method(name, new Path(method['path']),
-                method['httpMethod'], payloadType, responseType);
-            type.methods[name] = m;
-            if (method.containsKey('parameters')) {
-              method['parameters'].forEach((pname, param) {
-                m.parameters[pname] = _parseProperty(pname, param, key, api);
-              });
-            }
-          });
-        }
-        api.resources[key] = type;
+      .forEach((resourceName) {
+        var resource = full['resources'][resourceName];
+        api.resources[resourceName] = _parseResource(resourceName, resource, api);
       });
   }
   return api;
+}
+
+Resource _parseResource(String resourceName, Map resource, Api api) {
+  var type = new Resource(resourceName);
+  if (resource.containsKey('methods')) {
+    var methods = resource['methods'];
+    methods.forEach((name, method) {
+      var payloadType = null;
+      var responseType = null;
+      if (method.containsKey('request')) {
+        payloadType = _parseType(method['request'], resourceName, '${name}_Request', api);
+      }
+      if (method.containsKey('response')) {
+        responseType = _parseType(method['response'], resourceName, '${name}_Response', api);
+      }
+      var m = new Method(name, new Path(method['path']),
+          method['httpMethod'], payloadType, responseType);
+      type.methods[name] = m;
+      if (method.containsKey('parameters')) {
+        method['parameters'].forEach((pname, param) {
+          m.parameters[pname] = _parseProperty(pname, param, resourceName, api);
+        });
+      }
+    });
+  }
+  if (resource.containsKey('resources')) {
+    var subresources = resource['resources'];
+    subresources.forEach((name, subresource) {
+      var fullyQualifiedName = "${resourceName}_${name}";
+      type.subresources[name] = _parseResource(fullyQualifiedName, subresource, api);
+    });
+  }
+  return type;
 }
 
 Field _parseProperty(String name, Map property, String containerName, Api api) {

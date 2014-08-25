@@ -5,6 +5,7 @@ import 'base_test.dart' as base_test;
 import 'generated/addendum_test.dart' as generated_addendum_test;
 import 'generated/handler_test.dart' as generated_handler_test;
 import 'generated/method_get_test.dart' as generated_method_get_test;
+import 'generated/nested_resources_test.dart' as generated_nested_resources_test;
 import 'generated/method_post_test.dart' as generated_method_post_test;
 import 'generated/method_params_test.dart' as generated_method_params_test;
 import 'generated/proto_test.dart' as generated_proto_test;
@@ -43,6 +44,7 @@ main(List<String> args) {
   generated_method_get_test.main();
   generated_method_post_test.main();
   generated_method_params_test.main();
+  generated_nested_resources_test.main();
   generated_proto_test.main();
   generated_schema_object_test.main();
 
