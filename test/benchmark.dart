@@ -22,7 +22,7 @@ const EXPANSION = 15;  // this seems a reasonable number that doesn't kill
 const LEVEL = 3;
 const ENTITIES_IN_LIST = 1000;
 final Random random = new Random(1234);
-const _marshaller = const Marshaller();
+const _MARSHALLER = const Marshaller();
 
 /// Add your new benchmark here so it is autmatically picked up by command-line
 /// and in-browser runners.
@@ -235,12 +235,12 @@ class DeserializationBenchmark extends StreamyBenchmark {
       'Measures the speed of deserialization from JSON to Streamy entities');
 
   void run() {
-    var foo = _marshaller.unmarshalFoo(JSON.decode(js));
+    var foo = _MARSHALLER.unmarshalFoo(JSON.decode(js));
   }
 
   void setup() {
     var foo = makePopulatedFoo(LEVEL);
-    js = JSON.encode(_marshaller.marshalFoo(foo));
+    js = JSON.encode(_MARSHALLER.marshalFoo(foo));
   }
 }
 
@@ -259,7 +259,7 @@ class JsonParseBenchmark extends StreamyBenchmark {
 
   void setup() {
     var foo = makePopulatedFoo(LEVEL);
-    js = JSON.encode(_marshaller.marshalFoo(foo));
+    js = JSON.encode(_MARSHALLER.marshalFoo(foo));
     subReports.add(
         new StreamyBenchmarkReport.subReport(this, 'JSON-Length', js.length,
             'chars'));
