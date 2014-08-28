@@ -6,6 +6,8 @@ import 'package:unittest/unittest.dart';
 import 'package:streamy/mixins/base_map.dart';
 import 'package:streamy/streamy.dart';
 
+final Matcher isType = new isAssignableTo<Type>();
+
 /// A safer [isInstanceOf].
 class isAssignableTo<T> extends Matcher {
 

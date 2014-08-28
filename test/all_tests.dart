@@ -4,6 +4,7 @@ import 'base_test.dart' as base_test;
 
 import 'generated/addendum_test.dart' as generated_addendum_test;
 import 'generated/handler_test.dart' as generated_handler_test;
+import 'generated/identifier_name_test.dart' as generated_identifier_name_test;
 import 'generated/method_get_test.dart' as generated_method_get_test;
 import 'generated/method_post_test.dart' as generated_method_post_test;
 import 'generated/method_params_test.dart' as generated_method_params_test;
@@ -40,6 +41,7 @@ main(List<String> args) {
   base_test.main();
   generated_addendum_test.main();
   generated_handler_test.main();
+  generated_identifier_name_test.main();
   generated_method_get_test.main();
   generated_method_post_test.main();
   generated_method_params_test.main();

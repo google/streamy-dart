@@ -1,0 +1,61 @@
+{
+  "name": "IdentifierNameTest",
+  "servicePath": "identifierName/v1/",
+  "schemas": {
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "bar": {
+          "type": "integer"
+        }
+      }
+    },
+    "FooListResponse": {
+      "id": "FooListResponse",
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "$ref": "Foo"
+        }
+      }
+    }
+  },
+  "resources": {
+    "foos": {
+      "methods": {
+        "get": {
+          "id": "service.foos.get",
+          "path": "foos/{fooId}",
+          "response": {
+            "$ref": "Foo"
+          },
+          "httpMethod": "GET",
+          "parameters": {
+            "fooId": {
+              "type": "integer",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["fooId"]
+        },
+        "list": {
+          "id": "service.foos.list",
+          "httpMethod": "GET",
+          "path": "foos",
+          "response": {
+            "$ref": "FooListResponse"
+          },
+          "parameters": {
+            "bar": {
+              "type": "integer",
+              "location": "query"
+            }
+          }
+        }
+      }
+    }
+  }
+}
