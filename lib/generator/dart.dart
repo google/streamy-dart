@@ -1,4 +1,7 @@
-part of streamy.generator;
+library streamy.generator.dart;
+
+import 'package:mustache/mustache.dart' as mustache;
+import 'package:quiver/strings.dart' as strings;
 
 abstract class DartNamed {
   String get name;
@@ -225,7 +228,8 @@ class DartMethod {
   final DartBody body;
   final bool isStatic;
 
-  DartMethod(this.name, this.returnType, this.body, {this.isStatic: false});
+  DartMethod(this.name, this.returnType, this.body, {this.isStatic: false,
+      this.comments: null});
   
   void render(StringBuffer out, int indent) {
     var id = strings.repeat('  ', indent);
@@ -285,10 +289,15 @@ class DartConstructor implements DartMethod {
   final List<DartNamedParameter> namedParameters = [];
   final DartBody body;
   final bool isConst;
+  final List<String> comments;
+  final isStatic = true;
+  // TODO(yjbanov): returnType should be == forClass, but there's type mismatch
+  final DartType returnType = null;
   
   String get name => forClass;
   
-  DartConstructor(this.forClass, {this.named, this.body, this.isConst: false});
+  DartConstructor(this.forClass, {this.named, this.body, this.isConst: false,
+      this.comments: const[]});
   
   void render(StringBuffer out, int indent) {
     var spacing = strings.repeat('  ', indent);
@@ -366,7 +375,7 @@ class DartNamedParameter extends DartParameter {
     if (defaultValue != null) {
       out.write(': ');
       // TODO(Alex): Proper indentation.
-      defaultValue.render(out, 0, trailingNewline: false);
+      defaultValue.render(out, 0);
     }
   }
 }
@@ -404,7 +413,7 @@ class DartSimpleField implements DartField {
     out.write(name);
     if (initializer != null) {
       out.write(' = ');
-      initializer.render(out, indent, trailingNewline: false);
+      initializer.render(out, indent);
     }
     out.writeln(';');
   }

@@ -47,7 +47,7 @@ void _parseService(Api api, String importPath, analyzer.ClassDeclaration clazz) 
       var method = new Method(m.name.name, new Path('/'), '', null, ref);
       res.methods[method.name] = method;
       // Need a request class for the method.
-      var name = '${res.name}${_makeClassName(m.name.name)}Request';
+      var name = '${res.name}${makeClassName(m.name.name)}Request';
       m
         .parameters
         .parameters

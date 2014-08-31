@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:barback/barback.dart';
 import 'package:mustache/mustache.dart' as mustache;
 import 'package:streamy/generator.dart';
+import 'package:streamy/generator/dart.dart';
+import 'package:streamy/generator/config.dart';
 import 'package:streamy/mixologist.dart' as mixologist;
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:quiver/async.dart';

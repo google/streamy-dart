@@ -1,4 +1,6 @@
-part of streamy.generator;
+library streamy.generator.discovery;
+
+import 'package:streamy/generator/ir.dart';
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
@@ -148,4 +150,29 @@ TypeRef _parseType(Map type, String containerName, String propertyName, Api api)
     ref = new TypeRef.list(ref);
   }
   return ref;
+}
+
+Map _mergeMaps(Map a, Map b) {
+  var out = {};
+  a.keys.forEach((key) {
+    if (!b.containsKey(key)) {
+      out[key] = a[key];
+    } else {
+      var aVal = a[key];
+      var bVal = b[key];
+      if (bVal == null || aVal == null) {
+        out[key] = aVal;
+      } else if (aVal is Map && bVal is Map) {
+        out[key] = _mergeMaps(aVal, bVal);
+      } else {
+        out[key] = bVal;
+      }
+    }
+  });
+  b.keys.forEach((key) {
+    if (!a.containsKey(key)) {
+      out[key] = b[key];
+    }
+  });
+  return out;
 }

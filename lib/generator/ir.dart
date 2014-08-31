@@ -1,5 +1,8 @@
-part of streamy.generator;
+library streamy.generator.ir;
 
+/// Intermediate representation of an API definition. It serves as an
+/// abstraction between a concrete API descriptor (e.g. Google Discovery,
+/// Protocol Buffers) and Streamy's code emitter.
 class Api {
   final String name;
   final String description;
@@ -27,7 +30,7 @@ class Api {
 class Schema {
   final String name;
   final List<TypeRef> mixins = [];
-  
+
   final Map<String, Field> properties = <String, Field>{};
   
   Schema(this.name);
@@ -52,7 +55,7 @@ class Resource {
   final Map<String, Resource> subresources = <String, Resource>{};
   final Map<String, Method> methods = <String, Method>{};
   
-  Resource(this.name);
+  Resource(this.name, {this.description: null});
   
   String toString() => (new StringBuffer()
       ..writeln("  Resource: $name:")

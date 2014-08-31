@@ -1,4 +1,10 @@
-part of streamy.generator;
+library streamy.generator.protobuf;
+
+import 'dart:async';
+import 'dart:io' as io;
+import 'package:streamy/generator/config.dart';
+import 'package:streamy/generator/ir.dart';
+import 'package:streamy/google/protobuf/descriptor.pb.dart' as protoSchema;
 
 /// Generate a Streamy [Api] from a [ProtoConfig].
 Future<Api> fromProto(ProtoConfig config) {

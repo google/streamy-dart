@@ -8,17 +8,16 @@ import 'package:mustache/mustache.dart' as mustache;
 import 'package:quiver/strings.dart' as strings;
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:path/path.dart' as path;
-import 'package:streamy/google/protobuf/descriptor.pb.dart' as protoSchema;
+import 'package:streamy/generator/config.dart';
+import 'package:streamy/generator/dart.dart';
+import 'package:streamy/generator/discovery.dart';
+import 'package:streamy/generator/ir.dart';
+import 'package:streamy/generator/proto.dart';
+import 'package:streamy/generator/util.dart';
 
-part 'generator/ast.dart';
-part 'generator/config.dart';
-part 'generator/dart.dart';
-part 'generator/discovery.dart';
 part 'generator/default.dart';
 part 'generator/service.dart';
 part 'generator/emitter.dart';
-part 'generator/proto.dart';
-part 'generator/util.dart';
 
 /// Generates a Streamy API client package in pub format.
 Future generateStreamyClientPackage(
@@ -101,4 +100,59 @@ Future generateStreamyClientPackage(
           pubspecTemplate.renderString(pubspecData, htmlEscapeValues: false));
     });
   });
+}
+
+Future<String> _fileReader(String path) => new io.File(path).readAsString();
+
+Future<Api> apiFromConfig(
+    Config config, {String pathPrefix: '', fileReader: _fileReader}) {
+  if (config.discoveryFile != null) {
+    var addendum = new Future.value('{}');
+    var discovery = fileReader(pathPrefix + config.discoveryFile);
+    if (config.addendumFile != null) {
+      addendum = fileReader(pathPrefix + config.addendumFile);
+    }
+    return Future
+    .wait([discovery, addendum])
+    .then((data) => data.map(JSON.decode).toList(growable: false))
+    .then((data) => parseDiscovery(data[0], data[1]));
+  }
+  if (config.service != null) {
+    return Future
+    .wait(config.service.inputs.map((input) => fileReader(pathPrefix + input.filePath)))
+    .then((dataList) {
+      var api = new Api(config.service.name);
+      for (var i = 0; i < config.service.inputs.length; i++) {
+        _parseServiceFile(api, config.service.inputs[i].importPath, analyzer.parseCompilationUnit(dataList[i]), i);
+      }
+      return api;
+    });
+  }
+  if (config.proto != null) {
+    return fromProto(config.proto);
+  }
+  throw new Exception('Config missing discovery, service, or proto. Parser bug?');
+}
+
+abstract class TemplateLoader {
+
+  factory TemplateLoader.fromDirectory(String path) {
+    return new FileTemplateLoader(path);
+  }
+
+  Future<mustache.Template> load(String name);
+}
+
+class FileTemplateLoader implements TemplateLoader {
+  final io.Directory path;
+
+  FileTemplateLoader(String path) : path = new io.Directory(path).absolute;
+
+  Future<mustache.Template> load(String name) {
+    var f = new io.File("${path.path}/$name.mustache");
+    if (!f.existsSync()) {
+      return null;
+    }
+    return f.readAsString().then(mustache.parse);
+  }
 }
