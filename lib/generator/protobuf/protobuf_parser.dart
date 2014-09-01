@@ -2,12 +2,32 @@ library streamy.generator.protobuf;
 
 import 'dart:async';
 import 'dart:io' as io;
+import 'package:analyzer/analyzer.dart' as analyzer;
 import 'package:streamy/generator/config.dart';
 import 'package:streamy/generator/ir.dart';
 import 'package:streamy/google/protobuf/descriptor.pb.dart' as protoSchema;
 
+part 'service.dart';
+
+Future<Api> parseServiceFromConfig(
+    Config config,
+    String pathPrefix,
+    Future<String> fileReader(String)) {
+  return Future
+    .wait(config.service.inputs.map(
+        (input) => fileReader(pathPrefix + input.filePath)))
+    .then((dataList) {
+      var api = new Api(config.service.name);
+      for (var i = 0; i < config.service.inputs.length; i++) {
+        _parseServiceFile(api, config.service.inputs[i].importPath,
+            analyzer.parseCompilationUnit(dataList[i]), i);
+      }
+      return api;
+    });
+}
+
 /// Generate a Streamy [Api] from a [ProtoConfig].
-Future<Api> fromProto(ProtoConfig config) {
+Future<Api> parseFromProtoConfig(ProtoConfig config) {
   // Read the proto file.
   var root = config.root;
   

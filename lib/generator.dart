@@ -3,20 +3,18 @@ library streamy.generator;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
-import 'package:analyzer/analyzer.dart' as analyzer;
 import 'package:mustache/mustache.dart' as mustache;
 import 'package:quiver/strings.dart' as strings;
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:path/path.dart' as path;
 import 'package:streamy/generator/config.dart';
 import 'package:streamy/generator/dart.dart';
-import 'package:streamy/generator/discovery.dart';
+import 'package:streamy/generator/discovery/discovery_parser.dart' as discovery;
 import 'package:streamy/generator/ir.dart';
-import 'package:streamy/generator/proto.dart';
+import 'package:streamy/generator/protobuf/protobuf_parser.dart' as proto;
 import 'package:streamy/generator/util.dart';
 
 part 'generator/default.dart';
-part 'generator/service.dart';
 part 'generator/emitter.dart';
 
 /// Generates a Streamy API client package in pub format.
@@ -107,29 +105,13 @@ Future<String> _fileReader(String path) => new io.File(path).readAsString();
 Future<Api> apiFromConfig(
     Config config, {String pathPrefix: '', fileReader: _fileReader}) {
   if (config.discoveryFile != null) {
-    var addendum = new Future.value('{}');
-    var discovery = fileReader(pathPrefix + config.discoveryFile);
-    if (config.addendumFile != null) {
-      addendum = fileReader(pathPrefix + config.addendumFile);
-    }
-    return Future
-    .wait([discovery, addendum])
-    .then((data) => data.map(JSON.decode).toList(growable: false))
-    .then((data) => parseDiscovery(data[0], data[1]));
+    return discovery.parseFromConfig(config, pathPrefix, fileReader);
   }
   if (config.service != null) {
-    return Future
-    .wait(config.service.inputs.map((input) => fileReader(pathPrefix + input.filePath)))
-    .then((dataList) {
-      var api = new Api(config.service.name);
-      for (var i = 0; i < config.service.inputs.length; i++) {
-        _parseServiceFile(api, config.service.inputs[i].importPath, analyzer.parseCompilationUnit(dataList[i]), i);
-      }
-      return api;
-    });
+    return proto.parseServiceFromConfig(config, pathPrefix, fileReader);
   }
   if (config.proto != null) {
-    return fromProto(config.proto);
+    return proto.parseFromProtoConfig(config.proto);
   }
   throw new Exception('Config missing discovery, service, or proto. Parser bug?');
 }

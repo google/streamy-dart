@@ -1,6 +1,24 @@
 library streamy.generator.discovery;
 
+import 'dart:async';
+import 'dart:convert';
+import 'package:streamy/generator/config.dart';
 import 'package:streamy/generator/ir.dart';
+
+Future<Api> parseFromConfig(
+    Config config,
+    String pathPrefix,
+    Future<String> fileReader(String)) {
+  var addendum = new Future.value('{}');
+  var discovery = fileReader(pathPrefix + config.discoveryFile);
+  if (config.addendumFile != null) {
+    addendum = fileReader(pathPrefix + config.addendumFile);
+  }
+  return Future
+    .wait([discovery, addendum])
+    .then((data) => data.map(JSON.decode).toList(growable: false))
+    .then((data) => parseDiscovery(data[0], data[1]));
+}
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);

@@ -1,4 +1,4 @@
-part of streamy.generator;
+part of streamy.generator.protobuf;
 
 Api parseServices(List<String> paths) {
   var api = new Api('example', marshalling: false);
@@ -46,8 +46,6 @@ void _parseService(Api api, String importPath, analyzer.ClassDeclaration clazz) 
       var ref = new TypeRef.external(rt, importPath);
       var method = new Method(m.name.name, new Path('/'), '', null, ref);
       res.methods[method.name] = method;
-      // Need a request class for the method.
-      var name = '${res.name}${makeClassName(m.name.name)}Request';
       m
         .parameters
         .parameters
