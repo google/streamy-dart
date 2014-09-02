@@ -1,0 +1,47 @@
+library streamy.generated.illegal_names.test;
+
+import 'dart:async';
+import 'package:unittest/unittest.dart';
+import 'package:streamy/streamy.dart';
+import 'illegal_names_client.dart';
+import 'illegal_names_client_requests.dart';
+import 'illegal_names_client_resources.dart';
+import 'illegal_names_client_objects.dart';
+import 'illegal_names_client_dispatch.dart';
+
+main() {
+  group('IllegalNamesTest', () {
+    test('RequestResponseCycle', () {
+      $Type testResponse = new $Type()..id = 1;
+      var marshaller = new Marshaller();
+      var testRequestHandler = new RequestHandler.fromFunction(
+          (req) => new Stream.fromIterable(
+              [new Response(req.unmarshalResponse(marshaller.marshal$Type(testResponse)), Source.RPC, 0)]));
+      var subject = new IllegalNamesTest(testRequestHandler);
+      subject.types.get(1).send().listen(expectAsync(($Type v) {
+        expect(marshaller.marshal$Type(v), equals(marshaller.marshal$Type(testResponse)));
+      }, count: 1));
+    });
+  });
+  group('apiType', () {
+    test('of Type', () {
+      expect($Type.API_TYPE, '\$Type');
+      expect(new $Type().apiType, '\$Type');
+    });
+    test('of TypesResource', () {
+      expect(TypesResource.API_TYPE, 'TypesResource');
+      expect(new IllegalNamesTest(null).types.apiType, 'TypesResource');
+    });
+    test('of TypesGetRequest', () {
+      expect(TypesGetRequest.API_TYPE, 'TypesGetRequest');
+      expect(new IllegalNamesTest(null).types.get(1).apiType, 'TypesGetRequest');
+    });
+  });
+  group('Serialization', () {
+    test('to/from json', () {
+      var f = new $Type()..id = 1;
+      var m = new Marshaller();
+      var f2 = m.unmarshal$Type(m.marshal$Type(f));
+    });
+  });
+}
