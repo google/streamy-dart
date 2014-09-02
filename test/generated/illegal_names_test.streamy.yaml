@@ -1,0 +1,12 @@
+discovery: illegal_names_test.json
+output:
+  files: split
+  prefix: illegal_names_client
+base:
+  class: Entity
+  import: package:streamy/base.dart
+  backing: map
+options:
+  clone: true
+  removers: true
+  known: false
