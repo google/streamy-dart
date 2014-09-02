@@ -1,0 +1,77 @@
+{
+  "name": "IllegalNamesTest",
+  "servicePath": "illegalNamesTest/v1/",
+  "schemas": {
+    "Type": {
+      "id": "Type",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        }
+      }
+    },
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        },
+        "fooType": {
+          "$ref": "Type"
+        }
+      }
+    }
+  },
+  "resources": {
+    "types": {
+      "methods": {
+        "get": {
+          "id": "service.types.get",
+          "path": "types/{typeId}",
+          "name": "",
+          "response": {
+            "$ref": "Type"
+          },
+          "httpMethod": "GET",
+          "description": "Gets a type",
+          "parameters": {
+            "typeId": {
+              "type": "integer",
+              "description": "Primary key of type",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["typeId"]
+        }
+      }
+    },
+    "foos": {
+      "methods": {
+        "get": {
+          "id": "service.foos.get",
+          "path": "foos/{fooId}",
+          "name": "",
+          "response": {
+            "$ref": "Foo"
+          },
+          "httpMethod": "GET",
+          "description": "Gets a foo",
+          "parameters": {
+            "fooId": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["fooId"]
+        }
+      }
+    }
+  }
+}

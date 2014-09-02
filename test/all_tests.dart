@@ -5,6 +5,7 @@ import 'base_test.dart' as base_test;
 import 'generated/addendum_test.dart' as generated_addendum_test;
 import 'generated/handler_test.dart' as generated_handler_test;
 import 'generated/identifier_name_test.dart' as generated_identifier_name_test;
+import 'generated/illegal_names_test.dart' as generated_illegal_names_test;
 import 'generated/method_get_test.dart' as generated_method_get_test;
 import 'generated/nested_resources_test.dart' as generated_nested_resources_test;
 import 'generated/method_post_test.dart' as generated_method_post_test;
@@ -43,6 +44,7 @@ main(List<String> args) {
   generated_addendum_test.main();
   generated_handler_test.main();
   generated_identifier_name_test.main();
+  generated_illegal_names_test.main();
   generated_method_get_test.main();
   generated_method_post_test.main();
   generated_method_params_test.main();
