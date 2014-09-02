@@ -1,4 +1,11 @@
-part of streamy.generator;
+library streamy.generator.emitter;
+
+import 'dart:async';
+import 'package:mustache/mustache.dart' as mustache;
+import 'package:streamy/generator/config.dart';
+import 'package:streamy/generator/dart.dart';
+import 'package:streamy/generator/ir.dart';
+import 'package:streamy/generator/util.dart';
 
 class StreamyClient {
   final Config config;
@@ -8,7 +15,8 @@ class StreamyClient {
   final DartFile objects;
   final DartFile dispatch;
   
-  StreamyClient(this.config, this.root, this.resources, this.requests, this.objects, this.dispatch);
+  StreamyClient(this.config, this.root, this.resources, this.requests,
+      this.objects, this.dispatch);
 }
 
 class SchemaDefinition {
@@ -20,58 +28,26 @@ class SchemaDefinition {
 
 class Emitter {
   final Config config;
+  final Map<String, mustache.Template> _templates;
+
+  Emitter(this.config, this._templates);
+
+  StreamyClient process(Api api) {
+    final ctx = new EmitterContext(config, _templates, api);
+    return ctx.process();
+  }
+}
+
+class EmitterContext {
+  final Config config;
   final Map<String, mustache.Template> templates;
-  
-  Emitter(this.config, this.templates);
+  final Api api;
+
+  EmitterContext(this.config, this.templates, this.api);
 
   static final BASE_PREFIX = '_streamy_base_';
 
-  static final List<String> TEMPLATES = const [
-    'lazy_resource_getter',
-    'map',
-    'marshal',
-    'marshal_handle',
-    'marshal_mapbacked',
-    'object_add_global',
-    'object_clone',
-    'object_ctor',
-    'object_getter',
-    'object_patch',
-    'object_remove',
-    'object_setter',
-    'request_clone',
-    'request_ctor',
-    'request_marshal_payload',
-    'request_method',
-    'request_param_getter',
-    'request_param_setter',
-    'request_remove',
-    'request_send',
-    'request_send_direct',
-    'request_unmarshal_response',
-    'root_begin_transaction',
-    'root_constructor',
-    'root_send',
-    'root_transaction_constructor',
-    'string_list',
-    'string_map',
-    'unmarshal'
-  ];
-      
-  static Future<Emitter> fromTemplateLoader(Config config, TemplateLoader loader) {
-    var templates = <String, mustache.Template>{};
-    var futures = <Future>[];
-    TEMPLATES.forEach((name) => futures.add(loader
-      .load(name)
-      .then((template) {
-        templates[name] = template;
-      })));
-    return Future
-      .wait(futures)
-      .then((_) => new Emitter(config, templates));
-  }
-  
-  StreamyClient process(Api api) {
+  StreamyClient process() {
     var client;
     var rootFile, rootPrefix;
     var resourceFile, resourcePrefix;
@@ -156,20 +132,21 @@ class Emitter {
     
     // Root class
     if (config.generateApi) {
-      rootFile.classes.addAll(processRoot(api, resourcePrefix, dispatchPrefix));
-      resourceFile.classes.addAll(processResources(api, requestPrefix, objectPrefix));
-      requestFile.classes.addAll(processRequests(api, objectPrefix, dispatchPrefix));
+      rootFile.classes.addAll(processRoot(resourcePrefix, dispatchPrefix));
+      resourceFile.classes.addAll(processResources(requestPrefix, objectPrefix));
+      requestFile.classes.addAll(processRequests(objectPrefix, dispatchPrefix));
     }
-    var schemas = processSchemas(api);
+    var schemas = processSchemas();
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
-    objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef).where((v) => v != null));
+    objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef)
+        .where((v) => v != null));
     if (config.generateMarshallers) {
-      dispatchFile.classes.add(processMarshaller(api, objectPrefix));
+      dispatchFile.classes.add(processMarshaller(objectPrefix));
     }
     return client;
   }
   
-  List<DartClass> processRoot(Api api, String resourcePrefix, String dispatchPrefix) {
+  List<DartClass> processRoot(String resourcePrefix, String dispatchPrefix) {
     // Create the resource mixin class.
     var resourceMixin = new DartClass('${makeClassName(api.name)}ResourcesMixin');
     if (api.description != null) {
@@ -249,7 +226,7 @@ class Emitter {
     return [resourceMixin, root, txRoot];
   }
 
-  List<DartClass> processResources(Api api, String requestPrefix, String objectPrefix) =>
+  List<DartClass> processResources(String requestPrefix, String objectPrefix) =>
     api
       .resources
       .values
@@ -327,7 +304,7 @@ class Emitter {
     return config.importPrefix + config.outputPrefix + '_' + file;
   }
   
-  List<DartClass> processRequests(Api api, String objectPrefix, String dispatchPrefix) =>
+  List<DartClass> processRequests(String objectPrefix, String dispatchPrefix) =>
     api
       .resources
       .values
@@ -335,12 +312,12 @@ class Emitter {
       .expand((resource) => resource
         .methods
         .values
-        .map((method) => processRequest(api, makeClassName(resource.name),
+        .map((method) => processRequest(makeClassName(resource.name),
             method, objectPrefix, dispatchPrefix))
       )
       .toList(growable: false);
 
-  DartClass processRequest(Api api, String resourceClassName, Method method,
+  DartClass processRequest(String resourceClassName, Method method,
       String objectPrefix, String dispatchPrefix) {
     var paramGetter = _template('request_param_getter');
     var paramSetter = _template('request_param_setter');
@@ -525,13 +502,13 @@ class Emitter {
     return clazz;
   }
   
-  List<SchemaDefinition> processSchemas(Api api) => api
+  List<SchemaDefinition> processSchemas() => api
     .types
     .values
     .map(processSchema)
     .toList(growable: false);
 
-  DartClass processMarshaller(Api api, String objectPrefix) {
+  DartClass processMarshaller(String objectPrefix) {
     var marshallerClass = new DartClass('Marshaller');
     marshallerClass.methods.add(new DartConstructor(marshallerClass.name, isConst: true));
     api.types.values.forEach((schema) =>
