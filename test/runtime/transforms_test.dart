@@ -2,15 +2,17 @@ library streamy.runtime.transforms.test;
 
 import 'package:unittest/unittest.dart';
 import 'package:streamy/testing/testing.dart';
+import 'package:streamy/raw_entity.dart';
 import 'package:streamy/streamy.dart';
+import '../utils.dart';
 
 main() {
   group('RequestTrackingTransformer', () {
     test('Properly tracks a request', () {
       var bareHandler = (testRequestHandler()
         ..values([
-          new Response(new Entity()..['x'] = 'a', Source.RPC, 0),
-          new Response(new Entity()..['x'] = 'b', Source.RPC, 0)]))
+          new Response(new RawEntity()..['x'] = 'a', Source.RPC, 0),
+          new Response(new RawEntity()..['x'] = 'b', Source.RPC, 0)]))
         .build();
       var handler = bareHandler.transform(() => new UserCallbackTracingTransformer());
       var tracer = new StreamTracer(UserCallbackTracingTransformer.traceDonePredicate);

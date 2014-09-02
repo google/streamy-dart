@@ -3,8 +3,7 @@ library streamy.runtime.branching.test;
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
-
-
+import '../utils.dart';
 
 main() {
   group('BranchingRequestHandler', () {
@@ -14,15 +13,15 @@ main() {
     setUp(() {
       defaultHandler = (
           testRequestHandler()
-            ..value(new Response(new RawEntity()..['value'] = 'hello', Source.RPC, 0))
+            ..value(new Response(makeEntity()..['value'] = 'hello', Source.RPC, 0))
         ).build();
       testHandler = (
           testRequestHandler()
-            ..value(new Response(new RawEntity()..['value'] = 'world', Source.RPC, 0))
+            ..value(new Response(makeEntity()..['value'] = 'world', Source.RPC, 0))
         ).build();
       testHandler2 = (
           testRequestHandler()
-            ..value(new Response(new RawEntity()..['value'] = 'universe', Source.RPC, 0))
+            ..value(new Response(makeEntity()..['value'] = 'universe', Source.RPC, 0))
         ).build();
     });
     test('Properly branches on one type of request.', () {

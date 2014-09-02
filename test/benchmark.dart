@@ -5,15 +5,16 @@
  */
 library streamy.benchmarks;
 
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:args/args.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:json/json.dart' as json;
 import 'package:intl/intl.dart' as intl;
 import 'package:streamy/streamy.dart';
 import 'generated/benchmark_client_objects.dart';
+import 'generated/benchmark_client_dispatch.dart';
 
 const MAX = 10000000;
 const EXPANSION = 15;  // this seems a reasonable number that doesn't kill
@@ -21,6 +22,7 @@ const EXPANSION = 15;  // this seems a reasonable number that doesn't kill
 const LEVEL = 3;
 const ENTITIES_IN_LIST = 1000;
 final Random random = new Random(1234);
+const _MARSHALLER = const Marshaller();
 
 /// Add your new benchmark here so it is autmatically picked up by command-line
 /// and in-browser runners.
@@ -233,12 +235,12 @@ class DeserializationBenchmark extends StreamyBenchmark {
       'Measures the speed of deserialization from JSON to Streamy entities');
 
   void run() {
-    var foo = new Foo.fromJsonString(js, new NoopTrace());
+    var foo = _MARSHALLER.unmarshalFoo(JSON.decode(js));
   }
 
   void setup() {
     var foo = makePopulatedFoo(LEVEL);
-    js = json.stringify(foo);
+    js = JSON.encode(_MARSHALLER.marshalFoo(foo));
   }
 }
 
@@ -252,12 +254,12 @@ class JsonParseBenchmark extends StreamyBenchmark {
       'target for Streamy\'s deserialization.');
 
   void run() {
-    var foo = json.parse(js);
+    var foo = JSON.decode(js);
   }
 
   void setup() {
     var foo = makePopulatedFoo(LEVEL);
-    js = json.stringify(foo);
+    js = JSON.encode(_MARSHALLER.marshalFoo(foo));
     subReports.add(
         new StreamyBenchmarkReport.subReport(this, 'JSON-Length', js.length,
             'chars'));

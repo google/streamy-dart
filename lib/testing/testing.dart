@@ -116,7 +116,7 @@ final Request TEST_GET_REQUEST = new TestRequest('GET');
 final Request TEST_DELETE_REQUEST = new TestRequest('DELETE');
 // TODO(yjbanov): add POST and PUT test requests
 
-class TestRequest extends Request {
+class TestRequest extends HttpRequest {
   final String _httpMethod;
 
   TestRequest(this._httpMethod) : super(null);
@@ -181,12 +181,12 @@ class TestHttpService implements StreamyHttpService {
   }
 }
 
-class TestingRoot extends Root {
+class TestingRoot extends HttpRoot {
 
   final RequestHandler delegate;
   final Tracer tracer;
 
-  TestingRoot(this.delegate, this.tracer) : super(EMPTY_REGISTRY, '/test');
+  TestingRoot(this.delegate, this.tracer) : super('/test');
 
   Stream<Response> send(Request request) =>
     delegate.handle(request, tracer.trace(request));

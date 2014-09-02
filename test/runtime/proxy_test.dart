@@ -14,11 +14,13 @@ main() {
     FakeStreamyHttpService fakeHttp;
     Bank root;
     ProxyClient subject;
+    StreamTracer tracer;
 
     setUp(() {
       fakeHttp = new FakeStreamyHttpService();
       subject = new ProxyClient('proxy', fakeHttp);
-      root = new Bank(subject);
+      tracer = new StreamTracer((_) => false);
+      root = new Bank(subject, tracer: tracer);
     });
 
     test('should serialize and forward request to a service', () {
@@ -38,7 +40,7 @@ main() {
       expect(fakeHttp.cancelledRequests, hasLength(1));
     }));
 
-    test('should deserialize response and return to listener', async(() {
+    test('should deserialize response and return to listener frozen', async(() {
       expect(fakeHttp.cancelledRequests, hasLength(0));
       Branch result;
       root.branches.get(new Int64(1)).send().listen((Branch foo) {
@@ -49,6 +51,7 @@ main() {
       fastForward();
       expect(result, isNotNull);
       expect(result.id, new Int64(123));
+      expect(result.isFrozen, isTrue);
     }));
 
     test('should accept 204 No Content and report it as null', async(() {
@@ -85,6 +88,44 @@ main() {
       expect(httpReq.payload, isNull);
       expect(httpReq.headers['content-type'], isNull);
     });
+
+    test('should send trace events', async(() {
+      var events = [];
+      tracer.requests.listen((TracedRequest req) {
+        req.events.listen(events.add);
+      });
+      root.branches.get(new Int64(1)).send();
+      fakeHttp.lastCompleter.complete(new StreamyHttpResponse(
+          200, {'content-type': 'application/json'}, '{"id": "123"}'));
+      fastForward();
+      expect(events, hasLength(4));
+      expect(events[0].runtimeType, JsonParseStartEvent);
+      expect(events[1].runtimeType, JsonParseEndEvent);
+      expect(events[2].runtimeType, DeserializationStartEvent);
+      expect(events[3].runtimeType, DeserializationEndEvent);
+    }));
+
+    test('should turn errors into StreamyRpcException', async(() {
+      var result;
+      StreamyRpcException err;
+      root.branches.get(new Int64(1)).send()
+        .listen((r) { result = r; },
+            onError: (e) { err = e; });
+      fakeHttp.lastCompleter.complete(new StreamyHttpResponse(500, {
+        'content-type': 'application/json'
+      }, '''
+        {
+          "error": {
+            "errors": [{ "message": "this is an error!" }]
+          }
+        }'''));
+      fastForward();
+      expect(result, isNull);
+      expect(err, isNotNull);
+      expect(err.errors, hasLength(1));
+      expect(err.error.containsKey('message'), isTrue);
+      expect(err.message, 'this is an error!');
+    }));
   });
 }
 

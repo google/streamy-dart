@@ -1,0 +1,14 @@
+discovery: identifier_name_test.json
+output:
+  files: single
+  prefix: identifier_name_client
+base:
+  class: Entity
+  import: package:streamy/base.dart
+  backing: map
+options:
+  clone: true
+  removers: true
+  known: true
+  global: true
+  patch: true

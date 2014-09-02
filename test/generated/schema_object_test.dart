@@ -1,16 +1,18 @@
 library streamy.generated.schema_object.test;
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:fixnum/fixnum.dart' as fixnum;
-import 'package:json/json.dart';
 import 'package:streamy/streamy.dart' as streamy;
 import 'package:unittest/unittest.dart';
 import 'package:observe/observe.dart';
 import 'schema_object_client.dart';
 import 'schema_object_client_objects.dart';
+import 'schema_object_client_dispatch.dart';
 import '../utils.dart';
 
 main() {
+  var marshaller = new Marshaller();
   group('SchemaObjectTest', () {
     Foo foo;
     setUp(() {
@@ -31,7 +33,7 @@ main() {
       expect(foo['baz'], equals(2));
     });
     test('JsonCorrectlyPopulated', () {
-      expect(foo.toJson(), equals({
+      expect(marshaller.marshalFoo(foo), equals({
         'id': 1,
         'bar': 'bar',
         'baz': 2,
@@ -40,7 +42,7 @@ main() {
     });
     test('RemovedKeyNotPresentInJson', () {
       expect(foo.removeBaz(), equals(2));
-      expect(foo.toJson(), equals({
+      expect(marshaller.marshalFoo(foo), equals({
         'id': 1,
         'bar': 'bar',
         'qux': '1234',
@@ -52,29 +54,29 @@ main() {
     });
     test('SerializeListToJson', () {
       var bar = new Bar()..foos = [new Foo()..id = 321];
-      bar = new Bar.fromJsonString(stringify(bar.toJson()), const streamy.NoopTrace());
+      bar = marshaller.unmarshalBar(streamy.jsonParse(JSON.encode(marshaller.marshalBar(bar))));
       expect(bar.foos.length, equals(1));
       expect(bar.foos[0].id, equals(321));
     });
     test('DeserializeMissingListToNull', () {
-      var bar = new Bar.fromJsonString('{}', const streamy.NoopTrace());
+      var bar = marshaller.unmarshalBar({});
       expect(bar.foos, isNull);
     });
     test('List of doubles works properly', () {
       foo.quux = [1.5, 2.5, 3.5, 4.5];
       expect(foo.quux, equals([1.5, 2.5, 3.5, 4.5]));
       expect(foo['quux'], equals([1.5, 2.5, 3.5, 4.5]));
-      expect(foo.toJson()['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
+      expect(marshaller.marshalFoo(foo)['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
     });
     test('type=number format=double works correctly', () {
-      var foo2 = new Foo.fromJson(new ObservableMap.from({
+      var foo2 = marshaller.unmarshalFoo(new ObservableMap.from({
         'corge': 1.2
       }));
       expect(foo2.corge, equals(1.2));
       expect(foo2.corge, new isInstanceOf<double>());
     });
     test('Deserialize formatted strings and lists', () {
-      var foo2 = new Foo.fromJson(new ObservableMap.from({
+      var foo2 = marshaller.unmarshalFoo(new ObservableMap.from({
         'qux': '123456789123456789123456789',
         'quux': ['2.5', '3.5', '4.5', '5.5']
       }));
@@ -82,10 +84,10 @@ main() {
       expect(foo2.quux, equals([2.5, 3.5, 4.5, 5.5]));
     });
     test("clone()'d entities are equal", () {
-      expect(streamy.Entity.deepEquals(foo.clone(), foo), equals(true));
+      expect(streamy.EntityUtils.deepEquals(foo.clone(), foo), equals(true));
       var bar = new Bar()
         ..foos = [foo];
-      expect(streamy.Entity.deepEquals(bar.clone(), bar), equals(true));
+      expect(streamy.EntityUtils.deepEquals(bar.clone(), bar), equals(true));
     });
     test('clone() is deep', () {
       var bar = new Bar()
@@ -102,48 +104,32 @@ main() {
       // This tests that the [EntityWrapper] subclasses aren't identical, but
       // not the [RawEntity] entities inside them.
       bar.foos[0].baz = 42;
-      expect(streamy.Entity.deepEquals(bar, bar2), equals(false));
-    });
-    test('clone() on a generated EntityWrapper does not double wrap', () {
-      var bar = new Bar();
-      var bar2 = bar.clone();
-      expect(bar2, new isInstanceOf<Bar>());
-      expect(streamy.entityWrapperGetDelegateForTest(bar2),
-          new isInstanceOf<streamy.RawEntity>());
+      expect(streamy.EntityUtils.deepEquals(bar, bar2), equals(false));
     });
     test('objects are observable', () {
       var foo = new Foo();
       foo.changes.listen(expectAsync((List<ChangeRecord> changes) {
-        expect(changes, hasLength(7));
+        expect(changes, hasLength(4));
 
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
+        var r1 = changes[0] as MapChangeRecord;
         expect(r1.key, 'id');
         expect(r1.isInsert, isTrue);
         expect(r1.isRemove, isFalse);
 
-        var r2 = changes[2] as MapChangeRecord;
+        var r2 = changes[1] as MapChangeRecord;
         expect(r2.key, 'id');
         expect(r2.isInsert, isFalse);
         expect(r2.isRemove, isFalse);
 
-        var r3 = changes[3] as PropertyChangeRecord;
-        expect(r3.name, const Symbol('length'));
-
-        var r4 = changes[4] as MapChangeRecord;
+        var r4 = changes[2] as MapChangeRecord;
         expect(r4.key, 'bar');
         expect(r4.isInsert, isTrue);
         expect(r4.isRemove, isFalse);
 
-        var r5 = changes[5] as MapChangeRecord;
+        var r5 = changes[3] as MapChangeRecord;
         expect(r5.key, 'id');
         expect(r5.isInsert, isFalse);
         expect(r5.isRemove, isTrue);
-
-        var r6 = changes[6] as PropertyChangeRecord;
-        expect(r6.name, const Symbol('length'));
       }, count: 1));
       foo.id = 1;
       foo.id = 2;
@@ -157,12 +143,9 @@ main() {
 
       // Expect foo to receive notifications
       foo.changes.listen(expectAsync((List<ChangeRecord> changes) {
-        expect(changes, hasLength(2));
+        expect(changes, hasLength(1));
 
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
+        var r1 = changes[0] as MapChangeRecord;
         expect(r1.key, 'id');
         expect(r1.isInsert, isTrue);
         expect(r1.isRemove, isFalse);
@@ -178,38 +161,10 @@ main() {
     });
     test('local is observable', () {
       var foo = new Foo();
-      foo.local.changes.listen(expectAsync((List<ChangeRecord> changes) {
-        expect(changes, hasLength(5));
-
-        var r0 = changes[0] as PropertyChangeRecord;
-        expect(r0.name, const Symbol('length'));
-
-        var r1 = changes[1] as MapChangeRecord;
-        expect(r1.key, 'hello');
-        expect(r1.isInsert, isTrue);
-        expect(r1.isRemove, isFalse);
-
-        var r2 = changes[2] as MapChangeRecord;
-        expect(r2.key, 'hello');
-        expect(r2.isInsert, isFalse);
-        expect(r2.isRemove, isFalse);
-
-        var r3 = changes[3] as MapChangeRecord;
-        expect(r3.key, 'hello');
-        expect(r3.isInsert, isFalse);
-        expect(r3.isRemove, isTrue);
-
-        var r4 = changes[4] as PropertyChangeRecord;
-        expect(r4.name, const Symbol('length'));
-      }, count: 1));
-
-      // Fire changes
-      foo.local['hello'] = 1;
-      foo.local['hello'] = 2;
-      foo.local.remove('hello');
+      expect(foo.local, new isInstanceOf<ObservableMap>());
     });
     test('lists are observable', () {
-      var bar = new Bar.fromJsonString('{"foos": [{}]}', const streamy.NoopTrace());
+      var bar = marshaller.unmarshalBar(streamy.jsonParse('{"foos": [{}]}'));
       expect(bar.foos, new isInstanceOf<ObservableList>());
     });
     test('lists become observable via setter', () {
@@ -274,9 +229,6 @@ main() {
     test('Works via dot-property access', () {
       expect(foo['global.idStr'], equals('Id #1'));
     });
-    test('Does not crash on RawEntity', () {
-      expect(new streamy.RawEntity().global['foo'], isNull);
-    });
     test('Observation with no dependencies', () {
       foo.global.changes.listen(expectAsync((_) {}, count: 0));
     });
@@ -315,6 +267,14 @@ main() {
       }, count: 1));
       exDep.add(foo.id);
     });
+    test('should work with sub-classes', () {
+      Foo.addGlobal('testGlobal', (e) {
+        expect(e.runtimeType, FooSubclass);
+        return 'magic';
+      });
+      var subject = new FooSubclass();
+      expect(subject['global.testGlobal'], 'magic');
+    });
   });
   group('patch()', () {
     test('works like clone() for a new basic entity', () {
@@ -331,7 +291,7 @@ main() {
         ..id = 1
         ..bar = 'this changes'
         ..quux = [1.1, 1.2];
-      streamy.freezeForTest(e);
+      e.freeze();
       var c = e.clone();
       c.bar = 'this has changed';
       var p = c.patch();
@@ -355,13 +315,13 @@ main() {
       var bar = new Bar()
         ..primary = foo1
         ..foos = [foo2, foo3];
-      streamy.freezeForTest(bar);
+      bar.freeze();
       var barC = bar.clone();
       barC.primary.bar = 'changed!';
       barC.foos[0].remove('bar');
       var barP = barC.patch();
-      expect(stringify(barP),
-          '{"foos":[{"id":2},{"bar":"this does not change","id":3}],"primary":{"bar":"changed!"}}');
+      expect(JSON.encode(marshaller.marshalBar(barP)),
+          '{"primary":{"bar":"changed!"},"foos":[{"id":2},{"id":3,"bar":"this does not change"}]}');
     });
   });
   group('Bad characters', () {
@@ -372,18 +332,19 @@ main() {
       $some_entity_.addGlobal('test',
           ($some_entity_ e) => null);
     });
+
     test('should not appear in entity properties', () {
       new $some_entity_()
         ..$badly_named_property____$_______ = new fixnum.Int64(123);
     });
     test('should not appear in resources and methods names', () {
       new SchemaObjectTest(null)
-        .$some_resource_.$some_method_(null, null);
+        .$some_resource_.$some_method_();
     });
   });
   group('Array of arrays', () {
     test('should deserilize correctly', () {
-      var subject = new Context.fromJsonString(
+      var subject = marshaller.unmarshalContext(streamy.jsonParse(
 '''
 {
   "facets": [
@@ -393,11 +354,11 @@ main() {
     [null]
   ]
 }
-''', null);
+'''));
       expect(subject.facets, hasLength(4));
       expect(subject.facets[0], hasLength(2));
       subject.facets[0].forEach((f) {
-        expect(f, new isAssignableTo<Context_Facets>());
+        expect(f, new isAssignableTo<ContextFacets>());
       });
       expect(subject.facets[0][0].anchor, 'a');
       expect(subject.facets[1], hasLength(0));
@@ -409,15 +370,19 @@ main() {
       var subject = new Context()
         ..facets = [
           [
-            new Context_Facets()..anchor = 'a',
-            new Context_Facets()..anchor = 'b',
+            new ContextFacets()..anchor = 'a',
+            new ContextFacets()..anchor = 'b',
           ],
           [],
           null,
           [null],
         ];
-      expect(stringify(subject.toJson()),
+      expect(JSON.encode(marshaller.marshalContext(subject)),
           '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });
+}
+
+class FooSubclass extends Foo {
+
 }

@@ -4,6 +4,7 @@ import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:quiver/time.dart';
 import 'package:unittest/unittest.dart';
+import '../utils.dart';
 
 main() {
   group('CachingRequestHandler', () {
@@ -14,11 +15,11 @@ main() {
     setUp(() {
       var delegate = (testRequestHandler()
           ..value(new Response(
-              new RawEntity()..['value'] = 'hello',
+              makeEntity()..['value'] = 'hello',
               Source.RPC,
               time.millisecondsSinceEpoch))
           ..value(new Response(
-              new RawEntity()..['value'] = 'world',
+              makeEntity()..['value'] = 'world',
               Source.RPC,
               time.millisecondsSinceEpoch + 1000)))
           .build();

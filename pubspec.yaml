@@ -10,18 +10,25 @@ authors:
 - Yegor Jbanov <yjbanov@google.com>
 homepage: https://github.com/google/streamy-dart
 environment:
-  sdk: '>=1.0.0'
+  sdk: '>=1.4.0'
 dependencies:
+  barback: any
   browser: any
   mustache: ">=0.1.5"
   args: ">=0.9.0"
   meta: ">=0.8.8"
   fixnum: ">=0.9.0"
-  json: ">=0.9.0"
-  observe: ">=0.9.1"
+  observe: ">=0.9.1 <=0.10.0"
   quiver: ">=0.14.0"
+  yaml: any
 dev_dependencies:
+  analyzer: any
   path: any
+  protobuf: any
   unittest: any
   benchmark_harness: ">=1.0.0"
   intl: any
+transformers:
+- streamy
+- $dart2js:
+    $include: nonexistent/path

@@ -63,21 +63,33 @@ abstract class _FakeMap {
 /// A view of globals as they relate to a specific [Entity]. Implements
 /// observability based on dependencies of the globals involved.
 abstract class GlobalView extends Observable with _FakeMap implements Map {
+  
+  static Map<Type, Map<String, GlobalRegistration>> typeToGlobals = {};
   /// A real global view backed by a map of registered globals.
-  factory GlobalView(EntityWrapper entity,
-      Map<String, GlobalRegistration> globals) =>
-          new _GlobalViewImpl(entity, globals);
+  factory GlobalView(HasGlobal entity) => new _GlobalViewImpl(entity,
+      typeToGlobals.putIfAbsent(entity.streamyType, () => {}));
 
   /// A global view that doesn't have any globals.
   factory GlobalView.empty() => new _EmptyGlobalView();
 
   bool containsKey(String key);
   operator[](String key);
+  
+  static void register(Type type, String name, GlobalRegistration global) {
+    typeToGlobals.putIfAbsent(type, () => {})[name] = global;
+  }
+
+  static void registerAll(Iterable<Type> types, String name,
+      GlobalRegistration global) {
+    types.forEach((Type type) {
+      typeToGlobals.putIfAbsent(type, () => {})[name] = global;
+    });
+  }
 }
 
 class _GlobalViewImpl extends ChangeNotifier with _FakeMap implements GlobalView {
 
-  EntityWrapper _entity;
+  var _entity;
   Map<String, GlobalRegistration> _globals;
   var _changeController;
   var _changesSub;

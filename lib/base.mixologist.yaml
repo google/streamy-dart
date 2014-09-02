@@ -1,0 +1,16 @@
+output: base.dart
+library: streamy.base
+class: Entity
+paths:
+  - mixins
+mixins:
+  - base_map
+  - is_map
+  - observable
+  - immutable
+  - copy_clone
+  - dot_access
+  - local
+  - global
+  - patch_map
+  - has_api_type

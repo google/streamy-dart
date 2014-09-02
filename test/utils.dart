@@ -3,6 +3,10 @@ library streamy.test.utils;
 
 import 'dart:async';
 import 'package:unittest/unittest.dart';
+import 'package:streamy/mixins/base_map.dart';
+import 'package:streamy/streamy.dart';
+
+final Matcher isType = new isAssignableTo<Type>();
 
 /// A safer [isInstanceOf].
 class isAssignableTo<T> extends Matcher {
@@ -29,6 +33,15 @@ class isAssignableTo<T> extends Matcher {
 
   bool matches(item, Map matchState) =>
       _delegate.matches(item, matchState);
+}
+
+/**
+ * Makes an empty map-backed entity. Useful for testing.
+ */
+DynamicAccess makeEntity() {
+  var entity = new MapBase();
+  setMap(entity, {});
+  return entity;
 }
 
 List<Function> _asyncQueue = [];

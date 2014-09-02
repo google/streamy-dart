@@ -1,0 +1,129 @@
+{
+  "name": "NestedResourcesTest",
+  "servicePath": "nestedResourcesTest/v1/",
+  "schemas": {
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        }
+      }
+    },
+    "Bar": {
+      "id": "Bar",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        }
+      }
+    },
+    "Baz": {
+      "id": "Baz",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        }
+      }
+    }
+  },
+  "resources": {
+    "foos": {
+      "methods": {
+        "get": {
+          "id": "service.foos.get",
+          "path": "foos/{fooId}",
+          "name": "",
+          "response": {
+            "$ref": "Foo"
+          },
+          "httpMethod": "GET",
+          "description": "Gets a foo",
+          "parameters": {
+            "fooId": {
+              "type": "integer",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["fooId"]
+        }
+      },
+      "resources": {
+        "bars": {
+          "methods": {
+            "get": {
+              "id": "service.foos.bars.get",
+              "path": "foos/{fooId}/bars/{barId}",
+              "name": "",
+              "response": {
+                "$ref": "Bar"
+              },
+              "httpMethod": "GET",
+              "description": "Gets a bar",
+              "parameters": {
+                "fooId": {
+                  "type": "integer",
+                  "description": "Primary key of foo",
+                  "required": true,
+                  "location": "path"
+                },
+                "barId": {
+                  "type": "integer",
+                  "description": "Primary key of bar",
+                  "required": true,
+                  "location": "path"
+                }
+              },
+              "parameterOrder": ["fooId", "barId"]
+            }
+          },
+          "resources": {
+            "bazes": {
+              "methods": {
+                "get": {
+                  "id": "service.foos.bars.bazes.get",
+                  "path": "foos/{fooId}/bars/{barId}/bazesbaz/{bazId}",
+                  "name": "",
+                  "response": {
+                    "$ref": "Bar"
+                  },
+                  "httpMethod": "GET",
+                  "description": "Gets a baz",
+                  "parameters": {
+                    "fooId": {
+                      "type": "integer",
+                      "description": "Primary key of foo",
+                      "required": true,
+                      "location": "path"
+                    },
+                    "barId": {
+                      "type": "integer",
+                      "description": "Primary key of bar",
+                      "required": true,
+                      "location": "path"
+                    },
+                    "bazId": {
+                      "type": "integer",
+                      "description": "Primary key of baz",
+                      "required": true,
+                      "location": "path"
+                    }
+                  },
+                  "parameterOrder": ["fooId", "barId", "bazId"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

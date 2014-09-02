@@ -30,23 +30,6 @@ class _FunctionRequestHandler extends RequestHandler {
   Stream<Response> handle(Request request, Trace trace) => _func(request);
 }
 
-/// The root object representing an entire API, which makes its resources
-/// available.
-abstract class Root {
-  final TypeRegistry typeRegistry;
-
-  /// The API service path.
-  final String servicePath;
-
-  Root(this.typeRegistry, this.servicePath);
-
-  // Type name as defined in the API.
-  String get apiType => 'Root';
-
-  /// Execute a [Request] and return a [Stream] of the results.
-  Stream<Response> send(Request req);
-}
-
 /// Implementations of this interface provide concrete implementation of a
 /// transactional strategy.
 abstract class TransactionStrategy {
@@ -60,31 +43,29 @@ abstract class Transaction {
   Future commit();
 }
 
-/// Substitute for a [Root] object that executes requests as part of the same
-/// transaction. The implementation of a transactional strategy is provided by
-/// a [TransactionStrategy] object.
-class TransactionRoot extends Root {
+class HttpTransactionRoot extends TransactionRoot implements HttpRoot {
+  final String servicePath;
 
-  final Transaction _tx;
-
-  TransactionRoot(TypeRegistry typeRegistry, String servicePath,
-      Transaction this._tx) : super(typeRegistry, servicePath);
-
-  Stream send(Request request) => _tx.send(request);
-  Future commit() => _tx.commit();
+  HttpTransactionRoot(Transaction tx, this.servicePath) : super(tx);
 }
 
 /// Method path regex, capturing parameter names enclosed in {}.
 RegExp pathRegex = new RegExp(r'(\{[^\}]+\})');
 
-/// An HTTP request described by the API.
 abstract class Request {
+  Root get root;
+  
+  bool get isCachable;
+}
+
+/// An HTTP request described by the API.
+abstract class HttpRequest implements Request {
 
   /// Type name as defined in the API.
   String get apiType => 'Request';
 
   /// The root object from the API which generated this request.
-  final Root root;
+  final HttpRoot root;
 
   /// Request parameters.
   final Map<String, dynamic> parameters = {};
@@ -93,7 +74,7 @@ abstract class Request {
   final Map<String, dynamic> localParameters = {};
 
   /// Payload, if any.
-  final Entity _payload;
+  final DynamicAccess _payload;
 
   /// These getters access general information about this type of request.
 
@@ -120,7 +101,7 @@ abstract class Request {
   final Map<String, dynamic> local = <String, dynamic>{};
 
   /// Construct a new request.
-  Request(this.root, [this._payload = null]) {
+  HttpRequest(this.root, [this._payload = null]) {
     if (_payload == null && hasPayload) {
       throw new StateError('Request of type $runtimeType expects a payload,' +
           ' but none given');
@@ -138,12 +119,12 @@ abstract class Request {
     }
   }
 
-  /// Returns a function that can deserialize a response JSON string to Dart
-  /// object.
-  Deserializer get responseDeserializer;
+  dynamic marshalPayload() => '';
+
+  dynamic unmarshalResponse(Map data) => null;
 
   /// Returns the payload, if any.
-  Entity get payload => _payload;
+  get payload => _payload;
 
   Map toJson() {
     return new Map()
@@ -243,7 +224,7 @@ abstract class Request {
         return false;
       }
     }
-    if (hasPayload && !Entity.deepEquals(_payload, other._payload)) {
+    if (hasPayload && !EntityUtils.deepEquals(_payload, other._payload)) {
       return false;
     }
     return true;
@@ -268,7 +249,7 @@ abstract class Request {
       }
     }
     if (hasPayload) {
-      running = ((17 * running) + Entity.deepHashCode(_payload)) % MAX_HASHCODE;
+      running = ((17 * running) + EntityUtils.deepHashCode(_payload)) % MAX_HASHCODE;
     }
     return running;
   }

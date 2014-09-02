@@ -7,10 +7,10 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:args/args.dart';
-import 'package:streamy/generator.dart';
-import 'package:streamy/generator_utils.dart';
+import 'package:path/path.dart' as path;
 import 'package:quiver/async.dart';
 import 'package:quiver/strings.dart';
+import 'package:streamy/generator.dart';
 
 Directory inputDir;
 Directory outputDir;
@@ -69,19 +69,41 @@ main(List<String> args) {
   });
 }
 
-Future processDiscovery(File sourceFile) {
-  var discoveryStr = sourceFile.readAsStringSync();
-  var discovery = new Discovery.fromJsonString(discoveryStr);
+Future processDiscovery(File discoveryFile) {
+  String discoveryPath = discoveryFile.path;
 
-  print('Generating ${discovery.name}:${discovery.version}');
+  print('Generating ${discoveryPath}');
 
-  var packageDir = new Directory(
-      '${outputDir.path}/${discovery.name}/${discovery.version}');
-  packageDir.createSync(recursive: true);
+  String basename = path.basename(discoveryPath);
+  String prefix = path.basenameWithoutExtension(discoveryPath);
+  String config = configYaml(basename, prefix);
+  var rootDir = discoveryFile.parent;
+  var configFile = new File('${rootDir.path}/${prefix}.streamy.yaml');
+  configFile.writeAsStringSync(config);
 
-  new File('${packageDir.path}/${discovery.name}_${discovery.version}.json')
-      .writeAsStringSync(discoveryStr);
 
-  return generateStreamyClientLibrary(sourceFile, packageDir,
-      localStreamyLocation: localStreamyLocation);
+  return generateStreamyClientPackage(
+      configFile,
+      outputDir,
+      packageName: prefix,
+      localStreamyLocation: localStreamyLocation)
+    ..catchError((e, s) {
+      print('$e, $s');
+    });
 }
+
+String configYaml(String discoveryFilePath, String prefix) =>
+'''
+discovery: ${discoveryFilePath}
+output:
+  files: split
+  prefix: ${prefix}
+base:
+  class: Entity
+  import: package:streamy/base.dart
+  backing: map
+options:
+  clone: true
+  removers: true
+  known: false
+''';

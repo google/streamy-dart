@@ -31,12 +31,15 @@ class StreamyHttpRequest {
   /// Optional request payload.
   final String payload;
 
+  /// Whether this request should be sent withCredentials.
+  final bool withCredentials;
+
   StreamyHttpRequest._private(this.url, this.method, this.headers, this.local,
-      this.onCancel, this.payload);
+      this.onCancel, this.payload, this.withCredentials);
 
   factory StreamyHttpRequest(String url, String method,
       Map<String, String> headers, Map local, Future onCancel,
-      {String payload}) {
+      {String payload, bool withCredentials: false}) {
     var cleanHeaders = <String, String>{};
     if (headers != null) {
       headers.forEach((name, value) {
@@ -44,7 +47,7 @@ class StreamyHttpRequest {
       });
     }
     return new StreamyHttpRequest._private(url, method, cleanHeaders, local,
-        onCancel, payload);
+        onCancel, payload, withCredentials);
   }
 
   factory StreamyHttpRequest.multipart(String url, String method,
@@ -152,6 +155,14 @@ class StreamyHttpResponse {
     var boundary = cType.substring(cType.indexOf('=') + 1);
     return body.split('--$boundary\r\n').skip(1).map(parse).toList();
   }
+}
+
+/// Contains information about an error that has occurred within a
+/// [StreamyHttpService].
+class StreamyHttpError {
+  final String message;
+
+  StreamyHttpError(this.message);
 }
 
 String _trimBody(String body, int byteLength) {

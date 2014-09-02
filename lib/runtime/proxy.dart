@@ -11,12 +11,17 @@ class ProxyClient extends RequestHandler {
 
   ProxyClient(this.proxyUrl, this.httpHandler);
 
-  Stream<Response> handle(Request req, Trace trace) {
-    var url = '$proxyUrl/${req.root.servicePath}${req.path}';
+  Stream<Response> handle(Request originalReq, Trace trace) {
+    if (originalReq is! HttpRequest) {
+      throw new ProxyClientException('ProxyClient only works with HttpRequests');
+    }
+    HttpRequest req = originalReq;
+    HttpRoot root = req.root;
+    var url = '$proxyUrl/${root.servicePath}${req.path}';
     var payload = null;
     var headers = {};
     if (req.hasPayload) {
-      payload = stringify(req.payload);
+      payload = JSON.encode(req.marshalPayload());
       headers[_CONTENT_TYPE] = 'application/json; charset=utf-8';
     }
     var cancelCompleter = new Completer();
@@ -35,26 +40,25 @@ class ProxyClient extends RequestHandler {
     waitForHttpResponse.then((StreamyHttpResponse resp) {
       if (resp.statusCode < 200 || resp.statusCode >= 300) {
         Map jsonError = null;
-        List errors = null;
         // If the bodyType is not available, optimistically try parsing it as
         // JSON.
         if (!resp.headers.containsKey(_CONTENT_TYPE) ||
             resp.headers[_CONTENT_TYPE].startsWith('application/json')) {
           try {
-            jsonError = parse(resp.body);
-            if (jsonError.containsKey('error') &&
-                jsonError['error'].containsKey('errors')) {
-              errors = jsonError['error']['errors'];
-            }
+            jsonError = JSON.decode(resp.body);
           } catch(_) {
             // Apparently, body wan't JSON. The caller will have to make do.
           }
         }
         throw new StreamyRpcException(resp.statusCode, req, jsonError);
       }
-      var responsePayload = null;
+      Freezeable responsePayload = null;
       if (resp.statusCode == 200 || resp.statusCode == 201) {
-        responsePayload = req.responseDeserializer(resp.body, trace);
+        var responseJson = jsonParse(resp.body, trace);
+        trace.record(new DeserializationStartEvent(resp.body.length));
+        responsePayload = req.unmarshalResponse(responseJson);
+        responsePayload.freeze();
+        trace.record(new DeserializationEndEvent());
       }
       return new Response(responsePayload, Source.RPC,
           new DateTime.now().millisecondsSinceEpoch);
@@ -75,4 +79,10 @@ class ProxyRequestSent implements TraceEvent {
   const ProxyRequestSent._private();
 
   String toString() => 'streamy.proxy.sent';
+}
+
+class ProxyClientException extends StreamyException {
+  final String _msg;
+  ProxyClientException(this._msg);
+  String toString() => 'ProxyClientException: $_msg';
 }
