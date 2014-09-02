@@ -34,7 +34,7 @@ String _makeRemoverName(String name) {
 }
 
 String _makeHandlerName(String name) {
-  name = _makeClassName(name);
+  name = _capitalize(_fixIllegalChars(name));
   return '_handle${name}';
 }
 
