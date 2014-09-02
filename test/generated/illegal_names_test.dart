@@ -23,9 +23,10 @@ main() {
       }, count: 1));
     });
     test('RequestResponseCycle as field', () {
+      var type = new $Type()..id = 2;
       Foo testResponse = new Foo()
           ..id = 1
-          ..fooType = new $Type()..id = 2;
+          ..fooType = type;
       var marshaller = new Marshaller();
       var testRequestHandler = new RequestHandler.fromFunction(
           (req) => new Stream.fromIterable(
@@ -58,13 +59,14 @@ main() {
       expect(f2.id, equals(1));
     });
     test('to/from json as field', () {
-      var f = new Foo()
+      var type = new $Type()..id = 2;
+      var foo = new Foo()
           ..id = 1
-          ..fooType = new $Type()..id = 2;
+          ..fooType = type;
       var m = new Marshaller();
-      var f2 = m.unmarshalFoo(m.marshalFoo(f));
-      expect(f2.id, equals(1));
-      expect(f2.type.id, equals(2));
+      var foo2 = m.unmarshalFoo(m.marshalFoo(foo));
+      expect(foo2.id, equals(1));
+      expect(foo2.fooType.id, equals(2));
     });
   });
 }

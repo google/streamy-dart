@@ -41,11 +41,11 @@ main(List<String> args) {
   ensureCheckedMode();
 
   base_test.main();
-  /*generated_addendum_test.main();
+  generated_addendum_test.main();
   generated_handler_test.main();
-  generated_identifier_name_test.main();*/
+  generated_identifier_name_test.main();
   generated_illegal_names_test.main();
-  /*generated_method_get_test.main();
+  generated_method_get_test.main();
   generated_method_post_test.main();
   generated_method_params_test.main();
   generated_nested_resources_test.main();
@@ -69,7 +69,7 @@ main(List<String> args) {
   runtime_request_test.main();
   runtime_transforms_test.main();
   runtime_transaction_test.main();
-  streamy_test.main();*/
+  streamy_test.main();
   /*
   generator_emitter_test.main(args);
   */
