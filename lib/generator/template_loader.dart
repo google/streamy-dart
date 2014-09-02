@@ -1,7 +1,8 @@
-/*
- * Provides default implementations and default values.
- */
-part of streamy.generator;
+library streamy.generator.template_loader;
+
+import 'dart:async';
+import 'dart:io' as io;
+import 'package:mustache/mustache.dart' as mustache;
 
 /// The location of templates bundled with Streamy. It assumes Streamy is run
 /// from the root of the project. This value is used by default if no specific
@@ -24,5 +25,28 @@ class DefaultTemplateLoader implements TemplateLoader {
         new io.File('${templateDir}/${templateName}.mustache');
     return templateFile.readAsString()
       .then(mustache.parse);
+  }
+}
+
+abstract class TemplateLoader {
+
+  factory TemplateLoader.fromDirectory(String path) {
+    return new FileTemplateLoader(path);
+  }
+
+  Future<mustache.Template> load(String name);
+}
+
+class FileTemplateLoader implements TemplateLoader {
+  final io.Directory path;
+
+  FileTemplateLoader(String path) : path = new io.Directory(path).absolute;
+
+  Future<mustache.Template> load(String name) {
+    var f = new io.File("${path.path}/$name.mustache");
+    if (!f.existsSync()) {
+      return null;
+    }
+    return f.readAsString().then(mustache.parse);
   }
 }
