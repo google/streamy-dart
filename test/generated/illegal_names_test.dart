@@ -38,10 +38,20 @@ main() {
     });
   });
   group('Serialization', () {
-    test('to/from json', () {
+    test('to/from json as object', () {
       var f = new $Type()..id = 1;
       var m = new Marshaller();
       var f2 = m.unmarshal$Type(m.marshal$Type(f));
+      expect(f2.id, equals(1));
+    });
+    test('to/from json as field', () {
+      var f = new Foo()
+          ..id = 1
+          ..type = new $Type()..id = 2;
+      var m = new Marshaller();
+      var f2 = m.unmarshalFoo(m.marshalFoo(f));
+      expect(f2.id, equals(1));
+      expect(f2.type.id, equals(2));
     });
   });
 }

@@ -11,6 +11,19 @@
           "description": "Primary key."
         }
       }
+    },
+    "Foo": {
+      "id": "Foo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Primary key."
+        },
+        "type": {
+          "$ref": "Type"
+        }
+      }
     }
   },
   "resources": {
