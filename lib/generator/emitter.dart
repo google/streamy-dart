@@ -39,26 +39,44 @@ class Emitter {
 }
 
 class EmitterContext {
+  static final BASE_PREFIX = '_streamy_base_';
+
   final Config config;
   final Map<String, mustache.Template> templates;
   final Api api;
 
-  EmitterContext(this.config, this.templates, this.api);
+  String _libPrefix;
+  StreamyClient _client;
+  DartLibrary _rootFile;
+  String _rootPrefix;
+  DartFile _resourceFile;
+  String _resourcePrefix;
+  DartFile _requestFile;
+  String _requestPrefix;
+  DartFile _objectFile;
+  String _objectPrefix;
+  DartFile _dispatchFile;
+  String _dispatchPrefix;
 
-  static final BASE_PREFIX = '_streamy_base_';
+  String get libPrefix => _libPrefix;
+  StreamyClient get client => _client;
+  DartLibrary get rootFile => _rootFile;
+  String get rootPrefix => _rootPrefix;
+  DartFile get resourceFile => _resourceFile;
+  String get resourcePrefix => _resourcePrefix;
+  DartFile get requestFile => _requestFile;
+  String get requestPrefix => _requestPrefix;
+  DartFile get objectFile => _objectFile;
+  String get objectPrefix => _objectPrefix;
+  DartFile get dispatchFile => _dispatchFile;
+  String get dispatchPrefix => _dispatchPrefix;
 
-  StreamyClient process() {
-    var client;
-    var rootFile, rootPrefix;
-    var resourceFile, resourcePrefix;
-    var requestFile, requestPrefix;
-    var objectFile, objectPrefix;
-    var dispatchFile, dispatchPrefix;
-    var libPrefix = api.name;
+  EmitterContext(this.config, this.templates, this.api) {
+    _libPrefix = api.name;
     if (api.httpConfig != null) {
-      libPrefix = "$libPrefix";
+      _libPrefix = "$_libPrefix";
     }
-    rootFile = new DartLibrary(libPrefix)
+    _rootFile = new DartLibrary(_libPrefix)
       ..imports['package:streamy/streamy.dart'] = 'streamy'
       ..imports['package:fixnum/fixnum.dart'] = 'fixnum'
       ..imports[config.baseImport] = BASE_PREFIX
@@ -66,87 +84,89 @@ class EmitterContext {
     var out = [rootFile];
     switch (config.splitLevel) {
       case SPLIT_LEVEL_NONE:
-        resourceFile = rootFile;
-        requestFile = rootFile;
-        objectFile = rootFile;
-        dispatchFile = rootFile;
-        client = new StreamyClient(config, rootFile, null, null, null, null);
+        _resourceFile = rootFile;
+        _requestFile = rootFile;
+        _objectFile = rootFile;
+        _dispatchFile = rootFile;
+        _client = new StreamyClient(config, rootFile, null, null, null, null);
         break;
       case SPLIT_LEVEL_PARTS:
-        resourceFile = new DartLibraryPart(rootFile.libraryName,
-            '${config.outputPrefix}_resources.dart');
-        requestFile = new DartLibraryPart(rootFile.libraryName,
-            '${config.outputPrefix}_requests.dart');
-        objectFile = new DartLibraryPart(rootFile.libraryName,
-            '${config.outputPrefix}_objects.dart');
-        dispatchFile = new DartLibraryPart(rootFile.libraryName,
-            '${config.outputPrefix}_dispatch.dart');
+        _resourceFile = new DartLibraryPart(rootFile.libraryName,
+        '${config.outputPrefix}_resources.dart');
+        _requestFile = new DartLibraryPart(rootFile.libraryName,
+        '${config.outputPrefix}_requests.dart');
+        _objectFile = new DartLibraryPart(rootFile.libraryName,
+        '${config.outputPrefix}_objects.dart');
+        _dispatchFile = new DartLibraryPart(rootFile.libraryName,
+        '${config.outputPrefix}_dispatch.dart');
         rootFile.parts.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
         out.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
-        client = new StreamyClient(config, rootFile, resourceFile, requestFile, objectFile, dispatchFile);
+        _client = new StreamyClient(config, rootFile, resourceFile, requestFile, objectFile, dispatchFile);
         break;
       case SPLIT_LEVEL_LIBS:
-        resourceFile = new DartLibrary('$libPrefix.resources');
-        requestFile = new DartLibrary('$libPrefix.requests');
-        objectFile = new DartLibrary('$libPrefix.objects');
-        dispatchFile = new DartLibrary('$libPrefix.dispatch');
-        resourcePrefix = 'resources';
-        requestPrefix = 'requests';
-        objectPrefix = 'objects';
-        dispatchPrefix = 'dispatch';
+        _resourceFile = new DartLibrary('$libPrefix.resources');
+        _requestFile = new DartLibrary('$libPrefix.requests');
+        _objectFile = new DartLibrary('$libPrefix.objects');
+        _dispatchFile = new DartLibrary('$libPrefix.dispatch');
+        _resourcePrefix = 'resources';
+        _requestPrefix = 'requests';
+        _objectPrefix = 'objects';
+        _dispatchPrefix = 'dispatch';
         rootFile.imports
           ..[importPath('resources.dart')] = 'resources'
           ..[importPath('dispatch.dart')] = 'dispatch';
-        resourceFile.imports
+        _resourceFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
           ..[config.baseImport] = BASE_PREFIX
           ..[importPath('requests.dart')] = 'requests'
           ..[importPath('objects.dart')] = 'objects';
-        requestFile.imports
+        _requestFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
           ..[config.baseImport] = BASE_PREFIX
           ..[importPath('objects.dart')] = 'objects'
           ..[importPath('dispatch.dart')] = 'dispatch'
           ..['dart:async'] = null;
-        objectFile.imports
+        _objectFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
           ..[config.baseImport] = BASE_PREFIX;
-        dispatchFile.imports
+        _dispatchFile.imports
           ..['package:streamy/streamy.dart'] = 'streamy'
           ..['package:fixnum/fixnum.dart'] = 'fixnum'
           ..[config.baseImport] = BASE_PREFIX
           ..[importPath('objects.dart')] = 'objects';
         out.addAll([resourceFile, requestFile, objectFile, dispatchFile]);
-        resourceFile.imports.addAll(api.imports);
-        requestFile.imports.addAll(api.imports);
-        objectFile.imports.addAll(api.imports);
-        dispatchFile.imports.addAll(api.imports);
-        client = new StreamyClient(config, rootFile, resourceFile, requestFile, objectFile, dispatchFile);
+        _resourceFile.imports.addAll(api.imports);
+        _requestFile.imports.addAll(api.imports);
+        _objectFile.imports.addAll(api.imports);
+        _dispatchFile.imports.addAll(api.imports);
+        _client = new StreamyClient(config, rootFile, resourceFile, requestFile, objectFile, dispatchFile);
         break;
     }
-    
+
     rootFile.imports.addAll(api.imports);
-    
+  }
+
+  StreamyClient process() {
     // Root class
     if (config.generateApi) {
-      rootFile.classes.addAll(processRoot(resourcePrefix, dispatchPrefix));
-      resourceFile.classes.addAll(processResources(requestPrefix, objectPrefix));
-      requestFile.classes.addAll(processRequests(objectPrefix, dispatchPrefix));
+      rootFile.classes.addAll(processRoot());
+      resourceFile.classes.addAll(processResources());
+      requestFile.classes.addAll(processRequests());
     }
     var schemas = processSchemas();
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
     objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef)
         .where((v) => v != null));
     if (config.generateMarshallers) {
-      dispatchFile.classes.add(processMarshaller(objectPrefix));
+      dispatchFile.classes.add(processMarshaller());
     }
     return client;
   }
   
-  List<DartClass> processRoot(String resourcePrefix, String dispatchPrefix) {
+  List<DartClass> processRoot() {
     // Create the resource mixin class.
     var resourceMixin = new DartClass('${makeClassName(api.name)}ResourcesMixin');
     if (api.description != null) {
@@ -155,7 +175,7 @@ class EmitterContext {
     
     // Implement backing fields and lazy getters for each resource type.
     api.resources.forEach((name, resource) =>
-        _addLazyGetter(resourceMixin, name, resource, resourcePrefix));
+        _addLazyGetter(resourceMixin, name, resource));
     
     var baseType = streamyImport('Root');
     if (api.httpConfig != null) {
@@ -226,16 +246,15 @@ class EmitterContext {
     return [resourceMixin, root, txRoot];
   }
 
-  List<DartClass> processResources(String requestPrefix, String objectPrefix) =>
+  List<DartClass> processResources() =>
     api
       .resources
       .values
       .expand(_expandResources)
-      .map((resource) => processResource(resource, requestPrefix, objectPrefix))
+      .map((resource) => processResource(resource))
       .toList(growable: false);
   
-  DartClass processResource(Resource resource, String requestPrefix,
-      String objectPrefix) {
+  DartClass processResource(Resource resource) {
     var clazz = new DartClass('${makeClassName(resource.name)}Resource');
     var requestMethodTemplate = _template('request_method');
     
@@ -263,7 +282,7 @@ class EmitterContext {
       // Resource methods get a Request object. Either they're built using
       // request URL parameters, or the payload object.
       if (method.payloadType != null) {
-        payloadType = toDartType(method.payloadType, objectPrefix);
+        payloadType = toDartType(method.payloadType);
         plist.add(new DartParameter('payload', payloadType));
       } else {
         method.httpPath.parameters().forEach((param) {
@@ -271,7 +290,7 @@ class EmitterContext {
             return;
           }
           var pRecord = method.parameters[param];
-          var pType = toDartType(pRecord.typeRef, objectPrefix);
+          var pType = toDartType(pRecord.typeRef);
           plist.add(new DartParameter(param, pType));
           pnames.add(param);
         });
@@ -294,7 +313,7 @@ class EmitterContext {
     });
     
     resource.subresources.forEach((name, resource) =>
-        _addLazyGetter(clazz, name, resource, null));
+        _addLazyGetter(clazz, name, resource, withPrefix: false));
     
     addApiType(clazz);
     return clazz;
@@ -304,7 +323,7 @@ class EmitterContext {
     return config.importPrefix + config.outputPrefix + '_' + file;
   }
   
-  List<DartClass> processRequests(String objectPrefix, String dispatchPrefix) =>
+  List<DartClass> processRequests() =>
     api
       .resources
       .values
@@ -330,14 +349,17 @@ class EmitterContext {
     // Determine payload type.
     var payloadType;
     if (method.payloadType != null) {
-      payloadType = toDartType(method.payloadType, objectPrefix);
+      payloadType = toDartType(method.payloadType);
     }
     
     var listParams = method
       .parameters
       .values
       .where((param) => param.typeRef is ListTypeRef)
-      .map((param) => {'name': param.name, 'type': toDartType(param.typeRef.subType, objectPrefix)})
+      .map((param) => {
+        'name': param.name,
+        'type': toDartType(param.typeRef.subType),
+      })
       .toList(growable: false);
     
     // Set up a _root field for the implementation RequestHandler, and a
@@ -365,7 +387,7 @@ class EmitterContext {
     
     // Set up fields for all the preferences.
     method.parameters.forEach((name, param) {
-      var type = toDartType(param.typeRef, objectPrefix);
+      var type = toDartType(param.typeRef);
       clazz.fields.add(
           new DartComplexField(makePropertyName(name), type,
               new DartTemplateBody(paramGetter, {'name': name}),
@@ -403,7 +425,7 @@ class EmitterContext {
 
     // Set up send() methods.
     var sendParams = config.sendParams.map((p) {
-      var type = toDartType(p.typeRef, objectPrefix);
+      var type = toDartType(p.typeRef);
       var defaultValue;
       if (p.defaultValue != null) {
         if (p.defaultValue is String) {
@@ -422,7 +444,7 @@ class EmitterContext {
     var responseType;
     var responseParams = [];
     if (method.responseType != null) {
-      responseType = toDartType(method.responseType, objectPrefix);
+      responseType = toDartType(method.responseType);
       responseParams.add(responseType);
     }
     var rawType = new DartType.stream(
@@ -508,18 +530,19 @@ class EmitterContext {
     .map(processSchema)
     .toList(growable: false);
 
-  DartClass processMarshaller(String objectPrefix) {
+  DartClass processMarshaller() {
     var marshallerClass = new DartClass('Marshaller');
     marshallerClass.methods.add(new DartConstructor(marshallerClass.name, isConst: true));
     api.types.values.forEach((schema) =>
-        processSchemaForMarshaller(marshallerClass, schema, objectPrefix));
+        processSchemaForMarshaller(marshallerClass, schema));
     return marshallerClass;
   }
 
   SchemaDefinition processSchema(Schema schema) {
     var base = new DartType(config.baseClass, BASE_PREFIX, const []);
     var clazz = new DartClass(makeClassName(schema.name), baseClass: base);
-    clazz.mixins.addAll(schema.mixins.map((mixin) => toDartType(mixin, '')));
+    clazz.mixins.addAll(
+        schema.mixins.map((mixin) => toDartType(mixin, withPrefix: false)));
 
     var globalFnDef = null;
 
@@ -566,7 +589,7 @@ class EmitterContext {
     schema.properties.forEach((_, field) {
       // Add getter and setter, delegating to map access.
       var name = makePropertyName(field.name);
-      var type = toDartType(field.typeRef, null);
+      var type = toDartType(field.typeRef, withPrefix: false);
       if (config.mapBackedFields) {
         var f = new DartComplexField(name, type,
             new DartTemplateBody(getter, {'name': field.name}),
@@ -621,7 +644,7 @@ class EmitterContext {
     }
   }
 
-  void processSchemaForMarshaller(DartClass clazz, Schema schema, String objectPrefix) {
+  void processSchemaForMarshaller(DartClass clazz, Schema schema) {
     var name = makeClassName(schema.name);
     var type = new DartType(name, objectPrefix, const []);
     var rt = new DartType.map(const DartType.string(), const DartType.dynamic());
@@ -749,11 +772,12 @@ class EmitterContext {
   DartType streamyImport(String clazz, {params: const []}) =>
       new DartType(clazz, 'streamy', params);
 
-  DartType toDartType(TypeRef ref, String objectPrefix) {
+  DartType toDartType(TypeRef ref, {bool withPrefix: true}) {
     if (ref is ListTypeRef) {
-      return new DartType.list(toDartType(ref.subType, objectPrefix));
+      return new DartType.list(toDartType(ref.subType));
     } else if (ref is SchemaTypeRef) {
-      return new DartType(makeClassName(ref.schemaClass), objectPrefix, const []);
+      final prefix = withPrefix ? objectPrefix : null;
+      return new DartType(makeClassName(ref.schemaClass), prefix, const []);
     } else {
       switch (ref.base) {
         case 'int64':
@@ -782,14 +806,16 @@ class EmitterContext {
 
   mustache.Template _template(String name) => templates[name];
   
-  _addLazyGetter(DartClass clazz, String name, Resource resource, String resourcePrefix) {
+  _addLazyGetter(DartClass clazz, String name, Resource resource,
+      {bool withPrefix: true}) {
     var getterTemplate = _template('lazy_resource_getter');
 
     // Backing field.
     var fieldName = makePropertyName(name);
     var privateFieldName = '_$fieldName';
+    final prefix = withPrefix ? resourcePrefix : null;
     var type = new DartType('${makeClassName(resource.name)}Resource',
-        resourcePrefix, const []);
+        prefix, const []);
     var field = new DartSimpleField(privateFieldName, type);
     clazz.fields.add(field);
     
