@@ -25,7 +25,7 @@ main() {
     test('RequestResponseCycle as field', () {
       Foo testResponse = new Foo()
           ..id = 1
-          ..type = new $Type()..id = 2;
+          ..fooType = new $Type()..id = 2;
       var marshaller = new Marshaller();
       var testRequestHandler = new RequestHandler.fromFunction(
           (req) => new Stream.fromIterable(
@@ -60,7 +60,7 @@ main() {
     test('to/from json as field', () {
       var f = new Foo()
           ..id = 1
-          ..type = new $Type()..id = 2;
+          ..fooType = new $Type()..id = 2;
       var m = new Marshaller();
       var f2 = m.unmarshalFoo(m.marshalFoo(f));
       expect(f2.id, equals(1));
