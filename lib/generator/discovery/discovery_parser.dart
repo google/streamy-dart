@@ -1,4 +1,24 @@
-part of streamy.generator;
+library streamy.generator.discovery;
+
+import 'dart:async';
+import 'dart:convert';
+import 'package:streamy/generator/config.dart';
+import 'package:streamy/generator/ir.dart';
+
+Future<Api> parseFromConfig(
+    Config config,
+    String pathPrefix,
+    Future<String> fileReader(String)) {
+  var addendum = new Future.value('{}');
+  var discovery = fileReader(pathPrefix + config.discoveryFile);
+  if (config.addendumFile != null) {
+    addendum = fileReader(pathPrefix + config.addendumFile);
+  }
+  return Future
+    .wait([discovery, addendum])
+    .then((data) => data.map(JSON.decode).toList(growable: false))
+    .then((data) => parseDiscovery(data[0], data[1]));
+}
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
@@ -148,4 +168,29 @@ TypeRef _parseType(Map type, String containerName, String propertyName, Api api)
     ref = new TypeRef.list(ref);
   }
   return ref;
+}
+
+Map _mergeMaps(Map a, Map b) {
+  var out = {};
+  a.keys.forEach((key) {
+    if (!b.containsKey(key)) {
+      out[key] = a[key];
+    } else {
+      var aVal = a[key];
+      var bVal = b[key];
+      if (bVal == null || aVal == null) {
+        out[key] = aVal;
+      } else if (aVal is Map && bVal is Map) {
+        out[key] = _mergeMaps(aVal, bVal);
+      } else {
+        out[key] = bVal;
+      }
+    }
+  });
+  b.keys.forEach((key) {
+    if (!a.containsKey(key)) {
+      out[key] = b[key];
+    }
+  });
+  return out;
 }

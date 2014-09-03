@@ -1,4 +1,8 @@
-part of streamy.generator;
+library streamy.generator.config;
+
+import 'dart:async';
+import 'dart:io' as io;
+import 'package:streamy/generator/ir.dart';
 
 const SPLIT_LEVEL_NONE = 1;
 const SPLIT_LEVEL_PARTS = 2;
@@ -247,59 +251,4 @@ Config parseConfigOrDie(Map data) {
   }
   
   return config;
-}
-
-Future<String> _fileReader(String path) => new io.File(path).readAsString();
-
-Future<Api> apiFromConfig(
-  Config config, {String pathPrefix: '', fileReader: _fileReader}) {
-  if (config.discoveryFile != null) {
-    var addendum = new Future.value('{}');
-    var discovery = fileReader(pathPrefix + config.discoveryFile);
-    if (config.addendumFile != null) {
-      addendum = fileReader(pathPrefix + config.addendumFile);
-    }
-    return Future
-      .wait([discovery, addendum])
-      .then((data) => data.map(JSON.decode).toList(growable: false))
-      .then((data) => parseDiscovery(data[0], data[1]));
-  }
-  if (config.service != null) {
-    return Future
-      .wait(config.service.inputs.map((input) => fileReader(pathPrefix + input.filePath)))
-      .then((dataList) {
-        var api = new Api(config.service.name);
-        for (var i = 0; i < config.service.inputs.length; i++) {
-          _parseServiceFile(api, config.service.inputs[i].importPath, analyzer.parseCompilationUnit(dataList[i]), i);
-        }
-        return api;
-      });
-  }
-  if (config.proto != null) {
-    return fromProto(config.proto);
-  }
-  throw new Exception('Config missing discovery, service, or proto. Parser bug?');
-}
-
-class TemplateLoader {
-  
-  factory TemplateLoader.fromDirectory(String path) {
-    return new FileTemplateLoader(path);
-  }
-  
-  Future<mustache.Template> load(String name);
-}
-
-class FileTemplateLoader implements TemplateLoader {
-  final io.Directory path;
-  
-  FileTemplateLoader(String path) : path = new io.Directory(path).absolute;
-  
-  Future<mustache.Template> load(String name) {
-    var f = new io.File("${path.path}/$name.mustache");
-    if (!f.existsSync()) {
-      return null;
-    }
-    return f.readAsString().then(mustache.parse);
-  }
 }
