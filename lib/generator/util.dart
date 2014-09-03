@@ -1,6 +1,44 @@
-part of streamy.generator;
+library streamy.generator.utilities;
 
-String _joinParts(Iterable<String> parts) {
+import 'package:streamy/generator/ir.dart';
+
+/// Filters a map of [properties] leaving only properties of [base] type or
+/// hierarchies of lists of element of [base] type.
+Map<String, Field> fieldsOf(String base, Map<String, Field> properties) =>
+    _toMap(_entries(properties)
+        .where((_MapEntry<String, Field> e) => _hierarchyOf(base, e.value.typeRef))
+        .map((f) => f.name));
+
+/// Returns true iff either the [type] is of given [base] type or the [type] is
+/// a hierarchy of lists of elements of [base] type. For example:
+///
+///     _hierarchyOf('int64', new TypeRef.int64()); // true
+///     _hierarchyOf('int64', new TypeRef.string()); // false
+///     _hierarchyOf('int64', new TypeRef.list(new TypeRef.int64())); // true
+///     _hierarchyOf('int64', new TypeRef.list(new TypeRef.string())); // true
+bool _hierarchyOf(String base, TypeRef type) {
+  if (type.base == base) {
+    return true;
+  } else if (type is ListTypeRef) {
+    return _hierarchyOf(base, type.subType);
+  }
+  return false;
+}
+
+// TODO(yjbanov): should _entries, _toMap and _MapEntry be in quiver?
+Iterable<_MapEntry> _entries(Map map) =>
+  map.keys.map((k) => new _MapEntry(k, map[k]));
+
+Map _toMap(Iterable<_MapEntry> entries) =>
+    new Map.fromIterable(entries, key: (e) => e.key, value: (e) => e.value);
+
+class _MapEntry<K, V> {
+  final K key;
+  final V value;
+  _MapEntry(this.key, this.value);
+}
+
+String joinParts(Iterable<String> parts) {
   bool isFirst = true;
   return parts.map((part) {
     part = _fixIllegalChars(part);
@@ -12,7 +50,7 @@ String _joinParts(Iterable<String> parts) {
   }).join('');
 }
 
-String _makePropertyName(String name) {
+String makePropertyName(String name) {
   name = _fixIllegalChars(name);
   if (_ILLEGAL_PROPERTY_NAMES.contains(name)) {
     name = '\$${name}';
@@ -20,7 +58,7 @@ String _makePropertyName(String name) {
   return name;
 }
 
-String _makeMethodName(String name) {
+String makeMethodName(String name) {
   name = _fixIllegalChars(name);
   if (_ILLEGAL_METHOD_NAMES.contains(name)) {
     name = '\$${name}';
@@ -28,17 +66,17 @@ String _makeMethodName(String name) {
   return name;
 }
 
-String _makeRemoverName(String name) {
+String makeRemoverName(String name) {
   name = _capitalize(_fixIllegalChars(name));
   return 'remove${name}';
 }
 
-String _makeHandlerName(String name) {
+String makeHandlerName(String name) {
   name = _capitalize(_fixIllegalChars(name));
   return '_handle${name}';
 }
 
-String _makeClassName(String name) {
+String makeClassName(String name) {
   name = _capitalize(_fixIllegalChars(name));
   if (_ILLEGAL_CLASS_NAMES.contains(name)) {
     name = '\$${name}';
@@ -111,31 +149,6 @@ List<String> splitStringAcrossLines(String src, [int maxLen = 80]) {
   });
   lines.add(out.toString().trim());
   return lines;
-}
-
-Map _mergeMaps(Map a, Map b) {
-  var out = {};
-  a.keys.forEach((key) {
-    if (!b.containsKey(key)) {
-      out[key] = a[key];
-    } else {
-      var aVal = a[key];
-      var bVal = b[key];
-      if (bVal == null || aVal == null) {
-        out[key] = aVal;
-      } else if (aVal is Map && bVal is Map) {
-        out[key] = _mergeMaps(aVal, bVal);
-      } else {
-        out[key] = bVal;
-      }
-    }
-  });
-  b.keys.forEach((key) {
-    if (!a.containsKey(key)) {
-      out[key] = b[key];
-    }
-  });
-  return out;
 }
 
 /// Characters allowed as starting identifier characters. Note the absence of
