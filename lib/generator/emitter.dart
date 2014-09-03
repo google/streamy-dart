@@ -731,7 +731,7 @@ class EmitterContext {
     clazz.methods.add(new DartMethod('unmarshal$name', type,
         new DartTemplateBody(unmarshal, serializerConfig))
       ..parameters.add(new DartParameter('data', rt)));
-    clazz.methods.add(new DartMethod('_handle$name', const DartType.dynamic(), new DartTemplateBody(_template('marshal_handle'), {
+    clazz.methods.add(new DartMethod(makeHandlerName(schema.name), const DartType.dynamic(), new DartTemplateBody(_template('marshal_handle'), {
         'type': name
       }), isStatic: true)
         ..parameters.add(new DartParameter('marshaller', new DartType('Marshaller', null, const [])))
