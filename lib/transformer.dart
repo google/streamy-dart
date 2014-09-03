@@ -4,6 +4,10 @@ import 'dart:async';
 import 'package:barback/barback.dart';
 import 'package:mustache/mustache.dart' as mustache;
 import 'package:streamy/generator.dart';
+import 'package:streamy/generator/config.dart';
+import 'package:streamy/generator/dart.dart';
+import 'package:streamy/generator/emitter.dart';
+import 'package:streamy/generator/template_loader.dart';
 import 'package:streamy/mixologist.dart' as mixologist;
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:quiver/async.dart';
@@ -24,7 +28,7 @@ class StreamyYamlTransformer extends Transformer {
     .readAsString()
     .then(yaml.loadYaml)
     .then(parseConfigOrDie)
-    .then((config) => Emitter.fromTemplateLoader(config,
+    .then((config) => emitterFromTemplateLoader(config,
         new AssetTemplateLoader(transform)))
     .then((Emitter emitter) => apiFromConfig(emitter.config, pathPrefix:
         prefixFrom(transform.primaryInput.id), fileReader: (path) => transform
