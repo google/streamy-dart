@@ -128,7 +128,9 @@ class TypeRef {
       new SchemaTypeRef(schemaClass);
   factory TypeRef.external(String type, String importedFrom) =>
       new ExternalTypeRef(type, importedFrom);
-  
+
+  /// The most specific data type referenced by `this`.
+  String get dataType => base;
       
   String toString() => base;
 }
@@ -140,7 +142,9 @@ class ExternalTypeRef implements TypeRef {
   final String importedFrom;
   
   ExternalTypeRef(this.type, this.importedFrom);
-  
+
+  String get dataType => type;
+
   String toString() => 'external($type, $importedFrom)';
 }
 
@@ -149,6 +153,9 @@ class SchemaTypeRef implements TypeRef {
   final String schemaClass;
   
   SchemaTypeRef(this.schemaClass);
+
+  @override
+  String get dataType => schemaClass;
   
   String toString() => 'schema($schemaClass)';
 }
@@ -158,7 +165,10 @@ class ListTypeRef implements TypeRef {
   String get base => "list";
   
   ListTypeRef(this.subType);
-  
+
+  @override
+  String get dataType => base;
+
   String toString() => 'list($subType)';
 }
 

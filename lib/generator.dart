@@ -158,5 +158,6 @@ const _TEMPLATES = const <String>[
     'root_transaction_constructor',
     'string_list',
     'string_map',
-    'unmarshal'
+    'unmarshal',
+    'unmarshal_json',
 ];

@@ -119,7 +119,7 @@ abstract class HttpRequest implements Request {
     }
   }
 
-  dynamic marshalPayload() => '';
+  dynamic marshalPayload() => jsonMarshal(payload);
 
   dynamic unmarshalResponse(Map data) => null;
 
