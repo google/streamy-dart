@@ -28,5 +28,9 @@ abstract class EmitterContext {
 /// Emits a specific implementation of a marshaller into a given
 /// [EmitterContext].
 abstract class MarshallerEmitter {
-  void emit(EmitterContext context);
+  /// Emits a marshaller class.
+  void emit();
+
+  /// Adds marshalling code to a [requestClass].
+  void decorateRequestClass(Method method, DartClass requestClass);
 }

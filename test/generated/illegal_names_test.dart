@@ -14,12 +14,13 @@ main() {
     test('RequestResponseCycle as response', () {
       $Type testResponse = new $Type()..id = 1;
       var marshaller = new Marshaller();
+      var testResponsePayload = new Response(
+          marshaller.unmarshalType(jsonMarshal(testResponse)), Source.RPC, 0);
       var testRequestHandler = new RequestHandler.fromFunction(
-          (req) => new Stream.fromIterable(
-              [new Response(req.unmarshalResponse(marshaller.marshal$Type(testResponse)), Source.RPC, 0)]));
+          (req) => new Stream.fromIterable([testResponsePayload]));
       var subject = new IllegalNamesTest(testRequestHandler);
       subject.types.get(1).send().listen(expectAsync(($Type v) {
-        expect(marshaller.marshal$Type(v), equals(marshaller.marshal$Type(testResponse)));
+        expect(jsonMarshal(v), equals(jsonMarshal(testResponse)));
       }, count: 1));
     });
     test('RequestResponseCycle as field', () {
@@ -30,10 +31,10 @@ main() {
       var marshaller = new Marshaller();
       var testRequestHandler = new RequestHandler.fromFunction(
           (req) => new Stream.fromIterable(
-              [new Response(req.unmarshalResponse(marshaller.marshalFoo(testResponse)), Source.RPC, 0)]));
+              [new Response(marshaller.unmarshalFoo(jsonMarshal(testResponse)), Source.RPC, 0)]));
       var subject = new IllegalNamesTest(testRequestHandler);
       subject.foos.get(1).send().listen(expectAsync((Foo v) {
-        expect(marshaller.marshalFoo(v), equals(marshaller.marshalFoo(testResponse)));
+        expect(jsonMarshal(v), equals(jsonMarshal(testResponse)));
       }, count: 1));
     });
   });
@@ -55,7 +56,7 @@ main() {
     test('to/from json as object', () {
       var f = new $Type()..id = 1;
       var m = new Marshaller();
-      var f2 = m.unmarshal$Type(m.marshal$Type(f));
+      var f2 = m.unmarshalType(jsonMarshal(f));
       expect(f2.id, equals(1));
     });
     test('to/from json as field', () {
@@ -64,7 +65,7 @@ main() {
           ..id = 1
           ..fooType = type;
       var m = new Marshaller();
-      var foo2 = m.unmarshalFoo(m.marshalFoo(foo));
+      var foo2 = m.unmarshalFoo(jsonMarshal(foo));
       expect(foo2.id, equals(1));
       expect(foo2.fooType.id, equals(2));
     });

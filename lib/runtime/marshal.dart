@@ -63,7 +63,8 @@ void handleEntities(marshaller, Map handlers, Map data, bool marshal) {
     .keys
     .where(data.containsKey)
     .forEach((key) {
-      data[key] = handleEntityData(data[key], marshaller, handlers[key], marshal);
+      data[key] = handleEntityData(data[key], marshaller, handlers[key],
+          marshal);
     });
 }
 
@@ -71,8 +72,26 @@ handleEntityData(data, marshaller, handler, bool marshal) {
   if (data == null) {
     return null;
   } else if (data is List) {
-    return new ObservableList.from(data.map((v) => handleEntityData(v, marshaller, handler, marshal)));
+    return new ObservableList.from(
+        data.map((v) => handleEntityData(v, marshaller, handler, marshal)));
   } else {
     return handler(marshaller, data, marshal);
+  }
+}
+
+void unmarshalEntities(Map marshalledProperties, Map data) {
+  marshalledProperties.keys.where(data.containsKey).forEach((key) {
+    data[key] = unmarshalEntityData(marshalledProperties[key], data[key]);
+  });
+}
+
+unmarshalEntityData(unmarshaller(dynamic), data) {
+  if (data == null) {
+    return null;
+  } else if (data is List) {
+    return new ObservableList.from(
+        data.map((v) => unmarshalEntityData(unmarshaller, v)));
+  } else {
+    return unmarshaller(data);
   }
 }

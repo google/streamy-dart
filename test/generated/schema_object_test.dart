@@ -33,7 +33,7 @@ main() {
       expect(foo['baz'], equals(2));
     });
     test('JsonCorrectlyPopulated', () {
-      expect(marshaller.marshalFoo(foo), equals({
+      expect(streamy.jsonMarshal(foo), equals({
         'id': 1,
         'bar': 'bar',
         'baz': 2,
@@ -42,7 +42,7 @@ main() {
     });
     test('RemovedKeyNotPresentInJson', () {
       expect(foo.removeBaz(), equals(2));
-      expect(marshaller.marshalFoo(foo), equals({
+      expect(streamy.jsonMarshal(foo), equals({
         'id': 1,
         'bar': 'bar',
         'qux': '1234',
@@ -54,7 +54,8 @@ main() {
     });
     test('SerializeListToJson', () {
       var bar = new Bar()..foos = [new Foo()..id = 321];
-      bar = marshaller.unmarshalBar(streamy.jsonParse(JSON.encode(marshaller.marshalBar(bar))));
+      bar = marshaller.unmarshalBar(
+          streamy.jsonParse(JSON.encode(streamy.jsonMarshal(bar))));
       expect(bar.foos.length, equals(1));
       expect(bar.foos[0].id, equals(321));
     });
@@ -66,7 +67,8 @@ main() {
       foo.quux = [1.5, 2.5, 3.5, 4.5];
       expect(foo.quux, equals([1.5, 2.5, 3.5, 4.5]));
       expect(foo['quux'], equals([1.5, 2.5, 3.5, 4.5]));
-      expect(marshaller.marshalFoo(foo)['quux'], equals(['1.5', '2.5', '3.5', '4.5']));
+      expect(streamy.jsonMarshal(foo)['quux'],
+          equals(['1.5', '2.5', '3.5', '4.5']));
     });
     test('type=number format=double works correctly', () {
       var foo2 = marshaller.unmarshalFoo(new ObservableMap.from({
@@ -320,7 +322,7 @@ main() {
       barC.primary.bar = 'changed!';
       barC.foos[0].remove('bar');
       var barP = barC.patch();
-      expect(JSON.encode(marshaller.marshalBar(barP)),
+      expect(JSON.encode(streamy.jsonMarshal(barP)),
           '{"primary":{"bar":"changed!"},"foos":[{"id":2},{"id":3,"bar":"this does not change"}]}');
     });
   });
@@ -377,7 +379,7 @@ main() {
           null,
           [null],
         ];
-      expect(JSON.encode(marshaller.marshalContext(subject)),
+      expect(JSON.encode(streamy.jsonMarshal(subject)),
           '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });

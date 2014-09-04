@@ -1,0 +1,12 @@
+{
+{{#hasInt64s}}
+  streamy.unmarshalInt64s(_int64s{{name}}, data);
+{{/hasInt64s}}
+{{#hasDoubles}}
+  streamy.unmarshalDoubles(_doubles{{name}}, data);
+{{/hasDoubles}}
+{{#hasEntities}}
+  streamy.unmarshalEntities(_entities{{name}}, data);
+{{/hasEntities}}
+  return new {{entity}}.wrap(data);
+}

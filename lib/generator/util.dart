@@ -3,26 +3,28 @@ library streamy.generator.utilities;
 import 'package:streamy/generator/ir.dart';
 
 /// Filters a map of [properties] leaving only properties of [base] type or
-/// hierarchies of lists of element of [base] type.
-Map<String, Field> fieldsOf(String base, Map<String, Field> properties) =>
-    _toMap(_entries(properties)
-        .where((_MapEntry<String, Field> e) => _hierarchyOf(base, e.value.typeRef))
-        .map((f) => f.name));
+/// hierarchies of lists of element of [base] type. The output is a map in
+/// which keys are property names and values are type names.
+Map<String, String> fieldsOf(String base, Map<String, Field> properties) =>
+  _toMap(_entries(properties)
+    .map((e) => new _MapEntry(e.key, _hierarchyOf(base, e.value.typeRef)))
+    .where((e) => e.value != null));
 
-/// Returns true iff either the [type] is of given [base] type or the [type] is
-/// a hierarchy of lists of elements of [base] type. For example:
+/// Returns data type of [type] if either the [type] is of given [base] type or
+/// the [type] is a hierarchy of lists of elements of [base] type. Returns
+/// `null` otherwise. Example:
 ///
 ///     _hierarchyOf('int64', new TypeRef.int64()); // true
 ///     _hierarchyOf('int64', new TypeRef.string()); // false
 ///     _hierarchyOf('int64', new TypeRef.list(new TypeRef.int64())); // true
 ///     _hierarchyOf('int64', new TypeRef.list(new TypeRef.string())); // true
-bool _hierarchyOf(String base, TypeRef type) {
+String _hierarchyOf(String base, TypeRef type) {
   if (type.base == base) {
-    return true;
+    return type.dataType;
   } else if (type is ListTypeRef) {
     return _hierarchyOf(base, type.subType);
   }
-  return false;
+  return null;
 }
 
 // TODO(yjbanov): should _entries, _toMap and _MapEntry be in quiver?
