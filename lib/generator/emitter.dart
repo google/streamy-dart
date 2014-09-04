@@ -37,8 +37,7 @@ class Emitter {
   Emitter(this.config, this._templates);
 
   StreamyClient process(Api api) {
-    final ctx = new _EmitterContext(config, _templates, api);
-    return ctx.process();
+    return new _EmitterContext(config, _templates, api).process();
   }
 }
 

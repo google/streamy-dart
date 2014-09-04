@@ -25,7 +25,7 @@ class JsonMarshallerEmitter
 
   void emit() {
     _marshallerClass.methods
-    .add(new DartConstructor(_marshallerClass.name, isConst: true));
+        .add(new DartConstructor(_marshallerClass.name, isConst: true));
     _ctx.api.types.values.forEach((schema) =>
     _processSchemaForMarshaller(schema));
     _ctx.dispatchFile.classes.add(_marshallerClass);
