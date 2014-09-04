@@ -76,6 +76,12 @@ class DartLibraryPart extends DartFile {
 }
 
 class DartType {
+  static const STRING = const DartType.string();
+  static const NONE = const DartType.none();
+  static const INTEGER = const DartType.integer();
+  static const BOOLEAN = const DartType.boolean();
+  static const DOUBLE = const DartType.double();
+
   final String importNamespace;
   final String dartType;
   final List<DartType> parameters;
@@ -129,8 +135,11 @@ class DartClass implements DartNamed {
   final List<DartField> fields = [];
   final List<DartMethod> methods = [];
   final List<DartType> mixins = [];
+  final List<DartType> typeParameters;
+  final bool isAbstract;
   
-  DartClass(this.name, {this.baseClass, this.interfaces});
+  DartClass(this.name, {this.baseClass, this.interfaces, this.typeParameters,
+      this.isAbstract: false});
   
   void render(StringBuffer out, int indent) {
     var id = strings.repeat('  ', indent);
@@ -140,11 +149,20 @@ class DartClass implements DartNamed {
         ..write('/// ')
         ..writeln(line);
     });
+    if (isAbstract) {
+      out.write('abstract ');
+    }
     out
       ..write(id)
       ..write('class ')
-      ..write(name)
-      ..write(' ');
+      ..write(name);
+    if (typeParameters != null && typeParameters.isNotEmpty) {
+      out
+        ..write('<')
+        ..write(typeParameters.map((p) => p.toString()).join(', '))
+        ..write('>');
+    }
+    out.write(' ');
     if (baseClass != null) {
       out.write('extends ');
       baseClass.render(out);
@@ -298,7 +316,13 @@ class DartConstructor implements DartMethod {
   
   DartConstructor(this.forClass, {this.named, this.body, this.isConst: false,
       this.comments: const[]});
-  
+
+  void addParameter(String name, DartType type,
+      {bool isDirectAssignment: false}) {
+    parameters.add(new DartParameter(name, type,
+        isDirectAssignment: isDirectAssignment));
+  }
+
   void render(StringBuffer out, int indent) {
     var spacing = strings.repeat('  ', indent);
     out.write(spacing);
