@@ -305,25 +305,52 @@ main() {
       expect(c.patch().quux, [1.1, 1.2, 1.3]);
     });
     test('handles nested entities', () {
-      var foo1 = new Foo()
+      var foo = new Foo()
         ..id = 1
         ..bar = 'this changes';
-      var foo2 = new Foo()
-        ..id = 2
-        ..bar = 'this will be deleted';
-      var foo3 = new Foo()
-        ..id = 3
-        ..bar = 'this does not change';
       var bar = new Bar()
-        ..primary = foo1
-        ..foos = [foo2, foo3];
+        ..primary = foo;
       bar.freeze();
+
       var barC = bar.clone();
       barC.primary.bar = 'changed!';
-      barC.foos[0].remove('bar');
+
       var barP = barC.patch();
       expect(JSON.encode(streamy.jsonMarshal(barP)),
-          '{"primary":{"bar":"changed!"},"foos":[{"id":2},{"id":3,"bar":"this does not change"}]}');
+        '''
+        {
+          "primary": {
+            "bar": "changed!"
+          }
+        }'''.replaceAll(new RegExp(r'\s'), ''));
+    });
+    test('handles lists of entities', () {
+      var foo1 = new Foo()
+        ..id = 2
+        ..bar = 'this will be deleted';
+      var foo2 = new Foo()
+        ..id = 3
+        ..bar = 'thisDoesNotChange';
+      var bar = new Bar()
+        ..foos = [foo1, foo2];
+      bar.freeze();
+
+      var barC = bar.clone();
+      barC.foos[0].remove('bar');
+
+      var barP = barC.patch();
+      expect(JSON.encode(streamy.jsonMarshal(barP)), '''
+        {
+          "foos": [
+            {
+              "id": 2
+            },
+            {
+              "id": 3,
+              "bar": "thisDoesNotChange"
+            }
+          ]
+        }'''.replaceAll(new RegExp(r'\s'), ''));
     });
   });
   group('Bad characters', () {
