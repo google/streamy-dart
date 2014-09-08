@@ -1,4 +1,4 @@
-library streamy.generated.method_get.test;
+library streamy.generated.nested_resources.test;
 
 import 'dart:async';
 import 'package:unittest/unittest.dart';

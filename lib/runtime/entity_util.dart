@@ -1,25 +1,10 @@
 part of streamy.runtime;
 
-void _freezeHelper(object) {
-  if (object is Freezeable) {
-    object.freeze();
-  } else if (object is Map) {
-    object.forEach((key, value) {
-      if (value is ObservableList) {
-        object[key] = new _ObservableImmutableListView(value);
-      }
-      _freezeHelper(value);
-    });
-  } else if (object is List) {
-    object.forEach(_freezeHelper);
-  }
-}
-
-class _ObservableImmutableListView implements ObservableList {
+class ObservableImmutableListView implements ObservableList {
 
   ObservableList _delegate;
 
-  _ObservableImmutableListView(ObservableList this._delegate);
+  ObservableImmutableListView(ObservableList this._delegate);
 
   Stream<List<ChangeRecord>> get changes => _delegate.changes;
   get first => _delegate.first;
