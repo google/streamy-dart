@@ -60,6 +60,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
   String _objectPrefix;
   DartFile _dispatchFile;
   String _dispatchPrefix;
+  DartClass _requestBaseClass;
 
   String get libPrefix => _libPrefix;
   StreamyClient get client => _client;
@@ -168,7 +169,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     if (config.generateApi) {
       rootFile.classes.addAll(processRoot());
       resourceFile.classes.addAll(processResources());
-      requestFile.classes.addAll(processRequests());
+      processRequests();
     }
     var schemas = processSchemas();
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
@@ -337,18 +338,116 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     return config.importPrefix + config.outputPrefix + '_' + file;
   }
   
-  List<DartClass> processRequests() =>
-    api
-      .resources
-      .values
-      .expand(_expandResources)
-      .expand((resource) => resource
+  List<DartClass> processRequests() {
+    _generateRequestBase();
+
+    api.resources.values
+        .expand(_expandResources)
+        .expand((resource) => resource
         .methods
         .values
         .map((method) => processRequest(makeClassName(resource.name),
-            method, objectPrefix, dispatchPrefix))
-      )
-      .toList(growable: false);
+            method, objectPrefix, dispatchPrefix)))
+        .forEach(requestFile.classes.add);
+  }
+
+  _generateRequestBase() {
+    final payloadType = new DartType('P');
+    final responseType = new DartType('R');
+
+    _requestBaseClass = new DartClass(
+        '${makeClassName(api.name)}RequestBase',
+        baseClass: streamyImport('HttpRequestBase'),
+        typeParameters: [payloadType, responseType],
+        isAbstract: true);
+
+    final noPayloadCtor = new DartConstructor(_requestBaseClass.name,
+        named: 'noPayload', body: new DartConstantBody('''
+      : super.noPayload(root, httpMethod, pathFormat, apiType, pathParameters, queryParameters);'''))
+      ..addParameter('root', streamyImport('Root'))
+      ..addParameter('httpMethod', DartType.STRING)
+      ..addParameter('pathFormat', DartType.STRING)
+      ..addParameter('apiType', DartType.STRING)
+      ..addParameter('pathParameters', new DartType.list(DartType.STRING))
+      ..addParameter('queryParameters', new DartType.list(DartType.STRING))
+    ;
+    _requestBaseClass.methods.add(noPayloadCtor);
+
+    final withPayloadCtor = new DartConstructor(_requestBaseClass.name,
+        named: 'withPayload', body: new DartConstantBody('''
+      : super.withPayload(root, httpMethod, pathFormat, apiType, pathParameters, queryParameters, payload);'''))
+      ..addParameter('root', streamyImport('Root'))
+      ..addParameter('httpMethod', DartType.STRING)
+      ..addParameter('pathFormat', DartType.STRING)
+      ..addParameter('apiType', DartType.STRING)
+      ..addParameter('pathParameters', new DartType.list(DartType.STRING))
+      ..addParameter('queryParameters', new DartType.list(DartType.STRING))
+      ..addParameter('payload', payloadType)
+    ;
+    _requestBaseClass.methods.add(withPayloadCtor);
+
+    // Set up send() methods.
+    var sendParams = config.sendParams.map((p) {
+      var type = toDartType(p.typeRef);
+      var defaultValue;
+      if (p.defaultValue != null) {
+        if (p.defaultValue is String) {
+          defaultValue = new DartConstantBody("r'${p.defaultValue}'");
+        } else {
+          defaultValue = new DartConstantBody(p.defaultValue.toString());
+        }
+      }
+      return new DartNamedParameter(p.name, type, defaultValue: defaultValue);
+    }).toList();
+
+    var sendDirectTemplate = _template('request_send_direct');
+    var sendTemplate = _template('request_send');
+
+    // Add _sendDirect.
+    var rawType = new DartType.stream(
+        streamyImport('Response', params: [responseType]));
+    _requestBaseClass.methods.add(new DartMethod('_sendDirect', rawType,
+    new DartTemplateBody(sendDirectTemplate, {})));
+
+    // Add send().
+    var sendParamNames = sendParams
+        .map((p) => {'name': p.name})
+        .toList(growable: false);
+
+    var send = new DartMethod('send', new DartType.stream(responseType),
+      new DartTemplateBody(sendTemplate, {
+        'sendParams': sendParamNames,
+        'listen': false,
+        'raw': false,
+      }))
+      ..namedParameters.addAll(sendParams);
+    _requestBaseClass.methods.add(send);
+
+    // Add sendRaw().
+    var sendRaw = new DartMethod('sendRaw', rawType, new DartTemplateBody(
+      sendTemplate, {
+        'sendParams': sendParamNames,
+        'listen': false,
+        'raw': true
+      }
+    ))
+      ..namedParameters.addAll(sendParams);
+    _requestBaseClass.methods.add(sendRaw);
+
+    var listenType = new DartType('StreamSubscription', null, [responseType]);
+    var listen = new DartMethod('listen', listenType, new DartTemplateBody(
+      sendTemplate, {
+        'sendParams': sendParamNames,
+        'listen': true,
+        'raw': false
+      }
+    ))
+      ..parameters.add(new DartParameter('onData', const DartType('Function')))
+      ..namedParameters.addAll(sendParams);
+    _requestBaseClass.methods.add(listen);
+
+    requestFile.classes.add(_requestBaseClass);
+  }
 
   DartClass processRequest(String resourceClassName, Method method,
       String objectPrefix, String dispatchPrefix) {
@@ -358,7 +457,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
         joinParts([resourceClassName, method.name, 'Request']));
     var clazz = new DartClass(
         requestClassName,
-        baseClass: streamyImport('HttpRequest'));
+        baseClass: new DartType(_requestBaseClass.name));
 
     // Determine payload type.
     var payloadType;
@@ -375,12 +474,26 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
         'type': toDartType(param.typeRef.subType),
       })
       .toList(growable: false);
-    
+
+    clazz.fields.add(new DartSimpleField('API_TYPE', const DartType.string(),
+        initializer: new DartConstantBody("r'${clazz.name}'"),
+        isStatic: true, isFinal: true));
+
+    Iterable<Map> extractParams(bool predicate(Field)) =>
+        method.parameters.values.where(predicate)
+            .map((p) => { 'name': p.name });
+
     // Set up a _root field for the implementation RequestHandler, and a
     // constructor that sets it.
     var rootType = streamyImport('Root');
     var ctor = new DartConstructor(clazz.name, body: new DartTemplateBody(
       _template('request_ctor'), {
+        'superConstructor':
+            payloadType != null ? '.withPayload' : '.noPayload',
+        'httpMethod': method.httpMethod,
+        'pathFormat': method.httpPath,
+        'pathParameters': extractParams((p) => p.location == 'path'),
+        'queryParameters': extractParams((p) => p.location != 'path'),
         'hasPayload': payloadType != null,
         'hasListParams': listParams.isNotEmpty,
         'listParams': listParams
@@ -409,122 +522,22 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
       clazz.methods.add(new DartMethod(makeRemoverName(name), type,
           new DartTemplateBody(_template('request_remove'), {'name': name})));
     });
-    
-    addApiType(clazz);
-    
-    clazz.fields
-      ..add(new DartComplexField.getterOnly('hasPayload',
-          const DartType.boolean(), new DartConstantBody(
-              '=> ${method.payloadType != null};')))
-      ..add(new DartComplexField.getterOnly('httpMethod',
-          const DartType.string(), new DartConstantBody(
-              "=> r'${method.httpMethod}';")))
-      ..add(new DartComplexField.getterOnly('pathFormat',
-          const DartType.string(), new DartConstantBody(
-              "=> r'${method.httpPath}';")))
-      ..add(new DartComplexField.getterOnly('pathParameters',
-          new DartType.list(const DartType.string()), stringListBody(
-              method
-                .parameters
-                .values
-                .where((p) => p.location == 'path')
-                .map((p) => p.name), getter: true)))
-      ..add(new DartComplexField.getterOnly('queryParameters',
-          new DartType.list(const DartType.string()), stringListBody(
-              method
-                .parameters
-                .values
-                .where((p) => p.location != 'path')
-                .map((p) => p.name), getter: true)));
 
-    // Set up send() methods.
-    var sendParams = config.sendParams.map((p) {
-      var type = toDartType(p.typeRef);
-      var defaultValue;
-      if (p.defaultValue != null) {
-        if (p.defaultValue is String) {
-          defaultValue = new DartConstantBody("r'${p.defaultValue}'");
-        } else {
-          defaultValue = new DartConstantBody(p.defaultValue.toString());
-        }
-      }
-      return new DartNamedParameter(p.name, type, defaultValue: defaultValue);
-    }).toList();
-    
-    var sendDirectTemplate = _template('request_send_direct');
-    var sendTemplate = _template('request_send');
-    
-    // Add _sendDirect.
-    var responseType;
-    var responseParams = [];
-    if (method.responseType != null) {
-      responseType = toDartType(method.responseType);
-      responseParams.add(responseType);
-    }
-    var rawType = new DartType.stream(
-        streamyImport('Response', params: responseParams));
-    clazz.methods.add(new DartMethod('_sendDirect', rawType,
-        new DartTemplateBody(sendDirectTemplate, {})));
-    
-    // Add send().
-    var sendType;
-    if (responseType == null) {
-      sendType = new DartType('Stream', null, const []);
-    } else {
-      sendType = new DartType.stream(responseType);
-    }
+    var clone = new DartMethod('clone',
+    new DartType(_requestBaseClass.name, null, const []),
+    new DartTemplateBody(_template('request_clone'), {
+        'type': clazz.name,
+        'hasPayload': payloadType != null
+    }));
+    clazz.methods.add(clone);
 
     if (config.generateMarshallers) {
       _marshallerEmitter.decorateRequestClass(method, clazz);
     }
 
-    var sendParamNames = sendParams
-      .map((p) => {'name': p.name})
-      .toList(growable: false);
-    
-    var send = new DartMethod('send', sendType, new DartTemplateBody(
-        sendTemplate, {
-          'sendParams': sendParamNames,
-          'listen': false,
-          'raw': false,
-        }))
-      ..namedParameters.addAll(sendParams);
-    clazz.methods.add(send);
-    
-    // Add sendRaw().
-    var sendRaw = new DartMethod('sendRaw', rawType, new DartTemplateBody(
-        sendTemplate, {
-          'sendParams': sendParamNames,
-          'listen': false,
-          'raw': true
-        }
-    ))
-      ..namedParameters.addAll(sendParams);
-    clazz.methods.add(sendRaw);
-    
-    var listenType = new DartType('StreamSubscription', null, responseParams);
-    var listen = new DartMethod('listen', listenType, new DartTemplateBody(
-      sendTemplate, {
-        'sendParams': sendParamNames,
-        'listen': true,
-        'raw': false
-      }
-    ))
-      ..parameters.add(new DartParameter('onData', const DartType('Function')))
-      ..namedParameters.addAll(sendParams);
-    clazz.methods.add(listen);
-    
-    var clone = new DartMethod('clone',
-        new DartType(clazz.name, null, const []),
-        new DartTemplateBody(_template('request_clone'), {
-          'type': clazz.name,
-          'hasPayload': payloadType != null
-    }));
-    clazz.methods.add(clone);
-    
     return clazz;
   }
-  
+
   List<SchemaDefinition> processSchemas() => api
     .types
     .values

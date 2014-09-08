@@ -264,6 +264,25 @@ abstract class HttpRequest implements Request {
   }
 }
 
+class HttpRequestBase<P> extends HttpRequest {
+  final String httpMethod;
+  final String pathFormat;
+  final String apiType;
+  final List<String> pathParameters;
+  final List<String> queryParameters;
+  final bool hasPayload;
+
+  HttpRequestBase.noPayload(HttpRoot root, this.httpMethod, this.pathFormat,
+      this.apiType, this.pathParameters, this.queryParameters)
+          : super(root),
+            hasPayload = false;
+
+  HttpRequestBase.withPayload(HttpRoot root, this.httpMethod, this.pathFormat,
+      this.apiType, this.pathParameters, this.queryParameters, P payload)
+         : super(root, payload),
+           hasPayload = true;
+}
+
 class BranchingRequestHandlerBuilder {
   final _typeMap = new Map<Type, List<_Branch>>();
 
