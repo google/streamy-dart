@@ -62,19 +62,11 @@ dynamic _freezeHelper(dynamic object) {
 }
 
 /**
- * Nested value can be primitive, in which case there's nothing to freeze,
- * other [streamy.Freezable], in which case we need to call its freeze method
- * to let it customize behavior (e.g. patch could take a snapshot to compare
- * with later), or it could be something else that hopefully can be handled by
- * [_freezeHelper].
+ * Chooses between [_freezeHelper] and [freeze] to freeze a value.
+ *
+ * Freezeables need to use [freeze] because it can be overridden.
  */
 dynamic _freezeValue(dynamic object) {
-  if (object is num || object is String || object is fixnum.Int64 ||
-      object == null) {
-    // Value objects don't need to be frozen.
-    return object;
-  }
-
   if (object is streamy.Freezeable) {
     object.freeze();
     return object;
