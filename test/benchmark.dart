@@ -240,7 +240,7 @@ class DeserializationBenchmark extends StreamyBenchmark {
 
   void setup() {
     var foo = makePopulatedFoo(LEVEL);
-    js = JSON.encode(_MARSHALLER.marshalFoo(foo));
+    js = JSON.encode(jsonMarshal(foo));
   }
 }
 
@@ -259,7 +259,7 @@ class JsonParseBenchmark extends StreamyBenchmark {
 
   void setup() {
     var foo = makePopulatedFoo(LEVEL);
-    js = JSON.encode(_MARSHALLER.marshalFoo(foo));
+    js = JSON.encode(jsonMarshal(foo));
     subReports.add(
         new StreamyBenchmarkReport.subReport(this, 'JSON-Length', js.length,
             'chars'));
