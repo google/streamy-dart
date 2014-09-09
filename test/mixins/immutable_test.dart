@@ -2,12 +2,20 @@ library streamy.mixins.immutable.test;
 
 import 'package:streamy/raw_entity.dart';
 import 'package:observe/observe.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:unittest/unittest.dart';
 
 main() {
   group('Immutable mixin', () {
     test('should be unfrozen by default', () {
-      var entity = raw({'foo': 1});
+      var entity = raw({
+        'foo': 1,
+        'bar': 'baz',
+        'qux': false,
+        'quux': null,
+        'garply': new Int64(123),
+        'waldo': 3.14,
+      });
       expect(entity.isFrozen, isFalse);
       entity['foo'] = 2;
       expect(entity['foo'], 2);
