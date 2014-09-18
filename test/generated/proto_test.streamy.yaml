@@ -16,3 +16,7 @@ options:
   known: false
   global: false
   patch: false
+dependencies:
+  ip_test:
+    package: import_test.import_proto
+    import: package:streamy/test/generated/import_test.dart;

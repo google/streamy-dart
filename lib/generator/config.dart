@@ -35,7 +35,19 @@ class ProtoConfig {
   final String sourceFile;
   final String root;
   
+  // Map of import path to import aliases.
+  final depsByImport = <String, ProtoDependency>{};
+  final depsByPackage = <String, ProtoDependency>{};
+  
   ProtoConfig(this.name, this.sourceFile, this.root);
+}
+
+class ProtoDependency {
+  final String prefix;
+  final String importPackage;
+  final String protoPackage;
+  
+  ProtoDependency(this.prefix, this.importPackage, this.protoPackage);
 }
 
 class Config {
@@ -124,6 +136,22 @@ Config parseConfigOrDie(Map data) {
       _die('Missing proto root.');
     }
     config.proto = new ProtoConfig(proto['name'], source['file'], source['root']);
+    if (proto.containsKey('dependencies')) {
+      var deps = proto['dependencies'];
+      deps.forEach((prefix, depData) {
+        var importPackage = depData['import'];
+        var protoPackage = depData['package'];
+        var dep = new ProtoDependency(prefix, importPackage, protoPackage);
+        if (config.proto.depsByImport.containsKey(importPackage)) {
+          _die('Double import of Dart package: $importPackage.');
+        }
+        if (config.proto.depsByPackage.containsKey(protoPackage)) {
+          _die('Double import of proto package: $protoPackage');
+        }
+        config.proto.depsByPackage[protoPackage] = dep;
+        config.proto.depsByImport[importPackage] = dep;
+      });
+    }
   }
   
   if (config.discoveryFile == null && config.service == null && config.proto == null) {
