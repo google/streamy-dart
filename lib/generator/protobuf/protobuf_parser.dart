@@ -27,7 +27,10 @@ Future<Api> parseServiceFromConfig(
 }
 
 /// Generate a Streamy [Api] from a [ProtoConfig].
-Future<Api> parseFromProtoConfig(ProtoConfig config) {
+Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
+  if (protocPath == null) {
+    protocPath = 'protoc';
+  }
   // Read the proto file.
   var root = config.root;
   
@@ -39,7 +42,7 @@ Future<Api> parseFromProtoConfig(ProtoConfig config) {
   var protocArgs = ['-o/dev/stdout', '--proto_path=$protoPath',
       '$protoPath${config.sourceFile}'];
   return io.Process
-    .start('protoc', protocArgs)
+    .start(protocPath, protocArgs)
     .then((protoc) => protoc.stdout.toList())
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))

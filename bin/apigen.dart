@@ -16,6 +16,7 @@ String packageVersion;
 String localStreamyLocation;
 String remoteStreamyLocation;
 String remoteBranch;
+String protocPath;
 
 main(List<String> args) {
   parseArgs(args);
