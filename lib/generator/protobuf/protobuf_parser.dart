@@ -28,6 +28,10 @@ Future<Api> parseServiceFromConfig(
 
 /// Generate a Streamy [Api] from a [ProtoConfig].
 Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
+  // TODO(Alex): When running via apigen, protocPath is specified on the command
+  // line. When running as a transformer, though, this is not specified and
+  // defaults to null. This setting of a default value can be removed when
+  // specifying protoc is possible under a transformer.
   if (protocPath == null) {
     protocPath = 'protoc';
   }
