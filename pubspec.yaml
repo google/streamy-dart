@@ -31,4 +31,6 @@ dev_dependencies:
 transformers:
 - streamy
 - $dart2js:
-    $include: nonexistent/path
+    $include: test/benchmark_html.dart
+- $dart2js:
+    $include: test/test_in_browser.dart

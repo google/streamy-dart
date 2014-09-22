@@ -14,6 +14,7 @@ import 'generated/proto_test.dart' as generated_proto_test;
 import 'generated/schema_object_test.dart' as generated_schema_object_test;
 
 import 'mixins/dot_access_test.dart' as mixins_dot_access_test;
+import 'mixins/immutable_test.dart' as mixins_immutable_test;
 import 'mixins/is_map_test.dart' as mixins_is_map_test;
 import 'mixins/patch_map_test.dart' as mixins_patch_map_test;
 
@@ -53,6 +54,7 @@ main(List<String> args) {
   generated_schema_object_test.main();
 
   mixins_dot_access_test.main();
+  mixins_immutable_test.main();
   mixins_is_map_test.main();
   mixins_patch_map_test.main();
 
