@@ -25,14 +25,16 @@ Future generateStreamyClientPackage(
       String packageVersion: '0.0.0',
       String localStreamyLocation,
       String remoteStreamyLocation,
-      String remoteBranch
+      String remoteBranch,
+      String protoc
     }) {
   var configYaml = yaml.loadYaml(configFile.readAsStringSync());
   var config = parseConfigOrDie(configYaml);
   var templateLoader = new DefaultTemplateLoader.defaultInstance();
   var emitterFuture = emitterFromTemplateLoader(config, templateLoader);
   var apiFuture = apiFromConfig(config,
-      pathPrefix: '${configFile.parent.path}${path.separator}');
+      pathPrefix: '${configFile.parent.path}${path.separator}',
+      protoc: protoc);
   return Future.wait([emitterFuture, apiFuture]).then((List list) {
     Emitter emitter = list[0];
     Api api = list[1];
@@ -102,7 +104,9 @@ Future generateStreamyClientPackage(
 Future<String> _fileReader(String path) => new io.File(path).readAsString();
 
 Future<Api> apiFromConfig(
-    Config config, {String pathPrefix: '', fileReader: _fileReader}) {
+    Config config, {String pathPrefix: '', fileReader: _fileReader,
+    String protoc
+    }) {
   if (config.discoveryFile != null) {
     return discovery.parseFromConfig(config, pathPrefix, fileReader);
   }
@@ -110,7 +114,7 @@ Future<Api> apiFromConfig(
     return proto.parseServiceFromConfig(config, pathPrefix, fileReader);
   }
   if (config.proto != null) {
-    return proto.parseFromProtoConfig(config.proto);
+    return proto.parseFromProtoConfig(config.proto, protoc);
   }
   throw new Exception('Config missing discovery, service, or proto. Parser bug?');
 }

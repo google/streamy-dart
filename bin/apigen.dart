@@ -16,6 +16,7 @@ String packageVersion;
 String localStreamyLocation;
 String remoteStreamyLocation;
 String remoteBranch;
+String protocPath;
 
 main(List<String> args) {
   parseArgs(args);
@@ -26,7 +27,8 @@ main(List<String> args) {
       packageVersion: packageVersion,
       localStreamyLocation: localStreamyLocation,
       remoteStreamyLocation: remoteStreamyLocation,
-      remoteBranch: remoteBranch
+      remoteBranch: remoteBranch,
+      protoc: protocPath
   );
 }
 
@@ -137,6 +139,13 @@ void parseArgs(List<String> arguments) {
         help: 'Remote branch name to use',
         callback: (String value) {
           remoteBranch = value;
+        })
+    ..addOption(
+        'protoc',
+        defaultsTo: 'protoc',
+        help: 'Path to the protocol buffer compiler (protoc).',
+        callback: (String value) {
+          protocPath = value;
         })
     ..addFlag(
       'help',
