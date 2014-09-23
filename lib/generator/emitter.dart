@@ -168,7 +168,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
   void _addDepImports(DartFile file, Set<String> imports) {
     var knownImports = {};
     imports.forEach((prefix) {
-      knownImports[dependencies[prefix]] = prefix;
+      knownImports[api.dependencies[prefix]] = prefix;
     });
     file.imports.addAll(knownImports);
   }

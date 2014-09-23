@@ -67,10 +67,11 @@ Future<Api> parseFromProtoConfig(ProtoConfig config) {
               } else {
                 var entity = parts.removeLast();
                 var package = parts.join('.');
-                throw new Exception("Found dep: $entity from $package");
                 if (config.depsByPackage.containsKey(package)) {
                   var importPrefix = config.depsByPackage[package].prefix;
                   type = new TypeRef.dependency(entity, importPrefix);
+                } else {
+                  throw new Exception("Unknown dependency $entity from $package");
                 }
               }
               break;

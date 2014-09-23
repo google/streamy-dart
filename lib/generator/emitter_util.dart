@@ -63,6 +63,9 @@ abstract class EmitterBase {
           ExternalTypeRef externalTypeRef = ref;
           return new DartType(externalTypeRef.type,
           externalTypeRef.importedFrom, const []);
+        case 'dependency':
+          return new DartType(makeClassName(ref.type), ref.importedFrom,
+              const []);
         default:
           throw new Exception('Unhandled API type: $ref');
       }
