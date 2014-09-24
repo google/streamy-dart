@@ -37,9 +37,9 @@ jsonMarshal(dynamic object) {
       ret[k] = jsonMarshal(v);
     });
     return ret;
-  } else if (object is Int64 || object is double) {
+  } else if (object is Int64) {
     return object.toString();
-  } else if (object == null || object is int || object is bool ||
+  } else if (object == null || object is num || object is bool ||
       object is String) {
     return object;
   } else {
