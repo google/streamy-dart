@@ -136,10 +136,27 @@ abstract class HttpRequest implements Request {
   String get path {
     int pos = 0;
     StringBuffer buf = new StringBuffer();
+    bool seenWildcardQueryParameter = false;
+    
     for (Match m in pathRegex.allMatches(pathFormat)) {
+      if (seenWildcardQueryParameter) {
+        throw new StateError(
+            'Path contained wildcard parameter in non-final position');
+      }
       buf.write(pathFormat.substring(pos, m.start));
       String pathParamName = pathFormat.substring(m.start + 1, m.end - 1);
-      buf.write(Uri.encodeComponent(parameters[pathParamName].toString()));
+      if (pathParamName.startsWith('\+')) {
+        // A path parameter whose name starts with a + symbol is permitted to
+        // contain the '/' character, so add it back after the URI encoding has
+        // removed it.
+        // Note that wildcards can only exist as the last parameter in the path
+        // to avoid ambiguity in path matching.
+        var encoded = Uri.encodeComponent(
+            parameters[pathParamName.substring(1)].toString());
+        buf.write(encoded.replaceAll('%2F', '/'));
+      } else {
+        buf.write(Uri.encodeComponent(parameters[pathParamName].toString()));
+      }
       pos = m.end;
     }
     buf.write(pathFormat.substring(pos));

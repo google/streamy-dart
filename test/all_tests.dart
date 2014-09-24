@@ -12,6 +12,7 @@ import 'generated/method_post_test.dart' as generated_method_post_test;
 import 'generated/method_params_test.dart' as generated_method_params_test;
 import 'generated/proto_test.dart' as generated_proto_test;
 import 'generated/schema_object_test.dart' as generated_schema_object_test;
+import 'generated/wildcard_path_param_test.dart' as generated_wildcard_path_param_test;
 
 import 'mixins/dot_access_test.dart' as mixins_dot_access_test;
 import 'mixins/immutable_test.dart' as mixins_immutable_test;
@@ -52,6 +53,7 @@ main(List<String> args) {
   generated_nested_resources_test.main();
   generated_proto_test.main();
   generated_schema_object_test.main();
+  generated_wildcard_path_param_test.main();
 
   mixins_dot_access_test.main();
   mixins_immutable_test.main();

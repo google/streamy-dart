@@ -1,0 +1,32 @@
+{
+  "name": "WildcardPathParamTest",
+  "servicePath": "wildcardPathParamTest/v1/",
+  "resources": {
+    "foos": {
+      "methods": {
+        "get": {
+          "id": "service.foos.get",
+          "path": "foos/{barId}/{+fooId}",
+          "name": "",
+          "httpMethod": "GET",
+          "description": "Gets a foo",
+          "parameters": {
+            "barId": {
+              "type": "string",
+              "description": "Primary key of bar",
+              "required": true,
+              "location": "path"
+            },
+            "fooId": {
+              "type": "string",
+              "description": "Primary key of foo",
+              "required": true,
+              "location": "path"
+            }
+          },
+          "parameterOrder": ["barId", "fooId"]
+        }
+      }
+    }
+  }
+}
