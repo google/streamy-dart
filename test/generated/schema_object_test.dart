@@ -68,7 +68,7 @@ main() {
       expect(foo.quux, equals([1.5, 2.5, 3.5, 4.5]));
       expect(foo['quux'], equals([1.5, 2.5, 3.5, 4.5]));
       expect(streamy.jsonMarshal(foo)['quux'],
-          equals(['1.5', '2.5', '3.5', '4.5']));
+          equals([1.5, 2.5, 3.5, 4.5]));
     });
     test('type=number format=double works correctly', () {
       var foo2 = marshaller.unmarshalFoo(new ObservableMap.from({
