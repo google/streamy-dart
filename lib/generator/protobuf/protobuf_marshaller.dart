@@ -160,8 +160,7 @@ class ProtobufMarshallerEmitter
       ..parameters.add(new DartParameter('data', rt)));
     _marshallerClass.methods.add(new DartMethod(makeHandlerName(schema.name),
     const DartType.dynamic(),
-    new DartTemplateBody(templates['marshal_handle'], {'type': name}),
-    isStatic: true)
+    new DartTemplateBody(templates['marshal_handle'], {'type': name}))
       ..parameters.add(new DartParameter('marshaller', new DartType('Marshaller', null, const [])))
       ..parameters.add(new DartParameter('data', const DartType.dynamic()))
       ..parameters.add(new DartParameter('marshal', const DartType.boolean())));
