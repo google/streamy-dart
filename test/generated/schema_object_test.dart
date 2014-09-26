@@ -179,6 +179,14 @@ main() {
       expect(bar.foos[0].bar, 'hello',
           reason: 'Expected list to contain the same stuff as the original');
     });
+    test('lists are detached from observable list created by setter', () {
+      var bar = new Bar();
+      var list = [1, 2];
+      bar.foos = list;
+      list.add(3);
+      expect(bar.foos, [1, 2],
+        reason: 'setter does not wrap the list but makes a copy');
+    });
     test('observable lists not copied in setter', () {
       var bar = new Bar();
       var list = new ObservableList<Foo>();
