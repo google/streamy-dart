@@ -45,11 +45,12 @@ class ProtobufMarshallerEmitter
     fullCtor.parameters.addAll(importedMarshallers.map((prefix) =>
         new DartParameter('${prefix}Marshaller',
             new DartType('Marshaller', prefix), isDirectAssignment: true)));
-    _marshallerClass.methods.add(fullCtor);
-    _marshallerClass.methods.add(emptyCtor);
-    _marshallerClass.fields.addAll(importedMarshallers.map((prefix) =>
-        new DartSimpleField('${prefix}Marshaller',
-            new DartType('Marshaller', prefix), isFinal: true)));
+    _marshallerClass
+      ..methods.add(fullCtor)
+      ..methods.add(emptyCtor);
+      ..fields.addAll(importedMarshallers.map((prefix) =>
+          new DartSimpleField('${prefix}Marshaller',
+              new DartType('Marshaller', prefix), isFinal: true)));
     _ctx.api.types.values.forEach(_processSchemaForMarshaller);
     _ctx.dispatchFile.classes.add(_marshallerClass);
   }
@@ -93,15 +94,15 @@ class ProtobufMarshallerEmitter
     var dependencyFields = {};
 
     schema
-    .properties
-    .forEach((_, field) {
-      _accumulateMarshallingTypes(field.name, field.typeRef, int64Fields,
-          doubleFields, entityFields, dependencyFields);
-      allFields.add({
-          'key': field.name,
-          'identifier': makePropertyName(field.name),
+      .properties
+      .forEach((_, field) {
+        _accumulateMarshallingTypes(field.name, field.typeRef, int64Fields,
+            doubleFields, entityFields, dependencyFields);
+        allFields.add({
+            'key': field.name,
+            'identifier': makePropertyName(field.name),
+        });
       });
-    });
 
     var stringList = new DartType.list(const DartType.string());
     var serialMap = new DartType('Map');
