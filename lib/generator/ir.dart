@@ -36,7 +36,7 @@ class Schema {
   
   Schema(this.name);
   
-  Set<String> dependencies() => properties
+  Set<String> extractDependencies() => properties
     .values
     .expand((field) => _depsForType(field.typeRef))
     .toSet();
@@ -63,9 +63,9 @@ class Resource {
   
   Resource(this.name, {this.description: null});
   
-  Set<String> dependencies() => [subresources.values, methods.values]
+  Set<String> extractDependencies() => [subresources.values, methods.values]
     .expand((v) => v)
-    .expand((v) => v.dependencies())
+    .expand((v) => v.extractDependencies())
     .toSet();
   
   String toString() => (new StringBuffer()
@@ -84,7 +84,7 @@ class Method {
   
   Method(this.name, this.httpPath, this.httpMethod, this.payloadType, this.responseType);
   
-  Set<String> dependencies() => new Set<String>()
+  Set<String> extractDependencies() => new Set<String>()
       ..addAll(_depsForType(payloadType))
       ..addAll(_depsForType(responseType))
       ..addAll(parameters

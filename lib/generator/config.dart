@@ -35,11 +35,23 @@ class ProtoConfig {
   final String sourceFile;
   final String root;
   
-  // Map of import path to import aliases.
+  /// Map of import path to import aliases.
   final depsByImport = <String, ProtoDependency>{};
   final depsByPackage = <String, ProtoDependency>{};
+  final orderedImports = <String>[];
   
   ProtoConfig(this.name, this.sourceFile, this.root);
+  
+  List<String> orderImported(Iterable<String> imports) => imports
+    .where(orderedImports.contains)
+    .toList()
+    ..sort((a, b) {
+      var apos = orderedImports.indexOf(a);
+      var bpos = orderedImports.indexOf(b);
+      if (apos == -1 || bpos == -1) {
+      }
+      return Comparable.compare(apos, bpos);
+    });
 }
 
 class ProtoDependency {
@@ -148,8 +160,10 @@ Config parseConfigOrDie(Map data) {
         if (config.proto.depsByPackage.containsKey(protoPackage)) {
           _die('Double import of proto package: $protoPackage');
         }
-        config.proto.depsByPackage[protoPackage] = dep;
-        config.proto.depsByImport[importPackage] = dep;
+        config.proto
+          ..depsByPackage[protoPackage] = dep
+          ..depsByImport[importPackage] = dep
+          ..orderedImports.add(prefix);
       });
     }
   }

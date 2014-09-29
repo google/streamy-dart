@@ -24,22 +24,32 @@ class ProtobufMarshallerEmitter
   String get objectPrefix => _ctx.objectPrefix;
 
   void emit() {
-    var importedMarshallers = _ctx.api.types.values.expand(_marshallerImportsForSchema)
-      .toSet();
-    var marshallers = importedMarshallers.map((prefix) =>
-        {'import': prefix, 'last': false}).toList(growable: false);
+    var importedMarshallers = _ctx.config.proto.orderImported(_ctx
+      .api
+      .types
+      .values
+      .expand(_marshallerImportsForSchema)
+      .toSet());
+    var marshallers = importedMarshallers
+        .map((prefix) => {'import': prefix, 'last': false})
+        .toList(growable: false);
     if (marshallers.isNotEmpty) {
       marshallers.last['last'] = true;
-      
     }
-    var emptyCtor = new DartConstructor(_marshallerClass.name, isConst: true, body: new DartTemplateBody(
-      _ctx.templates['proto_marshaller_ctor'], {'marshallers': marshallers}));
+    var emptyCtor = new DartConstructor(_marshallerClass.name, isConst: true,
+        body: new DartTemplateBody(_ctx.templates['proto_marshaller_ctor'],
+            {'marshallers': marshallers}));
       
-    var fullCtor = new DartConstructor(_marshallerClass.name, named: 'withMarshallers', isConst: true);
-    fullCtor.parameters.addAll(importedMarshallers.map((prefix) => new DartParameter('${prefix}Marshaller', new DartType('Marshaller', prefix), isDirectAssignment: true)));
+    var fullCtor = new DartConstructor(_marshallerClass.name,
+        named: 'withMarshallers', isConst: true);
+    fullCtor.parameters.addAll(importedMarshallers.map((prefix) =>
+        new DartParameter('${prefix}Marshaller',
+            new DartType('Marshaller', prefix), isDirectAssignment: true)));
     _marshallerClass.methods.add(fullCtor);
     _marshallerClass.methods.add(emptyCtor);
-    _marshallerClass.fields.addAll(importedMarshallers.map((prefix) => new DartSimpleField('${prefix}Marshaller', new DartType('Marshaller', prefix), isFinal: true)));
+    _marshallerClass.fields.addAll(importedMarshallers.map((prefix) =>
+        new DartSimpleField('${prefix}Marshaller',
+            new DartType('Marshaller', prefix), isFinal: true)));
     _ctx.api.types.values.forEach(_processSchemaForMarshaller);
     _ctx.dispatchFile.classes.add(_marshallerClass);
   }
@@ -50,25 +60,29 @@ class ProtobufMarshallerEmitter
       responseType = toDartType(method.responseType);
     }
     if (responseType != null && _ctx.api.httpConfig != null) {
-      requestClass.methods.add(new DartMethod('unmarshalResponse', responseType,
-      new DartTemplateBody(_ctx.templates['request_unmarshal_response'], {
-          'name': makeClassName((method.responseType as SchemaTypeRef).schemaClass)
-      }))
-        ..parameters.add(new DartParameter('data', new DartType('Map', null, const []))));
+      requestClass.methods.add(new DartMethod('unmarshalResponse',
+          responseType, new DartTemplateBody(
+              _ctx.templates['request_unmarshal_response'],
+              {'name': makeClassName((method.responseType as SchemaTypeRef)
+                  .schemaClass)}))
+          ..parameters.add(new DartParameter('data',
+              new DartType('Map', null, const []))));
     }
 
     if (method.payloadType != null) {
-      requestClass.methods.add(new DartMethod('marshalPayload', new DartType('Map'),
-      new DartTemplateBody(_ctx.templates['request_marshal_payload'], {
-          'name': makeClassName((method.payloadType as SchemaTypeRef).schemaClass)
-      })));
+      requestClass.methods.add(new DartMethod('marshalPayload',
+          new DartType('Map'),
+          new DartTemplateBody(_ctx.templates['request_marshal_payload'], {
+              'name': makeClassName((method.payloadType as SchemaTypeRef)
+                  .schemaClass)})));
     }
   }
 
   void _processSchemaForMarshaller(Schema schema) {
     var name = makeClassName(schema.name);
     var type = new DartType(name, objectPrefix, const []);
-    var rt = new DartType.map(const DartType.string(), const DartType.dynamic());
+    var rt = new DartType.map(const DartType.string(),
+        const DartType.dynamic());
     var marshal = templates['marshal'];
     var unmarshal = templates['unmarshal'];
 
@@ -82,7 +96,7 @@ class ProtobufMarshallerEmitter
     .properties
     .forEach((_, field) {
       _accumulateMarshallingTypes(field.name, field.typeRef, int64Fields,
-      doubleFields, entityFields, dependencyFields);
+          doubleFields, entityFields, dependencyFields);
       allFields.add({
           'key': field.name,
           'identifier': makePropertyName(field.name),
@@ -92,14 +106,14 @@ class ProtobufMarshallerEmitter
     var stringList = new DartType.list(const DartType.string());
     var serialMap = new DartType('Map');
     if (int64Fields.isNotEmpty) {
-      _marshallerClass.fields.add(new DartSimpleField('_int64s$name', stringList,
-      isStatic: true, isFinal: true,
-      initializer: stringListBody(int64Fields)));
+      _marshallerClass.fields.add(new DartSimpleField('_int64s$name',
+          stringList, isStatic: true, isFinal: true,
+          initializer: stringListBody(int64Fields)));
     }
     if (doubleFields.isNotEmpty) {
-      _marshallerClass.fields.add(new DartSimpleField('_doubles$name', stringList,
-      isStatic: true, isFinal: true,
-      initializer: stringListBody(doubleFields)));
+      _marshallerClass.fields.add(new DartSimpleField('_doubles$name',
+          stringList, isStatic: true, isFinal: true,
+          initializer: stringListBody(doubleFields)));
     }
 
     var fieldMapping = {};
@@ -132,12 +146,12 @@ class ProtobufMarshallerEmitter
       });
     });
     if (data.isNotEmpty) {
-      _marshallerClass.fields.add(new DartComplexField.getterOnly('_entities$name', rt,
-      new DartTemplateBody(templates['map'], {
-          'pairs': data,
-          'getter': true,
-          'const': false,
-      })));
+      _marshallerClass.fields.add(new DartComplexField.getterOnly(
+          '_entities$name', rt, new DartTemplateBody(templates['map'], {
+            'pairs': data,
+            'getter': true,
+            'const': false,
+          })));
     }
     var serializerConfig = {
         'entity': type,
@@ -161,7 +175,8 @@ class ProtobufMarshallerEmitter
     _marshallerClass.methods.add(new DartMethod(makeHandlerName(schema.name),
     const DartType.dynamic(),
     new DartTemplateBody(templates['marshal_handle'], {'type': name}))
-      ..parameters.add(new DartParameter('marshaller', new DartType('Marshaller', null, const [])))
+      ..parameters.add(new DartParameter('marshaller',
+          new DartType('Marshaller', null, const [])))
       ..parameters.add(new DartParameter('data', const DartType.dynamic()))
       ..parameters.add(new DartParameter('marshal', const DartType.boolean())));
   }
@@ -185,7 +200,8 @@ class ProtobufMarshallerEmitter
     .toSet();
 
   _accumulateMarshallingTypes(String name, TypeRef typeRef,
-      List<String> int64Fields, List<String> doubleFields, Map entityFields, Map dependencyFields) {
+      List<String> int64Fields, List<String> doubleFields, Map entityFields,
+      Map dependencyFields) {
     switch (typeRef.base) {
       case 'int64':
         int64Fields.add(name);

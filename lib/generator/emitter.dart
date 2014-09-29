@@ -165,7 +165,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     }
   }
 
-  void _addDepImports(DartFile file, Set<String> imports) {
+  void _addDepImports(DartFile file, List<String> imports) {
     var knownImports = {};
     imports.forEach((prefix) {
       knownImports[api.dependencies[prefix]] = prefix;
@@ -185,11 +185,18 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
     objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef)
         .where((v) => v != null));
-    _addDepImports(objectFile, deps);
+    _addDepImports(objectFile, _maybeSortDeps(deps));
     if (config.generateMarshallers) {
       _marshallerEmitter.emit();
     }
     return client;
+  }
+  
+  Iterable<String> _maybeSortDeps(Set<String> deps) {
+    if (config.proto != null) {
+      return config.proto.orderImported(deps);
+    }
+    return deps;
   }
   
   List<DartClass> processRoot() {
@@ -639,7 +646,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
 
     addApiType(clazz);
 
-    return new SchemaDefinition(clazz, globalFnDef, schema.dependencies());
+    return new SchemaDefinition(clazz, globalFnDef, schema.extractDependencies());
   }
 
   void addApiType(DartClass clazz) {
