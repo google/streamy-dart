@@ -26,8 +26,9 @@ class StreamyClient {
 class SchemaDefinition {
   final DartClass clazz;
   final DartTypedef globalDef;
+  final Set<String> dependencies;
   
-  SchemaDefinition(this.clazz, this.globalDef);
+  SchemaDefinition(this.clazz, this.globalDef, this.dependencies);
 }
 
 class Emitter {
@@ -164,6 +165,14 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     }
   }
 
+  void _addDepImports(DartFile file, List<String> imports) {
+    var knownImports = {};
+    imports.forEach((prefix) {
+      knownImports[api.dependencies[prefix]] = prefix;
+    });
+    file.imports.addAll(knownImports);
+  }
+
   StreamyClient process() {
     // Root class
     if (config.generateApi) {
@@ -172,13 +181,22 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
       processRequests();
     }
     var schemas = processSchemas();
+    var deps = schemas.expand((schema) => schema.dependencies).toSet();
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
     objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef)
         .where((v) => v != null));
+    _addDepImports(objectFile, _maybeSortDeps(deps));
     if (config.generateMarshallers) {
       _marshallerEmitter.emit();
     }
     return client;
+  }
+  
+  Iterable<String> _maybeSortDeps(Set<String> deps) {
+    if (config.proto != null) {
+      return config.proto.orderImported(deps);
+    }
+    return deps;
   }
   
   List<DartClass> processRoot() {
@@ -628,7 +646,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
 
     addApiType(clazz);
 
-    return new SchemaDefinition(clazz, globalFnDef);
+    return new SchemaDefinition(clazz, globalFnDef, schema.extractDependencies());
   }
 
   void addApiType(DartClass clazz) {

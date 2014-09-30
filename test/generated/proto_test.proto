@@ -1,5 +1,7 @@
 package proto_test;
 
+import "import_test.proto";
+
 message Foo {
   optional int64 id = 1;
   optional string name = 2;
@@ -9,4 +11,5 @@ message Foo {
 message Bar {
   optional int64 id = 1;
   optional string name = 2;
+  repeated import_test.import_proto.Baz imported = 3;
 }

@@ -50,7 +50,7 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     .then((protoc) => protoc.stdout.toList())
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
-    .then((proto) => proto.file.single)
+    .then((data) => data.file.single)
     .then((proto) {
       var api = new Api(config.name);
       proto.messageType.forEach((message) {
@@ -68,7 +68,19 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
               type = const TypeRef.string();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_MESSAGE:
-              type = new TypeRef.schema(field.typeName.split('.')[2]);
+              var parts = field.typeName.split('.').skip(1).toList();
+              if (parts[0] == proto.package) {
+                type = new TypeRef.schema(parts.skip(1).single);
+              } else {
+                var entity = parts.removeLast();
+                var package = parts.join('.');
+                if (config.depsByPackage.containsKey(package)) {
+                  var importPrefix = config.depsByPackage[package].prefix;
+                  type = new TypeRef.dependency(entity, importPrefix);
+                } else {
+                  throw new Exception("Unknown dependency $entity from $package");
+                }
+              }
               break;
             default:
               throw new Exception("Unknown: ${field.name} / ${field.type}");
@@ -82,6 +94,12 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
                   key: "${field.number}");
         });
         api.types[schema.name] = schema;
+        
+        // Add dependencies to the IR.
+        config
+          .depsByImport
+          .values
+          .forEach((dep) => api.dependencies[dep.prefix] = dep.importPackage);
       });
       return api;
     });
