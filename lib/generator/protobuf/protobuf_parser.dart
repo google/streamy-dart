@@ -50,6 +50,7 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     .then((protoc) => protoc.stdout.toList())
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
+    .then((proto) => throw new Exception("Data: $proto"))
     .then((proto) => proto.file.single)
     .then((proto) {
       var api = new Api(config.name);

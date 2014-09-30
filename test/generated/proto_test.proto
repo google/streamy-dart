@@ -10,3 +10,8 @@ message Bar {
   optional int64 id = 1;
   optional string name = 2;
 }
+
+service Test {
+  rpc Get(Foo) returns (Bar);
+  rpc Set(Bar) returns (Foo);
+}
