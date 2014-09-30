@@ -104,8 +104,11 @@ Future generateStreamyClientPackage(
 Future<String> _fileReader(String path) => new io.File(path).readAsString();
 
 Future<Api> apiFromConfig(
-    Config config, {String pathPrefix: '', fileReader: _fileReader,
-    String protoc
+    Config config,
+    {
+      String pathPrefix: '',
+      fileReader: _fileReader,
+      String protoc
     }) {
   if (config.discoveryFile != null) {
     return discovery.parseFromConfig(config, pathPrefix, fileReader);

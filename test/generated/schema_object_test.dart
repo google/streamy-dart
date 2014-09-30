@@ -68,7 +68,7 @@ main() {
       expect(foo.quux, equals([1.5, 2.5, 3.5, 4.5]));
       expect(foo['quux'], equals([1.5, 2.5, 3.5, 4.5]));
       expect(streamy.jsonMarshal(foo)['quux'],
-          equals(['1.5', '2.5', '3.5', '4.5']));
+          equals([1.5, 2.5, 3.5, 4.5]));
     });
     test('type=number format=double works correctly', () {
       var foo2 = marshaller.unmarshalFoo(new ObservableMap.from({
@@ -178,6 +178,14 @@ main() {
           reason: 'Expected list to have the same size as the original');
       expect(bar.foos[0].bar, 'hello',
           reason: 'Expected list to contain the same stuff as the original');
+    });
+    test('lists are detached from observable list created by setter', () {
+      var bar = new Bar();
+      var list = [1, 2];
+      bar.foos = list;
+      list.add(3);
+      expect(bar.foos, [1, 2],
+        reason: 'setter does not wrap the list but makes a copy');
     });
     test('observable lists not copied in setter', () {
       var bar = new Bar();
