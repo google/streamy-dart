@@ -47,7 +47,7 @@ class ProtobufMarshallerEmitter
             new DartType('Marshaller', prefix), isDirectAssignment: true)));
     _marshallerClass
       ..methods.add(fullCtor)
-      ..methods.add(emptyCtor);
+      ..methods.add(emptyCtor)
       ..fields.addAll(importedMarshallers.map((prefix) =>
           new DartSimpleField('${prefix}Marshaller',
               new DartType('Marshaller', prefix), isFinal: true)));

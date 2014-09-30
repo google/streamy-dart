@@ -50,7 +50,6 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     .then((protoc) => protoc.stdout.toList())
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
-    .then((proto) => throw new Exception("Data: $proto"))
     .then((data) => data.file.single)
     .then((proto) {
       var api = new Api(config.name);
@@ -69,19 +68,7 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
               type = const TypeRef.string();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_MESSAGE:
-              var parts = field.typeName.split('.').skip(1).toList();
-              if (parts[0] == proto.package) {
-                type = new TypeRef.schema(parts.skip(1).single);
-              } else {
-                var entity = parts.removeLast();
-                var package = parts.join('.');
-                if (config.depsByPackage.containsKey(package)) {
-                  var importPrefix = config.depsByPackage[package].prefix;
-                  type = new TypeRef.dependency(entity, importPrefix);
-                } else {
-                  throw new Exception("Unknown dependency $entity from $package");
-                }
-              }
+              type = typeFromProtoName(field.typeName, proto.package, config.depsByPackage);
               break;
             default:
               throw new Exception("Unknown: ${field.name} / ${field.type}");
@@ -102,6 +89,33 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
           .values
           .forEach((dep) => api.dependencies[dep.prefix] = dep.importPackage);
       });
+      proto.service.forEach((serviceDef) {
+        var resource = new Resource(serviceDef.name);
+        serviceDef.method.forEach((methodDef) {
+          var httpPath = new Path("${serviceDef.name}/${methodDef.name}");
+          var reqType = typeFromProtoName(methodDef.inputType, proto.package, config.depsByPackage);
+          var respType = typeFromProtoName(methodDef.outputType, proto.package, config.depsByPackage);
+          resource.methods[methodDef.name] =
+              new Method(methodDef.name, httpPath, 'POST', reqType, respType);
+        });
+        api.resources[serviceDef.name] = resource;
+      });
       return api;
     });
+}
+
+TypeRef typeFromProtoName(String typeName, String currentPackage, Map depsByPackage) {
+  var parts = typeName.split('.').skip(1).toList();
+  if (parts[0] == currentPackage) {
+    return new TypeRef.schema(parts.skip(1).single);
+  } else {
+    var entity = parts.removeLast();
+    var package = parts.join('.');
+    if (depsByPackage.containsKey(package)) {
+      var importPrefix = depsByPackage[package].prefix;
+      return new TypeRef.dependency(entity, importPrefix);
+    } else {
+      throw new Exception("Unknown dependency $entity from $package");
+    }
+  }
 }
