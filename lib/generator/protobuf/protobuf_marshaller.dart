@@ -47,7 +47,7 @@ class ProtobufMarshallerEmitter
             new DartType('Marshaller', prefix), isDirectAssignment: true)));
     _marshallerClass
       ..methods.add(fullCtor)
-      ..methods.add(emptyCtor);
+      ..methods.add(emptyCtor)
       ..fields.addAll(importedMarshallers.map((prefix) =>
           new DartSimpleField('${prefix}Marshaller',
               new DartType('Marshaller', prefix), isFinal: true)));
@@ -125,11 +125,11 @@ class ProtobufMarshallerEmitter
     });
     if (fieldMapping.isNotEmpty) {
       _marshallerClass.fields.add(new DartSimpleField('_fieldMapping$name',
-      serialMap, isStatic: true, isFinal: true,
-      initializer: mapBody(fieldMapping)));
+          serialMap, isStatic: true, isFinal: true,
+          initializer: mapBody(fieldMapping)));
       _marshallerClass.fields.add(new DartSimpleField('_fieldUnmapping$name',
-      serialMap, isStatic: true, isFinal: true,
-      initializer: mapBody(invertMap(fieldMapping))));
+          serialMap, isStatic: true, isFinal: true,
+          initializer: mapBody(invertMap(fieldMapping))));
     }
     var data = [];
     if (entityFields.isNotEmpty) {
