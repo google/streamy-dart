@@ -68,7 +68,8 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
               type = const TypeRef.string();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_MESSAGE:
-              type = typeFromProtoName(field.typeName, proto.package, config.depsByPackage);
+              type = _typeFromProtoName(field.typeName, proto.package,
+                  config.depsByPackage);
               break;
             default:
               throw new Exception("Unknown: ${field.name} / ${field.type}");
@@ -93,8 +94,10 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
         var resource = new Resource(serviceDef.name);
         serviceDef.method.forEach((methodDef) {
           var httpPath = new Path("${serviceDef.name}/${methodDef.name}");
-          var reqType = typeFromProtoName(methodDef.inputType, proto.package, config.depsByPackage);
-          var respType = typeFromProtoName(methodDef.outputType, proto.package, config.depsByPackage);
+          var reqType = _typeFromProtoName(methodDef.inputType, proto.package,
+              config.depsByPackage);
+          var respType = _typeFromProtoName(methodDef.outputType, proto.package,
+              config.depsByPackage);
           resource.methods[methodDef.name] =
               new Method(methodDef.name, httpPath, 'POST', reqType, respType);
         });
@@ -104,7 +107,8 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     });
 }
 
-TypeRef typeFromProtoName(String typeName, String currentPackage, Map depsByPackage) {
+TypeRef _typeFromProtoName(String typeName, String currentPackage,
+    Map depsByPackage) {
   var parts = typeName.split('.').skip(1).toList();
   if (parts[0] == currentPackage) {
     return new TypeRef.schema(parts.skip(1).single);
