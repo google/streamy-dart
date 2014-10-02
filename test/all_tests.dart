@@ -10,7 +10,6 @@ import 'generated/nested_resources_test.dart' as generated_nested_resources_test
 import 'generated/illegal_names_test.dart' as generated_illegal_names_test;
 import 'generated/method_post_test.dart' as generated_method_post_test;
 import 'generated/method_params_test.dart' as generated_method_params_test;
-import 'generated/proto_test.dart' as generated_proto_test;
 import 'generated/schema_object_test.dart' as generated_schema_object_test;
 
 import 'mixins/dot_access_test.dart' as mixins_dot_access_test;
@@ -25,7 +24,6 @@ import 'runtime/dedup_test.dart' as runtime_dedup_test;
 import 'runtime/error_test.dart' as runtime_error_test;
 import 'runtime/json_test.dart' as runtime_json_test;
 import 'runtime/http_test.dart' as runtime_http_test;
-import 'runtime/marshaller_test.dart' as runtime_marshaller_test;
 import 'runtime/multiplexer_test.dart' as runtime_multiplexer_test;
 import 'runtime/proxy_test.dart' as runtime_proxy_test;
 import 'runtime/request_test.dart' as runtime_request_test;
@@ -50,7 +48,6 @@ main(List<String> args) {
   generated_method_post_test.main();
   generated_method_params_test.main();
   generated_nested_resources_test.main();
-  generated_proto_test.main();
   generated_schema_object_test.main();
 
   mixins_dot_access_test.main();
@@ -65,7 +62,6 @@ main(List<String> args) {
   runtime_error_test.main();
   runtime_json_test.main();
   runtime_http_test.main();
-  runtime_marshaller_test.main();
   runtime_multiplexer_test.main();
   runtime_proxy_test.main();
   runtime_request_test.main();
