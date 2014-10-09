@@ -52,7 +52,13 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
     .then((data) => data.file.single)
     .then((proto) {
-      var api = new Api(config.name);
+      var httpConfig = new HttpConfig(
+        config.name,
+        '',
+        '/',
+        config.name
+      );
+      var api = new Api(config.name, httpConfig: httpConfig);
       proto.messageType.forEach((message) {
         var schema = new Schema(message.name);
         message.field.forEach((field) {
