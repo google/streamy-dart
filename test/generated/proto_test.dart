@@ -33,5 +33,15 @@ main() {
       expect(f2.other[0].name, 'Bar #1');
       expect(f2.other[1].name, 'Bar #2');
     });
+    test('Can make a Foo request.', () {
+      var bar = new Bar()
+        ..name = 'ResponseBar';
+      var api = new TestProto(new RequestHandler.fromFunction(
+          (_) => new Stream.fromIterable([new Response(bar, Source.RPC, 0)])));
+      var res = api.Test.Get(new Foo()..name = 'TestRequest')
+          .send().single.then((v) {
+        expect(v.name, 'ResponseBar');      
+      });
+    });
   });
 }
