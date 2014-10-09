@@ -56,31 +56,31 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
       proto.messageType.forEach((message) {
         var schema = new Schema(message.name);
         message.field.forEach((field) {
-          var type = const TypeRef.any();
+          var typeRef = const TypeRef.any();
           switch (field.type) {
             case protoSchema.FieldDescriptorProto_Type.TYPE_INT32:
-              type = const TypeRef.integer();
+              typeRef = const TypeRef.integer();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_INT64:
-              type = const TypeRef.int64();
+              typeRef = const TypeRef.int64();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_STRING:
-              type = const TypeRef.string();
+              typeRef = const TypeRef.string();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_MESSAGE:
-              type = _typeFromProtoName(field.typeName, proto.package,
+              typeRef = _typeFromProtoName(field.typeName, proto.package,
                   config.depsByPackage);
               break;
             default:
-              throw new Exception("Unknown: ${field.name} / ${field.type}");
+              throw new Exception('Unknown: ${field.name} / ${field.type}');
           }
           if (field.label ==
               protoSchema.FieldDescriptorProto_Label.LABEL_REPEATED) {
-            type = new TypeRef.list(type);
+            typeRef = new TypeRef.list(typeRef);
           }
           schema.properties[field.name] =
-              new Field(field.name, 'Desc', type, "${field.number}",
-                  key: "${field.number}");
+              new Field(field.name, 'Desc', typeRef, '${field.number}',
+                  key: '${field.number}');
         });
         api.types[schema.name] = schema;
         
@@ -93,7 +93,7 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
       proto.service.forEach((serviceDef) {
         var resource = new Resource(serviceDef.name);
         serviceDef.method.forEach((methodDef) {
-          var httpPath = new Path("${serviceDef.name}/${methodDef.name}");
+          var httpPath = new Path('${serviceDef.name}/${methodDef.name}');
           var reqType = _typeFromProtoName(methodDef.inputType, proto.package,
               config.depsByPackage);
           var respType = _typeFromProtoName(methodDef.outputType, proto.package,
@@ -119,7 +119,7 @@ TypeRef _typeFromProtoName(String typeName, String currentPackage,
       var importPrefix = depsByPackage[package].prefix;
       return new TypeRef.dependency(entity, importPrefix);
     } else {
-      throw new Exception("Unknown dependency $entity from $package");
+      throw new Exception('Unknown dependency $entity from $package');
     }
   }
 }
