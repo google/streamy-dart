@@ -56,7 +56,7 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
         config.name,
         '',
         '/',
-        config.name
+        config.servicePath
       );
       var api = new Api(config.name, httpConfig: httpConfig);
       proto.messageType.forEach((message) {

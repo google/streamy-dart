@@ -34,13 +34,14 @@ class ProtoConfig {
   final String name;
   final String sourceFile;
   final String root;
+  final String servicePath;
   
   /// Map of import path to import aliases.
   final depsByImport = <String, ProtoDependency>{};
   final depsByPackage = <String, ProtoDependency>{};
   final orderedImports = <String>[];
   
-  ProtoConfig(this.name, this.sourceFile, this.root);
+  ProtoConfig(this.name, this.sourceFile, this.root, this.servicePath);
   
   List<String> orderImported(Iterable<String> imports) => imports
     .where(orderedImports.contains)
@@ -140,6 +141,13 @@ Config parseConfigOrDie(Map data) {
     if (!proto.containsKey('source')) {
       _die('Missing proto source.');
     }
+    var servicePath = '${proto['name']}/';
+    if (proto.containsKey('servicePath')) {
+      servicePath = proto['servicePath'];
+    }
+    if (servicePath == null) {
+      servicePath = '';
+    }
     var source = proto['source'];
     if (!source.containsKey('file')) {
       _die('Missing proto source file.');
@@ -147,7 +155,8 @@ Config parseConfigOrDie(Map data) {
     if (!source.containsKey('root')) {
       _die('Missing proto root.');
     }
-    config.proto = new ProtoConfig(proto['name'], source['file'], source['root']);
+    config.proto = new ProtoConfig(proto['name'], source['file'],
+        source['root'], servicePath);
     if (proto.containsKey('dependencies')) {
       var deps = proto['dependencies'];
       deps.forEach((prefix, depData) {
