@@ -43,5 +43,11 @@ main() {
         expect(v.name, 'ResponseBar');      
       });
     });
+    test('Url for test get is correct.', () {
+      var api = new TestProto(null);
+      var req = api.Test.Get(new Foo()..name = 'TestRequest');
+      expect(api.servicePath, 'test/service/');
+      expect(req.path, 'Test/Get');
+    });
   });
 }

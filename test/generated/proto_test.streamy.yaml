@@ -7,6 +7,7 @@ proto:
     ip_test:
       package: import_test.import_proto
       import: import_client.dart
+  servicePath: test/service/
 output:
   files: single
   prefix: proto_client
