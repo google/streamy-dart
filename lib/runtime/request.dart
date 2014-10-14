@@ -54,13 +54,13 @@ RegExp pathRegex = new RegExp(r'(\{[^\}]+\})');
 
 abstract class Request {
   Root get root;
-  
+
   bool get isCachable;
 }
 
 /// An HTTP request described by the API.
 abstract class HttpRequest implements Request {
-  
+
   /// Type name as defined in the API.
   String get apiType => 'Request';
 
@@ -69,7 +69,7 @@ abstract class HttpRequest implements Request {
 
   /// Request parameters.
   final Map<String, dynamic> parameters = {};
-  
+
   /// Other parameters.
   final Map<String, dynamic> localParameters = {};
 
@@ -81,7 +81,7 @@ abstract class HttpRequest implements Request {
   /// The HTTP method of this request.
   String get httpMethod;
 
-  /// User overridable value of isCachable. If null, the default value is used. 
+  /// User overridable value of isCachable. If null, the default value is used.
   bool _isCachable = null;
 
   /// Whether this is cachable.
