@@ -60,7 +60,7 @@ abstract class Request {
 
 /// An HTTP request described by the API.
 abstract class HttpRequest implements Request {
-
+  
   /// Type name as defined in the API.
   String get apiType => 'Request';
 
@@ -81,8 +81,16 @@ abstract class HttpRequest implements Request {
   /// The HTTP method of this request.
   String get httpMethod;
 
+  /// User overridable value of isCachable. If null, the default value is used. 
+  bool _isCachable = null;
+
   /// Whether this is cachable.
-  bool get isCachable => httpMethod == 'GET';
+  bool get isCachable => _isCachable != null
+      ? _isCachable
+      : httpMethod == 'GET';
+
+  /// Sets whether or not this is cachable.
+  set isCachable(bool isCachable) => _isCachable = isCachable;
 
   /// Format of the request path.
   String get pathFormat;
