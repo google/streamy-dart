@@ -51,6 +51,7 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
     .then((data) => data.file.single)
+    .then((data) => throw new Exception("$data"))
     .then((proto) {
       var httpConfig = new HttpConfig(
         config.name,
@@ -65,17 +66,37 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
           var typeRef = const TypeRef.any();
           switch (field.type) {
             case protoSchema.FieldDescriptorProto_Type.TYPE_INT32:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_SINT32:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_UINT32:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_FIXED32:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_SFIXED32:
               typeRef = const TypeRef.integer();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_INT64:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_SINT64:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_FIXED64:
               typeRef = const TypeRef.int64();
+              break;
+            case protoSchema.FieldDescriptorProto_Type.TYPE_DOUBLE:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_FLOAT:
+              typeRef = const TypeRef.double();
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_STRING:
               typeRef = const TypeRef.string();
               break;
+            case protoSchema.FieldDescriptorProto_Type.TYPE_BOOL:
+              typeRef = const TypeRef.boolean();
+              break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_MESSAGE:
               typeRef = _typeFromProtoName(field.typeName, proto.package,
                   config.depsByPackage);
+              break;
+            case protoSchema.FieldDescriptorProto_Type.TYPE_GROUP:
+              throw new Exception('Group fields are unsupported.');
+              break;
+            case protoSchema.FieldDescriptorProto_Type.TYPE_UINT64:
+            case protoSchema.FieldDescriptorProto_Type.TYPE_SFIXED64:
+              throw new Exception('Unsigned 64-bit integers are unsupported in Dart.');
               break;
             default:
               throw new Exception('Unknown: ${field.name} / ${field.type}');

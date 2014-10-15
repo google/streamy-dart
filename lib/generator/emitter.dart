@@ -185,6 +185,7 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
     objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef)
         .where((v) => v != null));
+    objectFile.classes.addAll(processEnums());
     _addDepImports(objectFile, _maybeSortDeps(deps));
     if (config.generateMarshallers) {
       _marshallerEmitter.emit();
@@ -647,6 +648,13 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     addApiType(clazz);
 
     return new SchemaDefinition(clazz, globalFnDef, schema.extractDependencies());
+  }
+  
+  List<DartClass> processEnums() {
+    var enums = <DartClass>[];
+    api.enums.forEach((name, enumDef) {
+      
+    });
   }
 
   void addApiType(DartClass clazz) {
