@@ -1,6 +1,6 @@
 {
-  "name": "WildcardPathParamTest",
-  "servicePath": "wildcardPathParamTest/v1/",
+  "name": "ReservedExpansionPathParamTest",
+  "servicePath": "reservedExpansionPathParamTest/v1/",
   "resources": {
     "foos": {
       "methods": {

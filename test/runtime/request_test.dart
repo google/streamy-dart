@@ -29,9 +29,9 @@ class RequestWithPathParams extends HttpRequest {
   List<String> get queryParameters => [];
 }
 
-class RequestWithWildcardPathParams extends HttpRequest {
+class RequestWithReservedExpansionPathParam extends HttpRequest {
 
-  RequestWithWildcardPathParams() : super(null);
+  RequestWithReservedExpansionPathParam() : super(null);
   Request clone() => null;
   bool get hasPayload => false;
   String get httpMethod => null;
@@ -60,8 +60,8 @@ main() {
         ..localParameters["baz"] = 'test2';
       expect(req.path, "/test?foo=test1&baz=test2");
     });
-    test("should allow slashes in wildcard path parameters", () {
-      var req = new RequestWithWildcardPathParams()
+    test("should allow slashes in Reserved Expansion path parameters", () {
+      var req = new RequestWithReservedExpansionPathParam()
         ..parameters["bar"] = "a@b/c&d";
       expect(req.path, "/test/a%40b/c%26d"); // slashes allowed
     });

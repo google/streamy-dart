@@ -1,7 +1,7 @@
-discovery: wildcard_path_param_test.json
+discovery: reserved_expansion_path_param_test.json
 output:
   files: split
-  prefix: wildcard_path_param_client
+  prefix: reserved_expansion_path_param_client
 base:
   class: Entity
   import: package:streamy/base.dart
