@@ -1,16 +1,11 @@
 proto:
-  name: TestProto
+  name: ImportProto
   source:
-    file: proto_test.proto
+    file: import_test.proto
     root: $CWD/test/generated/
-  dependencies:
-    ip_test:
-      package: import_test.import_proto
-      import: import_client.dart
-  servicePath: test/service/
 output:
   files: single
-  prefix: proto_client
+  prefix: import_client
 base:
   class: Entity
   import: package:streamy/base.dart

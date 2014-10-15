@@ -104,8 +104,11 @@ Future generateStreamyClientPackage(
 Future<String> _fileReader(String path) => new io.File(path).readAsString();
 
 Future<Api> apiFromConfig(
-    Config config, {String pathPrefix: '', fileReader: _fileReader,
-    String protoc
+    Config config,
+    {
+      String pathPrefix: '',
+      fileReader: _fileReader,
+      String protoc
     }) {
   if (config.discoveryFile != null) {
     return discovery.parseFromConfig(config, pathPrefix, fileReader);
@@ -146,6 +149,7 @@ const _TEMPLATES = const <String>[
     'object_patch',
     'object_remove',
     'object_setter',
+    'proto_marshaller_ctor',
     'request_clone',
     'request_ctor',
     'request_marshal_payload',

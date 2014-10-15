@@ -75,7 +75,7 @@ String makeRemoverName(String name) {
 
 String makeHandlerName(String name) {
   name = _capitalize(_fixIllegalChars(name));
-  return '_handle${name}';
+  return 'handle${name}';
 }
 
 String makeClassName(String name) {

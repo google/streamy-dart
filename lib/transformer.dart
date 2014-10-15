@@ -1,3 +1,17 @@
+/*
+ * Streamy Barback transformers.
+ *
+ * To use add this to your pubspec.yaml:
+ *
+ *     transformers:
+ *     - streamy
+ *
+ * If `protoc` is not in your path specify the absolute path like this:
+ *
+ *     transformers:
+ *     - streamy
+ *         path_to_prococ: /path/to/protoc
+ */
 library streamy.transformer;
 
 import 'dart:async';
@@ -14,10 +28,28 @@ import 'package:quiver/async.dart';
 
 import 'src/fs/transform_fs.dart';
 
+class StreamyTransformerGroup implements TransformerGroup {
+
+  @override
+  final Iterable<Iterable> phases;
+
+  StreamyTransformerGroup.asPlugin(BarbackSettings settings)
+      : phases = _createPhases(settings);
+}
+
+Iterable<Iterable> _createPhases(BarbackSettings settings) {
+  return [
+    [new MixologistYamlTransformer()],
+    [new StreamyYamlTransformer(settings)],
+  ];
+}
+
 class StreamyYamlTransformer extends Transformer {
-  
-  StreamyYamlTransformer.asPlugin();
-  
+  final String _pathToProtoc;
+
+  StreamyYamlTransformer(BarbackSettings settings)
+      : _pathToProtoc = settings.configuration['path_to_protoc'];
+
   String get allowedExtensions => '.streamy.yaml';
   
   Future<bool> isPrimary(AssetId asset) =>
@@ -30,11 +62,14 @@ class StreamyYamlTransformer extends Transformer {
     .then(parseConfigOrDie)
     .then((config) => emitterFromTemplateLoader(config,
         new AssetTemplateLoader(transform)))
-    .then((Emitter emitter) => apiFromConfig(emitter.config, pathPrefix:
-        prefixFrom(transform.primaryInput.id), fileReader: (path) => transform
-      .getInput(new AssetId(transform.primaryInput.id.package, path))
-      .then((input) => input.readAsString()))
-      .then(emitter.process))
+    .then((Emitter emitter) => apiFromConfig(
+        emitter.config,
+        pathPrefix: prefixFrom(transform.primaryInput.id),
+        fileReader: (path) => transform
+            .getInput(new AssetId(transform.primaryInput.id.package, path))
+            .then((input) => input.readAsString()),
+        protoc: _pathToProtoc)
+            .then(emitter.process))
     .then((StreamyClient client) {
       _maybeOutput(transform, client.root, '', client.config.outputPrefix);
       _maybeOutput(transform, client.resources, '_resources',
@@ -46,7 +81,7 @@ class StreamyYamlTransformer extends Transformer {
       _maybeOutput(transform, client.dispatch, '_dispatch',
           client.config.outputPrefix);
     });
-  
+
   void _maybeOutput(Transform transform, DartFile file, String name,
       String outputPrefix) {
     if (file == null) {
@@ -71,7 +106,7 @@ class AssetTemplateLoader implements TemplateLoader {
 
 class MixologistYamlTransformer extends Transformer {
 
-  MixologistYamlTransformer.asPlugin();
+  MixologistYamlTransformer();
   
   String get allowedExtensions => '.mixologist.yaml';
 

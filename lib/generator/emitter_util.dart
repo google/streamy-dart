@@ -39,7 +39,7 @@ abstract class EmitterBase {
 
   DartType toDartType(TypeRef ref, {bool withPrefix: true}) {
     if (ref is ListTypeRef) {
-      return new DartType.list(toDartType(ref.subType));
+      return new DartType.list(toDartType(ref.subType, withPrefix: withPrefix));
     } else if (ref is SchemaTypeRef) {
       final prefix = withPrefix ? objectPrefix : null;
       return new DartType(makeClassName(ref.schemaClass), prefix, const []);
@@ -63,6 +63,9 @@ abstract class EmitterBase {
           ExternalTypeRef externalTypeRef = ref;
           return new DartType(externalTypeRef.type,
           externalTypeRef.importedFrom, const []);
+        case 'dependency':
+          return new DartType(makeClassName(ref.type), ref.importedFrom,
+              const []);
         default:
           throw new Exception('Unhandled API type: $ref');
       }

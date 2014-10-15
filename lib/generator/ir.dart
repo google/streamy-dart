@@ -11,6 +11,7 @@ class Api {
   final bool marshalling;
   /// External imports.
   final Map<String, String> imports = <String, String>{};
+  final Map<String, String> dependencies = <String, String>{};
   final Map<String, Schema> types = <String, Schema>{};
   final Map<String, Resource> resources = <String, Resource>{};
   
@@ -35,6 +36,11 @@ class Schema {
   
   Schema(this.name);
   
+  Set<String> extractDependencies() => properties
+    .values
+    .expand((field) => _depsForType(field.typeRef))
+    .toSet();
+  
   String toString() {
     var sb = new StringBuffer()
       ..writeln("  Schema: $name:");
@@ -57,6 +63,11 @@ class Resource {
   
   Resource(this.name, {this.description: null});
   
+  Set<String> extractDependencies() => [subresources.values, methods.values]
+    .expand((v) => v)
+    .expand((v) => v.extractDependencies())
+    .toSet();
+  
   String toString() => (new StringBuffer()
       ..writeln("  Resource: $name:")
       ..writeAll(methods.values))
@@ -73,6 +84,13 @@ class Method {
   
   Method(this.name, this.httpPath, this.httpMethod, this.payloadType, this.responseType);
   
+  Set<String> extractDependencies() => new Set<String>()
+      ..addAll(_depsForType(payloadType))
+      ..addAll(_depsForType(responseType))
+      ..addAll(parameters
+        .values
+  
+        .expand((field) => _depsForType(field.typeRef)));
   String toString() {
     var sb = new StringBuffer()
       ..writeln("    Method: $name ($httpMethod @ $httpPath)")
@@ -128,6 +146,8 @@ class TypeRef {
       new SchemaTypeRef(schemaClass);
   factory TypeRef.external(String type, String importedFrom) =>
       new ExternalTypeRef(type, importedFrom);
+  factory TypeRef.dependency(String type, String importedFrom) =>
+      new DependencyTypeRef(type, importedFrom);
 
   /// The most specific data type referenced by `this`.
   String get dataType => base;
@@ -146,6 +166,19 @@ class ExternalTypeRef implements TypeRef {
   String get dataType => type;
 
   String toString() => 'external($type, $importedFrom)';
+}
+
+class DependencyTypeRef implements TypeRef {
+  
+  String get base => 'dependency';
+  final String type;
+  final String importedFrom;
+  
+  DependencyTypeRef(this.type, this.importedFrom);
+  
+  String get dataType => type;
+  
+  String toString() => 'dependency($type, $importedFrom)';
 }
 
 class SchemaTypeRef implements TypeRef {
@@ -179,4 +212,14 @@ class HttpConfig {
   final String servicePath;
   
   HttpConfig(this.urlName, this.version, this.rootUrl, this.servicePath);
+}
+
+List<String> _depsForType(TypeRef ref) {
+  while (ref != null && ref is ListTypeRef) {
+    ref = ref.subType;
+  }
+  if (ref != null && ref is DependencyTypeRef) {
+    return [ref.importedFrom];
+  }
+  return const [];
 }
