@@ -20,15 +20,18 @@ import 'package:streamy/generator/util.dart';
 Future generateStreamyClientPackage(
     io.File configFile,
     io.Directory outputDir,
+    String inputFile,
     {
       String packageName,
       String packageVersion: '0.0.0',
       String localStreamyLocation,
       String remoteStreamyLocation,
       String remoteBranch,
-      String protoc
+      String protoc,
+      List<String> protocImportPaths
     }) {
   var configYaml = yaml.loadYaml(configFile.readAsStringSync());
+  augmentYaml(configYaml, inputFile);
   var config = parseConfigOrDie(configYaml);
   var templateLoader = new DefaultTemplateLoader.defaultInstance();
   var emitterFuture = emitterFromTemplateLoader(config, templateLoader);
@@ -134,6 +137,25 @@ Future<Emitter> emitterFromTemplateLoader(Config config,
   return Future
       .wait(futures)
       .then((_) => new Emitter(config, templates));
+}
+
+void augmentYaml(Map yaml, String inputFile, List<String> protoImportPaths) {
+  if (yaml.containsKey('proto') && yaml['proto'].containsKey('source')) {
+    var source = yaml['proto']['source'];
+    if (inputFile.isNotEmpty && !source.containsKey('file')) {
+      throw new Exception('Input file specified on command-line and in YAML.');
+    }
+    source['file'] = inputFile;
+    var importPaths = []..addAll(protoImportPaths);
+    if (source.containsKey('root')) {
+      if (source['root'] is List) {
+        importPaths.addAll(source['root']);
+      } else {
+        importPaths.add(source['root']);
+      }
+    }
+    source['root'] = importPaths;
+  }
 }
 
 const _TEMPLATES = const <String>[

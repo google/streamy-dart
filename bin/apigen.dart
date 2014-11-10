@@ -17,18 +17,22 @@ String localStreamyLocation;
 String remoteStreamyLocation;
 String remoteBranch;
 String protocPath;
+String inputFile;
+List<String> protocImportPaths = <String>[].toList(growable: false);
 
 main(List<String> args) {
   parseArgs(args);
   generateStreamyClientPackage(
       configFile,
       outputDir,
-      packageName: packageName,
+      inputFile,
       packageVersion: packageVersion,
+      packageName: packageName,
       localStreamyLocation: localStreamyLocation,
       remoteStreamyLocation: remoteStreamyLocation,
       remoteBranch: remoteBranch,
-      protoc: protocPath
+      protoc: protocPath,
+      protocImportPaths: protocImportPaths,
   );
 }
 
@@ -45,7 +49,18 @@ void parseArgs(List<String> arguments) {
   }
 
   argp
-
+    ..addOption(
+      'input',
+      abbr: 'i',
+      help: 'Path to the source file (proto or discovery)',
+      callback: (String value) {
+        if (isBlank(value)) {
+          errors.add('--input is required');
+          return;
+        }
+        inputFile = value;
+      }
+    )
     // Main options
     ..addOption(
       'config',
@@ -146,6 +161,15 @@ void parseArgs(List<String> arguments) {
         help: 'Path to the protocol buffer compiler (protoc).',
         callback: (String value) {
           protocPath = value;
+        })
+    ..addOption(
+        'protoc-import-paths',
+        defaultsTo: '',
+        help: 'Comma-separated paths which will be searched for protoc imports.',
+        callback: (String value) {
+          if (value != '') {
+            protocImportPaths = value.split(',').toList(growable: false);
+          }
         })
     ..addFlag(
       'help',
