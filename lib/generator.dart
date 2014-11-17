@@ -16,27 +16,51 @@ import 'package:streamy/generator/protobuf/protobuf_parser.dart' as proto;
 import 'package:streamy/generator/template_loader.dart';
 import 'package:streamy/generator/util.dart';
 
+Map _cloneMap(Map source) {
+  var res = {};
+}
+
+_clone(v) {
+  if (v == null) {
+    return v;
+  } else if (v is Map) {
+    var res = {};
+    v.forEach((key, value) {
+      res[key] = _clone(value);
+    });
+    return res;
+  } else if (v is List) {
+    return v.map(_clone).toList();
+  }
+  return v;
+}
+
 /// Generates a Streamy API client package in pub format.
 Future generateStreamyClientPackage(
     io.File configFile,
     io.Directory outputDir,
     String inputFile,
     {
+      String addendumFile,
       String packageName,
       String packageVersion: '0.0.0',
       String localStreamyLocation,
       String remoteStreamyLocation,
       String remoteBranch,
       String protoc,
-      List<String> protocImportPaths
+      List<String> protocImportPaths,
+      String pathPrefix: '',
+      bool useLibDir: true
     }) {
-  var configYaml = yaml.loadYaml(configFile.readAsStringSync());
-  augmentYaml(configYaml, inputFile);
+  var configYaml = _clone(yaml.loadYaml(configFile.readAsStringSync()));
+  if (inputFile != null || addendumFile != null) {
+    augmentYaml(configYaml, inputFile, addendumFile, protocImportPaths);
+  }
   var config = parseConfigOrDie(configYaml);
   var templateLoader = new DefaultTemplateLoader.defaultInstance();
   var emitterFuture = emitterFromTemplateLoader(config, templateLoader);
   var apiFuture = apiFromConfig(config,
-      pathPrefix: '${configFile.parent.path}${path.separator}',
+      pathPrefix: pathPrefix,
       protoc: protoc);
   return Future.wait([emitterFuture, apiFuture]).then((List list) {
     Emitter emitter = list[0];
@@ -52,8 +76,11 @@ Future generateStreamyClientPackage(
     }
 
     var packageDirPath = outputDir.path;
-    var libDirPath = '${packageDirPath}/lib';
-    new io.Directory(libDirPath).createSync(recursive: true);
+    var libDirPath = '${packageDirPath}';
+    if (useLibDir) {
+      libDirPath = '$libDirPath/lib';
+      new io.Directory(libDirPath).createSync(recursive: true);
+    }
     var basePath = '${libDirPath}/${client.config.outputPrefix}';
 
     _maybeOutput(DartFile dartFile, String suffix) {
@@ -139,22 +166,28 @@ Future<Emitter> emitterFromTemplateLoader(Config config,
       .then((_) => new Emitter(config, templates));
 }
 
-void augmentYaml(Map yaml, String inputFile, List<String> protoImportPaths) {
-  if (yaml.containsKey('proto') && yaml['proto'].containsKey('source')) {
+void augmentYaml(Map yaml, String inputFile, String addendumFile, List<String> protoImportPaths) {
+  if (yaml.containsKey('proto')) {
+    if (!yaml['proto'].containsKey('source')) {
+      yaml['proto']['source'] = {};
+    }
     var source = yaml['proto']['source'];
-    if (inputFile.isNotEmpty && !source.containsKey('file')) {
-      throw new Exception('Input file specified on command-line and in YAML.');
+    if (inputFile == null && !source.containsKey('file')) {
+      throw new Exception('Input file not specified.');
     }
     source['file'] = inputFile;
-    var importPaths = []..addAll(protoImportPaths);
-    if (source.containsKey('root')) {
-      if (source['root'] is List) {
-        importPaths.addAll(source['root']);
-      } else {
-        importPaths.add(source['root']);
-      }
+    if (protoImportPaths.isNotEmpty) {
+      source['root'] = protoImportPaths;
     }
-    source['root'] = importPaths;
+  } else {
+    if (inputFile != null) {
+      yaml['discovery'] = inputFile;
+    } else if (!yaml.containsKey('discovery')) {
+      throw new Exception('Discovery file not specified.');
+    }
+    if (addendumFile != null) {
+      yaml['addendum'] = addendumFile;
+    }
   }
 }
 
