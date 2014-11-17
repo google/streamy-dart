@@ -1,20 +1,15 @@
 package proto_test;
 
-import "import_test.proto";
-
-message Foo {
-  optional int64 id = 1;
-  optional string name = 2;
-  repeated Bar other = 3;
+message AddRequest {
+  optional int32 a = 1;
+  optional int32 b = 2;
 }
 
-message Bar {
-  optional int64 id = 1;
-  optional string name = 2;
-  repeated import_test.import_proto.Baz imported = 3;
+message AddResponse {
+  optional int32 result = 1;
 }
 
-service Test {
-  rpc Get(Foo) returns (Bar);
-  rpc Set(Bar) returns (Foo);
+service Example {
+  rpc Add (AddRequest) returns (AddResponse);
 }
+
