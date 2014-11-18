@@ -52,13 +52,6 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
       .where((dir) => dir.existsSync())
       .map((dir) => dir.absolute.path)
       .map((path) => '--proto_path=$path'));
-  /*new io.Directory(root.single).listSync(recursive: true)
-    .map((e) => e.absolute.path)
-    .where((p) => p.contains('.proto') || p.contains('_client.dart'))
-    .forEach(print);
-  io.File sourceFile = new io.File(config.sourceFile);
-  protocArgs.add('--proto_path=${sourceFile.parent.path}');
-  */
   protocArgs.add(config.sourceFile);
   return io.Process
     .start(protocPath, protocArgs)
