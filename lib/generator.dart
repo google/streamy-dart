@@ -162,7 +162,8 @@ Future<Emitter> emitterFromTemplateLoader(Config config,
       .then((_) => new Emitter(config, templates));
 }
 
-void augmentYaml(Map yaml, String inputFile, String addendumFile, List<String> protoImportPaths) {
+void augmentYaml(Map yaml, String inputFile, String addendumFile,
+    List<String> protoImportPaths) {
   if (yaml.containsKey('proto')) {
     if (!yaml['proto'].containsKey('source')) {
       yaml['proto']['source'] = {};
