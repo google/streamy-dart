@@ -5,3 +5,4 @@ package import_test.import_proto;
 message Baz {
   optional string id = 1;
 }
+

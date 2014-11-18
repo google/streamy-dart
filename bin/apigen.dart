@@ -24,7 +24,7 @@ bool useLibDir;
 
 main(List<String> args) {
   parseArgs(args);
-    generateStreamyClientPackage(
+  generateStreamyClientPackage(
       configFile,
       outputDir,
       inputFile,

@@ -16,10 +16,6 @@ import 'package:streamy/generator/protobuf/protobuf_parser.dart' as proto;
 import 'package:streamy/generator/template_loader.dart';
 import 'package:streamy/generator/util.dart';
 
-Map _cloneMap(Map source) {
-  var res = {};
-}
-
 _clone(v) {
   if (v == null) {
     return v;

@@ -48,7 +48,9 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
   }
   protocArgs.addAll(root
       .map((r) => r.replaceAll(r'$CWD', io.Directory.current.path))
-      .map((path) => new io.Directory(path).absolute.path)
+      .map((r) => new io.Directory(r))
+      .where((dir) => dir.existsSync())
+      .map((dir) => dir.absolute.path)
       .map((path) => '--proto_path=$path'));
   /*new io.Directory(root.single).listSync(recursive: true)
     .map((e) => e.absolute.path)
