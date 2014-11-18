@@ -1,5 +1,8 @@
+syntax = "proto2";
+
 package import_test.import_proto;
 
 message Baz {
   optional string id = 1;
 }
+

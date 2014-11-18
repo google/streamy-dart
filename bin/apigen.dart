@@ -17,23 +17,31 @@ String localStreamyLocation;
 String remoteStreamyLocation;
 String remoteBranch;
 String protocPath;
+String inputFile;
+String addendumFile;
+List<String> protocImportPaths = <String>[].toList(growable: false);
+bool useLibDir;
 
 main(List<String> args) {
   parseArgs(args);
   generateStreamyClientPackage(
       configFile,
       outputDir,
-      packageName: packageName,
+      inputFile,
+      addendumFile: addendumFile,
       packageVersion: packageVersion,
+      packageName: packageName,
       localStreamyLocation: localStreamyLocation,
       remoteStreamyLocation: remoteStreamyLocation,
       remoteBranch: remoteBranch,
-      protoc: protocPath
+      protoc: protocPath,
+      protocImportPaths: protocImportPaths,
+      useLibDir: useLibDir
   );
 }
 
 void parseArgs(List<String> arguments) {
-  final String locataionErrorMessage = 'both local-streamy-location and '
+  final String locationErrorMessage = 'both local-streamy-location and '
       'remote-streamy-location simultaneously not supported';
 
   var errors = <String>[];
@@ -45,7 +53,35 @@ void parseArgs(List<String> arguments) {
   }
 
   argp
-
+    ..addOption(
+      'input',
+      abbr: 'i',
+      help: 'Path to the source file (proto or discovery)',
+      callback: (String value) {
+        if (isBlank(value)) {
+          errors.add('--input is required');
+          return;
+        }
+        if (!_validateFile(value)) {
+          return;
+        }
+        inputFile = value;
+      }
+    )
+    ..addOption(
+      'addendum',
+      abbr: 'a',
+      help: 'Path to the addendum document',
+      callback: (String value) {
+        if (isBlank(value)) {
+          return;
+        }
+        if (!_validateFile(value)) {
+          return;
+        }
+        addendumFile = value;
+      }
+    )
     // Main options
     ..addOption(
       'config',
@@ -56,15 +92,10 @@ void parseArgs(List<String> arguments) {
           errors.add('--config is required');
           return;
         }
+        if (!_validateFile(value)) {
+          return;
+        }
         configFile = new io.File(value);
-        if (!configFile.existsSync()) {
-          errors.add('$value does not exist');
-          return;
-        }
-        if (!io.FileSystemEntity.isFileSync(value)) {
-          errors.add('$value does not seem to be a file');
-          return;
-        }
       }
     )
     ..addOption(
@@ -109,7 +140,30 @@ void parseArgs(List<String> arguments) {
         }
         packageVersion = value;
       })
-
+    ..addOption(
+        'protoc',
+        defaultsTo: 'protoc',
+        help: 'Path to the protocol buffer compiler (protoc).',
+        callback: (String value) {
+          protocPath = value;
+        })
+    ..addOption(
+        'protoc-import-paths',
+        defaultsTo: '',
+        help: 'Comma-separated paths which will be searched for protoc imports.',
+        callback: (String value) {
+          if (value != '') {
+            protocImportPaths = value.split(',').toList(growable: false);
+          }
+        })
+    ..addFlag(
+        'use-lib-dir',
+        defaultsTo: true,
+        negatable: true,
+        help: 'Whether to include a lib/ dir in the output structure.',
+        callback: (bool value) {
+          useLibDir = value;
+        })
     // Options mostly used for debugging purposes
     ..addOption(
         'local-streamy-location',
@@ -117,7 +171,7 @@ void parseArgs(List<String> arguments) {
               'version will be used instead of pub version.',
         callback: (String value) {
           if (remoteStreamyLocation != null && !isBlank(value)) {
-            errors.add(locataionErrorMessage);
+            errors.add(locationErrorMessage);
             return;
           }
           localStreamyLocation = value;
@@ -128,7 +182,7 @@ void parseArgs(List<String> arguments) {
               'version will be used instead of pub version.',
         callback: (String value) {
           if (localStreamyLocation != null && !isBlank(value)) {
-            errors.add(locataionErrorMessage);
+            errors.add(locationErrorMessage);
             return;
           }
           remoteStreamyLocation = value;
@@ -139,13 +193,6 @@ void parseArgs(List<String> arguments) {
         help: 'Remote branch name to use',
         callback: (String value) {
           remoteBranch = value;
-        })
-    ..addOption(
-        'protoc',
-        defaultsTo: 'protoc',
-        help: 'Path to the protocol buffer compiler (protoc).',
-        callback: (String value) {
-          protocPath = value;
         })
     ..addFlag(
       'help',
@@ -162,4 +209,17 @@ void parseArgs(List<String> arguments) {
     });
     printUsage();
   }
+}
+
+bool _validateFile(String path) {
+  var file = new io.File(path);
+  if (!file.existsSync()) {
+    errors.add('$path does not exist');
+    return false;
+  }
+  if (!io.FileSystemEntity.isFileSync(path)) {
+    errors.add('$path does not seem to be a file');
+    return false;
+  }
+  return true;
 }
