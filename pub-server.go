@@ -32,6 +32,9 @@ func TarHandler(resp http.ResponseWriter, req *http.Request) {
     if err != nil {
       log.Fatalf("Walk error: %s", err)
     }
+    if info.Name()[0] == '.' {
+      return nil
+    }
     if !filter(path) {
       return nil
     }

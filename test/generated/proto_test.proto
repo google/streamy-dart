@@ -1,3 +1,5 @@
+syntax = "proto2";
+
 package proto_test;
 
 import "import_test.proto";
@@ -18,3 +20,4 @@ service Test {
   rpc Get(Foo) returns (Bar);
   rpc Set(Bar) returns (Foo);
 }
+

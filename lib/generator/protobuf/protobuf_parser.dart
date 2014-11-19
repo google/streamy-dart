@@ -42,12 +42,24 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
   // TODO(Alex): Since protoc reads the proto file directly, barback doesn't
   // count it as a dependency (or any of its dependencies). Thus, the
   // edit-save-refresh cycle fails when editing .proto files currently.
-  var protoPath = config.root.replaceAll(r'$CWD', io.Directory.current.path);
-  var protocArgs = ['-o/dev/stdout', '--proto_path=$protoPath',
-      '$protoPath${config.sourceFile}'];
+  var protocArgs = ['-o/dev/stdout'];
+  if (root is! List) {
+    root = [root];
+  }
+  protocArgs.addAll(root
+      .map((r) => r.replaceAll(r'$CWD', io.Directory.current.path))
+      .map((r) => new io.Directory(r))
+      .where((dir) => dir.existsSync())
+      .map((dir) => dir.absolute.path)
+      .map((path) => '--proto_path=$path'));
+  protocArgs.add(config.sourceFile);
   return io.Process
     .start(protocPath, protocArgs)
-    .then((protoc) => protoc.stdout.toList())
+    .then((protoc) {
+      var data = protoc.stdout.toList();
+      io.stderr.addStream(protoc.stderr);
+      return data;
+    })
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
     .then((data) => data.file.single)
@@ -137,8 +149,20 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
 TypeRef _typeFromProtoName(String typeName, String currentPackage,
     Map depsByPackage) {
   var parts = typeName.split('.').skip(1).toList();
-  if (parts[0] == currentPackage) {
-    return new TypeRef.schema(parts.skip(1).single);
+  var cps = currentPackage.split('.').toList();
+  var isCurrent = true;
+  if (parts.length == cps.length + 1) {
+    for (var i = 0; i < cps.length; i++) {
+      if (parts[i] != cps[i]) {
+        isCurrent = false;
+        break;
+      }
+    }
+  } else {
+    isCurrent = false;
+  }
+  if (isCurrent) {
+    return new TypeRef.schema(parts.skip(cps.length).single);
   } else {
     var entity = parts.removeLast();
     var package = parts.join('.');
@@ -146,7 +170,8 @@ TypeRef _typeFromProtoName(String typeName, String currentPackage,
       var importPrefix = depsByPackage[package].prefix;
       return new TypeRef.dependency(entity, importPrefix);
     } else {
-      throw new Exception('Unknown dependency $entity from $package');
+      throw new Exception('Unknown package: $package. Did you forget a '
+          'dependency in your .streamy.yaml file?');
     }
   }
 }
