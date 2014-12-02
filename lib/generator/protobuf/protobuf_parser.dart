@@ -115,7 +115,8 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_UINT64:
             case protoSchema.FieldDescriptorProto_Type.TYPE_SFIXED64:
-              throw new Exception('Unsigned 64-bit integers are unsupported in Dart.');
+              throw new Exception('Unsigned 64-bit integers are unsupported '
+                  'in Dart.');
               break;
             case protoSchema.FieldDescriptorProto_Type.TYPE_ENUM:
               typeRef = _typeFromProtoName(field.typeName, proto.package,

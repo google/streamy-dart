@@ -206,18 +206,6 @@ class ListTypeRef implements TypeRef {
   String toString() => 'list($subType)';
 }
 
-class EnumTypeRef implements TypeRef {
-  String get base => "enum";
-  final String enumClass;
-  
-  EnumTypeRef(this.enumClass);
-  
-  @override
-  String get dataType => enumClass;
-  
-  String toString() => 'enum($enumClass)';
-}
-
 class Enum {
   final String name;
   final Map<String, int> values = <String, int>{};
