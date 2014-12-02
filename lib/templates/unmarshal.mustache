@@ -6,7 +6,7 @@
   });{{/hasFieldMapping}}{{#hasInt64s}}
   streamy.unmarshalInt64s(_int64s{{name}}, data); {{/hasInt64s}}{{#hasDoubles}}
   streamy.unmarshalDoubles(_doubles{{name}}, data); {{/hasDoubles}}{{#hasEntities}}
-  streamy.handleEntities(this, _entities{{name}}, data, false); {{/hasEntities}}
+  streamy.handleEntities(_entities{{name}}, data, false); {{/hasEntities}}
   return new {{entity}}{{#fromFields}}(){{#fields}}
      ..{{identifier}} = data[r'{{key}}']{{/fields}}{{/fromFields}}{{^fromFields}}.wrap(data){{/fromFields}};
 }
