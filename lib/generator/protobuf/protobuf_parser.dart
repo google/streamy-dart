@@ -52,7 +52,8 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
       .where((dir) => dir.existsSync())
       .map((dir) => dir.absolute.path)
       .map((path) => '--proto_path=$path'));
-  protocArgs.add(config.sourceFile);
+  protocArgs.add(config.sourceFile.replaceAll(
+      r'$CWD', io.Directory.current.path));
   return io.Process
     .start(protocPath, protocArgs)
     .then((protoc) {
@@ -63,7 +64,6 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     .then((data) => data.expand((v) => v).toList())
     .then((data) => new protoSchema.FileDescriptorSet.fromBuffer(data))
     .then((data) => data.file.single)
-    .then((data) => throw new Exception("$data"))
     .then((proto) {
       var httpConfig = new HttpConfig(
         config.name,
@@ -72,6 +72,13 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
         config.servicePath
       );
       var api = new Api(config.name, httpConfig: httpConfig);
+      proto.enumType.forEach((def) {
+        var enum = new Enum(def.name);
+        def.value.forEach((value) {
+          enum.values[value.name] = value.number;
+        });
+        api.enums[def.name] = enum;
+      });
       proto.messageType.forEach((message) {
         var schema = new Schema(message.name);
         message.field.forEach((field) {

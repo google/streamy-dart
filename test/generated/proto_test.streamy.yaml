@@ -1,7 +1,7 @@
 proto:
   name: TestProto
   source:
-    file: proto_test.proto
+    file: $CWD/test/generated/proto_test.proto
     root: $CWD/test/generated/
   dependencies:
     ip_test:

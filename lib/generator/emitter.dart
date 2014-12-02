@@ -653,8 +653,30 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
   List<DartClass> processEnums() {
     var enums = <DartClass>[];
     api.enums.forEach((name, enumDef) {
+      var enum = new DartClass(enumDef.name);
+      enum.fields.add(new DartSimpleField('index', const DartType.integer(), isFinal: true));
+      enum.fields.add(new DartSimpleField('_name', const DartType.string(), isFinal: true));
+      var ctor = new DartConstructor(enum.name, isConst: true);
+      enum.methods.add(ctor);
+      ctor.parameters.add(new DartParameter('index', const DartType.integer(), isDirectAssignment: true));
+      ctor.parameters.add(new DartParameter('_name', const DartType.string(), isDirectAssignment: true));
+      enum.fields.add(new DartComplexField.getterOnly('hashCode', const DartType.integer(), new DartConstantBody('=> index;')));
+      var enumType = new DartType.from(enum);
+      enum.methods.add(new DartMethod('equals', const DartType.boolean(), new DartConstantBody('=> other != null && other is $name && other.index == index;'))
+        ..parameters.add(new DartParameter('other', const DartType.dynamic())));
+      enums.add(enum);
+      var seenValues = <int, String>{};
+      enumDef.values.forEach((name, value) {
+        if (!seenValues.containsKey(value)) {
+          enum.fields.add(new DartSimpleField(name, enumType, isStatic: true, isConst: true, initializer: new DartConstantBody('const ${enum.name}($value, \'$name\')')));
+          seenValues[value] = name;
+        } else {
+          enum.fields.add(new DartSimpleField(name, enumType, isStatic: true, isConst: true, initializer: new DartConstantBody('${seenValues[value]}')));
+        }
+      });
       
     });
+    return enums;
   }
 
   void addApiType(DartClass clazz) {

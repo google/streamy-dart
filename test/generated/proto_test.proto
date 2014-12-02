@@ -16,6 +16,14 @@ message Bar {
   repeated import_test.import_proto.Baz imported = 3;
 }
 
+enum TestEnum {
+  option allow_alias = true;
+  ALPHA = 1;
+  BETA = 2;
+  GAMMA = 3;
+  DELTA = 3;
+}
+
 service Test {
   rpc Get(Foo) returns (Bar);
   rpc Set(Bar) returns (Foo);
