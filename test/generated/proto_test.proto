@@ -14,6 +14,7 @@ message Bar {
   optional int64 id = 1;
   optional string name = 2;
   repeated import_test.import_proto.Baz imported = 3;
+  optional TestEnum ev = 4;
 }
 
 enum TestEnum {

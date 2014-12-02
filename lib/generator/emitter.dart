@@ -674,6 +674,13 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
           enum.fields.add(new DartSimpleField(name, enumType, isStatic: true, isConst: true, initializer: new DartConstantBody('${seenValues[value]}')));
         }
       });
+      var mappingData = {'const': true, 'getter': false, 'pairs': []};
+      seenValues.forEach((index, name) {
+        mappingData['pairs'].add({'key': '$index', 'value': name});
+      });
+      enum.fields.add(new DartSimpleField('mapping',
+          new DartType.map(const DartType.integer(), enumType),
+          isStatic: true, isConst: true, initializer: new DartTemplateBody(_template('map'), mappingData)));
       
     });
     return enums;

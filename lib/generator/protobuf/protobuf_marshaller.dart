@@ -52,6 +52,7 @@ class ProtobufMarshallerEmitter
           new DartSimpleField('${prefix}Marshaller',
               new DartType('Marshaller', prefix), isFinal: true)));
     _ctx.api.types.values.forEach(_processSchemaForMarshaller);
+    _ctx.api.enums.values.forEach(_processEnumForMarshaller);
     _ctx.dispatchFile.classes.add(_marshallerClass);
   }
 
@@ -174,6 +175,25 @@ class ProtobufMarshallerEmitter
     new DartTemplateBody(unmarshal, serializerConfig))
       ..parameters.add(new DartParameter('data', rt)));
     _marshallerClass.methods.add(new DartMethod(makeHandlerName(schema.name),
+    const DartType.dynamic(),
+    new DartTemplateBody(templates['marshal_handle'], {'type': name}))
+      ..parameters.add(new DartParameter('marshaller',
+          new DartType('Marshaller', null, const [])))
+      ..parameters.add(new DartParameter('data', const DartType.dynamic()))
+      ..parameters.add(new DartParameter('marshal', const DartType.boolean())));
+  }
+  
+  void _processEnumForMarshaller(Enum enum) {
+    var name = makeClassName(enum.name);
+    var type = new DartType(name, objectPrefix, const []);
+    _marshallerClass.methods.add(new DartMethod('marshal$name',
+        const DartType.integer(), new DartConstantBody('=> value.index;'))
+        ..parameters.add(new DartParameter('value', type)));
+    _marshallerClass.methods.add(new DartMethod('unmarshal$name',
+        const DartType.integer(),
+            new DartConstantBody('=> $name.mapping[value];'))
+        ..parameters.add(new DartParameter('value', type)));
+    _marshallerClass.methods.add(new DartMethod(makeHandlerName(enum.name),
     const DartType.dynamic(),
     new DartTemplateBody(templates['marshal_handle'], {'type': name}))
       ..parameters.add(new DartParameter('marshaller',
