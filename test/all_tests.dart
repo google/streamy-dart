@@ -11,6 +11,7 @@ import 'generated/illegal_names_test.dart' as generated_illegal_names_test;
 import 'generated/method_post_test.dart' as generated_method_post_test;
 import 'generated/method_params_test.dart' as generated_method_params_test;
 import 'generated/schema_object_test.dart' as generated_schema_object_test;
+import 'generated/reserved_expansion_path_param_test.dart' as generated_reserved_expansion_path_param_test;
 
 import 'mixins/dot_access_test.dart' as mixins_dot_access_test;
 import 'mixins/immutable_test.dart' as mixins_immutable_test;
@@ -49,6 +50,7 @@ main(List<String> args) {
   generated_method_params_test.main();
   generated_nested_resources_test.main();
   generated_schema_object_test.main();
+  generated_reserved_expansion_path_param_test.main();
 
   mixins_dot_access_test.main();
   mixins_immutable_test.main();
