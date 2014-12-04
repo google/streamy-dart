@@ -58,24 +58,23 @@ unmarshalDoubleData(data) {
   }
 }
 
-void handleEntities(marshaller, Map handlers, Map data, bool marshal) {
+void handleEntities(Map handlers, Map data, bool marshal) {
   handlers
     .keys
     .where(data.containsKey)
     .forEach((key) {
-      data[key] = handleEntityData(data[key], marshaller, handlers[key],
-          marshal);
+      data[key] = handleEntityData(data[key], handlers[key], marshal);
     });
 }
 
-handleEntityData(data, marshaller, handler, bool marshal) {
+handleEntityData(data, handler, bool marshal) {
   if (data == null) {
     return null;
   } else if (data is List) {
     return new ObservableList.from(
-        data.map((v) => handleEntityData(v, marshaller, handler, marshal)));
+        data.map((v) => handleEntityData(v, handler, marshal)));
   } else {
-    return handler(marshaller, data, marshal);
+    return handler(data, marshal);
   }
 }
 

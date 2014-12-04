@@ -4,7 +4,7 @@
     ..addAll({{basePrefix}}.getMap(entity)){{/fromFields}};{{#hasInt64s}}
   streamy.marshalToString(_int64s{{name}}, res);{{/hasInt64s}}{{#hasDoubles}}
   streamy.marshalToString(_doubles{{name}}, res);{{/hasDoubles}}{{#hasEntities}}
-  streamy.handleEntities(this, _entities{{name}}, res, true);{{/hasEntities}}{{^fromFields}}{{#hasFieldMapping}}
+  streamy.handleEntities(_entities{{name}}, res, true);{{/hasEntities}}{{^fromFields}}{{#hasFieldMapping}}
   res
     .keys
     .toList()
