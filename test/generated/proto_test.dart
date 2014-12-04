@@ -49,5 +49,19 @@ main() {
       expect(api.servicePath, 'test/service/');
       expect(req.path, 'Test/Get');
     });
+    test('Enum field accepts a value.', () {
+      var bar = new Bar();
+      bar.ev = TestEnum.BETA;
+    });
+    test('Enum field serializes.', () {
+      var bar = new Bar()
+        ..ev = TestEnum.GAMMA;
+      var m = const Marshaller();
+      expect(m.marshalBar(bar)['4'], 3);
+    });
+    test('Enum field deserializes', () {
+      var bar = const Marshaller().unmarshalBar({'4': 1});
+      expect(bar.ev, TestEnum.ALPHA);
+    });
   });
 }
