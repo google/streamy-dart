@@ -137,6 +137,7 @@ class ProtobufMarshallerEmitter
       entityFields.forEach((name, schema) {
         data.add({
             'key': name,
+            'string': true,
             'value': makeHandlerName(schema),
         });
       });
@@ -144,6 +145,7 @@ class ProtobufMarshallerEmitter
     dependencyFields.forEach((name, dep) {
       data.add({
           'key': name,
+          'string': true,
           'value': "${dep['import']}Marshaller.${makeHandlerName(dep['type'])}",
       });
     });
@@ -189,10 +191,9 @@ class ProtobufMarshallerEmitter
     _marshallerClass.methods.add(new DartMethod('marshal$name',
         const DartType.integer(), new DartConstantBody('=> value.index;'))
         ..parameters.add(new DartParameter('value', type)));
-    _marshallerClass.methods.add(new DartMethod('unmarshal$name',
-        const DartType.integer(),
-            new DartConstantBody('=> $name.mapping[value];'))
-        ..parameters.add(new DartParameter('value', type)));
+    _marshallerClass.methods.add(new DartMethod('unmarshal$name', type,
+        new DartConstantBody('=> $name.mapping[value];'))
+        ..parameters.add(new DartParameter('value', const DartType.integer())));
     _marshallerClass.methods.add(new DartMethod(makeHandlerName(enum.name),
     const DartType.dynamic(),
     new DartTemplateBody(templates['marshal_handle'], {'type': name}))

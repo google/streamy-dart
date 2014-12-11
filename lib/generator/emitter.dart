@@ -658,7 +658,8 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
           'index', const DartType.integer(), isFinal: true));
       enum.fields.add(new DartSimpleField(
           '_displayName', const DartType.string(), isFinal: true));
-      var ctor = new DartConstructor(enum.name, isConst: true);
+      var ctor = new DartConstructor(enum.name, named: '_private',
+          isConst: true);
       enum.methods.add(ctor);
       ctor.parameters.add(new DartParameter(
           'index', const DartType.integer(), isDirectAssignment: true));
@@ -671,9 +672,9 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
       var seenValues = <int, String>{};
       enumDef.values.forEach((name, value) {
         if (!seenValues.containsKey(value)) {
-          enum.fields.add(new DartSimpleField(
-              name, enumType, isStatic: true, isConst: true, initializer:
-              new DartConstantBody('const ${enum.name}($value, \'$name\')')));
+          enum.fields.add(new DartSimpleField(name, enumType, isStatic: true,
+              isConst: true, initializer: new DartConstantBody(
+                  'const ${enum.name}._private($value, \'$name\')')));
           seenValues[value] = name;
         } else {
           enum.fields.add(new DartSimpleField(
@@ -681,9 +682,18 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
               new DartConstantBody('${seenValues[value]}')));
         }
       });
-      var mappingData = {'const': true, 'getter': false, 'pairs': [], 'values': []};
+      var mappingData = {
+        'const': true,
+        'getter': false,
+        'pairs': [],
+        'values': []
+      };
       seenValues.forEach((index, name) {
-        mappingData['pairs'].add({'key': '$index', 'value': name});
+        mappingData['pairs'].add({
+          'key': '$index',
+          'value': name,
+          'string': false
+        });
         mappingData['values'].add({'value': name, 'last': false});
       });
       if (seenValues.isNotEmpty) {
