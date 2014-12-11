@@ -190,6 +190,7 @@ void augmentYaml(Map yaml, String inputFile, String addendumFile,
 
 const _TEMPLATES = const <String>[
     'lazy_resource_getter',
+    'list',
     'map',
     'marshal',
     'marshal_handle',

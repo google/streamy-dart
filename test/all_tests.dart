@@ -10,6 +10,7 @@ import 'generated/nested_resources_test.dart' as generated_nested_resources_test
 import 'generated/illegal_names_test.dart' as generated_illegal_names_test;
 import 'generated/method_post_test.dart' as generated_method_post_test;
 import 'generated/method_params_test.dart' as generated_method_params_test;
+import 'generated/proto_test.dart' as generated_proto_test;
 import 'generated/schema_object_test.dart' as generated_schema_object_test;
 import 'generated/reserved_expansion_path_param_test.dart' as generated_reserved_expansion_path_param_test;
 
@@ -49,6 +50,7 @@ main(List<String> args) {
   generated_method_post_test.main();
   generated_method_params_test.main();
   generated_nested_resources_test.main();
+  generated_proto_test.main();
   generated_schema_object_test.main();
   generated_reserved_expansion_path_param_test.main();
 

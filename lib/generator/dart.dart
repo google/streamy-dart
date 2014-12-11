@@ -415,10 +415,11 @@ class DartSimpleField implements DartField {
   final DartType type;
   final bool isFinal;
   final bool isStatic;
+  final bool isConst;
   final DartBody initializer;
   
   DartSimpleField(this.name, this.type,
-      {this.isFinal: false, this.isStatic: false, this.initializer});
+      {this.isFinal: false, this.isStatic: false, this.isConst: false, this.initializer});
   
   void render(StringBuffer out, int indent) {
     out.write(strings.repeat('  ', indent));
@@ -427,6 +428,9 @@ class DartSimpleField implements DartField {
     }
     if (isFinal) {
       out.write('final ');
+    }
+    if (isConst) {
+      out.write('const ');
     }
     if (type != null) {
       type.render(out);

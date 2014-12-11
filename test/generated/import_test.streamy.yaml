@@ -1,7 +1,7 @@
 proto:
   name: ImportProto
   source:
-    file: import_test.proto
+    file: $CWD/test/generated/import_test.proto
     root: $CWD/test/generated/
 output:
   files: single

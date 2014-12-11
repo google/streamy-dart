@@ -13,6 +13,7 @@ class Api {
   final Map<String, String> imports = <String, String>{};
   final Map<String, String> dependencies = <String, String>{};
   final Map<String, Schema> types = <String, Schema>{};
+  final Map<String, Enum> enums = <String, Enum>{};
   final Map<String, Resource> resources = <String, Resource>{};
   
   Api(this.name, {this.description, this.docLink, this.httpConfig,
@@ -203,6 +204,13 @@ class ListTypeRef implements TypeRef {
   String get dataType => base;
 
   String toString() => 'list($subType)';
+}
+
+class Enum {
+  final String name;
+  final Map<String, int> values = <String, int>{};
+
+  Enum(this.name);
 }
 
 class HttpConfig {
