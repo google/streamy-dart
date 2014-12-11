@@ -60,7 +60,8 @@ main() {
       expect(m.marshalBar(bar)['4'], 3);
     });
     test('Enum field deserializes', () {
-      var bar = const Marshaller().unmarshalBar({'4': 1});
+      var map = {'4': 1};
+      var bar = const Marshaller().unmarshalBar(map);
       expect(bar.ev, TestEnum.ALPHA);
     });
   });

@@ -87,6 +87,7 @@ class JsonMarshallerEmitter
       entityFields.forEach((String name, String type) {
         data.add({
             'key': name,
+            'string': true,
             'value': _makeUnmarshallerName(type),
         });
       });
