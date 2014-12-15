@@ -653,31 +653,31 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
   List<DartClass> processEnums() {
     var enums = <DartClass>[];
     api.enums.forEach((name, enumDef) {
-      var enum = new DartClass(enumDef.name);
-      enum.fields.add(new DartSimpleField(
+      var enumClass = new DartClass(enumDef.name);
+      enumClass.fields.add(new DartSimpleField(
           'index', const DartType.integer(), isFinal: true));
-      enum.fields.add(new DartSimpleField(
+      enumClass.fields.add(new DartSimpleField(
           '_displayName', const DartType.string(), isFinal: true));
-      var ctor = new DartConstructor(enum.name, named: '_private',
+      var ctor = new DartConstructor(enumClass.name, named: '_private',
           isConst: true);
-      enum.methods.add(ctor);
+      enumClass.methods.add(ctor);
       ctor.parameters.add(new DartParameter(
           'index', const DartType.integer(), isDirectAssignment: true));
       ctor.parameters.add(new DartParameter(
           '_displayName', const DartType.string(), isDirectAssignment: true));
-      enum.methods.add(new DartMethod('toString', const DartType.string(),
+      enumClass.methods.add(new DartMethod('toString', const DartType.string(),
           new DartConstantBody('=> _displayName;')));
-      var enumType = new DartType.from(enum);
-      enums.add(enum);
+      var enumType = new DartType.from(enumClass);
+      enums.add(enumClass);
       var seenValues = <int, String>{};
       enumDef.values.forEach((name, value) {
         if (!seenValues.containsKey(value)) {
-          enum.fields.add(new DartSimpleField(name, enumType, isStatic: true,
-              isConst: true, initializer: new DartConstantBody(
-                  'const ${enum.name}._private($value, \'$name\')')));
+          enumClass.fields.add(new DartSimpleField(name, enumType,
+              isStatic: true, isConst: true, initializer: new DartConstantBody(
+                  'const ${enumClass.name}._private($value, \'$name\')')));
           seenValues[value] = name;
         } else {
-          enum.fields.add(new DartSimpleField(
+          enumClass.fields.add(new DartSimpleField(
               name, enumType, isStatic: true, isConst: true, initializer:
               new DartConstantBody('${seenValues[value]}')));
         }
@@ -699,13 +699,13 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
       if (seenValues.isNotEmpty) {
         mappingData['values'].last['last'] = true;
       }
-      enum.fields.add(new DartSimpleField('mapping',
+      enumClass.fields.add(new DartSimpleField('mapping',
           new DartType.map(const DartType.integer(), enumType),
           isStatic: true, isConst: true, initializer:
           new DartTemplateBody(_template('map'), mappingData)));
-      enum.fields.add(new DartSimpleField('values', new DartType.list(enumType),
-          isStatic: true, isConst: true, initializer:
-          new DartTemplateBody(_template('list'), mappingData)));
+      enumClass.fields.add(new DartSimpleField('values',
+          new DartType.list(enumType), isStatic: true, isConst: true,
+          initializer: new DartTemplateBody(_template('list'), mappingData)));
     });
     return enums;
   }
