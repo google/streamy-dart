@@ -73,11 +73,11 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
       );
       var api = new Api(config.name, httpConfig: httpConfig);
       proto.enumType.forEach((def) {
-        var enum = new Enum(def.name);
+        var enumDef = new Enum(def.name);
         def.value.forEach((value) {
-          enum.values[value.name] = value.number;
+          enumDef.values[value.name] = value.number;
         });
-        api.enums[def.name] = enum;
+        api.enums[def.name] = enumDef;
       });
       proto.messageType.forEach((message) {
         var schema = new Schema(message.name);
