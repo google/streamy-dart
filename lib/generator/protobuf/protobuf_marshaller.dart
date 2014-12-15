@@ -183,8 +183,8 @@ class ProtobufMarshallerEmitter
       ..parameters.add(new DartParameter('marshal', const DartType.boolean())));
   }
   
-  void _processEnumForMarshaller(Enum enum) {
-    var name = makeClassName(enum.name);
+  void _processEnumForMarshaller(Enum enumDef) {
+    var name = makeClassName(enumDef.name);
     var type = new DartType(name, objectPrefix, const []);
     _marshallerClass.methods.add(new DartMethod('marshal$name',
         const DartType.integer(), new DartConstantBody('=> value.index;'))
