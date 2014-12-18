@@ -1,4 +1,8 @@
-part of streamy.generator;
+library streamy.generator.config;
+
+import 'dart:async';
+import 'dart:io' as io;
+import 'package:streamy/generator/ir.dart';
 
 const SPLIT_LEVEL_NONE = 1;
 const SPLIT_LEVEL_PARTS = 2;
@@ -26,12 +30,46 @@ class ServiceInput {
   ServiceInput(this.importPath, this.filePath);
 }
 
+class ProtoConfig {
+  final String name;
+  final String sourceFile;
+  final String root;
+  final String servicePath;
+  
+  /// Map of import path to import aliases.
+  final depsByImport = <String, ProtoDependency>{};
+  final depsByPackage = <String, ProtoDependency>{};
+  final orderedImports = <String>[];
+  
+  ProtoConfig(this.name, this.sourceFile, this.root, this.servicePath);
+  
+  List<String> orderImported(Iterable<String> imports) => imports
+    .where(orderedImports.contains)
+    .toList()
+    ..sort((a, b) {
+      var apos = orderedImports.indexOf(a);
+      var bpos = orderedImports.indexOf(b);
+      if (apos == -1 || bpos == -1) {
+      }
+      return Comparable.compare(apos, bpos);
+    });
+}
+
+class ProtoDependency {
+  final String prefix;
+  final String importPackage;
+  final String protoPackage;
+  
+  ProtoDependency(this.prefix, this.importPackage, this.protoPackage);
+}
+
 class Config {
   
   String discoveryFile;
   String addendumFile;
 
   ServiceConfig service;
+  ProtoConfig proto;
 
   String baseClass = 'Entity';
   String baseImport = 'package:streamy/base.dart';
@@ -40,7 +78,12 @@ class Config {
   String outputPrefix = '';
   
   int splitLevel = SPLIT_LEVEL_NONE;
-  
+
+  /// Indicates whether to generate marshallers
+  bool generateMarshallers = true;
+  /// Indicates whether to generate API root, resource and request objects
+  bool generateApi = true;
+
   bool mapBackedFields = true;
   bool clone = true;
   bool patch = true;
@@ -48,7 +91,6 @@ class Config {
   bool known = false;
   bool global = false;
   bool lazy = false;
-  
   List<SendParam> sendParams = [];
   
   Config();
@@ -91,9 +133,52 @@ Config parseConfigOrDie(Map data) {
       _die('Cannot specify both service and addendum.');
     }
   }
+  if (data.containsKey('proto')) {
+    var proto = data['proto'];
+    if (!proto.containsKey('name')) {
+      _die('Missing proto api name.');
+    }
+    if (!proto.containsKey('source')) {
+      _die('Missing proto source.');
+    }
+    var servicePath = '${proto['name']}/';
+    if (proto.containsKey('servicePath')) {
+      servicePath = proto['servicePath'];
+    }
+    if (servicePath == null) {
+      servicePath = '';
+    }
+    var source = proto['source'];
+    if (!source.containsKey('file')) {
+      _die('Missing proto source file.');
+    }
+    if (!source.containsKey('root')) {
+      _die('Missing proto root.');
+    }
+    config.proto = new ProtoConfig(proto['name'], source['file'],
+        source['root'], servicePath);
+    if (proto.containsKey('dependencies')) {
+      var deps = proto['dependencies'];
+      deps.forEach((prefix, depData) {
+        var importPackage = depData['import'];
+        var protoPackage = depData['package'];
+        var dep = new ProtoDependency(prefix, importPackage, protoPackage);
+        if (config.proto.depsByImport.containsKey(importPackage)) {
+          _die('Double import of Dart package: $importPackage.');
+        }
+        if (config.proto.depsByPackage.containsKey(protoPackage)) {
+          _die('Double import of proto package: $protoPackage');
+        }
+        config.proto
+          ..depsByPackage[protoPackage] = dep
+          ..depsByImport[importPackage] = dep
+          ..orderedImports.add(prefix);
+      });
+    }
+  }
   
-  if (config.discoveryFile == null && config.service == null) {
-    _die('Must specify either discovery or service.');
+  if (config.discoveryFile == null && config.service == null && config.proto == null) {
+    _die('Must specify either discovery, service, or proto.');
   }
   
   // Base class.
@@ -170,6 +255,12 @@ Config parseConfigOrDie(Map data) {
     if (output.containsKey('import')) {
       config.importPrefix = output['import'];
     }
+    if (output.containsKey('generateApi')) {
+      config.generateApi = output['generateApi'];
+    }
+    if (output.containsKey('generateMarshallers')) {
+      config.generateMarshallers = output['generateMarshallers'];
+    }
   }
   
   if (data.containsKey('request')) {
@@ -214,57 +305,4 @@ Config parseConfigOrDie(Map data) {
   }
   
   return config;
-}
-
-Future<String> _fileReader(String path) => new io.File(path).readAsString();
-
-Future<Api> apiFromConfig(
-  Config config, {String pathPrefix: '', fileReader: _fileReader}) {
-  if (config.discoveryFile != null) {
-    var addendum = new Future.value('{}');
-    var discovery = fileReader(pathPrefix + config.discoveryFile);
-    if (config.addendumFile != null) {
-      addendum = fileReader(pathPrefix + config.addendumFile);
-    }
-    return Future
-      .wait([discovery, addendum])
-      .then((data) => data.map(JSON.decode).toList(growable: false))
-      .then((data) => parseDiscovery(data[0], data[1]));
-  }
-  if (config.service != null) {
-    return Future
-      .wait(config.service.inputs.map((input) => fileReader(pathPrefix + input.filePath)))
-      .then((dataList) {
-        var api = new Api(config.service.name, 'desc');
-        for (var i = 0; i < config.service.inputs.length; i++) {
-          _parseServiceFile(api, config.service.inputs[i].importPath, analyzer.parseCompilationUnit(dataList[i]), i);
-        }
-        return api;
-      });
-  }
-  throw new Exception('Config has neither discovery or service. Parser bug?');
-}
-
-
-class TemplateLoader {
-  
-  factory TemplateLoader.fromDirectory(String path) {
-    return new FileTemplateLoader(path);
-  }
-  
-  Future<mustache.Template> load(String name);
-}
-
-class FileTemplateLoader implements TemplateLoader {
-  final io.Directory path;
-  
-  FileTemplateLoader(String path) : path = new io.Directory(path).absolute;
-  
-  Future<mustache.Template> load(String name) {
-    var f = new io.File("${path.path}/$name.mustache");
-    if (!f.existsSync()) {
-      return null;
-    }
-    return f.readAsString().then(mustache.parse);
-  }
 }

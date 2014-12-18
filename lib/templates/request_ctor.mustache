@@ -1,4 +1,15 @@
-: super(root{{#hasPayload}}, payload{{/hasPayload}}){{#hasListParams}} {
+: super{{superConstructor}}(
+    root,
+    '{{httpMethod}}',
+    r'{{pathFormat}}',
+    API_TYPE,
+    const[
+      {{#pathParameters}}r'{{name}}',{{/pathParameters}}
+    ],
+    const[
+      {{#queryParameters}}r'{{name}}',{{/queryParameters}}
+    ]
+    {{#hasPayload}}, payload{{/hasPayload}}){{#hasListParams}} {
   parameters{{#listParams}}
     ..[r'{{name}}'] = <{{type}}>[]{{/listParams}};
 }{{/hasListParams}}{{^hasListParams}};{{/hasListParams}}

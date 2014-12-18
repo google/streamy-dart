@@ -2,7 +2,7 @@ library streamy.trait.global;
 
 import 'package:streamy/streamy.dart' as streamy;
 
-class Global {
+class Global implements streamy.HasGlobal {
 
   var _global;
   

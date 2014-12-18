@@ -1,0 +1,18 @@
+# Generates an entity that has no predefined properties, but only
+# map-based access to data.
+discovery: raw.api.json
+output:
+  files: single
+  prefix: raw_entity
+  generateApi: false
+  generateMarshallers: false
+base:
+  class: Entity
+  import: package:streamy/base.dart
+  backing: map
+options:
+  clone: true
+  patch: true
+  removers: false
+  known: false
+  global: false

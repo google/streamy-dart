@@ -5,6 +5,7 @@ paths:
   - mixins
 mixins:
   - base_map
+  - is_map
   - observable
   - immutable
   - copy_clone
@@ -12,3 +13,4 @@ mixins:
   - local
   - global
   - patch_map
+  - has_api_type

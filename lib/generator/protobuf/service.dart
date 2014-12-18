@@ -1,7 +1,7 @@
-part of streamy.generator;
+part of streamy.generator.protobuf;
 
 Api parseServices(List<String> paths) {
-  var api = new Api('example', 'Example service', marshalling: false);
+  var api = new Api('example', marshalling: false);
   var i = 1;
   paths.forEach((path) => _parseServiceFile(api, path, analyzer.parseDartFile(path), i++));
   var pc = new PathConfig.prefixed('lib/', 'package:api/');
@@ -46,8 +46,6 @@ void _parseService(Api api, String importPath, analyzer.ClassDeclaration clazz) 
       var ref = new TypeRef.external(rt, importPath);
       var method = new Method(m.name.name, new Path('/'), '', null, ref);
       res.methods[method.name] = method;
-      // Need a request class for the method.
-      var name = '${res.name}${toProperIdentifier(m.name.name)}Request';
       m
         .parameters
         .parameters

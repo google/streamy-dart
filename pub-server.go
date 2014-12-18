@@ -32,6 +32,9 @@ func TarHandler(resp http.ResponseWriter, req *http.Request) {
     if err != nil {
       log.Fatalf("Walk error: %s", err)
     }
+    if info.Name()[0] == '.' {
+      return nil
+    }
     if !filter(path) {
       return nil
     }
@@ -62,5 +65,8 @@ func TarHandler(resp http.ResponseWriter, req *http.Request) {
 
 func main() {
   http.HandleFunc("/streamy.tar.gz", TarHandler)
-  http.ListenAndServe(":8080", nil)
+  err := http.ListenAndServe(":8080", nil)
+  if err != nil {
+    log.Fatalf("Failed to start server: %s", err)
+  }
 }

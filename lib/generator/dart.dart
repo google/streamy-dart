@@ -1,4 +1,7 @@
-part of streamy.generator;
+library streamy.generator.dart;
+
+import 'package:mustache/mustache.dart' as mustache;
+import 'package:quiver/strings.dart' as strings;
 
 abstract class DartNamed {
   String get name;
@@ -73,6 +76,12 @@ class DartLibraryPart extends DartFile {
 }
 
 class DartType {
+  static const STRING = const DartType.string();
+  static const NONE = const DartType.none();
+  static const INTEGER = const DartType.integer();
+  static const BOOLEAN = const DartType.boolean();
+  static const DOUBLE = const DartType.double();
+
   final String importNamespace;
   final String dartType;
   final List<DartType> parameters;
@@ -126,8 +135,11 @@ class DartClass implements DartNamed {
   final List<DartField> fields = [];
   final List<DartMethod> methods = [];
   final List<DartType> mixins = [];
+  final List<DartType> typeParameters;
+  final bool isAbstract;
   
-  DartClass(this.name, {this.baseClass, this.interfaces});
+  DartClass(this.name, {this.baseClass, this.interfaces, this.typeParameters,
+      this.isAbstract: false});
   
   void render(StringBuffer out, int indent) {
     var id = strings.repeat('  ', indent);
@@ -137,11 +149,20 @@ class DartClass implements DartNamed {
         ..write('/// ')
         ..writeln(line);
     });
+    if (isAbstract) {
+      out.write('abstract ');
+    }
     out
       ..write(id)
       ..write('class ')
-      ..write(name)
-      ..write(' ');
+      ..write(name);
+    if (typeParameters != null && typeParameters.isNotEmpty) {
+      out
+        ..write('<')
+        ..write(typeParameters.map((p) => p.toString()).join(', '))
+        ..write('>');
+    }
+    out.write(' ');
     if (baseClass != null) {
       out.write('extends ');
       baseClass.render(out);
@@ -225,7 +246,8 @@ class DartMethod {
   final DartBody body;
   final bool isStatic;
 
-  DartMethod(this.name, this.returnType, this.body, {this.isStatic: false});
+  DartMethod(this.name, this.returnType, this.body, {this.isStatic: false,
+      this.comments: null});
   
   void render(StringBuffer out, int indent) {
     var id = strings.repeat('  ', indent);
@@ -285,11 +307,22 @@ class DartConstructor implements DartMethod {
   final List<DartNamedParameter> namedParameters = [];
   final DartBody body;
   final bool isConst;
+  final List<String> comments;
+  final isStatic = true;
+  // TODO(yjbanov): returnType should be == forClass, but there's type mismatch
+  final DartType returnType = null;
   
   String get name => forClass;
   
-  DartConstructor(this.forClass, {this.named, this.body, this.isConst: false});
-  
+  DartConstructor(this.forClass, {this.named, this.body, this.isConst: false,
+      this.comments: const[]});
+
+  void addParameter(String name, DartType type,
+      {bool isDirectAssignment: false}) {
+    parameters.add(new DartParameter(name, type,
+        isDirectAssignment: isDirectAssignment));
+  }
+
   void render(StringBuffer out, int indent) {
     var spacing = strings.repeat('  ', indent);
     out.write(spacing);
@@ -366,7 +399,7 @@ class DartNamedParameter extends DartParameter {
     if (defaultValue != null) {
       out.write(': ');
       // TODO(Alex): Proper indentation.
-      defaultValue.render(out, 0, trailingNewline: false);
+      defaultValue.render(out, 0);
     }
   }
 }
@@ -382,10 +415,11 @@ class DartSimpleField implements DartField {
   final DartType type;
   final bool isFinal;
   final bool isStatic;
+  final bool isConst;
   final DartBody initializer;
   
-  DartSimpleField(this.name, this.type,
-      {this.isFinal: false, this.isStatic: false, this.initializer});
+  DartSimpleField(this.name, this.type, {this.isFinal: false,
+      this.isStatic: false, this.isConst: false, this.initializer});
   
   void render(StringBuffer out, int indent) {
     out.write(strings.repeat('  ', indent));
@@ -394,6 +428,9 @@ class DartSimpleField implements DartField {
     }
     if (isFinal) {
       out.write('final ');
+    }
+    if (isConst) {
+      out.write('const ');
     }
     if (type != null) {
       type.render(out);
@@ -404,7 +441,7 @@ class DartSimpleField implements DartField {
     out.write(name);
     if (initializer != null) {
       out.write(' = ');
-      initializer.render(out, indent, trailingNewline: false);
+      initializer.render(out, indent);
     }
     out.writeln(';');
   }

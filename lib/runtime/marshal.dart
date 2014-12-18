@@ -72,26 +72,43 @@ unmarshalDoubleData(data, bool lazy) {
 unmarshalDoubleDataLazy(data) => unmarshalDoubleData(data, true);
 unmarshalDoubleDataNonLazy(data) => unmarshalDoubleData(data, false);
 
-void handleEntities(marshaller, Map handlers, Map data, bool marshal, {bool lazy: false}) {
+void handleEntities(Map handlers, Map data, bool marshal, {bool lazy: false}) {
   handlers
     .keys
     .where(data.containsKey)
     .forEach((key) {
-      data[key] = handleEntityData(data[key], marshaller, handlers[key], marshal, lazy);
+      data[key] = handleEntityData(data[key], handlers[key], marshal, lazy);
     });
 }
 
-handleEntityData(data, marshaller, handler, bool marshal, bool lazy) {
+handleEntityData(data, handler, bool marshal, bool lazy) {
   if (data == null) {
     return null;
   } else if (data is List) {
-    var unwrapper = (v) => handleEntityData(v, marshaller, handler, marshal, lazy);
+    var unwrapper = (v) => handleEntityData(v, handler, marshaller, lazy);
     if (!lazy) {
       return new ObservableList.from(data.map(unwrapper));
     } else {
       return new LazyList(new ObservableList.from(data.map(Lazy.toLazy(unwrapper))));
     }
   } else {
-    return handler(marshaller, data, marshal);
+    return handler(data, marshal, lazy: lazy);
+  }
+}
+
+void unmarshalEntities(Map marshalledProperties, Map data) {
+  marshalledProperties.keys.where(data.containsKey).forEach((key) {
+    data[key] = unmarshalEntityData(marshalledProperties[key], data[key]);
+  });
+}
+
+unmarshalEntityData(unmarshaller(dynamic), data) {
+  if (data == null) {
+    return null;
+  } else if (data is List) {
+    return new ObservableList.from(
+        data.map((v) => unmarshalEntityData(unmarshaller, v)));
+  } else {
+    return unmarshaller(data);
   }
 }

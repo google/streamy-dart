@@ -28,7 +28,7 @@ main() {
 class ImmediateRequestHandler extends RequestHandler {
   Stream<Map> stream;
   ImmediateRequestHandler(Foo value) {
-    this.stream = new Stream.fromIterable([new Marshaller().marshalFoo(value)]);
+    this.stream = new Stream.fromIterable([jsonMarshal(value)]);
   }
   Stream<Response<Foo>> handle(HttpRequest request, Trace trace) {
     expect(request.local['dedup'], equals(true));

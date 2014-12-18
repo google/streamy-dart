@@ -119,7 +119,7 @@ abstract class HttpRequest implements Request {
     }
   }
 
-  dynamic marshalPayload() => '';
+  dynamic marshalPayload() => jsonMarshal(payload);
 
   dynamic unmarshalResponse(Map data) => null;
 
@@ -136,10 +136,29 @@ abstract class HttpRequest implements Request {
   String get path {
     int pos = 0;
     StringBuffer buf = new StringBuffer();
+    bool seenReservedExpansionParameter = false;
+    
     for (Match m in pathRegex.allMatches(pathFormat)) {
+      if (seenReservedExpansionParameter) {
+        throw new StateError(
+            'Path contained Reserved Expansion parameter in non-final position');
+      }
       buf.write(pathFormat.substring(pos, m.start));
       String pathParamName = pathFormat.substring(m.start + 1, m.end - 1);
-      buf.write(Uri.encodeComponent(parameters[pathParamName].toString()));
+      if (pathParamName.startsWith('\+')) {
+        // A path parameter whose name starts with a + symbol (known as a
+        // Reserved Expansion) is permitted to contain the '/' character, so
+        // add it back after the URI encoding has removed it
+        // (http://tools.ietf.org/html/rfc6570#section-3.2.3).
+        // Note that Reserved Expansions can only exist as the last parameter
+        // in the path to avoid ambiguity in path matching.
+        var encoded = Uri.encodeComponent(
+            parameters[pathParamName.substring(1)].toString());
+        buf.write(encoded.replaceAll('%2F', '/'));
+        seenReservedExpansionParameter = true;
+      } else {
+        buf.write(Uri.encodeComponent(parameters[pathParamName].toString()));
+      }
       pos = m.end;
     }
     buf.write(pathFormat.substring(pos));
@@ -262,6 +281,25 @@ abstract class HttpRequest implements Request {
         _payload != null ? (_payload as RawEntity).signature : "null";
     return "$runtimeType|$path|$payloadSig";
   }
+}
+
+class HttpRequestBase<P> extends HttpRequest {
+  final String httpMethod;
+  final String pathFormat;
+  final String apiType;
+  final List<String> pathParameters;
+  final List<String> queryParameters;
+  final bool hasPayload;
+
+  HttpRequestBase.noPayload(HttpRoot root, this.httpMethod, this.pathFormat,
+      this.apiType, this.pathParameters, this.queryParameters)
+          : super(root),
+            hasPayload = false;
+
+  HttpRequestBase.withPayload(HttpRoot root, this.httpMethod, this.pathFormat,
+      this.apiType, this.pathParameters, this.queryParameters, P payload)
+         : super(root, payload),
+           hasPayload = true;
 }
 
 class BranchingRequestHandlerBuilder {

@@ -1,4 +1,4 @@
-library streamy.traits.patch;
+library streamy.mixins.patch;
 
 import 'package:observe/observe.dart' as observe;
 import 'package:streamy/streamy.dart' as streamy;
@@ -23,7 +23,7 @@ class Patch implements streamy.Patchable {
     return other;
   }
   
-  void setOriginal() {
+  void _setOriginal() {
     _original = getMap(this);
     if (this is! streamy.Freezeable || !isFrozen) {
       // Need to clone original if not frozen. Hope it's cloneable.
@@ -39,7 +39,7 @@ class Patch implements streamy.Patchable {
     if (this is streamy.Freezeable) {
       super.freeze();
     }
-    setOriginal();
+    _setOriginal();
   }
   
 

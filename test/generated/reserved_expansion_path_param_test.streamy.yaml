@@ -1,0 +1,12 @@
+discovery: reserved_expansion_path_param_test.json
+output:
+  files: split
+  prefix: reserved_expansion_path_param_client
+base:
+  class: Entity
+  import: package:streamy/base.dart
+  backing: map
+options:
+  clone: true
+  removers: true
+  known: false

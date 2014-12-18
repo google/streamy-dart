@@ -8,7 +8,7 @@ import 'package:unittest/unittest.dart';
 import '../utils.dart';
 
 main() {
- group('Multiplexer', () {
+  group('Multiplexer', () {
     test('does not throw on error but forward to error catchers', () {
       var testHandler = (
           testRequestHandler()

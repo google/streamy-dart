@@ -3,6 +3,7 @@ library streamy.streamy.test;
 import 'dart:async';
 import 'package:fixnum/fixnum.dart';
 import 'package:observe/observe.dart';
+import 'package:streamy/raw_entity.dart';
 import 'package:streamy/streamy.dart';
 import 'package:streamy/testing/testing.dart';
 import 'package:unittest/unittest.dart';
@@ -27,8 +28,8 @@ main() {
         .handle(new TestRequest('GET'), const NoopTrace())
         .single
         .then(expectAsync((e) {
-          expect(Entity.deepEquals(e.entity, a.entity), isTrue);
-          expect(Entity.deepEquals(e.entity, b.entity), isTrue);
+          expect(EntityUtils.deepEquals(e.entity, a.entity), isTrue);
+          expect(EntityUtils.deepEquals(e.entity, b.entity), isTrue);
         }));
     });
   });

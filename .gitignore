@@ -12,3 +12,5 @@ test/benchmark_html.dart.*
 test/integration/bankapi
 test/integration/apigen_test/build
 test/integration/transformer_test/build
+pub-server
+.pub

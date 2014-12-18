@@ -23,13 +23,12 @@ main() {
       Foo testResponse = new Foo()
         ..id = 1
         ..bar = 'bar';
-      var marshaller = new Marshaller();
       var testRequestHandler = new RequestHandler.fromFunction(
           (req) => new Stream.fromIterable(
-              [new Response(req.unmarshalResponse(marshaller.marshalFoo(testResponse)), Source.RPC, 0)]));
+              [new Response(req.unmarshalResponse(jsonMarshal(testResponse)), Source.RPC, 0)]));
       var subject = new MethodGetTest(testRequestHandler);
       subject.foos.get(1).send().listen(expectAsync((Foo v) {
-        expect(marshaller.marshalFoo(v), equals(marshaller.marshalFoo(testResponse)));
+        expect(jsonMarshal(v), equals(jsonMarshal(testResponse)));
       }, count: 1));
     });
     test('API root has proper service path', () {
@@ -42,13 +41,11 @@ main() {
       expect(MethodGetTest.API_TYPE, 'MethodGetTest');
       expect(new MethodGetTest(null).apiType, 'MethodGetTest');
     });
-    /* TODO: fix test
     test('of MethodGetTestTransaction', () {
       expect(MethodGetTestTransaction.API_TYPE, 'MethodGetTestTransaction');
-      expect(new MethodGetTestTransaction(null, null).apiType,
+      expect(new MethodGetTestTransaction(null, null, null).apiType,
           'MethodGetTestTransaction');
     });
-    */
     test('of Foo', () {
       expect(Foo.API_TYPE, 'Foo');
       expect(new Foo().apiType, 'Foo');
@@ -67,9 +64,15 @@ main() {
       var f = new Foo()
         ..id = 1;
       var m = new Marshaller();
-      var f2 = m.unmarshalFoo(m.marshalFoo(f));
+      var f2 = m.unmarshalFoo(jsonMarshal(f));
       expect(f2.containsKey('bar'), isFalse);
       expect(f2.containsKey('baz'), isFalse);
+    });
+  });
+  group('Root object', () {
+    test('should allow specifying custom servicePath', () {
+      var root = new MethodGetTest(null, servicePath: '/differentPath');
+      expect(root.servicePath, '/differentPath');
     });
   });
 }

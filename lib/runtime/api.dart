@@ -20,3 +20,8 @@ abstract class Freezeable {
   bool get isFrozen;
   void freeze();
 }
+
+abstract class HasGlobal {
+  Type get streamyType;
+  GlobalView get global;
+}

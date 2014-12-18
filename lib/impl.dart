@@ -3,7 +3,7 @@
 library streamy.impl;
 
 import 'dart:async';
-import 'dart:convert';
+import 'dart:convert' show JSON;
 import 'package:streamy/streamy.dart';
 
 /// A rudimentary [RequestHandler] that serializes [Request] objects to JSON
@@ -20,7 +20,7 @@ class SimpleRequestHandler extends RequestHandler {
             ? apiServerAddress
             : 'https://content.googleapis.com';
 
-  Stream<Response> handle(Request request, Trace trace) {
+  Stream<Response> handle(HttpRequest request, Trace trace) {
     var cancelCompleter = new Completer();
     var ctrl = new StreamController(
         sync: true,
@@ -34,14 +34,28 @@ class SimpleRequestHandler extends RequestHandler {
       'Content-Type': 'application/json'
     }, {},
         cancelCompleter.future,
-        payload: request.payload != null ?
-            JSON.encode(request.payload.toJson()) : null);
+        payload: request.hasPayload ? JSON.encode(request.marshalPayload()) : null);
     _http.send(req).then((StreamyHttpResponse resp) {
-      ctrl.add(new Response(
-          request.responseDeserializer(resp.body, trace),
-          Source.RPC,
-          new DateTime.now().millisecondsSinceEpoch));
-    }, onError: ctrl.addError);
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        var responseJson = jsonParse(resp.body, trace);
+        trace.record(new DeserializationStartEvent(resp.body.length));
+        var responsePayload = request.unmarshalResponse(responseJson);
+        trace.record(new DeserializationEndEvent());
+        ctrl.add(new Response(responsePayload, Source.RPC,
+            new DateTime.now().millisecondsSinceEpoch));
+      } else {
+        Map jsonError = null;
+        try {
+          jsonError = JSON.decode(resp.body);
+        } catch(_) {
+          // Apparently, body wan't JSON. The caller will have to make do.
+        }
+        ctrl.addError(new StreamyRpcException(resp.statusCode, request,
+            jsonError));
+      }
+    }, onError: (e) => ctrl.addError(new StreamyRpcException(0, request,
+        {'error': {'errors': [{'message': e.message}]}})));
+
     return ctrl.stream;
   }
 }

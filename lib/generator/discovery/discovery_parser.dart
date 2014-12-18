@@ -1,4 +1,24 @@
-part of streamy.generator;
+library streamy.generator.discovery;
+
+import 'dart:async';
+import 'dart:convert';
+import 'package:streamy/generator/config.dart';
+import 'package:streamy/generator/ir.dart';
+
+Future<Api> parseFromConfig(
+    Config config,
+    String pathPrefix,
+    Future<String> fileReader(String)) {
+  var addendum = new Future.value('{}');
+  var discovery = fileReader(pathPrefix + config.discoveryFile);
+  if (config.addendumFile != null) {
+    addendum = fileReader(pathPrefix + config.addendumFile);
+  }
+  return Future
+    .wait([discovery, addendum])
+    .then((data) => data.map(JSON.decode).toList(growable: false))
+    .then((data) => parseDiscovery(data[0], data[1]));
+}
 
 Api parseDiscovery(Map discovery, Map addendum) {
   var full = _mergeMaps(discovery, addendum);
@@ -9,7 +29,7 @@ Api parseDiscovery(Map discovery, Map addendum) {
       full['servicePath']);
   var api = new Api(
       full['name'],
-      full['description'],
+      description: full['description'],
       docLink: full['documentationLink'],
       httpConfig: httpConfig);
 
@@ -40,34 +60,45 @@ Api parseDiscovery(Map discovery, Map addendum) {
   if (full.containsKey('resources')) {
     full['resources']
       .keys
-      .forEach((key) {
-        var resource = full['resources'][key];
-        var type = new Resource(key);
-        if (resource.containsKey('methods')) {
-          var methods = resource['methods'];
-          methods.forEach((name, method) {
-            var payloadType = null;
-            var responseType = null;
-            if (method.containsKey('request')) {
-              payloadType = _parseType(method['request'], key, '${name}_Request', api);
-            }
-            if (method.containsKey('response')) {
-              responseType = _parseType(method['response'], key, '${name}_Response', api);
-            }
-            var m = new Method(name, new Path(method['path']),
-                method['httpMethod'], payloadType, responseType);
-            type.methods[name] = m;
-            if (method.containsKey('parameters')) {
-              method['parameters'].forEach((pname, param) {
-                m.parameters[pname] = _parseProperty(pname, param, key, api);
-              });
-            }
-          });
-        }
-        api.resources[key] = type;
+      .forEach((resourceName) {
+        var resource = full['resources'][resourceName];
+        api.resources[resourceName] = _parseResource(resourceName, resource, api);
       });
   }
   return api;
+}
+
+Resource _parseResource(String resourceName, Map resource, Api api) {
+  var type = new Resource(resourceName);
+  if (resource.containsKey('methods')) {
+    var methods = resource['methods'];
+    methods.forEach((name, method) {
+      var payloadType = null;
+      var responseType = null;
+      if (method.containsKey('request')) {
+        payloadType = _parseType(method['request'], resourceName, '${name}_Request', api);
+      }
+      if (method.containsKey('response')) {
+        responseType = _parseType(method['response'], resourceName, '${name}_Response', api);
+      }
+      var m = new Method(name, new Path(method['path']),
+          method['httpMethod'], payloadType, responseType);
+      type.methods[name] = m;
+      if (method.containsKey('parameters')) {
+        method['parameters'].forEach((pname, param) {
+          m.parameters[pname] = _parseProperty(pname, param, resourceName, api);
+        });
+      }
+    });
+  }
+  if (resource.containsKey('resources')) {
+    var subresources = resource['resources'];
+    subresources.forEach((name, subresource) {
+      var fullyQualifiedName = "${resourceName}_${name}";
+      type.subresources[name] = _parseResource(fullyQualifiedName, subresource, api);
+    });
+  }
+  return type;
 }
 
 Field _parseProperty(String name, Map property, String containerName, Api api) {
@@ -137,4 +168,29 @@ TypeRef _parseType(Map type, String containerName, String propertyName, Api api)
     ref = new TypeRef.list(ref);
   }
   return ref;
+}
+
+Map _mergeMaps(Map a, Map b) {
+  var out = {};
+  a.keys.forEach((key) {
+    if (!b.containsKey(key)) {
+      out[key] = a[key];
+    } else {
+      var aVal = a[key];
+      var bVal = b[key];
+      if (bVal == null || aVal == null) {
+        out[key] = aVal;
+      } else if (aVal is Map && bVal is Map) {
+        out[key] = _mergeMaps(aVal, bVal);
+      } else {
+        out[key] = bVal;
+      }
+    }
+  });
+  b.keys.forEach((key) {
+    if (!a.containsKey(key)) {
+      out[key] = b[key];
+    }
+  });
+  return out;
 }

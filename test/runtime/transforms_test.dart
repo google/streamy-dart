@@ -2,6 +2,7 @@ library streamy.runtime.transforms.test;
 
 import 'package:unittest/unittest.dart';
 import 'package:streamy/testing/testing.dart';
+import 'package:streamy/raw_entity.dart';
 import 'package:streamy/streamy.dart';
 import '../utils.dart';
 

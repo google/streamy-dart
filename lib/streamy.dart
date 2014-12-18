@@ -18,8 +18,12 @@ part 'runtime/cache.dart';
 part 'runtime/dedup.dart';
 part 'runtime/entity_util.dart';
 part 'runtime/error.dart';
+<<<<<<< HEAD
 part 'runtime/global.dart';
 part 'runtime/hash.dart';
+=======
+part 'runtime/equality.dart';
+>>>>>>> master
 part 'runtime/http.dart';
 part 'runtime/json.dart';
 part 'runtime/lazy.dart';

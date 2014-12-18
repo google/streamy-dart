@@ -1,8 +1,99 @@
-part of streamy.generator;
+library streamy.generator.utilities;
 
-String toProperIdentifier(String identifier, {firstLetter: true}) {
-  var first = !firstLetter;
-  var name = identifier
+import 'package:streamy/generator/ir.dart';
+
+/// Filters a map of [properties] leaving only properties of [base] type or
+/// hierarchies of lists of element of [base] type. The output is a map in
+/// which keys are property names and values are type names.
+Map<String, String> fieldsOf(String base, Map<String, Field> properties) =>
+  _toMap(_entries(properties)
+    .map((e) => new _MapEntry(e.key, _hierarchyOf(base, e.value.typeRef)))
+    .where((e) => e.value != null));
+
+/// Returns data type of [type] if either the [type] is of given [base] type or
+/// the [type] is a hierarchy of lists of elements of [base] type. Returns
+/// `null` otherwise. Example:
+///
+///     _hierarchyOf('int64', new TypeRef.int64()); // true
+///     _hierarchyOf('int64', new TypeRef.string()); // false
+///     _hierarchyOf('int64', new TypeRef.list(new TypeRef.int64())); // true
+///     _hierarchyOf('int64', new TypeRef.list(new TypeRef.string())); // true
+String _hierarchyOf(String base, TypeRef type) {
+  if (type.base == base) {
+    return type.dataType;
+  } else if (type is ListTypeRef) {
+    return _hierarchyOf(base, type.subType);
+  }
+  return null;
+}
+
+// TODO(yjbanov): should _entries, _toMap and _MapEntry be in quiver?
+Iterable<_MapEntry> _entries(Map map) =>
+  map.keys.map((k) => new _MapEntry(k, map[k]));
+
+Map _toMap(Iterable<_MapEntry> entries) =>
+    new Map.fromIterable(entries, key: (e) => e.key, value: (e) => e.value);
+
+class _MapEntry<K, V> {
+  final K key;
+  final V value;
+  _MapEntry(this.key, this.value);
+}
+
+String joinParts(Iterable<String> parts) {
+  bool isFirst = true;
+  return parts.map((part) {
+    part = _fixIllegalChars(part);
+    if (!isFirst) {
+      part = _capitalize(part);
+    }
+    isFirst = false;
+    return part;
+  }).join('');
+}
+
+String makePropertyName(String name) {
+  name = _fixIllegalChars(name);
+  if (_ILLEGAL_PROPERTY_NAMES.contains(name)) {
+    name = '\$${name}';
+  }
+  return name;
+}
+
+String makeMethodName(String name) {
+  name = _fixIllegalChars(name);
+  if (_ILLEGAL_METHOD_NAMES.contains(name)) {
+    name = '\$${name}';
+  }
+  return name;
+}
+
+String makeRemoverName(String name) {
+  name = _capitalize(_fixIllegalChars(name));
+  return 'remove${name}';
+}
+
+String makeHandlerName(String name) {
+  name = _capitalize(_fixIllegalChars(name));
+  return 'handle${name}';
+}
+
+String makeClassName(String name) {
+  name = _capitalize(_fixIllegalChars(name));
+  if (_ILLEGAL_CLASS_NAMES.contains(name)) {
+    name = '\$${name}';
+  }
+  return name;
+}
+
+String _fixIllegalChars(String name) {
+  if (name.length == 0) {
+    throw new StateError('Empty property, schema, resource or method name');
+  }
+
+  // Make names like foo_bar_baz look like fooBarBaz
+  var first = true;
+  name = name
     .split('_')
     .map((piece) {
       if (first) {
@@ -16,22 +107,30 @@ String toProperIdentifier(String identifier, {firstLetter: true}) {
       }
     })
     .join();
-  if (name.length == 0) {
-    throw new StateError('Empty property, schema, resource or method name');
-  }
+
 
   // Replace bad starting character with dollar sign (it has to be public)
-  if (!name.startsWith(IDENTIFIER_START)) {
+  if(!name.startsWith(IDENTIFIER_START)) {
     name = '\$${name.substring(1)}';
   }
+
   // Replace bad characters in the middle with underscore
   name = name.replaceAll(NON_IDENTIFIER_CHAR_MATCHER, '_');
   if (name.startsWith('_')) {
     name = 'clean${name}';
   }
+
   return name;
 }
-  
+
+/// Turns the first letter in a string to a capital letter.
+String _capitalize(String str) {
+  if (str == null || str.length == 0) {
+    return str;
+  }
+  return str[0].toUpperCase() + str.substring(1);
+}
+
 List<String> splitStringAcrossLines(String src, [int maxLen = 80]) {
   var lines = [];
   var words = src.split(' ');
@@ -52,31 +151,6 @@ List<String> splitStringAcrossLines(String src, [int maxLen = 80]) {
   });
   lines.add(out.toString().trim());
   return lines;
-}
-
-Map _mergeMaps(Map a, Map b) {
-  var out = {};
-  a.keys.forEach((key) {
-    if (!b.containsKey(key)) {
-      out[key] = a[key];
-    } else {
-      var aVal = a[key];
-      var bVal = b[key];
-      if (bVal == null || aVal == null) {
-        out[key] = aVal;
-      } else if (aVal is Map && bVal is Map) {
-        out[key] = _mergeMaps(aVal, bVal);
-      } else {
-        out[key] = bVal;
-      }
-    }
-  });
-  b.keys.forEach((key) {
-    if (!a.containsKey(key)) {
-      out[key] = b[key];
-    }
-  });
-  return out;
 }
 
 /// Characters allowed as starting identifier characters. Note the absence of
