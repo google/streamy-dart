@@ -85,7 +85,7 @@ handleEntityData(data, handler, bool marshal, bool lazy) {
   if (data == null) {
     return null;
   } else if (data is List) {
-    var unwrapper = (v) => handleEntityData(v, handler, marshaller, lazy);
+    var unwrapper = (v) => handleEntityData(v, handler, marshal, lazy);
     if (!lazy) {
       return new ObservableList.from(data.map(unwrapper));
     } else {
@@ -96,19 +96,19 @@ handleEntityData(data, handler, bool marshal, bool lazy) {
   }
 }
 
-void unmarshalEntities(Map marshalledProperties, Map data) {
+void unmarshalEntities(Map marshalledProperties, Map data, {bool lazy: false}) {
   marshalledProperties.keys.where(data.containsKey).forEach((key) {
-    data[key] = unmarshalEntityData(marshalledProperties[key], data[key]);
+    data[key] = unmarshalEntityData(marshalledProperties[key], data[key], lazy: lazy);
   });
 }
 
-unmarshalEntityData(unmarshaller(dynamic), data) {
+unmarshalEntityData(unmarshaller(dynamic, {bool lazy}), data, {bool lazy: false}) {
   if (data == null) {
     return null;
   } else if (data is List) {
     return new ObservableList.from(
-        data.map((v) => unmarshalEntityData(unmarshaller, v)));
+        data.map((v) => unmarshalEntityData(unmarshaller, v, lazy: lazy)));
   } else {
-    return unmarshaller(data);
+    return unmarshaller(data, lazy: lazy);
   }
 }

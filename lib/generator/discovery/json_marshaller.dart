@@ -43,7 +43,10 @@ class JsonMarshallerEmitter
       final unmarshalMethod =
           new DartMethod('unmarshalResponse', responseType, body)
             ..parameters.add(
-              new DartParameter('data', new DartType('Map', null, const [])));
+              new DartParameter('data', new DartType('Map', null, const [])))
+            ..namedParameters.add(
+              new DartNamedParameter('lazy', const DartType.boolean(),
+                  defaultValue: const DartConstantBody('false')));
       requestClass.methods.add(unmarshalMethod);
     }
   }
@@ -112,7 +115,10 @@ class JsonMarshallerEmitter
     _marshallerClass.methods.add(
         new DartMethod(_makeUnmarshallerName(schema.name), type,
             new DartTemplateBody(unmarshal, serializerConfig))
-          ..parameters.add(new DartParameter('data', rt)));
+          ..parameters.add(new DartParameter('data', rt))
+          ..namedParameters.add(
+              new DartNamedParameter('lazy', const DartType.boolean(),
+                  defaultValue: const DartConstantBody('false'))));
   }
 
   String _makeUnmarshallerName(String type) {
