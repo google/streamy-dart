@@ -106,8 +106,12 @@ unmarshalEntityData(unmarshaller(dynamic, {bool lazy}), data, {bool lazy: false}
   if (data == null) {
     return null;
   } else if (data is List) {
-    return new ObservableList.from(
-        data.map((v) => unmarshalEntityData(unmarshaller, v, lazy: lazy)));
+    var unwrapper = (v) => unmarshalEntityData(unmarshaller, v, lazy: lazy);
+    if (!lazy) {
+      return new ObservableList.from(data.map(unwrapper));
+    } else {
+      return new LazyList(new ObservableList.from(data.map(Lazy.toLazy(unwrapper))));
+    }
   } else {
     return unmarshaller(data, lazy: lazy);
   }
