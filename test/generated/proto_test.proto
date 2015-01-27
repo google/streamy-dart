@@ -11,10 +11,35 @@ message Foo {
 }
 
 message Bar {
+  message NestedMessage1 {
+    message NestedMessage2 {
+      enum NestedEnum2 {
+        X = 1;
+        Y = 2;
+        Z = 3;
+      }
+
+      optional string name = 1;
+    }
+
+    optional string name_foo = 1;
+  }
+
+  enum NestedEnum1 {
+    A = 1;
+    B = 2;
+    C = 3;
+  }
   optional int64 id = 1;
   optional string name = 2;
   repeated import_test.import_proto.Baz imported = 3;
   optional TestEnum ev = 4;
+  optional NestedEnum1 nested_enum1 = 5;
+  optional NestedMessage1.NestedMessage2.NestedEnum2 nested_enum2 = 6;
+  optional NestedMessage1 nested_message1 = 7;
+  optional NestedMessage1.NestedMessage2 nested_message2 = 8;
+  optional import_test.import_proto.Baz.NestedEnum imported_enum = 9;
+  optional import_test.import_proto.Baz.NestedMessage imported_message = 10;
 }
 
 enum TestEnum {

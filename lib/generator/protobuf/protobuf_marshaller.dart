@@ -24,12 +24,18 @@ class ProtobufMarshallerEmitter
   String get objectPrefix => _ctx.objectPrefix;
 
   void emit() {
-    var importedMarshallers = _ctx.config.proto.orderImported(_ctx
+    var importedMarshallers = _ctx
       .api
       .types
       .values
       .expand(_marshallerImportsForSchema)
+      .toSet();
+    importedMarshallers.addAll(_ctx
+      .api
+      .rpcExternalDependencies
+      .expand(_marshallerImportsForType)
       .toSet());
+    importedMarshallers = _ctx.config.proto.orderImported(importedMarshallers);
     var marshallers = importedMarshallers
         .map((prefix) => {'import': prefix, 'last': false})
         .toList(growable: false);
@@ -72,11 +78,21 @@ class ProtobufMarshallerEmitter
     }
 
     if (method.payloadType != null) {
+      var templateContext = {
+        'name': makeClassName((method.payloadType as TypeRef).dataType),
+        'imported': false,
+        'prefix': null
+      };
+      if (method.payloadType is DependencyTypeRef) {
+        templateContext['prefix'] =
+          (method.payloadType as DependencyTypeRef).importedFrom;
+        templateContext['imported'] = true;
+      }
+      var methodTemplate = new DartTemplateBody(
+        _ctx.templates['request_marshal_payload'], templateContext);
       requestClass.methods.add(new DartMethod('marshalPayload',
           new DartType('Map'),
-          new DartTemplateBody(_ctx.templates['request_marshal_payload'], {
-              'name': makeClassName((method.payloadType as SchemaTypeRef)
-                  .schemaClass)})));
+          methodTemplate));
     }
   }
 

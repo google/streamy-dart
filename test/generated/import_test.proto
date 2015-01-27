@@ -4,5 +4,15 @@ package import_test.import_proto;
 
 message Baz {
   optional string id = 1;
+  
+  enum NestedEnum {
+    P = 1;
+    E = 2;
+    Z = 3;
+  }
+
+  message NestedMessage {
+    optional string name = 1;
+  }
 }
 

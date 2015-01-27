@@ -15,6 +15,9 @@ class Api {
   final Map<String, Schema> types = <String, Schema>{};
   final Map<String, Enum> enums = <String, Enum>{};
   final Map<String, Resource> resources = <String, Resource>{};
+  // External dependency from the RPC methods whose payload/response are from
+  // external files.
+  final Set<DependencyTypeRef> rpcExternalDependencies = [];
   
   Api(this.name, {this.description, this.docLink, this.httpConfig,
       this.marshalling: true});
