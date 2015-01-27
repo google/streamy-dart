@@ -72,14 +72,23 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
         config.servicePath
       );
       var api = new Api(config.name, httpConfig: httpConfig);
-      proto.enumType.forEach((def) {
+
+      // Prefix nested messages with their containing message's name to reduce
+      // name collision.
+      proto.messageType.forEach((m) => _prefixNestedMessagesAndEnums(m));
+      List<EnumDescriptorProto> allEnums = _getAllEnums(proto);
+      List<DescriptorProto> allMessages = _getAllMessages(proto);
+
+      validateNameUnique(allMessages, allEnums);
+
+      allEnums.forEach((def) {
         var enumDef = new Enum(def.name);
         def.value.forEach((value) {
           enumDef.values[value.name] = value.number;
         });
         api.enums[def.name] = enumDef;
       });
-      proto.messageType.forEach((message) {
+      allMessages.forEach((message) {
         var schema = new Schema(message.name);
         message.field.forEach((field) {
           var typeRef = const TypeRef.any();
@@ -151,6 +160,12 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
               config.depsByPackage);
           resource.methods[methodDef.name] =
               new Method(methodDef.name, httpPath, 'POST', reqType, respType);
+          if (reqType is DependencyTypeRef) {
+            api.rpcExternalDependencies.add(reqType as DependencyTypeRef);
+          }
+          if (respType is DependencyTypeRef) {
+            api.rpcExternalDependencies.add(respType as DependencyTypeRef);
+          }
         });
         api.resources[serviceDef.name] = resource;
       });
@@ -158,32 +173,109 @@ Future<Api> parseFromProtoConfig(ProtoConfig config, String protocPath) {
     });
 }
 
+/// Prefixes all nested message/enum's name with the parent name to avoid name
+/// collision.
+void _prefixNestedMessagesAndEnums(DescriptorProto message) {
+  var namePrefix = message.name;
+  message.nestedType.forEach((m) => m.name = '${namePrefix}${m.name}');
+  message.enumType.forEach((e) => e.name = '${namePrefix}${e.name}');
+  message.nestedType.forEach((m) => _prefixNestedMessagesAndEnums(m));
+}
+
+/// Returns all messages defined in a proto file, including nested messages.
+List<DescriptorProto> _getAllMessages(FileDescriptorProto protoFile) {
+  var allMessages = [];
+  allMessages.addAll(protoFile.messageType);
+  protoFile.messageType.forEach((message)
+    => allMessages.addAll(_getAllNestedMessages(message)));
+  return allMessages;
+}
+
+/// Returns all messages nested in a message. Including the nested messages of
+/// each directly nested message, and so on.
+List<DescriptorProto> _getAllNestedMessages(DescriptorProto message) {
+  var allMessages = [];
+  allMessages.addAll(message.nestedType);
+  message.nestedType.forEach((nestedMessage)
+    => allMessages.addAll(_getAllNestedMessages(nestedMessage)));
+  return allMessages;
+}
+
+/// Validates that all messages/enums have unique names. Note that the compiler
+/// prefixes the nested messages/enums with their parent message. However, this
+/// does not guarantee uniqueness of the names.
+void validateNameUnique(List<DescriptorProto> messages,
+    List<EnumDescriptorProto> enums) {
+
+  var names = messages
+    .map((m) => m.name)
+    .toList();
+  names.addAll(enums.map((e) => e.name).toList());
+
+  int nameCount = names.length;
+  int uniqueNameCount = names.toSet().length;
+  if (nameCount != uniqueNameCount) {
+    throw new Exception('Found name collision in $names');
+  }
+}
+
+/// Returns all enum defined in a proto file, including nested messages.
+List<EnumDescriptorProto> _getAllEnums(FileDescriptorProto protoFile) {
+  var allEnums = [];
+  allEnums.addAll(protoFile.enumType);
+  protoFile.messageType.forEach((message)
+    => allEnums.addAll(_getAllNestedEnums(message)));
+  return allEnums;
+}
+
+/// Returns all enums nested in a message. Including the nested enums of
+/// each directly nested message, and so on.
+List<EnumDescriptorProto> _getAllNestedEnums(DescriptorProto message) {
+  var allEnums = [];
+  allEnums.addAll(message.enumType);
+  message.nestedType.forEach((nestedMessage)
+    => allEnums.addAll(_getAllNestedEnums(nestedMessage)));
+  return allEnums;
+}
+
+/// Looks up the package given a [typeName] who contains the package, from
+/// either the current package or from one of the dependencies. Throw an error
+/// if the package cannot be found.
+String _lookupPackage(String typeName, String currentPackage,
+    Map depsByPackage) {
+
+  if (typeName.contains(currentPackage)) {
+    return currentPackage;
+  }
+  for (var package in depsByPackage.keys) {
+    if (typeName.contains(package)) {
+      return package;
+    }
+  };
+  throw new Exception('Unknown type: $typeName. Did you forget a '
+    'dependency in your .streamy.yaml file?');
+}
+
+/// Returns the [TypeRef] for a proto message type.
 TypeRef _typeFromProtoName(String typeName, String currentPackage,
     Map depsByPackage) {
-  var parts = typeName.split('.').skip(1).toList();
-  var cps = currentPackage.split('.').toList();
-  var isCurrent = true;
-  if (parts.length == cps.length + 1) {
-    for (var i = 0; i < cps.length; i++) {
-      if (parts[i] != cps[i]) {
-        isCurrent = false;
-        break;
-      }
-    }
-  } else {
-    isCurrent = false;
+
+  // Proto compiler type path starts with '.', but in [depsByPackage] the
+  // package names do not.
+  if (typeName[0] == '.') {
+    typeName = typeName.replaceFirst('.', '');
   }
+  var package = _lookupPackage(typeName, currentPackage, depsByPackage);
+  var shortTypeName = typeName
+    .replaceFirst(package, '') // Remove the package from the type name.
+    .replaceAll('.', ''); // Remove the remaining '.' afterwards. Nested
+                          // messages' names are joined with their containing
+                          // message's name..
+  var isCurrent = package == currentPackage;
   if (isCurrent) {
-    return new TypeRef.schema(parts.skip(cps.length).single);
+    return new TypeRef.schema(shortTypeName);
   } else {
-    var entity = parts.removeLast();
-    var package = parts.join('.');
-    if (depsByPackage.containsKey(package)) {
-      var importPrefix = depsByPackage[package].prefix;
-      return new TypeRef.dependency(entity, importPrefix);
-    } else {
-      throw new Exception('Unknown package: $package. Did you forget a '
-          'dependency in your .streamy.yaml file?');
-    }
+    var importPrefix = depsByPackage[package].prefix;
+    return new TypeRef.dependency(shortTypeName, importPrefix);
   }
 }

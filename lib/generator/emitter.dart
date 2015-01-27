@@ -182,6 +182,9 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
     }
     var schemas = processSchemas();
     var deps = schemas.expand((schema) => schema.dependencies).toSet();
+    deps.addAll(api
+      .rpcExternalDependencies
+      .map((type) => type.importedFrom));
     objectFile.classes.addAll(schemas.map((schema) => schema.clazz));
     objectFile.typedefs.addAll(schemas.map((schema) => schema.globalDef)
         .where((v) => v != null));
