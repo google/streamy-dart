@@ -512,9 +512,9 @@ class DartTemplateBody implements DartBody {
 }
 
 class DartConstantBody implements DartBody {
-  String body;
+  final String body;
   
-  DartConstantBody(this.body);
+  const DartConstantBody(this.body);
   
   void render(StringBuffer out, int indent, {trailingNewline: true}) {
     var id = strings.repeat('  ', indent);

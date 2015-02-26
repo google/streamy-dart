@@ -90,7 +90,6 @@ class Config {
   bool removers = true;
   bool known = false;
   bool global = false;
-
   List<SendParam> sendParams = [];
   
   Config();

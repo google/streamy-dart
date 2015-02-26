@@ -4,9 +4,9 @@
      data[name] = data.remove(key);
    }
   });{{/hasFieldMapping}}{{#hasInt64s}}
-  streamy.unmarshalInt64s(_int64s{{name}}, data); {{/hasInt64s}}{{#hasDoubles}}
-  streamy.unmarshalDoubles(_doubles{{name}}, data); {{/hasDoubles}}{{#hasEntities}}
-  streamy.handleEntities(_entities{{name}}, data, false); {{/hasEntities}}
+  streamy.unmarshalInt64s(_int64s{{name}}, data, lazy: lazy); {{/hasInt64s}}{{#hasDoubles}}
+  streamy.unmarshalDoubles(_doubles{{name}}, data, lazy: lazy); {{/hasDoubles}}{{#hasEntities}}
+  streamy.handleEntities(_entities{{name}}, data, false, lazy: lazy); {{/hasEntities}}
   return new {{entity}}{{#fromFields}}(){{#fields}}
      ..{{identifier}} = data[r'{{key}}']{{/fields}}{{/fromFields}}{{^fromFields}}.wrap(data){{/fromFields}};
 }

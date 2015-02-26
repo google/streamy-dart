@@ -418,6 +418,40 @@ main() {
           '{"facets":[[{"anchor":"a"},{"anchor":"b"}],[],null,[null]]}');
     });
   });
+  group('Lazy deserialization', () {
+    // Construct Bar object with nested Foos and a Marshaller.
+    var f1 = new Foo()..id = 1;
+    var f2 = new Foo()..id = 2;
+    var bar = new Bar()..foos = [f1, f2];
+    var m = new Marshaller();
+    test('deserializes array elements into lazy form', () {
+      // Now serialize Bar. This is the map that will be deserialized and will
+      // contain lazy value references.
+      var map = streamy.jsonMarshal(bar);
+      
+      // Deserialize the above map lazily.
+      m.unmarshalBar(map, lazy: true);
+      
+      // Expect that the list will be lazy.
+      expect(map['foos'], new isInstanceOf<streamy.LazyList>());
+      
+      // Expect that the items in the list are lazy.
+      expect(map['foos'].delegate[0], new isInstanceOf<streamy.Lazy>());
+      expect(map['foos'].delegate[1], new isInstanceOf<streamy.Lazy>());
+    });
+    test('lazily constructs objects', () {
+      // Construct Bar object with nested Foos and a Marshaller.
+      var b = m.unmarshalBar(streamy.jsonMarshal(bar), lazy: true);
+      
+      expect(b.foos[0], new isInstanceOf<Foo>());
+      expect(b.foos[1].id, 2);
+    });
+    test('is opt-in', () {
+      var map = streamy.jsonMarshal(bar);
+      m.unmarshalBar(map);
+      expect(map['foos'], isNot(new isInstanceOf<streamy.Lazy>()));
+    });
+  });
 }
 
 class FooSubclass extends Foo {

@@ -6,14 +6,14 @@ import 'package:streamy/streamy.dart';
 import 'proto_client.dart';
 
 main() {
+  var f = new Foo()
+    ..name = 'Foo Test Object'
+    ..other = [
+      new Bar()..name = 'Bar #1',
+      new Bar()..name = 'Bar #2'
+    ];
+  var m = new Marshaller();
   group('ProtoTest', () {
-    var f = new Foo()
-      ..name = 'Foo Test Object'
-      ..other = [
-        new Bar()..name = 'Bar #1',
-        new Bar()..name = 'Bar #2'
-      ];
-    var m = new Marshaller();
     test('Serializes with tag numbers', () {
       var fm = m.marshalFoo(f);
       expect(fm, containsPair('2', 'Foo Test Object'));
@@ -63,6 +63,19 @@ main() {
       var map = {'4': 1};
       var bar = const Marshaller().unmarshalBar(map);
       expect(bar.ev, TestEnum.ALPHA);
+    });
+  });
+  group('Lazy deserialization for protos', () {
+    test('works for a proto', () {
+      var fm = m.marshalFoo(f);
+      var res = m.unmarshalFoo(fm, lazy: true);
+      expect(fm['other'], new isInstanceOf<LazyList>());
+      expect(fm['other'].delegate[0], new isInstanceOf<Lazy>());
+      expect(fm['other'].delegate[1], new isInstanceOf<Lazy>());
+      expect(res.other[0].name, 'Bar #1');
+      expect(res.other[1].name, 'Bar #2');
+      expect(fm['other'].delegate[0], new isInstanceOf<Bar>());
+      expect(fm['other'].delegate[1], new isInstanceOf<Bar>());
     });
   });
 }

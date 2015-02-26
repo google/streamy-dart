@@ -175,12 +175,14 @@ class ProtobufMarshallerEmitter
       ..parameters.add(new DartParameter('entity', type)));
     _marshallerClass.methods.add(new DartMethod('unmarshal$name', type,
     new DartTemplateBody(unmarshal, serializerConfig))
-      ..parameters.add(new DartParameter('data', rt)));
+      ..parameters.add(new DartParameter('data', rt))
+      ..namedParameters.add(new DartNamedParameter('lazy', const DartType.boolean(), defaultValue: const DartConstantBody('false'))));
     _marshallerClass.methods.add(new DartMethod(makeHandlerName(schema.name),
     const DartType.dynamic(),
     new DartTemplateBody(templates['marshal_handle'], {'type': name}))
       ..parameters.add(new DartParameter('data', const DartType.dynamic()))
-      ..parameters.add(new DartParameter('marshal', const DartType.boolean())));
+      ..parameters.add(new DartParameter('marshal', const DartType.boolean()))
+      ..namedParameters.add(new DartNamedParameter('lazy', const DartType.boolean(), defaultValue: const DartConstantBody('false'))));
   }
   
   void _processEnumForMarshaller(Enum enumDef) {
@@ -191,12 +193,14 @@ class ProtobufMarshallerEmitter
         ..parameters.add(new DartParameter('value', type)));
     _marshallerClass.methods.add(new DartMethod('unmarshal$name', type,
         new DartConstantBody('=> $name.mapping[value];'))
-        ..parameters.add(new DartParameter('value', const DartType.integer())));
+        ..parameters.add(new DartParameter('value', const DartType.integer()))
+        ..namedParameters.add(new DartNamedParameter('lazy', const DartType.boolean(), defaultValue: const DartConstantBody('false'))));  
     _marshallerClass.methods.add(new DartMethod(makeHandlerName(enumDef.name),
     const DartType.dynamic(),
     new DartTemplateBody(templates['marshal_handle'], {'type': name}))
       ..parameters.add(new DartParameter('data', const DartType.dynamic()))
-      ..parameters.add(new DartParameter('marshal', const DartType.boolean())));
+      ..parameters.add(new DartParameter('marshal', const DartType.boolean()))
+        ..namedParameters.add(new DartNamedParameter('lazy', const DartType.boolean(), defaultValue: const DartConstantBody('false'))));
   }
   
   Iterable<String> _marshallerImportsForType(TypeRef ref) {

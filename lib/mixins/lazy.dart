@@ -6,8 +6,8 @@ class Lazy {
   
   operator[](String key) {
     var value = super[key];
-    if (value is streamy.LazyValue) {
-      value = value.unwrap();
+    if (value is streamy.Lazy) {
+      value = value.resolve();
       super[key] = value;
     }
     return value;
@@ -15,8 +15,8 @@ class Lazy {
   
   remove(String key) {
     var value = super.remove(key);
-    if (value is streamy.LazyValue) {
-      value = value.unwrap();
+    if (value is streamy.Lazy) {
+      value = value.resolve();
     }
     return value;
   }
