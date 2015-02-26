@@ -13,7 +13,8 @@ class DotAccess {
     return cur;
   }
   
-  bool containsKey(String key) {
+  bool containsKey(Object key) {
+    if (key is! String) return false;
     if (!key.contains('.')) {
       return super.containsKey(key);
     }
@@ -26,7 +27,7 @@ class DotAccess {
     return target.containsKey(last);
   }
 
-  operator[](String key) {
+  operator[](Object key) {
     if (!key.contains('.')) {
       return super[key];
     }
@@ -50,7 +51,8 @@ class DotAccess {
     target[last] = value;
   }
   
-  remove(String key) {
+  remove(Object key) {
+    if (key is! String) return;
     if (!key.contains('.')) {
       return super.remove(key);
     }

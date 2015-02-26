@@ -1,5 +1,5 @@
 name: streamy
-version: 0.2.2-dev.1
+version: 0.2.2-dev.2
 description: >
   An experimental client API generator for services described using Google's API
   discovery format (https://developers.google.com/discovery/v1/using#discovery-doc).
@@ -19,6 +19,7 @@ dependencies:
   fixnum: ">=0.9.0 <0.10.0"
   observe: ">=0.12.0 <0.13.0"
   quiver: ">=0.18.0 <0.20.0"
+  smoke: ">=0.3.1 <0.4.0"
   yaml: ">=2.0.0 <3.0.0"
 dev_dependencies:
   analyzer: ">=0.22.0 <0.24.0"

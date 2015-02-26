@@ -6,12 +6,12 @@ class MapBase implements streamy.DynamicAccess {
   var _map;
   
   Iterable<String> get keys => _map.keys;
-  bool containsKey(String key) => _map.containsKey(key);
-  operator[](String key) => _map[key];
+  bool containsKey(Object key) => _map.containsKey(key);
+  operator[](Object key) => _map[key];
   operator[]=(String key, value) {
     _map[key] = value;
   }
-  remove(String key) => _map.remove(key);
+  remove(Object key) => _map.remove(key);
 }
 
 Map getMap(MapBase entity) => entity._map;

@@ -6,7 +6,7 @@ class CopyClone implements streamy.Cloneable {
 
   dynamic clone();
   
-  copyInto(other) {
+  copyInto(streamy.DynamicAccess other) {
     for (var key in keys) {
       other[key] = _cloneHelper(super[key]);
     }

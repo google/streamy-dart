@@ -74,7 +74,7 @@ class FastFieldAccessor<S extends Entity, T> {
     if (memoized != null) {
       return memoized;
     }
-    var current = entity;
+    dynamic current = entity;
     var i = 0;
     while (current != null && i < _pieces.length) {
       current = current[_pieces[i++]];
@@ -93,7 +93,8 @@ class FastComparator<S extends Entity, T> {
   final FastFieldAccessor<S, T> accessor;
   final Comparator<T> comparator;
 
-  FastComparator(String field) : this.withComparator(field, Comparable.compare);
+  FastComparator(String field)
+      : this.withComparator(field, Comparable.compare as Comparator<T>);
 
   FastComparator.withComparator(String field, this.comparator) :
       accessor = new FastFieldAccessor<S, T>(field);

@@ -16,7 +16,7 @@ class Immutability implements streamy.Freezeable {
     super[key] = value;
   }
   
-  remove(String key) {
+  remove(Object key) {
     if (_isFrozen) {
       throw new UnsupportedError("Frozen.");
     }

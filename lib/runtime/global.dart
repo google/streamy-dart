@@ -4,9 +4,6 @@ part of streamy.runtime;
 /// property given an [Entity].
 typedef dynamic EntityGlobalFn(entity);
 
-typedef Stream GlobalStreamDepFn();
-typedef Stream GlobalStreamEntityDepFn(entity);
-
 /// Memoize an [EntityGlobalFn] so it only runs once per entity. This is done using an [Expando]
 /// to ensure GC safety.
 EntityGlobalFn _memoizeGlobalFn(EntityGlobalFn fn) {
@@ -38,7 +35,7 @@ class GlobalRegistration {
   }
 
   static void _validateDep(dep) {
-    if (dep is String || dep is GlobalStreamDepFn || dep is GlobalStreamEntityDepFn || dep is Stream) {
+    if (dep is String || (dep is Function && smoke.minArgs(dep) < 2) || dep is Stream) {
       return;
     }
     throw new ArgumentError('Invalid dep type: ${dep.runtimeType} ($dep)');
@@ -46,15 +43,15 @@ class GlobalRegistration {
 }
 
 abstract class _FakeMap {
-  get isEmpty => throw "Not implemented";
-  get isNotEmpty => throw "Not implemented";
-  get keys => throw "Not implemented";
-  get values => throw "Not implemented";
-  get length => throw "Not implemented";
+  bool get isEmpty => throw "Not implemented";
+  bool get isNotEmpty => throw "Not implemented";
+  Iterable get keys => throw "Not implemented";
+  Iterable get values => throw "Not implemented";
+  int get length => throw "Not implemented";
   operator[]=(_a, _b) => throw "Not implemented";
   addAll(_) => throw "Not implemented";
   clear() => throw "Not implemented";
-  containsValue(_) => throw "Not implemented";
+  bool containsValue(Object _) => throw "Not implemented";
   forEach(_) => throw "Not implemented";
   putIfAbsent(_a, _b) => throw "Not implemented";
   remove(_) => throw "Not implemented";
@@ -72,8 +69,8 @@ abstract class GlobalView extends Observable with _FakeMap implements Map {
   /// A global view that doesn't have any globals.
   factory GlobalView.empty() => new _EmptyGlobalView();
 
-  bool containsKey(String key);
-  operator[](String key);
+  bool containsKey(Object key);
+  operator[](Object key);
   
   static void register(Type type, String name, GlobalRegistration global) {
     typeToGlobals.putIfAbsent(type, () => {})[name] = global;
@@ -105,8 +102,8 @@ class _GlobalViewImpl extends ChangeNotifier with _FakeMap implements GlobalView
     return _changeController.stream;
   }
 
-  bool containsKey(String key) => _globals.containsKey(key);
-  operator[](String key) {
+  bool containsKey(Object key) => _globals.containsKey(key);
+  operator[](Object key) {
     if (!_globals.containsKey(key)) {
       return null;
     }
@@ -127,10 +124,10 @@ class _GlobalViewImpl extends ChangeNotifier with _FakeMap implements GlobalView
           if (dep is String) {
             stream = _entity.changes.where(
                 (changes) => changes.map((change) => change.key).contains(dep));
-          } else if (dep is GlobalStreamDepFn) {
-              stream = dep();
-          } else if (dep is GlobalStreamEntityDepFn) {
+          } else if (dep is Function && smoke.canAcceptNArgs(dep, 1)) {
             stream = dep(_entity);
+          } else if (dep is Function && smoke.canAcceptNArgs(dep, 0)) {
+            stream = dep();
           } else if (dep is Stream) {
             stream = dep;
           } else {
@@ -159,8 +156,8 @@ class _EmptyGlobalView extends Object with _FakeMap implements GlobalView {
 
   _EmptyGlobalView._useFactoryInstead();
 
-  bool containsKey(String key) => false;
-  operator[](String key) => null;
+  bool containsKey(Object key) => false;
+  operator[](Object key) => null;
   _entityChanged() {}
 
   Stream<List<ChangeRecord>> get changes {

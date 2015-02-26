@@ -29,6 +29,6 @@ class TransactionRoot extends Root {
 
   TransactionRoot(Transaction this._tx) : super();
 
-  Stream send(Request request) => _tx.send(request);
+  Stream<Response> send(Request request) => _tx.send(request);
   Future commit() => _tx.commit();
 }

@@ -116,14 +116,13 @@ class AsyncCacheWrapper<T> implements Cache<T> {
   }
 }
 
-class CachingRequestHandler<T> extends RequestHandler {
+class CachingRequestHandler<T> extends RequestHandler<HttpRequest> {
 
-  final delegate;
-  final cache;
-  var clock;
+  final RequestHandler delegate;
+  final Cache<T> cache;
+  Clock clock;
 
-  CachingRequestHandler(RequestHandler this.delegate, Cache<T> this.cache,
-      {Clock clock: null}) {
+  CachingRequestHandler(this.delegate, this.cache, {Clock clock: null}) {
     if (clock == null) {
       clock = const Clock();
     }

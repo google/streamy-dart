@@ -2,17 +2,17 @@ library streamy.trait.base.map;
 
 import 'package:streamy/streamy.dart' as streamy;
 
-class IsMap implements Map {
+class IsMap implements Map<String, dynamic> {
 
   // Methods provided by DynamicAccess
 
   Iterable<String> get keys => super.keys;
-  bool containsKey(String key) => super.containsKey(key);
-  operator[](String key) => super[key];
+  bool containsKey(Object key) => super.containsKey(key);
+  operator[](Object key) => super[key];
   operator[]=(String key, value) {
     super[key] = value;
   }
-  remove(String key) => super.remove(key);
+  remove(Object key) => super.remove(key);
 
   // Map methods implemented via DynamicAccess
 

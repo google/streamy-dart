@@ -1,33 +1,33 @@
 part of streamy.runtime;
 
 /// A function that handles Streamy RPC requests.
-typedef Stream<Response> RequestHandlingFunction(Request request);
+typedef Stream<Response> RequestHandlingFunction<R extends Request>(R request);
 typedef bool RequestPredicate(Request request);
 
 bool _alwaysTrue(Request _) => true;
 
 /// Defines interface for a request handler.
-abstract class RequestHandler {
+abstract class RequestHandler<R extends Request> {
   RequestHandler();
 
   /// Creates a request handler that delegates handling requests to a
   /// user-scpecified function. Convenient in tests and other situations.
-  factory RequestHandler.fromFunction(RequestHandlingFunction func) {
-    return new _FunctionRequestHandler(func);
+  factory RequestHandler.fromFunction(RequestHandlingFunction<R> func) {
+    return new _FunctionRequestHandler<R>(func);
   }
 
-  Stream<Response> handle(Request request, Trace trace);
+  Stream<Response> handle(R request, Trace trace);
   RequestHandler transform(transformerOrFactory, {RequestPredicate predicate: _alwaysTrue}) => transformerOrFactory is Function ?
       new TransformingRequestHandler(this, transformerOrFactory, predicate) :
       new TransformingRequestHandler(this, () => transformerOrFactory, predicate);
 }
 
-class _FunctionRequestHandler extends RequestHandler {
+class _FunctionRequestHandler<R extends Request> extends RequestHandler<R> {
   final RequestHandlingFunction _func;
 
-  _FunctionRequestHandler(RequestHandlingFunction this._func);
+  _FunctionRequestHandler(RequestHandlingFunction<R> this._func);
 
-  Stream<Response> handle(Request request, Trace trace) => _func(request);
+  Stream<Response> handle(R request, Trace trace) => _func(request);
 }
 
 /// Implementations of this interface provide concrete implementation of a
@@ -283,7 +283,7 @@ abstract class HttpRequest implements Request {
   }
 }
 
-class HttpRequestBase<P> extends HttpRequest {
+class HttpRequestBase<P extends DynamicAccess> extends HttpRequest {
   final String httpMethod;
   final String pathFormat;
   final String apiType;
@@ -293,13 +293,13 @@ class HttpRequestBase<P> extends HttpRequest {
 
   HttpRequestBase.noPayload(HttpRoot root, this.httpMethod, this.pathFormat,
       this.apiType, this.pathParameters, this.queryParameters)
-          : super(root),
-            hasPayload = false;
+          : hasPayload = false,
+            super(root);
 
   HttpRequestBase.withPayload(HttpRoot root, this.httpMethod, this.pathFormat,
       this.apiType, this.pathParameters, this.queryParameters, P payload)
-         : super(root, payload),
-           hasPayload = true;
+         : hasPayload = true,
+           super(root, payload);
 }
 
 class BranchingRequestHandlerBuilder {
@@ -336,7 +336,7 @@ class _BranchingRequestHandler extends RequestHandler {
 
   _BranchingRequestHandler(this._delegate, this._typeMap);
 
-  Stream handle(Request request, Trace trace) {
+  Stream<Response> handle(Request request, Trace trace) {
     if (!_typeMap.containsKey(request.runtimeType)) {
       return _delegate.handle(request, trace);
     }

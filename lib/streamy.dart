@@ -11,6 +11,7 @@ import 'package:observe/observe.dart';
 import 'package:quiver/collection.dart';
 import 'package:quiver/iterables.dart';
 import 'package:quiver/time.dart';
+import 'package:smoke/smoke.dart' as smoke;
 
 part 'runtime/api.dart';
 part 'runtime/batching.dart';

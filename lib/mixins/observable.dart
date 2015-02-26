@@ -55,7 +55,7 @@ class Observability implements observe.Observable {
     super[key] = value;
   }
 
-  remove(String key) {
+  remove(Object key) {
     if (hasObservers) {
       notifyChange(new observe.MapChangeRecord<String, dynamic>.remove(key, super[key]));
     }

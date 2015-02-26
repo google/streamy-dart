@@ -6,7 +6,7 @@ class Global implements streamy.HasGlobal {
 
   var _global;
   
-  operator[](String key) => key == 'global' ? global : super[key];
+  operator[](Object key) => key == 'global' ? global : super[key];
   
   streamy.GlobalView get global {
     if (_global == null) {

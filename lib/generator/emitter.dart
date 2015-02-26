@@ -251,8 +251,9 @@ class _EmitterContext extends EmitterBase implements EmitterContext {
           defaultValue: new DartConstantBody("r'${api.httpConfig.servicePath}'")));
     }
     root.methods.add(ctor);
-    
-    var send = new DartMethod('send', new DartType('Stream', null, const []),
+
+    var send = new DartMethod('send',
+      new DartType.stream(streamyImport('Response')),
       new DartTemplateBody(_template('root_send'), {})
     )
       ..parameters.add(new DartParameter('request', streamyImport('Request')));

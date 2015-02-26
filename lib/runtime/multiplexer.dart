@@ -40,7 +40,7 @@ class ActiveRequest {
 /// the primary [Response] for the original [Request]. If this happens, any
 /// responses with PRIMARY authority delivered to other active [Stream]s will be
 /// downgraded to SECONDARY authority, until the primary response is received.
-class MultiplexingRequestHandler extends RequestHandler {
+class MultiplexingRequestHandler extends RequestHandler<HttpRequest> {
 
   final RequestHandler delegate;
   final map = new SetMultimap<Request, ActiveRequest>();
