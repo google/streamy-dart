@@ -1,26 +1,34 @@
-# Use this script to bootstrap your Cloud9 environment. This script:
-#  - Tests SSH connection to GitHub
-#  - Upgrades to the latest Dart SDK
+# Helper script to get a VM, like the one provided in Cloud 9, to work with
+# Streamy. It installs the Dart SDK and sets up environment variables to use.
+#
+# Usage:
+# ./c9.sh
+#
+# Flags:
+# --skip-install: Just configures the environment and outputs SDK versions.
+if [ "$1" != '--skip-install' ]; then
+  # Install Dart.
+  echo "Downloading the latest Dart SDK"
 
-set +e
-echo "Testing connection to GitHub"
-ssh -T "git@github.com"
-SSH_RETURN_CODE=$?
-set -e
+  # Enable HTTPS for apt.
+  sudo apt-get update
+  sudo apt-get install apt-transport-https
 
-# Because GitHub doesn't allow shell access the return code is 1 for success
-# and (afaik) 255 for failure.
-[ $SSH_RETURN_CODE -ne 1 ] && echo "Connection to GitHub failed" && exit 1
+  # Get the Google Linux package signing key.
+  sudo sh -c 'curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
 
-echo "Downloading the latest Dart SDK"
-rm -f "./dartsdk-linux-64.tar.gz"
-wget --tries=3 "http://storage.googleapis.com/dart-editor-archive-integration/latest/dartsdk-linux-64.tar.gz"
+  # Set up the location of the stable repository.
+  sudo sh -c 'curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
 
-echo "Updating Dart SDK"
-rm -Rf ./dart-sdk
-tar -zxvf "./dartsdk-linux-64.tar.gz"
+  echo "Updating Dart SDK"
+  sudo apt-get update
+  sudo apt-get install dart
+fi
 
-echo "Make sure" `git config user.email` "is registered in your GitHub's Account Settings > Emails."
-echo "Make sure" `git config user.name` "is your GitHub user account name."
-echo "Make sure to add your Cloud9 SSH key to your GitHub's Account Settings > SSH Keys, which you can find on your Cloud9 Dashboard (look for 'Show your SSH key'."
+echo "Configurating environment variables for Dart"
+export PATH=$PATH:/usr/lib/dart/bin
+
+dart --version
+pub --version
+
 echo "Done."
