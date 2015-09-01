@@ -493,7 +493,7 @@ class DartTemplateBody implements DartBody {
     var id = strings.repeat('  ', indent);
     var first = true;
     template
-      .renderString(data, htmlEscapeValues: false)
+      .renderString(data)
       .trim()
       .split('\n')
       .forEach((line) {

@@ -24,7 +24,7 @@ class DefaultTemplateLoader implements TemplateLoader {
     var templateFile =
         new io.File('${templateDir}/${templateName}.mustache');
     return templateFile.readAsString()
-      .then(mustache.parse);
+      .then((source) => new mustache.Template(source, htmlEscapeValues: false));
   }
 }
 
@@ -47,6 +47,7 @@ class FileTemplateLoader implements TemplateLoader {
     if (!f.existsSync()) {
       return null;
     }
-    return f.readAsString().then(mustache.parse);
+    return f.readAsString()
+      .then((source) => new mustache.Template(source, htmlEscapeValues: false));
   }
 }

@@ -121,8 +121,7 @@ Future generateStreamyClientPackage(
           'homepage': homepage,
           'streamy_version': streamyVersion,
       };
-      pubspecFile.writeAsStringSync(
-          pubspecTemplate.renderString(pubspecData, htmlEscapeValues: false));
+      pubspecFile.writeAsStringSync(pubspecTemplate.renderString(pubspecData));
     });
   });
 }
