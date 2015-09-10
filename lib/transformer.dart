@@ -101,7 +101,7 @@ class AssetTemplateLoader implements TemplateLoader {
   Future<mustache.Template> load(String name) => transform
     .getInput(new AssetId('streamy', 'lib/templates/$name.mustache'))
     .then((asset) => asset.readAsString())
-    .then(mustache.parse);
+    .then((source) => new mustache.Template(source, htmlEscapeValues: false));
 }
 
 class MixologistYamlTransformer extends Transformer {
