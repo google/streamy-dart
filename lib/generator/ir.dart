@@ -133,7 +133,7 @@ class Field {
 class TypeRef {
   final String base;
   
-  TypeRef(this.base);
+  const TypeRef(this.base);
   
   const TypeRef.integer() : this('integer');
   const TypeRef.string() : this('string');
