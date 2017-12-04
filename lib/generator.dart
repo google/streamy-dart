@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:mustache/mustache.dart' as mustache;
-import 'package:quiver/strings.dart' as strings;
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:path/path.dart' as path;
 import 'package:streamy/generator/config.dart';
