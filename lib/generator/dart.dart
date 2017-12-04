@@ -1,7 +1,6 @@
 library streamy.generator.dart;
 
 import 'package:mustache/mustache.dart' as mustache;
-import 'package:quiver/strings.dart' as strings;
 
 abstract class DartNamed {
   String get name;
@@ -142,7 +141,7 @@ class DartClass implements DartNamed {
       this.isAbstract: false});
   
   void render(StringBuffer out, int indent) {
-    var id = strings.repeat('  ', indent);
+    var id = '  ' * indent;
     comments.forEach((line) {
       out
         ..write(id)
@@ -217,7 +216,7 @@ class DartTypedef implements DartNamed {
   DartTypedef(this.name, this.returnType);
   
   void render(StringBuffer out, int indent) {
-    out.write(strings.repeat('  ', indent));
+    out.write('  ' * indent);
     out.write('typedef ');
     if (returnType != null) {
       returnType.render(out);
@@ -250,7 +249,7 @@ class DartMethod {
       this.comments: null});
   
   void render(StringBuffer out, int indent) {
-    var id = strings.repeat('  ', indent);
+    var id = '  ' * indent;
     if (comments != null && comments.isNotEmpty) {
       comments.forEach((line) {
         out
@@ -324,7 +323,7 @@ class DartConstructor implements DartMethod {
   }
 
   void render(StringBuffer out, int indent) {
-    var spacing = strings.repeat('  ', indent);
+    var spacing = '  ' * indent;
     out.write(spacing);
     if (isConst) {
       out.write('const ');
@@ -422,7 +421,7 @@ class DartSimpleField implements DartField {
       this.isStatic: false, this.isConst: false, this.initializer});
   
   void render(StringBuffer out, int indent) {
-    out.write(strings.repeat('  ', indent));
+    out.write('  ' * indent);
     if (isStatic) {
       out.write('static ');
     }
@@ -459,7 +458,7 @@ class DartComplexField implements DartField {
       this(name, type, getterBody, null);
   
   void render(StringBuffer out, int indent) {
-    out.write(strings.repeat('  ', indent));
+    out.write('  ' * indent);
     type.render(out);
     out
       ..write(' get ')
@@ -468,7 +467,7 @@ class DartComplexField implements DartField {
     getterBody.render(out, indent);
     if (setterBody != null) {
       out
-        ..write(strings.repeat('  ', indent))
+        ..write('  ' * indent)
         ..write('void set ')
         ..write(name)
         ..write('(');
@@ -490,7 +489,7 @@ class DartTemplateBody implements DartBody {
   DartTemplateBody(this.template, this.data);
   
   void render(StringBuffer out, int indent, {trailingNewline: true}) {
-    var id = strings.repeat('  ', indent);
+    var id = '  ' * indent;
     var first = true;
     template
       .renderString(data)
@@ -517,7 +516,7 @@ class DartConstantBody implements DartBody {
   const DartConstantBody(this.body);
   
   void render(StringBuffer out, int indent, {trailingNewline: true}) {
-    var id = strings.repeat('  ', indent);
+    var id = '  ' * indent;
     var first = true;
     body
       .trim()
