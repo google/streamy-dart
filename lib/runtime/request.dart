@@ -54,7 +54,7 @@ RegExp pathRegex = new RegExp(r'(\{[^\}]+\})');
 
 abstract class Request {
   Root get root;
-  
+
   bool get isCachable;
 }
 
@@ -69,7 +69,7 @@ abstract class HttpRequest implements Request {
 
   /// Request parameters.
   final Map<String, dynamic> parameters = {};
-  
+
   /// Other parameters.
   final Map<String, dynamic> localParameters = {};
 
@@ -81,8 +81,16 @@ abstract class HttpRequest implements Request {
   /// The HTTP method of this request.
   String get httpMethod;
 
+  /// User overridable value of isCachable. If null, the default value is used.
+  bool _isCachable = null;
+
   /// Whether this is cachable.
-  bool get isCachable => httpMethod == 'GET';
+  bool get isCachable => _isCachable != null
+      ? _isCachable
+      : httpMethod == 'GET';
+
+  /// Sets whether or not this is cachable.
+  set isCachable(bool isCachable) => _isCachable = isCachable;
 
   /// Format of the request path.
   String get pathFormat;
